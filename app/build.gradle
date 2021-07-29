@@ -34,8 +34,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     packagingOptions {
         exclude '/META-INF/**'
@@ -44,7 +44,7 @@ android {
     }
 }
 
-def optimizeReleaseResources = task('optimizeReleaseResources').doLast {
+def shrinkReleaseRes = task('shrinkReleaseRes').doLast {
     def aapt2 = Paths.get(project.android.sdkDirectory.path, 'build-tools', project.android.buildToolsVersion, 'aapt2')
     def zip = Paths.get(project.buildDir.path, 'intermediates',
             'processed_res', 'release', 'out', "resources-release.ap_")
@@ -62,8 +62,8 @@ def optimizeReleaseResources = task('optimizeReleaseResources').doLast {
 }
 
 tasks.whenTaskAdded { task ->
-    if (task.name == 'processReleaseResources') {
-        task.finalizedBy optimizeReleaseResources
+    if (task.name == 'shrinkReleaseRes') {
+        task.finalizedBy shrinkReleaseRes
     }
 }
 

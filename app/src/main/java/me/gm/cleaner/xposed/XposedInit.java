@@ -1,6 +1,8 @@
 package me.gm.cleaner.xposed;
 
-import android.content.Context;
+import android.util.Log;
+
+import java.io.File;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -15,37 +17,14 @@ public class XposedInit extends XposedContext implements IXposedHookLoadPackage 
         if (!lpparam.packageName.equals("com.android.providers.media.module")) return;
         sClassLoader = lpparam.classLoader;
 
-        DevelopUtils.logMethods("com.android.providers.media.MediaDocumentsProvider");
-        DevelopUtils.logMethods(findInnerClass("AlbumQuery"));
-        DevelopUtils.logMethods(findInnerClass("ArtistQuery"));
-        DevelopUtils.logMethods(findInnerClass("DocumentQuery"));
-        DevelopUtils.logMethods(findInnerClass("DocumentsBucketQuery"));
-        DevelopUtils.logMethods(findInnerClass("Ident"));
-        DevelopUtils.logMethods(findInnerClass("ImageQuery"));
-        DevelopUtils.logMethods(findInnerClass("ImagesBucketQuery"));
-        DevelopUtils.logMethods(findInnerClass("ImagesBucketThumbnailQuery"));
-        DevelopUtils.logMethods(findInnerClass("SongQuery"));
-        DevelopUtils.logMethods(findInnerClass("VideosQuery"));
-        DevelopUtils.logMethods(findInnerClass("VideosBucketQuery"));
-        DevelopUtils.logMethods(findInnerClass("VideosBucketThumbnailQuery"));
-        Class<?> providerClass = XposedHelpers.findClass("com.android.providers.media.MediaDocumentsProvider", sClassLoader);
-        XposedHelpers.findAndHookMethod(providerClass, "onMediaStoreInsert",
-                Context.class, String.class, int.class, long.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log((String) param.args[1]);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(providerClass, "onMediaStoreDelete",
-                Context.class, String.class, int.class, long.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log((String) param.args[1]);
-                    }
-                });
-    }
-
-    Class<?> findInnerClass(String innerClassName) {
-        return XposedHelpers.findClass("com.android.providers.media.MediaDocumentsProvider$" + innerClassName, sClassLoader);
+        DevelopUtils.logMethods("com.android.providers.media.MediaProvider");
+        XposedHelpers.findAndHookMethod(File.class, "mkdirs", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                String path = (String) XposedHelpers.getObjectField(param.thisObject, "path");
+                XposedBridge.log(path);
+                XposedBridge.log(Log.getStackTraceString(new Exception()));
+            }
+        });
     }
 }
