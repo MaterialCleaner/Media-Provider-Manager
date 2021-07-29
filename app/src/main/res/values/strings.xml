@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Media Provider Hooker</string>
+    <string name="description">Controller of Media Storage</string>
+</resources>
