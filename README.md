@@ -1,10 +1,10 @@
-# Media Store Hooker
+# Media Provider Manager
 
 Xposed plugin of Cleaner
 
 [![Chat](https://img.shields.io/badge/Telegram-Chat-blue.svg?logo=telegram)](https://t.me/TabSwitch)
-[![Stars](https://img.shields.io/github/stars/GuhDoy/TiebaTS?label=Stars)](https://github.com/GuhDoy/Media-Store-Hooker)
-[![Download](https://img.shields.io/github/v/release/GuhDoy/TiebaTS?label=Download)](https://github.com/GuhDoy/Media-Store-Hooker/releases/latest)
+[![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/GuhDoy/Media-Provider-Manager)
+[![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
 
 ## Features
 
@@ -12,11 +12,11 @@ Xposed plugin of Cleaner
 
 ## Source code
 
-[https://github.com/GuhDoy/Media-Store-Hooker](https://github.com/GuhDoy/Media-Store-Hooker)
+[https://github.com/GuhDoy/Media-Provider-Manager](https://github.com/GuhDoy/Media-Provider-Manager)
 
 ## Releases
 
-[Github Release](https://github.com/GuhDoy/Media-Store-Hooker/releases/latest)
+[Github Release](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
 
 ## License
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_primary_light">@color/material_green_300</color>
+    <color name="color_primary_dark">@color/material_light_green_300</color>
+    <color name="color_primary">@color/color_primary_light</color>
+</resources>

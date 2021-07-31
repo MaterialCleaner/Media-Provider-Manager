@@ -4,6 +4,7 @@ import org.eclipse.jgit.internal.storage.file.FileRepository
 import java.nio.file.Paths
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 def repo = new FileRepository(rootProject.file(".git"))
 def refId = repo.refDatabase.exactRef("refs/remotes/origin/main").objectId
@@ -11,19 +12,20 @@ def gitCommitCount = new Git(repo).log().add(refId).call().size()
 
 android {
     compileSdkVersion 31
-    buildToolsVersion '30.0.3'
+    buildToolsVersion '31.0.0'
     defaultConfig {
-        applicationId 'me.gm.cleaner.xposed'
+        applicationId 'me.gm.cleaner.plugin'
         minSdkVersion 24
         targetSdkVersion 31
         versionCode gitCommitCount
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
+        resConfigs 'en', 'zh-rCN', 'zh-rTW'
     }
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "Media Provider Hooker_${defaultConfig.versionName}-${variant.buildType.name}.apk"
+            outputFileName = "Media Provider Manager_${defaultConfig.versionName}-${variant.buildType.name}.apk"
         }
     }
     buildTypes {
@@ -32,6 +34,9 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        viewBinding true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -69,6 +74,26 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     compileOnly files('libs/XposedBridgeApi-89.jar')
-    api 'androidx.annotation:annotation:1.2.0'
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.fragment:fragment-ktx:1.3.6'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    def androidx_lifecycle_version = '2.3.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
+
+    implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
+    implementation 'dev.rikka.rikkax.material:material:1.6.5'
+    implementation 'dev.rikka.rikkax.widget:borderview:1.0.1'
+    implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2'
+
+    def coil_version = '1.3.1'
+    implementation "io.coil-kt:coil:$coil_version"
+    implementation 'me.zhanghai.android.appiconloader:appiconloader:1.3.1'
+}
+
+configurations.all {
+    exclude group: 'androidx.appcompat', module: 'appcompat'
 }

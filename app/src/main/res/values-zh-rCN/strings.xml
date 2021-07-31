@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">媒体存储设备管理</string>
+    <string name="description">防止媒体存储滥用</string>
+
+    <!-- 主页 -->
+    <string name="module_active">模块已激活</string>
+    <string name="module_version">模块版本：%d</string>
+    <string name="app_management">应用管理</string>
+    <string name="enabled_app_count">对 %d 个应用启用</string>
+
+    <!-- Settings -->
+    <string name="sort_title">排序方式</string>
+    <string name="menu_sort_by_name_title">应用名</string>
+    <string name="menu_sort_by_update_time_title">更新时间</string>
+</resources>

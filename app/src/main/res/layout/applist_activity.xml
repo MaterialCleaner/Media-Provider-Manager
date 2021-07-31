@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@android:id/hint"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
+    app:consumeSystemWindowsInsets="start|end"
+    app:edgeToEdge="true"
+    app:fitSystemWindowsInsets="start|end">
+
+    <me.gm.cleaner.plugin.widget.ThemedBorderSwipeRefreshLayout
+        android:id="@android:id/list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <rikka.widget.borderview.BorderRecyclerView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fadeScrollbars="true"
+            android:paddingTop="?actionBarSize"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical"
+            app:borderBottomVisibility="never"
+            app:borderTopDrawable="@null"
+            app:borderTopVisibility="whenTop"
+            app:fitSystemWindowsInsets="top|bottom" />
+    </me.gm.cleaner.plugin.widget.ThemedBorderSwipeRefreshLayout>
+
+    <include layout="@layout/appbar" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

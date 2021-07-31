@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="button_margin_vertical">4dp</dimen>
+    <dimen name="button_margin_horizontal">8dp</dimen>
+    <dimen name="preference_header_bottom">8dp</dimen>
+    <dimen name="screen_edge_margin">16dp</dimen>
+    <dimen name="preference_header_top">24dp</dimen>
+    <dimen name="icon_center_from_screen_edge_margin">28dp</dimen>
+    <dimen name="content_start_from_screen_edge_margin">72dp</dimen>
+    <dimen name="content_start_from_screen_edge_margin_minus_screen_edge_margin">56dp</dimen>
+    <dimen name="large_icon_size">40dp</dimen>
+    <dimen name="icon_size">32dp</dimen>
+    <dimen name="small_icon_size">24dp</dimen>
+    <dimen name="color_picker_margin">6dp</dimen>
+    <dimen name="actionbar_size_add_tab_height">104dp</dimen>
+</resources>

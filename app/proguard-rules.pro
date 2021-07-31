@@ -1,5 +1,9 @@
--repackageclasses "me.gm.cleaner.xposed"
+-repackageclasses "me.gm.cleaner.plugin"
 
 -overloadaggressively
 
--keep class me.gm.cleaner.xposed.XposedInit
+-keep class me.gm.cleaner.plugin.xposed.XposedInit
+
+-keepclasseswithmembers class me.gm.cleaner.plugin.BinderReceiver {
+    private static android.os.IBinder binder;
+}

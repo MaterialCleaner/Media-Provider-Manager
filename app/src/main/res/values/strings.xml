@@ -1,4 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Media Provider Hooker</string>
-    <string name="description">Controller of Media Storage</string>
+    <string name="app_name">Media Provider Manager</string>
+    <string name="description">An Xposed module intended to prevent media storage abuse.</string>
+
+    <!-- Home -->
+    <string name="module_active">Module Activated</string>
+    <string name="module_version">Module version: %d</string>
+    <string name="app_management">App Management</string>
+    <string name="enabled_app_count">Enabled for %d app(s)</string>
+
+    <!-- Settings -->
+    <string name="sort_key" translatable="false">sort</string>
+    <string name="sort_title">Sort by</string>
+    <string name="menu_sort_by_name_title">App name</string>
+    <string name="menu_sort_by_update_time_title">Update time</string>
+
+    <string name="display_name" translatable="false">_display_name</string>
+    <string name="relative_path" translatable="false">relative_path</string>
+    <string name="mime_type" translatable="false">mime_type</string>
 </resources>
