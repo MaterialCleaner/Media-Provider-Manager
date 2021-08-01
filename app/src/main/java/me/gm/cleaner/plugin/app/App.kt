@@ -17,7 +17,11 @@
 package me.gm.cleaner.plugin.app
 
 import android.app.Application
+import coil.Coil
+import coil.ImageLoader
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.zhanghai.android.appiconloader.coil.AppIconFetcher
 import rikka.material.app.DayNightDelegate
 import rikka.material.app.LocaleDelegate
 import java.util.*
@@ -29,5 +33,13 @@ class App : Application() {
         LocaleDelegate.defaultLocale = Locale.getDefault()
         DayNightDelegate.setApplicationContext(this)
         DayNightDelegate.setDefaultNightMode(DayNightDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        val iconSize = resources.getDimensionPixelSize(R.dimen.large_icon_size)
+        Coil.setImageLoader(
+            ImageLoader.Builder(this)
+                .componentRegistry {
+                    add(AppIconFetcher(iconSize, false, this@App))
+                }
+                .build()
+        )
     }
 }

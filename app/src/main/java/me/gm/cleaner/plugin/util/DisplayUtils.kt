@@ -16,44 +16,62 @@
 
 package me.gm.cleaner.plugin.util
 
-import android.content.res.TypedArray
-import androidx.annotation.ColorInt
 import android.annotation.SuppressLint
 import android.content.Context
-import kotlin.jvm.Synchronized
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.Drawable
+import android.graphics.Color
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.appcompat.widget.AppCompatDrawableManager
 import me.gm.cleaner.plugin.R
+import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 object DisplayUtils {
-    fun getDimenByAttr(context: Context, attr: Int): Float {
-        val a = context.obtainStyledAttributes(intArrayOf(attr))
+    fun getFormattedLength(b: Float): String {
+        if (b == 0f) return "0 B"
+        val format = DecimalFormat("0.00")
+        val k = b / 1024
+        if (k < 1) return format.format(b.toDouble()) + " B"
+        val m = k / 1024
+        if (m < 1) return format.format(k.toDouble()) + " K"
+        val g = m / 1024
+        return if (g < 1) format.format(m.toDouble()) + " M" else format.format(g.toDouble()) + " G"
+    }
+
+    fun Context.getDimenByAttr(attr: Int): Float {
+        val a = obtainStyledAttributes(intArrayOf(attr))
         val dimen = a.getDimension(0, 0f)
         a.recycle()
         return dimen
     }
 
     @ColorInt
-    fun getColorByAttr(context: Context, attr: Int): Int {
-        val a = context.obtainStyledAttributes(intArrayOf(attr))
+    fun Context.getColorByAttr(attr: Int): Int {
+        val a = obtainStyledAttributes(intArrayOf(attr))
         val color = a.getColorStateList(0)!!.defaultColor
         a.recycle()
         return color
     }
 
+    fun withModulatedAlpha(
+        @ColorInt value: Int, @FloatRange(from = 0.0, to = 1.0) alphaModulation: Float
+    ): Int {
+        val alpha = (Color.alpha(value) * alphaModulation).roundToInt()
+        return alpha shl 24 or (value and 0x00FFFFFF)
+    }
+
     @SuppressLint("RestrictedApi")
     @Synchronized
-    fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap {
-        val drawable = AppCompatDrawableManager.get().getDrawable(context, drawableId)
+    fun Context.getBitmapFromVectorDrawable(drawableId: Int): Bitmap {
+        val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
         val bitmap = Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.setTint(getColorByAttr(context, R.attr.colorPrimary))
+        drawable.setTint(getColorByAttr(R.attr.colorPrimary))
         drawable.draw(canvas)
         return bitmap
     }
