@@ -15,8 +15,6 @@
  */
 
 package me.gm.cleaner.plugin.settings
-
-import me.gm.cleaner.plugin.dao.ModulePreferences.getPackageRuleCount
 import android.content.pm.PackageInfo
 
 class PreferencesPackageInfo : PackageInfo() {
@@ -38,7 +36,7 @@ class PreferencesPackageInfo : PackageInfo() {
             } catch (th: Throwable) {
                 th.printStackTrace()
             }
-            ppi.ruleCount = getPackageRuleCount(pi.packageName)
+           // ppi.ruleCount = getPackageRuleCount(pi.packageName)
             return ppi
         }
     }

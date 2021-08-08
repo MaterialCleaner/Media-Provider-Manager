@@ -11,14 +11,14 @@ def refId = repo.refDatabase.exactRef("refs/remotes/origin/main").objectId
 def gitCommitCount = new Git(repo).log().add(refId).call().size()
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 30
     buildToolsVersion '31.0.0'
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
-        minSdkVersion 24
-        targetSdkVersion 31
+        minSdkVersion 26
+        targetSdkVersion 30
         versionCode gitCommitCount
-        versionName "1.0"
+        versionName "alpha"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
         resConfigs 'en', 'zh-rCN', 'zh-rTW'
@@ -49,14 +49,15 @@ android {
     }
 }
 
-def shrinkReleaseRes = task('shrinkReleaseRes').doLast {
+def optimizeReleaseRes = task('optimizeReleaseRes').doLast {
     def aapt2 = Paths.get(project.android.sdkDirectory.path, 'build-tools', project.android.buildToolsVersion, 'aapt2')
-    def zip = Paths.get(project.buildDir.path, 'intermediates',
-            'processed_res', 'release', 'out', "resources-release.ap_")
+    def zip = Paths.get(project.buildDir.path, 'intermediates', 'processed_res', 'release', 'out', "resources-release.ap_")
     def optimized = new File("${zip}.opt")
     def cmd = exec {
         commandLine aapt2, 'optimize', '--collapse-resource-names',
+                '--enable-sparse-encoding',
                 '--shorten-resource-paths',
+                '--resources-config-path', 'aapt2-resources.cfg',
                 '-o', optimized, zip
         ignoreExitValue false
     }
@@ -67,8 +68,8 @@ def shrinkReleaseRes = task('shrinkReleaseRes').doLast {
 }
 
 tasks.whenTaskAdded { task ->
-    if (task.name == 'shrinkReleaseRes') {
-        task.finalizedBy shrinkReleaseRes
+    if (task.name == 'processReleaseResources') {
+        task.finalizedBy optimizeReleaseRes
     }
 }
 
@@ -79,10 +80,15 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     def androidx_lifecycle_version = '2.3.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
+
+    def appCenterSdkVersion = '4.2.0'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 
     implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
     implementation 'dev.rikka.rikkax.material:material:1.6.5'

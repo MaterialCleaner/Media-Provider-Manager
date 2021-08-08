@@ -37,7 +37,8 @@ object DisplayUtils {
         val m = k / 1024
         if (m < 1) return format.format(k.toDouble()) + " K"
         val g = m / 1024
-        return if (g < 1) format.format(m.toDouble()) + " M" else format.format(g.toDouble()) + " G"
+        if (g < 1) return format.format(m.toDouble()) + " M"
+        return format.format(g.toDouble()) + " G"
     }
 
     fun Context.getDimenByAttr(attr: Int): Float {
@@ -78,11 +79,11 @@ object DisplayUtils {
 
     fun dipToPx(context: Context, dipValue: Float): Int {
         val scale = context.resources.displayMetrics.density
-        return (dipValue * scale + 0.5f).toInt()
+        return (dipValue * scale + 0.5f).roundToInt()
     }
 
     fun pxToDip(context: Context, pxValue: Float): Int {
         val scale = context.resources.displayMetrics.density
-        return (pxValue / scale + 0.5f).toInt()
+        return (pxValue / scale + 0.5f).roundToInt()
     }
 }

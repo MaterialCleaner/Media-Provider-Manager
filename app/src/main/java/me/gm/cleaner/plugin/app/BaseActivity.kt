@@ -32,9 +32,9 @@ abstract class BaseActivity : MaterialActivity() {
     override fun setContentView(view: View) {
         super.setContentView(view)
         appBarLayout = findViewById(R.id.toolbar_container)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        if (appBarLayout != null && toolbar != null) {
-            setAppBar(appBarLayout!!, toolbar)
+        appBarLayout?.apply {
+            val toolbar = findViewById<Toolbar?>(R.id.toolbar)
+            setAppBar(this, toolbar)
         }
     }
 

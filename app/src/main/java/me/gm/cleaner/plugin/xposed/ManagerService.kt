@@ -16,8 +16,10 @@
 
 package me.gm.cleaner.plugin.xposed
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
 import me.gm.cleaner.plugin.ParceledListSlice
 import java.lang.ref.WeakReference
@@ -25,22 +27,27 @@ import java.lang.ref.WeakReference
 abstract class ManagerService : IManagerService.Stub() {
     companion object {
         lateinit var contextRef: WeakReference<Context>
+        val context: Context
+            get() = contextRef.get()!!
         lateinit var classLoader: ClassLoader
     }
 
-    fun getContext(): Context? {
-        return contextRef.get()
-    }
-
     override fun getServerVersion(): Int {
-        TODO("Not yet implemented")
+        return BuildConfig.VERSION_CODE
     }
 
     override fun getInstalledPackages(): ParceledListSlice<PackageInfo> {
-        TODO("Not yet implemented")
+        return ParceledListSlice(ArrayList())
     }
 
-    override fun notifyConfigChanged(id: Int) {
-        TODO("Not yet implemented")
+    @SuppressLint("SoonBlockedPrivateApi")
+    override fun notifyPreferencesChanged() {
+        try {
+            val context: Context = context.createDeviceProtectedStorageContext()
+            context.javaClass.getDeclaredMethod("reloadSharedPreferences").invoke(context)
+        } catch (tr: Throwable) {
+            tr.printStackTrace()
+            System.exit(1)
+        }
     }
 }

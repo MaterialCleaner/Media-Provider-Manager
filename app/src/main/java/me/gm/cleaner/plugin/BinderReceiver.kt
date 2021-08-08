@@ -61,15 +61,11 @@ object BinderReceiver {
             ArrayList()
         }
 
-    val installedPackagesForServicePreferences: List<PreferencesPackageInfo>
-        get() {
-            val installedPackages = installedPackages.stream()
-                .map { pi: PackageInfo? ->
-                    PreferencesPackageInfo.newInstance(
-                        pi!!
-                    )
-                }.collect(Collectors.toList())
-            installedPackages.removeIf { packageInfo: PreferencesPackageInfo -> !packageInfo.applicationInfo.enabled }
-            return installedPackages
+    fun notifyPreferencesChanged() {
+        try {
+            service!!.notifyPreferencesChanged()
+        } catch (e: RemoteException) {
+            e.printStackTrace()
         }
+    }
 }

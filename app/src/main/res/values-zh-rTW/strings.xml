@@ -4,13 +4,23 @@
     <string name="description">防止媒體儲存濫用</string>
 
     <!-- 首頁 -->
+    <string name="module_not_active">模組未啟動</string>
+    <string name="restart_system">重啟系統以升級模組</string>
     <string name="module_active">模組已啟動</string>
     <string name="module_version">模組版本：%d</string>
     <string name="app_management">應用管理</string>
     <string name="enabled_app_count">對 %d 個應用啟用</string>
+    <string name="usage_record">媒體儲存使用記錄</string>
+    <string name="test">測試媒體儲存</string>
+    <string name="about">關於</string>
 
-    <!-- Settings -->
+    <!-- 設置 -->
     <string name="sort_title">排序方式</string>
     <string name="menu_sort_by_name_title">應用名</string>
     <string name="menu_sort_by_update_time_title">更新時間</string>
+    <string name="menu_rule_count">規則數</string>
+
+    <!-- 關於 -->
+    <string name="source_code">原始碼</string>
+    <string name="telegram">電報</string>
 </resources>

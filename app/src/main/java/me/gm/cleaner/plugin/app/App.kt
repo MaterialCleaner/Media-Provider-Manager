@@ -17,8 +17,13 @@
 package me.gm.cleaner.plugin.app
 
 import android.app.Application
+import android.content.Context
 import coil.Coil
 import coil.ImageLoader
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
@@ -27,9 +32,19 @@ import rikka.material.app.LocaleDelegate
 import java.util.*
 
 class App : Application() {
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        if (!BuildConfig.DEBUG) {
+            AppCenter.start(
+                this, "274b837f-ed2e-43ec-b36d-b08328b353ca",
+                Analytics::class.java, Crashes::class.java
+            )
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
-        ModulePreferences.init(this)
+        ModulePreferences.init(createDeviceProtectedStorageContext())
         LocaleDelegate.defaultLocale = Locale.getDefault()
         DayNightDelegate.setApplicationContext(this)
         DayNightDelegate.setDefaultNightMode(DayNightDelegate.MODE_NIGHT_FOLLOW_SYSTEM)

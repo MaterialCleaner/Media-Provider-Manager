@@ -28,14 +28,13 @@ abstract class HomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val binding = HomeActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val recyclerView = binding.list
-        recyclerView.layoutManager = GridLayoutManager(this, 1)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.fixEdgeEffect(true, true)
-        recyclerView.borderViewDelegate.borderVisibilityChangedListener =
-            OnBorderVisibilityChangedListener { top: Boolean, oldTop: Boolean, bottom: Boolean, oldBottom: Boolean ->
+        binding.list.layoutManager = GridLayoutManager(this, 1)
+        binding.list.setHasFixedSize(true)
+        binding.list.fixEdgeEffect()
+        binding.list.borderViewDelegate.borderVisibilityChangedListener =
+            OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout!!.isRaised = !top
             }
-        recyclerView.adapter = HomeAdapter(this)
+        binding.list.adapter = HomeAdapter(this)
     }
 }

@@ -45,7 +45,7 @@
                 android:layout_width="@dimen/small_icon_size"
                 android:layout_height="@dimen/small_icon_size"
                 android:contentDescription="@string/app_management"
-                android:src="@drawable/ic_outline_service_settings_24"
+                android:src="@drawable/ic_outline_apps_24"
                 android:tint="?attr/colorControlNormal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

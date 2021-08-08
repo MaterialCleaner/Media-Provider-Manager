@@ -4,18 +4,28 @@
     <string name="description">An Xposed module intended to prevent media storage abuse.</string>
 
     <!-- Home -->
-    <string name="module_active">Module Activated</string>
+    <string name="module_not_active">MODULE NOT ACTIVE</string>
+    <string name="restart_system">Restart the system to upgrade the module</string>
+    <string name="module_active">MODULE ACTIVATED</string>
     <string name="module_version">Module version: %d</string>
-    <string name="app_management">App Management</string>
+    <string name="app_management">APP MANAGEMENT</string>
     <string name="enabled_app_count">Enabled for %d app(s)</string>
+    <string name="usage_record">Media store usage record</string>
+    <string name="test">Test media store</string>
+    <string name="about">About</string>
 
     <!-- Settings -->
     <string name="sort_key" translatable="false">sort</string>
     <string name="sort_title">Sort by</string>
     <string name="menu_sort_by_name_title">App name</string>
     <string name="menu_sort_by_update_time_title">Update time</string>
+    <string name="menu_rule_count">Rule count</string>
 
     <string name="display_name" translatable="false">_display_name</string>
     <string name="relative_path" translatable="false">relative_path</string>
     <string name="mime_type" translatable="false">mime_type</string>
+
+    <!-- About -->
+    <string name="source_code">Source code</string>
+    <string name="telegram">Telegram</string>
 </resources>
