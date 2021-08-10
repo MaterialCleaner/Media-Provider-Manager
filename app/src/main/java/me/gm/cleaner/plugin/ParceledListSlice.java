@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package me.gm.cleaner.plugin;
 
 import android.content.pm.ApplicationInfo;

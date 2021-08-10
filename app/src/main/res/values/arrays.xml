@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="recommend_package">
-        <item>com.android.providers.media.module</item>
+        <item>com.android.providers.media</item><!--Q-->
+        <item>com.android.providers.media.module</item><!--R-->
     </array>
 </resources>

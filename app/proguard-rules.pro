@@ -4,10 +4,6 @@
 
 -keep class me.gm.cleaner.plugin.xposed.XposedInit
 
--keepclasseswithmembers class me.gm.cleaner.plugin.BinderReceiver {
-    private static android.os.IBinder binder;
-}
-
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
 	public static void check*(...);
 	public static void throw*(...);

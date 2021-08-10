@@ -17,34 +17,37 @@
 package me.gm.cleaner.plugin
 
 import android.content.pm.PackageInfo
+import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
+import androidx.annotation.Keep
 import androidx.lifecycle.MutableLiveData
-import me.gm.cleaner.plugin.settings.PreferencesPackageInfo
 import java.util.*
-import java.util.stream.Collectors
 
 object BinderReceiver {
     val MODULE_VER = MutableLiveData(-1)
-    private val binder: IBinder? = null
+    private var binder: IBinder? = null
     private var service: IManagerService? = null
+    private val DEATH_RECIPIENT = IBinder.DeathRecipient {
+        binder = null
+        service = null
+    }
 
     fun pingBinder(): Boolean {
-        val ping = binder != null && binder.pingBinder()
+        val ping = binder != null && binder!!.pingBinder()
         if (!ping) MODULE_VER.postValue(-1)
         return ping
     }
 
-    private fun getBinder(): IBinder {
-        checkNotNull(binder) { "module not active" }
-        if (service == null) {
-            synchronized(BinderReceiver::class.java) {
-                service = IManagerService.Stub.asInterface(
-                    binder
-                )
-            }
-        }
-        return binder
+    @Keep
+    @JvmStatic
+    private fun onBinderReceived(newBinder: Binder) {
+        if (binder == newBinder) return
+        binder?.unlinkToDeath(DEATH_RECIPIENT, 0)
+        binder = newBinder
+        service = IManagerService.Stub.asInterface(newBinder)
+        binder?.linkToDeath(DEATH_RECIPIENT, 0)
+        MODULE_VER.postValue(service!!.serverVersion)
     }
 
     val serverVersion: Int

@@ -16,15 +16,21 @@
 
 package me.gm.cleaner.plugin.util
 
-import me.gm.cleaner.plugin.xposed.ManagerService
-import de.robv.android.xposed.XposedBridge
-import org.json.JSONObject
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import me.gm.cleaner.plugin.xposed.ManagerService
+import org.json.JSONObject
 import java.lang.reflect.Method
 
-object DevelopUtils : ManagerService() {
+object DevUtils : ManagerService() {
+    private lateinit var classLoader: ClassLoader
+
+    fun init(classLoader: ClassLoader) {
+        this.classLoader = classLoader
+    }
+
     fun log(o: Any) {
         XposedBridge.log(o.toString())
     }
@@ -40,7 +46,6 @@ object DevelopUtils : ManagerService() {
     private fun logMethod(method: Method) {
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                XposedBridge.log(method.declaringClass.name)
                 XposedBridge.log(method.name)
             }
         })

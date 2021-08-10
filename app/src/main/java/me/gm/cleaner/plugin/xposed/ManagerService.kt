@@ -19,17 +19,20 @@ package me.gm.cleaner.plugin.xposed
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
+import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
 import me.gm.cleaner.plugin.ParceledListSlice
-import java.lang.ref.WeakReference
 
+@SuppressLint("PrivateApi")
 abstract class ManagerService : IManagerService.Stub() {
-    companion object {
-        lateinit var contextRef: WeakReference<Context>
-        val context: Context
-            get() = contextRef.get()!!
-        lateinit var classLoader: ClassLoader
+    val context: Context by lazy {
+        val activityThread = XposedHelpers.callStaticMethod(
+            Class.forName("android.app.ActivityThread"), "systemMain"
+        )
+        val systemContext = XposedHelpers.callMethod(activityThread, "getSystemContext") as Context
+        systemContext
+        // TODO: create package context
     }
 
     override fun getServerVersion(): Int {

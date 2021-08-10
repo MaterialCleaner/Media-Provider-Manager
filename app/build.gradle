@@ -15,7 +15,7 @@ android {
     buildToolsVersion '31.0.0'
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
-        minSdkVersion 26
+        minSdkVersion 29
         targetSdkVersion 30
         versionCode gitCommitCount
         versionName "alpha"
@@ -57,7 +57,6 @@ def optimizeReleaseRes = task('optimizeReleaseRes').doLast {
         commandLine aapt2, 'optimize', '--collapse-resource-names',
                 '--enable-sparse-encoding',
                 '--shorten-resource-paths',
-                '--resources-config-path', 'aapt2-resources.cfg',
                 '-o', optimized, zip
         ignoreExitValue false
     }
