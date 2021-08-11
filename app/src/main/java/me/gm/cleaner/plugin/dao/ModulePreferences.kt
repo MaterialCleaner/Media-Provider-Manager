@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.dao
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.text.TextUtils
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
 import java.lang.ref.WeakReference
@@ -70,15 +71,35 @@ object ModulePreferences {
     }
 
     // APP LIST CONFIG
-    fun putSortBy(value: Int) {
+    var sortBy: Int
+        get() = defaultSp.getInt(context.resources.getString(R.string.sort_key), SORT_BY_NAME)
+        set(value) {
+            val editor = defaultSp.edit()
+            editor.putInt(context.resources.getString(R.string.sort_key), value)
+            editor.apply()
+            notifyListeners(false)
+        }
+
+    var ruleCount: Boolean
+        get() = defaultSp.getBoolean(
+            context.resources.getString(R.string.menu_rule_count_key), true
+        )
+        set(value) = putBoolean(context.resources.getString(R.string.menu_rule_count_key), value)
+
+    var isHideSystemApp: Boolean
+        get() = defaultSp.getBoolean(
+            context.resources.getString(R.string.menu_hide_system_app_key), true
+        )
+        set(value) = putBoolean(
+            context.resources.getString(R.string.menu_hide_system_app_key), value
+        )
+
+    private fun putBoolean(key: String, value: Boolean) {
         val editor = defaultSp.edit()
-        editor.putInt(context.getString(R.string.sort_key), value)
+        editor.putBoolean(key, value)
         editor.apply()
         notifyListeners(false)
     }
-
-    val sortBy: Int
-        get() = defaultSp.getInt(context.getString(R.string.sort_key), SORT_BY_NAME)
 
     // MODULE PREFERENCES
     fun removePackage(packageName: String) {
@@ -98,6 +119,20 @@ object ModulePreferences {
     fun getStringSet(packageName: String, key: String): String? {
         val sp = context.getSharedPreferences(packageName, Context.MODE_PRIVATE)
         return sp.getString(key, null)
+    }
+
+    fun enquireAboutPackagePreferences(packageName: String): List<String> {
+        val list: MutableList<String> = ArrayList()
+        if (!TextUtils.isEmpty(getStringSet(packageName, DISPLAY_NAME))) {
+            list.add(DISPLAY_NAME)
+        }
+        if (!TextUtils.isEmpty(getStringSet(packageName, RELATIVE_PATH))) {
+            list.add(RELATIVE_PATH)
+        }
+        if (!TextUtils.isEmpty(getStringSet(packageName, MIME_TYPE))) {
+            list.add(MIME_TYPE)
+        }
+        return list
     }
 
     interface PreferencesChangeListener {

@@ -14,11 +14,17 @@
     <string name="test">測試媒體儲存</string>
     <string name="about">關於</string>
 
-    <!-- 設置 -->
+    <!-- 菜單 -->
+    <string name="search">搜索</string>
+    <string name="view">查看</string>
     <string name="sort_title">排序方式</string>
     <string name="menu_sort_by_name_title">應用名</string>
     <string name="menu_sort_by_update_time_title">更新時間</string>
     <string name="menu_rule_count">規則數</string>
+    <string name="menu_hide_title">隱藏</string>
+    <string name="menu_hide_system_app_title">系統應用</string>
+    <string name="delete">刪除</string>
+    <string name="delete_all_rules">刪除所有規則</string>
 
     <!-- 關於 -->
     <string name="source_code">原始碼</string>

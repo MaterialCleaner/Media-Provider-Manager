@@ -20,11 +20,10 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.gm.cleaner.plugin.xposed.ManagerService
 import org.json.JSONObject
 import java.lang.reflect.Method
 
-object DevUtils : ManagerService() {
+object DevUtils {
     private lateinit var classLoader: ClassLoader
 
     fun init(classLoader: ClassLoader) {

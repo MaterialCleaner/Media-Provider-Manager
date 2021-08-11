@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.xposed
 
+import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Bundle
@@ -28,7 +29,9 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.util.DevUtils
 import java.io.File
 
-class XposedInit : ManagerService(), IXposedHookLoadPackage {
+class XposedInit : IXposedHookLoadPackage {
+    private lateinit var service: ManagerService
+
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         val classLoader = lpparam.classLoader
@@ -38,7 +41,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                 XposedHelpers.callStaticMethod(
                     XposedHelpers.findClass(
                         "me.gm.cleaner.plugin.BinderReceiver", classLoader
-                    ), "onBinderReceived", this
+                    ), "onBinderReceived", service
                 )
             }
             "com.android.providers.media", "com.android.providers.media.module" -> {
@@ -47,6 +50,15 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val path = XposedHelpers.callMethod(param.thisObject, "getPath") as String
                         XposedBridge.log(path)
+                    }
+                })
+
+                XposedBridge.hookAllMethods(XposedHelpers.findClass(
+                    "com.android.providers.media.MediaProvider", classLoader
+                ), "onCreate", object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        service = ManagerService((param.thisObject as ContentProvider).context!!)
                     }
                 })
 
@@ -65,7 +77,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
 
                         // "mime_type" = image / png
                         XposedBridge.log("packageName: " + param.thisObject.callingPackage)
-
                     }
                 })
 
@@ -74,9 +85,11 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                     Bundle::class.java, CancellationSignal::class.java, object : XC_MethodHook() {
                         @Throws(Throwable::class)
                         override fun afterHookedMethod(param: MethodHookParam) {
+                            if (param.args[2] == null) return
                             val queryArgs = param.args[2] as Bundle
+
                             XposedBridge.log(
-                                param.thisObject.packageName + ": " + queryArgs.toString()
+                                param.thisObject.callingPackage + ": " + queryArgs.toString()
                             )
                         }
                     }

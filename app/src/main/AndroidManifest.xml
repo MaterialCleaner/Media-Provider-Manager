@@ -34,8 +34,8 @@
         </activity>
         <activity-alias
             android:name=".MainActivityAlias"
-            android:targetActivity=".app.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:targetActivity=".app.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
@@ -46,6 +46,9 @@
             android:name=".settings.AppListActivity"
             android:exported="false"
             android:label="@string/app_management" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="xposedmodule"

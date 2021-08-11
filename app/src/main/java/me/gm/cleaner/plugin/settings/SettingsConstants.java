@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.home;
+package me.gm.cleaner.plugin.settings;
 
-public class HomeConstants {
-    public static String TRASHES;
-    public static String PACKAGE_INFO;
+public class SettingsConstants {
+    public static String APP_INFO;
     public static String PATH;
-    public static String LENGTH;
     public static String IS_CHECKED;
 
-    public static String DIR;
     public static String TITLE;
     public static String ICON;
-    public static String SERVICE;
 
     static {
-        TRASHES = "trashes";
-        PACKAGE_INFO = "appInfo";
+        APP_INFO = "appInfo";
         PATH = "path";
-        LENGTH = "length";
         IS_CHECKED = "isChecked";
 
-        DIR = "dir";
         TITLE = "title";
         ICON = "icon";
-        SERVICE = "service";
     }
 }

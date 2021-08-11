@@ -30,4 +30,12 @@
     </me.gm.cleaner.plugin.widget.ThemedBorderSwipeRefreshLayout>
 
     <include layout="@layout/appbar" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@android:id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="false"
+        android:paddingTop="?actionBarSize" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,6 +16,6 @@
 
 package me.gm.cleaner.plugin.app
 
-import me.gm.cleaner.plugin.home.ui.HomeActivity
+import me.gm.cleaner.plugin.home.HomeActivity
 
 class MainActivity : HomeActivity()

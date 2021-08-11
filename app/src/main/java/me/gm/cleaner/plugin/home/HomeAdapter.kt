@@ -1,4 +1,4 @@
-package me.gm.cleaner.plugin.home.ui
+package me.gm.cleaner.plugin.home
 
 import android.content.Intent
 import android.view.LayoutInflater

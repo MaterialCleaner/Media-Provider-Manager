@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.home.ui
+package me.gm.cleaner.plugin.home
 
 import android.os.Bundle
 import androidx.recyclerview.widget.GridLayoutManager
@@ -33,7 +33,7 @@ abstract class HomeActivity : BaseActivity() {
         binding.list.fixEdgeEffect()
         binding.list.borderViewDelegate.borderVisibilityChangedListener =
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
-                appBarLayout!!.isRaised = !top
+                appBarLayout?.isRaised = !top
             }
         binding.list.adapter = HomeAdapter(this)
     }
