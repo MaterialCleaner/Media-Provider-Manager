@@ -2,7 +2,6 @@ package me.gm.cleaner.plugin.util
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import me.gm.cleaner.plugin.dao.ModulePreferences
 import java.lang.reflect.Field
 
 class PreferencesPackageInfo private constructor() : PackageInfo() {

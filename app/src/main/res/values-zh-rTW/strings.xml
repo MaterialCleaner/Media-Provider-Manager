@@ -14,6 +14,10 @@
     <string name="test">測試媒體儲存</string>
     <string name="about">關於</string>
 
+    <!-- 測試 -->
+    <string name="query">讀取</string>
+    <string name="insert">插入</string>
+
     <!-- 菜單 -->
     <string name="search">搜索</string>
     <string name="view">查看</string>
@@ -25,6 +29,11 @@
     <string name="menu_hide_system_app_title">系統應用</string>
     <string name="delete">刪除</string>
     <string name="delete_all_rules">刪除所有規則</string>
+
+    <!-- 設置 -->
+    <string name="display_name">顯示名</string>
+    <string name="relative_path">相對路徑</string>
+    <string name="mime_type">MIME 類型</string>
 
     <!-- 關於 -->
     <string name="source_code">原始碼</string>

@@ -91,33 +91,31 @@ object AppIconCache : CoroutineScope {
         context: Context,
         info: ApplicationInfo, userId: Int,
         view: ImageView
-    ): Job {
-        return launch {
-            val size = view.measuredWidth.let {
-                if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)
-            }
-            val cachedBitmap = get(info.packageName, userId, size)
-            if (cachedBitmap != null) {
-                view.setImageBitmap(cachedBitmap)
-                return@launch
-            }
+    ): Job = launch {
+        val size = view.measuredWidth.let {
+            if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)
+        }
+        val cachedBitmap = get(info.packageName, userId, size)
+        if (cachedBitmap != null) {
+            view.setImageBitmap(cachedBitmap)
+            return@launch
+        }
 
-            val bitmap = try {
-                withContext(dispatcher) {
-                    getOrLoadBitmap(context, info, userId, size)
-                }
-            } catch (e: CancellationException) {
-                // do nothing if canceled
-                return@launch
-            } catch (e: Throwable) {
-                null
+        val bitmap = try {
+            withContext(dispatcher) {
+                getOrLoadBitmap(context, info, userId, size)
             }
+        } catch (e: CancellationException) {
+            // do nothing if canceled
+            return@launch
+        } catch (e: Throwable) {
+            null
+        }
 
-            if (bitmap != null) {
-                view.setImageBitmap(bitmap)
-            } else {
-                view.setImageDrawable(null)
-            }
+        if (bitmap != null) {
+            view.setImageBitmap(bitmap)
+        } else {
+            view.setImageDrawable(null)
         }
     }
 }

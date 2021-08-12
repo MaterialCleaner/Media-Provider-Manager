@@ -13,6 +13,7 @@ import me.gm.cleaner.plugin.databinding.HomeButtonBinding
 import me.gm.cleaner.plugin.databinding.HomeCardBinding
 import me.gm.cleaner.plugin.databinding.HomeCardButtonBinding
 import me.gm.cleaner.plugin.settings.AppListActivity
+import me.gm.cleaner.plugin.test.TestActivity
 import java.util.*
 
 class HomeAdapter(private val activity: HomeActivity) :
@@ -84,7 +85,7 @@ class HomeAdapter(private val activity: HomeActivity) :
                 binding.icon.setImageResource(R.drawable.ic_outline_insert_photo_24)
                 binding.title.setText(R.string.test)
                 binding.background.setOnClickListener {
-                    // activity.startActivity(Intent(activity, ServiceSettingsActivity::class.java))
+                    activity.startActivity(Intent(activity, TestActivity::class.java))
                 }
             }
             2 -> {
