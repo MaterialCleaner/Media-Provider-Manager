@@ -17,10 +17,8 @@
 package me.gm.cleaner.plugin
 
 import android.content.pm.PackageInfo
-import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
-import androidx.annotation.Keep
 import androidx.lifecycle.MutableLiveData
 import java.util.*
 
@@ -39,9 +37,7 @@ object BinderReceiver {
         return ping
     }
 
-    @Keep
-    @JvmStatic
-    private fun onBinderReceived(newBinder: Binder) {
+    fun onBinderReceived(newBinder: IBinder) {
         if (binder == newBinder) return
         binder?.unlinkToDeath(DEATH_RECIPIENT, 0)
         binder = newBinder

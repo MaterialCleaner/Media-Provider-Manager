@@ -18,13 +18,11 @@ package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.util.DevUtils
 import java.io.File
@@ -37,19 +35,12 @@ class XposedInit : IXposedHookLoadPackage {
         val classLoader = lpparam.classLoader
         DevUtils.init(classLoader)
         when (lpparam.packageName) {
-            "me.gm.cleaner.plugin" -> {
-                XposedHelpers.callStaticMethod(
-                    XposedHelpers.findClass(
-                        "me.gm.cleaner.plugin.BinderReceiver", classLoader
-                    ), "onBinderReceived", service
-                )
-            }
             "com.android.providers.media", "com.android.providers.media.module" -> {
                 XposedBridge.hookAllConstructors(File::class.java, object : XC_MethodHook() {
                     @Throws(Throwable::class)
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val path = XposedHelpers.callMethod(param.thisObject, "getPath") as String
-                        XposedBridge.log(path)
+//                        XposedBridge.log(path)
                     }
                 })
 
@@ -70,13 +61,13 @@ class XposedInit : IXposedHookLoadPackage {
                         val uri = param.args[0] as Uri
                         val contentValues = param.args[1] as ContentValues
 
-                        contentValues.get("_display_name")
-                        XposedBridge.log("_display_name: " + contentValues.get("_display_name"))
-                        contentValues.get("relative_path")
-                        XposedBridge.log("relative_path: " + contentValues.get("relative_path"))
-
-                        // "mime_type" = image / png
-                        XposedBridge.log("packageName: " + param.thisObject.callingPackage)
+//                        contentValues.get("_display_name")
+//                        XposedBridge.log("_display_name: " + contentValues.get("_display_name"))
+//                        contentValues.get("relative_path")
+//                        XposedBridge.log("relative_path: " + contentValues.get("relative_path"))
+//
+//                        // "mime_type" = image / png
+//                        XposedBridge.log("packageName: " + param.thisObject.callingPackage)
                     }
                 })
 
@@ -85,6 +76,16 @@ class XposedInit : IXposedHookLoadPackage {
                     Bundle::class.java, CancellationSignal::class.java, object : XC_MethodHook() {
                         @Throws(Throwable::class)
                         override fun afterHookedMethod(param: MethodHookParam) {
+                            if (param.thisObject.callingPackage == "me.gm.cleaner.plugin") {
+                                val c = MatrixCursor(listOf("binder").toTypedArray())
+                                c.extras = Bundle().apply {
+                                    putBinder("me.gm.cleaner.plugin.intent.extra.BINDER", service)
+                                }
+                                param.result = c
+                                return
+                            }
+
+
                             if (param.args[2] == null) return
                             val queryArgs = param.args[2] as Bundle
 

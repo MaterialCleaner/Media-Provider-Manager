@@ -25,22 +25,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistActivityBinding
 import rikka.recyclerview.addFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class AppListActivity : BaseActivity() {
     private lateinit var adapter: AppListAdapter
-    private val executor: ExecutorService by lazy { Executors.newSingleThreadExecutor() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ApplistActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_outline_arrow_back_24)
+        }
+
         adapter = AppListAdapter(this)
         binding.list.layoutManager = GridLayoutManager(this, 1)
         binding.list.setHasFixedSize(true)
@@ -94,7 +98,7 @@ class AppListActivity : BaseActivity() {
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(shouldNotifyServer: Boolean) {
-                executor.execute {
+                MainScope().launch(Dispatchers.Default) {
                     viewModel.refreshPreferencesCountInCache()
                 }
                 if (shouldNotifyServer) {

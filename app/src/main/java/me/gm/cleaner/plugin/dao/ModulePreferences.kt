@@ -16,14 +16,15 @@
 
 package me.gm.cleaner.plugin.dao
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.TextUtils
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
-import java.lang.ref.WeakReference
 import java.util.*
 
+@SuppressLint("StaticFieldLeak")
 object ModulePreferences {
     const val SORT_BY_NAME = 0
     const val SORT_BY_UPDATE_TIME = 1
@@ -36,12 +37,10 @@ object ModulePreferences {
     private var broadcasting = false
     private val listeners: MutableSet<PreferencesChangeListener> = HashSet()
     private lateinit var defaultSp: SharedPreferences
-    private lateinit var contextRef: WeakReference<Context>
-    private val context: Context
-        get() = contextRef.get()!!
+    private lateinit var context: Context
 
     fun init(context: Context) {
-        contextRef = WeakReference(context)
+        this.context = context
         DISPLAY_NAME = context.getString(R.string.display_name)
         RELATIVE_PATH = context.getString(R.string.relative_path)
         MIME_TYPE = context.getString(R.string.mime_type)

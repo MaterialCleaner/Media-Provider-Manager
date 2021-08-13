@@ -18,9 +18,11 @@ package me.gm.cleaner.plugin.app
 
 import android.app.Application
 import android.content.Context
+import android.provider.MediaStore
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
+import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import rikka.material.app.DayNightDelegate
@@ -44,5 +46,27 @@ class App : Application() {
         LocaleDelegate.defaultLocale = Locale.getDefault()
         DayNightDelegate.setApplicationContext(this)
         DayNightDelegate.setDefaultNightMode(DayNightDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        initBinder()
+    }
+
+    private fun initBinder() {
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_ADDED
+        )
+        val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
+        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+        applicationContext.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            sortOrder
+        )?.use {
+            BinderReceiver.onBinderReceived(
+                it.extras?.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use
+            )
+        }
     }
 }
