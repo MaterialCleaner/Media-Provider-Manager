@@ -88,9 +88,7 @@ object AppIconCache : CoroutineScope {
 
     @JvmStatic
     fun loadIconBitmapAsync(
-        context: Context,
-        info: ApplicationInfo, userId: Int,
-        view: ImageView
+        context: Context, info: ApplicationInfo, userId: Int, view: ImageView
     ): Job = launch {
         val size = view.measuredWidth.let {
             if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)

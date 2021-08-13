@@ -116,9 +116,9 @@ class HomeAdapter(private val activity: HomeActivity) :
     }
 
     init {
-        BinderReceiver.MODULE_VER.observe(activity, {
+        BinderReceiver.MODULE_VER.observe(activity) {
             notifyItemRangeChanged(0, 2)
-        })
+        }
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(shouldNotifyServer: Boolean) {

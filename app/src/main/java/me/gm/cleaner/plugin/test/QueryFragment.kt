@@ -16,6 +16,56 @@
 
 package me.gm.cleaner.plugin.test
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.databinding.HomeActivityBinding
+import rikka.recyclerview.addFastScroller
+import rikka.recyclerview.fixEdgeEffect
+import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
-class QueryFragment : BaseFragment()
+class QueryFragment : BaseFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val binding = HomeActivityBinding.inflate(inflater)
+        val toolbar = setAppBar(binding.root)
+        toolbar.setNavigationOnClickListener { navigateUp() }
+        toolbar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+
+        val adapter = QueryAdapter(this)
+        binding.list.layoutManager = GridLayoutManager(requireContext(), 3)
+        binding.list.setHasFixedSize(true)
+        binding.list.fixEdgeEffect()
+        binding.list.addFastScroller()
+        binding.list.isVerticalScrollBarEnabled = false
+        binding.list.borderViewDelegate.borderVisibilityChangedListener =
+            OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
+                appBarLayout.isRaised = !top
+            }
+        binding.list.adapter = adapter
+
+        val viewModel = ViewModelProvider(this)[QueryViewModel::class.java]
+        viewModel.images.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+        if (viewModel.images.value == null) {
+            viewModel.loadImages()
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    navigateUp()
+                }
+            })
+        return binding.root
+    }
+}

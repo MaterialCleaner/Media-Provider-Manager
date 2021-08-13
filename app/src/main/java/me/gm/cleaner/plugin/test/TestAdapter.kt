@@ -16,30 +16,46 @@
 
 package me.gm.cleaner.plugin.test
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.HomeButtonBinding
 
-class TestAdapter(fragment: TestFragment) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val activity: TestActivity = fragment.requireActivity() as TestActivity
+    private val requestPermission =
+        fragment.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            if (it) {
+                Navigation
+                    .findNavController(activity, android.R.id.home)
+                    .navigate(R.id.action_test_to_query)
+            }
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         ButtonHolder(HomeButtonBinding.inflate(LayoutInflater.from(parent.context)))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding = (holder as ButtonHolder).binding
+        // TODO: add explain abstract at position 0
         when (position) {
             0 -> {
                 binding.icon.setImageResource(R.drawable.ic_outline_search_24)
                 binding.title.setText(R.string.query)
                 binding.background.setOnClickListener {
-                    Navigation
-                        .findNavController(activity, android.R.id.home)
-                        .navigate(R.id.action_test_to_query)
+                    if (haveStoragePermission()) {
+                        Navigation
+                            .findNavController(activity, android.R.id.home)
+                            .navigate(R.id.action_test_to_query)
+                    } else {
+                        requestPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
                 }
             }
             1 -> {
@@ -53,6 +69,9 @@ class TestAdapter(fragment: TestFragment) :
             }
         }
     }
+
+    private fun haveStoragePermission() = PackageManager.PERMISSION_GRANTED ==
+            ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
 
     override fun getItemCount(): Int = 2
 

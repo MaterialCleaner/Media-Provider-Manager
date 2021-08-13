@@ -21,6 +21,9 @@ import android.text.TextUtils
 import android.view.MenuItem
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
@@ -50,42 +53,42 @@ class AppListActivity : BaseActivity() {
         binding.list.adapter = adapter
 
         val viewModel = ViewModelProvider(this)[AppListViewModel::class.java]
-        viewModel.isSearching.observe(this, {
+        viewModel.isSearching.observe(this) {
             if (!it) {
                 viewModel.refreshShowingList()
             }
-        })
-        viewModel.queryText.observe(this, {
+        }
+        viewModel.queryText.observe(this) {
             if (!TextUtils.isEmpty(it)) {
                 viewModel.refreshSearchingList()
             }
-        })
+        }
 
-        viewModel.installedPackagesCache.observe(this, {
+        viewModel.installedPackagesCache.observe(this) {
             viewModel.refreshShowingList()
             binding.listContainer.isRefreshing = false
-        })
-        viewModel.showingList.observe(this, {
+        }
+        viewModel.showingList.observe(this) {
             if (viewModel.isSearching()) {
                 viewModel.refreshSearchingList()
             } else {
                 adapter.submitList(it)
             }
-        })
-        viewModel.searchingList.observe(this, {
+        }
+        viewModel.searchingList.observe(this) {
             if (viewModel.isSearching()) {
                 adapter.submitList(it)
             }
-        })
+        }
 
-        viewModel.loadingProgress.observe(this, {
+        viewModel.loadingProgress.observe(this) {
             if (it == -1) binding.progress.hide()
             else binding.progress.progress = it
-        })
+        }
         if (viewModel.installedPackagesCache.value!!.isEmpty()) {
-            Thread {
+            MainScope().launch(Dispatchers.Default) {
                 viewModel.fetchInstalledPackages(packageManager)
-            }.start()
+            }
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
@@ -101,7 +104,7 @@ class AppListActivity : BaseActivity() {
         })
         binding.listContainer.setOnRefreshListener {
             binding.listContainer.isRefreshing = true
-            executor.execute {
+            MainScope().launch(Dispatchers.Default) {
                 viewModel.fetchInstalledPackages(packageManager)
             }
         }
