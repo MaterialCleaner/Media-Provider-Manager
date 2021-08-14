@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
 import android.content.ContentValues
-import android.content.pm.PackageManager
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
@@ -79,14 +78,12 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                 val c = MatrixCursor(listOf("binder").toTypedArray())
                                 c.extras = Bundle().apply {
                                     putBinder(
-                                        "me.gm.cleaner.plugin.intent.extra.BINDER",
-                                        this@XposedInit
+                                        "me.gm.cleaner.plugin.intent.extra.BINDER", this@XposedInit
                                     )
                                 }
                                 param.result = c
                                 return
                             }
-
 
                             if (param.args[2] == null) return
                             val queryArgs = param.args[2] as Bundle

@@ -31,7 +31,7 @@ abstract class ManagerService : IManagerService.Stub() {
     lateinit var context: Context
     lateinit var classLoader: ClassLoader
 
-    override fun getServerVersion(): Int {
+    override fun getServiceVersion(): Int {
         return BuildConfig.VERSION_CODE
     }
 
@@ -41,15 +41,18 @@ abstract class ManagerService : IManagerService.Stub() {
             "getService", "package"
         ) as IBinder
         val packageManager = XposedHelpers.callStaticMethod(
-           XposedHelpers.findClass(
+            XposedHelpers.findClass(
                 "android.content.pm.IPackageManager\$Stub", classLoader
-            )  ,"asInterface",binder
+            ), "asInterface", binder
         )
         val parceledListSlice = XposedHelpers.callMethod(
             packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, 0
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
-        return ParceledListSlice(list)
+
+        val proxy = XposedHelpers.findClass("android.os.BinderProxy", classLoader)
+        return if (binder.javaClass == proxy) ParceledListSlice(list)
+        else ParceledListSlice(emptyList())
     }
 
     // FIXME

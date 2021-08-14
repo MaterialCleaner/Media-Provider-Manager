@@ -36,7 +36,7 @@ class HomeAdapter(private val activity: HomeActivity) :
         }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val ver = BinderReceiver.serverVersion
+        val ver = BinderReceiver.serviceVersion
         when (position) {
             0 -> {
                 val binding = (holder as CardHolder).binding
@@ -121,7 +121,7 @@ class HomeAdapter(private val activity: HomeActivity) :
         }
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun onPreferencesChanged(shouldNotifyServer: Boolean) {
+            override fun onPreferencesChanged(shouldNotifyservice: Boolean) {
                 notifyItemChanged(1)
             }
         })

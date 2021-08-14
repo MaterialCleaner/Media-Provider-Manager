@@ -43,10 +43,10 @@ object BinderReceiver {
         binder = newBinder
         service = IManagerService.Stub.asInterface(newBinder)
         binder?.linkToDeath(DEATH_RECIPIENT, 0)
-        MODULE_VER.postValue(service!!.serverVersion)
+        MODULE_VER.postValue(service!!.serviceVersion)
     }
 
-    val serverVersion: Int
+    val serviceVersion: Int
         get() {
             val value = MODULE_VER.value
             return value ?: -1
