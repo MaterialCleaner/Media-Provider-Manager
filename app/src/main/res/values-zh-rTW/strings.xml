@@ -27,6 +27,7 @@
     <string name="menu_rule_count">規則數</string>
     <string name="menu_hide_title">隱藏</string>
     <string name="menu_hide_system_app_title">系統應用</string>
+    <string name="menu_hide_no_storage_permission_title">無存儲權限應用</string>
     <string name="delete">刪除</string>
     <string name="delete_all_rules">刪除所有規則</string>
 

@@ -93,6 +93,15 @@ object ModulePreferences {
             context.resources.getString(R.string.menu_hide_system_app_key), value
         )
 
+    var isHideNoStoragePermissionApp: Boolean
+        get() = defaultSp.getBoolean(
+            context.resources.getString(R.string.menu_hide_no_storage_permission_key), true
+        )
+        set(value) = putBoolean(
+            context.resources.getString(R.string.menu_hide_no_storage_permission_key),
+            value
+        )
+
     private fun putBoolean(key: String, value: Boolean) {
         val editor = defaultSp.edit()
         editor.putBoolean(key, value)

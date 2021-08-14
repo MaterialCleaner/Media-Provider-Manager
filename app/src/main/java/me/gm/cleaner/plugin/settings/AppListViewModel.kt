@@ -63,10 +63,12 @@ class AppListViewModel : ViewModel() {
                         it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
                     }
                 }
-                removeIf {
-                    val requestedPermissions = it.requestedPermissions
-                    requestedPermissions == null || !listOf(*requestedPermissions)
-                        .contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                if (ModulePreferences.isHideNoStoragePermissionApp) {
+                    removeIf {
+                        val requestedPermissions = it.requestedPermissions
+                        requestedPermissions == null || !listOf(*requestedPermissions)
+                            .contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
                 }
                 when (ModulePreferences.sortBy) {
                     ModulePreferences.SORT_BY_NAME ->

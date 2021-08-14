@@ -20,20 +20,36 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.IBinder
+import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
 import me.gm.cleaner.plugin.ParceledListSlice
 import kotlin.system.exitProcess
 
-class ManagerService constructor(val context: Context) : IManagerService.Stub() {
+abstract class ManagerService : IManagerService.Stub() {
+    lateinit var context: Context
+    lateinit var classLoader: ClassLoader
+
     override fun getServerVersion(): Int {
         return BuildConfig.VERSION_CODE
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
     override fun getInstalledPackages(): ParceledListSlice<PackageInfo> {
-        // TODO: use system api
-        return ParceledListSlice(context.packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS))
+        val binder = XposedHelpers.callStaticMethod(
+            XposedHelpers.findClass("android.os.ServiceManager", classLoader),
+            "getService", "package"
+        ) as IBinder
+        val packageManager = XposedHelpers.callStaticMethod(
+           XposedHelpers.findClass(
+                "android.content.pm.IPackageManager\$Stub", classLoader
+            )  ,"asInterface",binder
+        )
+        val parceledListSlice = XposedHelpers.callMethod(
+            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, 0
+        )
+        val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
+        return ParceledListSlice(list)
     }
 
     // FIXME
