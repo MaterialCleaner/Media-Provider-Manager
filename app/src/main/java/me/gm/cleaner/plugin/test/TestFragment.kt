@@ -33,9 +33,10 @@ class TestFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = HomeActivityBinding.inflate(inflater)
-        val toolbar = setAppBar(binding.root)
-        toolbar.setNavigationOnClickListener { requireActivity().finish() }
-        toolbar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        setAppBar(binding.root).apply {
+            setNavigationOnClickListener { requireActivity().finish() }
+            setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        }
 
         binding.list.layoutManager = GridLayoutManager(requireContext(), 1)
         binding.list.setHasFixedSize(true)

@@ -50,19 +50,8 @@ class App : Application() {
     }
 
     private fun initBinder() {
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_ADDED
-        )
-        val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
         applicationContext.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            null,
-            sortOrder
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
         )?.use {
             BinderReceiver.onBinderReceived(
                 it.extras?.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use

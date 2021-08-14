@@ -35,9 +35,10 @@ class QueryFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = HomeActivityBinding.inflate(inflater)
-        val toolbar = setAppBar(binding.root)
-        toolbar.setNavigationOnClickListener { navigateUp() }
-        toolbar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        setAppBar(binding.root).apply {
+            setNavigationOnClickListener { navigateUp() }
+            setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        }
 
         val adapter = QueryAdapter(this)
         binding.list.layoutManager = GridLayoutManager(requireContext(), 3)
@@ -59,8 +60,7 @@ class QueryFragment : BaseFragment() {
             viewModel.loadImages()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     navigateUp()

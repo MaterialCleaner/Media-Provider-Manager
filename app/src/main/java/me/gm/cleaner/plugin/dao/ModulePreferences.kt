@@ -58,13 +58,13 @@ object ModulePreferences {
         broadcasting = false
     }
 
-    private fun notifyListeners(shouldNotifyServer: Boolean) {
+    private fun notifyListeners(shouldNotifyService: Boolean) {
         if (broadcasting) {
             return
         }
         broadcasting = true
         listeners.forEach {
-            it.onPreferencesChanged(shouldNotifyServer)
+            it.onPreferencesChanged(shouldNotifyService)
         }
         broadcasting = false
     }
@@ -144,6 +144,6 @@ object ModulePreferences {
     }
 
     interface PreferencesChangeListener {
-        fun onPreferencesChanged(shouldNotifyServer: Boolean)
+        fun onPreferencesChanged(shouldNotifyService: Boolean)
     }
 }

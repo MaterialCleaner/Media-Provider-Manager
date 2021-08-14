@@ -18,12 +18,14 @@ package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.DevUtils
 import java.io.File
 
@@ -73,24 +75,25 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                     classLoader, "queryInternal", Uri::class.java, Array<String>::class.java,
                     Bundle::class.java, CancellationSignal::class.java, object : XC_MethodHook() {
                         @Throws(Throwable::class)
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            val uri = param.args[0] as Uri?
+                            val projection = param.args[1] as Array<String>?
+                            val queryArgs = param.args[2] as Bundle?
+                            val signal = param.args[3] as CancellationSignal?
+                        }
+
+                        @Throws(Throwable::class)
                         override fun afterHookedMethod(param: MethodHookParam) {
-                            if (param.thisObject.callingPackage == "me.gm.cleaner.plugin") {
-                                val c = MatrixCursor(listOf("binder").toTypedArray())
+                            if (param.thisObject.callingPackage == BuildConfig.APPLICATION_ID) {
+                                val c = param.result as Cursor?
+                                    ?: MatrixCursor(listOf("binder").toTypedArray())
                                 c.extras = Bundle().apply {
                                     putBinder(
                                         "me.gm.cleaner.plugin.intent.extra.BINDER", this@XposedInit
                                     )
                                 }
                                 param.result = c
-                                return
                             }
-
-                            if (param.args[2] == null) return
-                            val queryArgs = param.args[2] as Bundle
-
-                            XposedBridge.log(
-                                param.thisObject.callingPackage + ": " + queryArgs.toString()
-                            )
                         }
                     }
                 )

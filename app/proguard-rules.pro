@@ -8,7 +8,3 @@
 	public static void check*(...);
 	public static void throw*(...);
 }
-
--assumenosideeffects class me.gm.cleaner.plugin.util.LogUtils {
-	public static void e(...);
-}

@@ -6,6 +6,11 @@ An Xposed module intended to prevent media storage abuse.
 [![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/GuhDoy/Media-Provider-Manager)
 [![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
 
+## Screenshots
+-------------
+
+<img src="screenshots/app.png" height="400" alt="Screenshot"/>
+
 ## Background
 
 - In progress...

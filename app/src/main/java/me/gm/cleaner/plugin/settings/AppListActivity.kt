@@ -106,11 +106,11 @@ class AppListActivity : BaseActivity() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun onPreferencesChanged(shouldNotifyServer: Boolean) {
+            override fun onPreferencesChanged(shouldNotifyService: Boolean) {
                 MainScope().launch(Dispatchers.Default) {
                     viewModel.refreshPreferencesCountInCache()
                 }
-                if (shouldNotifyServer) {
+                if (shouldNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
             }
@@ -211,6 +211,6 @@ class AppListActivity : BaseActivity() {
             }
             else -> return super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 }
