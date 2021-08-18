@@ -72,7 +72,7 @@ object DisplayUtils {
         )
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.setTint(getColorByAttr(R.attr.colorPrimary))
+        drawable.setTint(getColorByAttr(android.R.attr.colorPrimary))
         drawable.draw(canvas)
         return bitmap
     }

@@ -26,7 +26,7 @@
     android:paddingVertical="@dimen/button_margin_vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@android:id/background"
+        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/item_background_button"
@@ -37,7 +37,7 @@
         android:paddingVertical="@dimen/screen_edge_margin">
 
         <ImageView
-            android:id="@android:id/icon"
+            android:id="@+id/icon"
             android:layout_width="@dimen/small_icon_size"
             android:layout_height="@dimen/small_icon_size"
             android:tint="?attr/colorControlNormal"
@@ -47,7 +47,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@android:id/title"
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/content_start_from_screen_edge_margin_minus_screen_edge_margin"

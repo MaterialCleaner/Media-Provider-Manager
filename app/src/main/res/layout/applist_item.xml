@@ -10,7 +10,7 @@
     android:paddingEnd="?listPreferredItemPaddingEnd">
 
     <ImageView
-        android:id="@android:id/icon"
+        android:id="@+id/icon"
         android:layout_width="@dimen/large_icon_size"
         android:layout_height="@dimen/large_icon_size" />
 
@@ -22,7 +22,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@android:id/title"
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -30,7 +30,7 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
 
         <TextView
-            android:id="@android:id/summary"
+            android:id="@+id/summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

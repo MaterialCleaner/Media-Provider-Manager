@@ -10,7 +10,7 @@ open class ThemedSwipeRefreshLayout(context: Context, attrs: AttributeSet?) :
     SwipeRefreshLayout(context, attrs) {
     private fun init() {
         val context = context
-        setColorSchemeColors(context.getColorByAttr(R.attr.colorPrimary))
+        setColorSchemeColors(context.getColorByAttr(android.R.attr.colorPrimary))
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

@@ -1,22 +1,18 @@
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.internal.storage.file.FileRepository
-
 import java.nio.file.Paths
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-def repo = new FileRepository(rootProject.file(".git"))
-def refId = repo.refDatabase.exactRef("refs/remotes/origin/main").objectId
-def gitCommitCount = new Git(repo).log().add(refId).call().size()
+def gitCommitCount = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
 
 android {
-    compileSdkVersion 30
+    compileSdk 31
     buildToolsVersion '31.0.0'
+
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
-        minSdkVersion 29
-        targetSdkVersion 30
+        minSdk 29
+        targetSdk 31
         versionCode gitCommitCount
         versionName "alpha"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -35,29 +31,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    buildFeatures {
-        viewBinding true
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
     packagingOptions {
-        exclude '/META-INF/**'
-        exclude '/kotlin/**'
-        exclude '/okhttp3/**'
+        resources {
+            excludes += ['/META-INF/**', '/kotlin/**', '/okhttp3/**']
+        }
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    lint {
+        checkDependencies true
     }
 }
 
-def optimizeReleaseRes = task('optimizeReleaseRes').doLast {
+def optimizeReleaseRes() {
     def aapt2 = Paths.get(project.android.sdkDirectory.path, 'build-tools', project.android.buildToolsVersion, 'aapt2')
     def zip = Paths.get(project.buildDir.path, 'intermediates', 'processed_res', 'release', 'out', "resources-release.ap_")
     def optimized = new File("${zip}.opt")
     def cmd = exec {
-        commandLine aapt2, 'optimize', '--collapse-resource-names',
-                '--enable-sparse-encoding',
-                '--shorten-resource-paths',
-                '-o', optimized, zip
+        commandLine aapt2, 'optimize', '--collapse-resource-names', '-o', optimized, zip
         ignoreExitValue false
     }
     if (cmd.exitValue == 0) {
@@ -66,9 +62,9 @@ def optimizeReleaseRes = task('optimizeReleaseRes').doLast {
     }
 }
 
-tasks.whenTaskAdded { task ->
-    if (task.name == 'processReleaseResources') {
-        task.finalizedBy optimizeReleaseRes
+afterEvaluate {
+    processReleaseResources.doLast {
+        optimizeReleaseRes()
     }
 }
 

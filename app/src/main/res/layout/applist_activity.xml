@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@android:id/hint"
+    android:id="@+id/hint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
@@ -10,12 +10,12 @@
     app:fitSystemWindowsInsets="start|end">
 
     <me.gm.cleaner.plugin.widget.ThemedBorderSwipeRefreshLayout
-        android:id="@android:id/list_container"
+        android:id="@+id/list_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <rikka.widget.borderview.BorderRecyclerView
-            android:id="@android:id/list"
+            android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -29,7 +29,7 @@
     <include layout="@layout/appbar" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@android:id/progress"
+        android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

@@ -44,7 +44,7 @@
             android:paddingVertical="@dimen/screen_edge_margin">
 
             <ImageView
-                android:id="@android:id/icon"
+                android:id="@+id/icon"
                 android:layout_width="@dimen/small_icon_size"
                 android:layout_height="@dimen/small_icon_size"
                 android:src="@drawable/ic_baseline_check_circle_24"
@@ -66,7 +66,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:id="@android:id/title"
+                    android:id="@+id/title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="2dp"
@@ -75,7 +75,7 @@
                     android:textColor="?android:attr/textColorPrimaryInverse" />
 
                 <TextView
-                    android:id="@android:id/summary"
+                    android:id="@+id/summary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmallInverse" />

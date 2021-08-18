@@ -10,7 +10,7 @@ class ThemedBorderSwipeRefreshLayout(context: Context, attrs: AttributeSet?) :
     ThemedSwipeRefreshLayout(context, attrs) {
 
     private fun init() {
-        val actionBarSize = context.getDimenByAttr(R.attr.actionBarSize).toInt()
+        val actionBarSize = context.getDimenByAttr(android.R.attr.actionBarSize).toInt()
         setProgressViewOffset(false, actionBarSize, progressViewEndOffset + actionBarSize)
     }
 

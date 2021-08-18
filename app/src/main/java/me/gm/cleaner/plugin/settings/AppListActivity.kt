@@ -178,7 +178,7 @@ class AppListActivity : BaseActivity() {
     private fun getSpannableString(text: CharSequence): SpannableStringBuilder =
         SpannableStringBuilder(text).apply {
             setSpan(
-                ForegroundColorSpan(getColorByAttr(R.attr.colorPrimary)), 0, length,
+                ForegroundColorSpan(getColorByAttr(android.R.attr.colorPrimary)), 0, length,
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE
             )
             setSpan(AbsoluteSizeSpan(14, true), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

@@ -70,7 +70,7 @@ class AppListAdapter(private val activity: AppListActivity) :
     private fun getSpannableString(text: CharSequence): SpannableStringBuilder =
         SpannableStringBuilder(text).apply {
             setSpan(
-                ForegroundColorSpan(activity.getColorByAttr(R.attr.colorPrimary)), 0, length,
+                ForegroundColorSpan(activity.getColorByAttr(android.R.attr.colorPrimary)), 0, length,
                 Spannable.SPAN_INCLUSIVE_INCLUSIVE
             )
             setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
