@@ -87,15 +87,15 @@ class AppListAdapter(private val activity: AppListActivity) :
         return false
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.onViewRecycled()
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        holder.onViewDetachedFromWindow()
     }
 
     class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root) {
         lateinit var loadIconJob: Job
 
-        fun onViewRecycled() {
+        fun onViewDetachedFromWindow() {
             if (this::loadIconJob.isInitialized && loadIconJob.isActive) {
                 loadIconJob.cancel()
             }

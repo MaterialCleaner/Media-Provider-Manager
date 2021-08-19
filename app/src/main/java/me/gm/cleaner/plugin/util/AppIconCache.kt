@@ -93,7 +93,14 @@ object AppIconCache : CoroutineScope {
         val size = view.measuredWidth.let {
             if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)
         }
-        val cachedBitmap = get(info.packageName, userId, size)
+        val cachedBitmap = try {
+            withContext(dispatcher) {
+                get(info.packageName, userId, size)
+            }
+        } catch (e: CancellationException) {
+            // do nothing if canceled
+            return@launch
+        }
         if (cachedBitmap != null) {
             view.setImageBitmap(cachedBitmap)
             return@launch
