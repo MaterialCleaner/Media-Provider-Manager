@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.appcompat.widget.AppCompatDrawableManager
 import me.gm.cleaner.plugin.R
@@ -29,18 +30,6 @@ import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
 object DisplayUtils {
-    fun getFormattedLength(b: Float): String {
-        if (b == 0f) return "0 B"
-        val format = DecimalFormat("0.00")
-        val k = b / 1024
-        if (k < 1) return format.format(b.toDouble()) + " B"
-        val m = k / 1024
-        if (m < 1) return format.format(k.toDouble()) + " K"
-        val g = m / 1024
-        if (g < 1) return format.format(m.toDouble()) + " M"
-        return format.format(g.toDouble()) + " G"
-    }
-
     fun Context.getDimenByAttr(attr: Int): Float {
         val a = obtainStyledAttributes(intArrayOf(attr))
         val dimen = a.getDimension(0, 0f)
@@ -56,16 +45,8 @@ object DisplayUtils {
         return color
     }
 
-    fun withModulatedAlpha(
-        @ColorInt value: Int, @FloatRange(from = 0.0, to = 1.0) alphaModulation: Float
-    ): Int {
-        val alpha = (Color.alpha(value) * alphaModulation).roundToInt()
-        return alpha shl 24 or (value and 0x00FFFFFF)
-    }
-
     @SuppressLint("RestrictedApi")
-    @Synchronized
-    fun Context.getBitmapFromVectorDrawable(drawableId: Int): Bitmap {
+    fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
         val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
         val bitmap = Bitmap.createBitmap(
             drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
@@ -77,13 +58,13 @@ object DisplayUtils {
         return bitmap
     }
 
-    fun dipToPx(context: Context, dipValue: Float): Int {
-        val scale = context.resources.displayMetrics.density
+    fun Context.dipToPx(dipValue: Float): Int {
+        val scale = resources.displayMetrics.density
         return (dipValue * scale + 0.5f).roundToInt()
     }
 
-    fun pxToDip(context: Context, pxValue: Float): Int {
-        val scale = context.resources.displayMetrics.density
+    fun Context.pxToDip(pxValue: Float): Int {
+        val scale = resources.displayMetrics.density
         return (pxValue / scale + 0.5f).roundToInt()
     }
 }

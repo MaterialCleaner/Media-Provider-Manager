@@ -18,15 +18,19 @@ package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.os.Environment
+import android.widget.Toast
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.DevUtils
+import me.gm.cleaner.plugin.util.FileUtils
 import java.io.File
 
 class XposedInit : ManagerService(), IXposedHookLoadPackage {
@@ -42,14 +46,33 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         context = (param.thisObject as ContentProvider).context!!
-                    }
-                })
-
-                XposedBridge.hookAllConstructors(File::class.java, object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val path = XposedHelpers.callMethod(param.thisObject, "getPath") as String
-//                        XposedBridge.log(path)
+                        val niceParents = FileUtils.standardDirs.apply { add(FileUtils.androidDir) }
+                        val redirectDir = context.externalCacheDir!!.path
+                        val externalStorageDirectory =
+                            Environment.getExternalStorageDirectory().path
+                        XposedHelpers.findAndHookMethod(
+                            File::class.java, "mkdir", object : XC_MethodHook() {
+                                @Throws(Throwable::class)
+                                override fun beforeHookedMethod(param: MethodHookParam) {
+                                    val path = XposedHelpers.getObjectField(
+                                        param.thisObject, "path"
+                                    ) as String
+                                    for (niceParent in niceParents) {
+                                        if (!FileUtils.startsWith(niceParent, path)) {
+                                            val redirect = redirectDir + path.substring(
+                                                externalStorageDirectory.length
+                                            )
+                                            XposedHelpers.setObjectField(
+                                                param.thisObject, "path", redirect
+                                            )
+                                            if (BuildConfig.DEBUG) {
+                                                XposedBridge.log("redirected a dir: $redirect")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        )
                     }
                 })
 
@@ -94,6 +117,19 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                 }
                                 param.result = c
                             }
+                        }
+                    }
+                )
+            }
+
+            "me.gm.cleaner" -> {
+                XposedHelpers.findAndHookMethod("me.gm.cleaner.app.App",
+                    classLoader, "onCreate", object : XC_MethodHook() {
+                        @Throws(Throwable::class)
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            Toast.makeText(
+                                param.thisObject as Context, "xposed active", Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 )

@@ -28,8 +28,8 @@ import me.gm.cleaner.plugin.ParceledListSlice
 import kotlin.system.exitProcess
 
 abstract class ManagerService : IManagerService.Stub() {
-    lateinit var context: Context
     lateinit var classLoader: ClassLoader
+    lateinit var context: Context
 
     override fun getServiceVersion(): Int = BuildConfig.VERSION_CODE
 

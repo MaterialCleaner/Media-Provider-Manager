@@ -7,13 +7,13 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 object FileUtils {
-    fun startsWith(child: String, parent: File): Boolean {
-        return startsWith(child, parent.path)
+    fun startsWith(parent: File, child: String): Boolean {
+        return startsWith(parent.path, child)
     }
 
-    fun startsWith(child: String, parent: String): Boolean {
-        val lowerChild = child.lowercase(Locale.getDefault())
+    fun startsWith(parent: String, child: String): Boolean {
         val lowerParent = parent.lowercase(Locale.getDefault())
+        val lowerChild = child.lowercase(Locale.getDefault())
         return lowerChild == lowerParent || lowerChild.startsWith(lowerParent + File.separator)
     }
 
