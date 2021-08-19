@@ -16,9 +16,11 @@
 
 package me.gm.cleaner.plugin.xposed
 
+import android.annotation.SuppressLint
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
@@ -43,6 +45,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                 XposedBridge.hookAllMethods(XposedHelpers.findClass(
                     "com.android.providers.media.MediaProvider", classLoader
                 ), "onCreate", object : XC_MethodHook() {
+                    @SuppressLint("QueryPermissionsNeeded")
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         context = (param.thisObject as ContentProvider).context!!
@@ -50,6 +53,20 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         val redirectDir = context.getExternalFilesDir(null)!!.path
                         val externalStorageDirectory =
                             Environment.getExternalStorageDirectory().path
+                        val sharedProcessPackages = ArrayList<String>().apply {
+                            val processName = context.packageManager.getPackageInfo(
+                                context.packageName,
+                                PackageManager.GET_ACTIVITIES or PackageManager.GET_RECEIVERS
+                                        or PackageManager.GET_SERVICES or PackageManager.GET_PROVIDERS
+                            ).applicationInfo.processName
+                            context.packageManager.getInstalledApplications(0).forEach {
+                                if (it.processName == processName) {
+                                    add(it.packageName)
+                                }
+                            }
+                            remove(context.packageName)
+                        }
+
                         XposedHelpers.findAndHookMethod(
                             File::class.java, "mkdir", object : XC_MethodHook() {
                                 @Throws(Throwable::class)
@@ -60,6 +77,17 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                     if (FileUtils.startsWith(redirectDir, path)) {
                                         return
                                     }
+                                    for (packageName in sharedProcessPackages) {
+                                        if (FileUtils.startsWith(
+                                                redirectDir.replace(
+                                                    context.packageName, packageName
+                                                ), path
+                                            )
+                                        ) {
+                                            return
+                                        }
+                                    }
+
                                     for (niceParent in niceParents) {
                                         if (!FileUtils.startsWith(niceParent, path)) {
                                             val redirect = redirectDir + path.substring(
