@@ -47,7 +47,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         context = (param.thisObject as ContentProvider).context!!
                         val niceParents = FileUtils.standardDirs.apply { add(FileUtils.androidDir) }
-                        val redirectDir = context.externalCacheDir!!.path
+                        val redirectDir = context.getExternalFilesDir(null)!!.path
                         val externalStorageDirectory =
                             Environment.getExternalStorageDirectory().path
                         XposedHelpers.findAndHookMethod(
@@ -57,6 +57,9 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                     val path = XposedHelpers.getObjectField(
                                         param.thisObject, "path"
                                     ) as String
+                                    if (!FileUtils.startsWith(externalStorageDirectory, path)) {
+                                        return
+                                    }
                                     for (niceParent in niceParents) {
                                         if (!FileUtils.startsWith(niceParent, path)) {
                                             val redirect = redirectDir + path.substring(
@@ -68,6 +71,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                             if (BuildConfig.DEBUG) {
                                                 XposedBridge.log("redirected a dir: $redirect")
                                             }
+                                            break
                                         }
                                     }
                                 }
