@@ -57,7 +57,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                     val path = XposedHelpers.getObjectField(
                                         param.thisObject, "path"
                                     ) as String
-                                    if (!FileUtils.startsWith(externalStorageDirectory, path)) {
+                                    if (FileUtils.startsWith(redirectDir, path)) {
                                         return
                                     }
                                     for (niceParent in niceParents) {
