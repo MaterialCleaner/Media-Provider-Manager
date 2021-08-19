@@ -54,11 +54,9 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         val externalStorageDirectory =
                             Environment.getExternalStorageDirectory().path
                         val sharedProcessPackages = ArrayList<String>().apply {
-                            val processName = context.packageManager.getPackageInfo(
-                                context.packageName,
-                                PackageManager.GET_ACTIVITIES or PackageManager.GET_RECEIVERS
-                                        or PackageManager.GET_SERVICES or PackageManager.GET_PROVIDERS
-                            ).applicationInfo.processName
+                            val processName = context.packageManager.getApplicationInfo(
+                                context.packageName, 0
+                            ).processName
                             context.packageManager.getInstalledApplications(0).forEach {
                                 if (it.processName == processName) {
                                     add(it.packageName)
