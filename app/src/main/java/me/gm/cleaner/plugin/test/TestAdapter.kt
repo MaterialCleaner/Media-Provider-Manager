@@ -51,7 +51,7 @@ class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.Vi
                 binding.background.setOnClickListener {
                     if (haveStoragePermission()) {
                         Navigation
-                            .findNavController(activity, android.R.id.home)
+                            .findNavController(activity, R.id.home)
                             .navigate(R.id.action_test_to_query)
                     } else {
                         requestPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)

@@ -53,17 +53,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         val redirectDir = context.getExternalFilesDir(null)!!.path
                         val externalStorageDirectory =
                             Environment.getExternalStorageDirectory().path
-                        val sharedProcessPackages = ArrayList<String>().apply {
-                            val processName = context.packageManager.getApplicationInfo(
-                                context.packageName, 0
-                            ).processName
-                            context.packageManager.getInstalledApplications(0).forEach {
-                                if (it.processName == processName) {
-                                    add(it.packageName)
-                                }
-                            }
-                            remove(context.packageName)
-                        }
 
                         XposedHelpers.findAndHookMethod(
                             File::class.java, "mkdir", object : XC_MethodHook() {
@@ -72,32 +61,18 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                     val path = XposedHelpers.getObjectField(
                                         param.thisObject, "path"
                                     ) as String
-                                    if (FileUtils.startsWith(redirectDir, path)) {
-                                        return
-                                    }
-                                    for (packageName in sharedProcessPackages) {
-                                        if (FileUtils.startsWith(
-                                                redirectDir.replace(
-                                                    context.packageName, packageName
-                                                ), path
-                                            )
-                                        ) {
-                                            return
-                                        }
-                                    }
 
-                                    for (niceParent in niceParents) {
-                                        if (!FileUtils.startsWith(niceParent, path)) {
-                                            val redirect = redirectDir + path.substring(
-                                                externalStorageDirectory.length
-                                            )
-                                            XposedHelpers.setObjectField(
-                                                param.thisObject, "path", redirect
-                                            )
-                                            if (BuildConfig.DEBUG) {
-                                                XposedBridge.log("redirected a dir: $redirect")
-                                            }
-                                            break
+                                    if (niceParents.stream().noneMatch {
+                                            FileUtils.startsWith(it, path)
+                                        }) {
+                                        val redirect = redirectDir + path.substring(
+                                            externalStorageDirectory.length
+                                        )
+                                        XposedHelpers.setObjectField(
+                                            param.thisObject, "path", redirect
+                                        )
+                                        if (BuildConfig.DEBUG) {
+                                            XposedBridge.log("redirected a dir: $redirect")
                                         }
                                     }
                                 }
@@ -139,7 +114,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         override fun afterHookedMethod(param: MethodHookParam) {
                             if (param.thisObject.callingPackage == BuildConfig.APPLICATION_ID) {
                                 val c = param.result as Cursor?
-                                    ?: MatrixCursor(listOf("binder").toTypedArray())
+                                    ?: MatrixCursor(arrayOf("binder"))
                                 c.extras = Bundle().apply {
                                     putBinder(
                                         "me.gm.cleaner.plugin.intent.extra.BINDER", this@XposedInit
@@ -147,19 +122,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                                 }
                                 param.result = c
                             }
-                        }
-                    }
-                )
-            }
-
-            "me.gm.cleaner" -> {
-                XposedHelpers.findAndHookMethod("me.gm.cleaner.app.App",
-                    classLoader, "onCreate", object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            Toast.makeText(
-                                param.thisObject as Context, "xposed active", Toast.LENGTH_LONG
-                            ).show()
                         }
                     }
                 )

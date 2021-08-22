@@ -33,7 +33,7 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getServiceVersion(): Int = BuildConfig.VERSION_CODE
 
-    override fun getInstalledPackages(): ParceledListSlice<PackageInfo> {
+    override fun getInstalledPackages(uid: Int): ParceledListSlice<PackageInfo> {
         val binder = XposedHelpers.callStaticMethod(
             XposedHelpers.findClass("android.os.ServiceManager", classLoader),
             "getService", "package"
@@ -44,7 +44,7 @@ abstract class ManagerService : IManagerService.Stub() {
             ), "asInterface", binder
         )
         val parceledListSlice = XposedHelpers.callMethod(
-            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, 0
+            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, uid
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
 

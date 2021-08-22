@@ -6,7 +6,7 @@ interface IManagerService {
 
     int getServiceVersion() = 0;
 
-    ParceledListSlice<PackageInfo> getInstalledPackages() = 10;
+    ParceledListSlice<PackageInfo> getInstalledPackages(int uid) = 10;
 
     void notifyPreferencesChanged() = 11;
 

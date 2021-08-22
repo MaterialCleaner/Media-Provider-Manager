@@ -13,18 +13,18 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
 
         private fun PreferencesPackageInfo.copyFieldsFrom(old: PackageInfo) {
             try {
-                for (oldField in old.javaClass.fields) {
-                    oldField.isAccessible = true
-                    val newFieldFromCache = fieldCache[oldField]
+                old.javaClass.fields.forEach {
+                    it.isAccessible = true
+                    val newFieldFromCache = fieldCache[it]
                     if (newFieldFromCache != null) {
                         newFieldFromCache.isAccessible = true
-                        newFieldFromCache[this] = oldField[old]
+                        newFieldFromCache[this] = it[old]
                     } else {
                         for (newField in javaClass.fields) {
                             newField.isAccessible = true
-                            if (oldField == newField) {
-                                fieldCache[oldField] = newField
-                                newField[this] = oldField[old]
+                            if (it == newField) {
+                                fieldCache[it] = newField
+                                newField[this] = it[old]
                                 break
                             }
                         }

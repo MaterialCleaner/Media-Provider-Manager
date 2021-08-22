@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin
 
 import android.content.pm.PackageInfo
 import android.os.IBinder
+import android.os.Process
 import android.os.RemoteException
 import androidx.lifecycle.MutableLiveData
 import java.util.*
@@ -54,7 +55,7 @@ object BinderReceiver {
 
     val installedPackages: List<PackageInfo>
         get() = try {
-            service!!.installedPackages.list
+            service!!.getInstalledPackages(Process.myUid() / 100000).list
         } catch (e: RemoteException) {
             e.printStackTrace()
             ArrayList()
