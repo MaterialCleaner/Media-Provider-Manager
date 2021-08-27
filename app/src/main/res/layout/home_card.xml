@@ -29,7 +29,6 @@
         android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="false"
         android:paddingVertical="@dimen/screen_edge_margin"
         app:cardBackgroundColor="?colorPrimary"
         app:cardCornerRadius="8dp"

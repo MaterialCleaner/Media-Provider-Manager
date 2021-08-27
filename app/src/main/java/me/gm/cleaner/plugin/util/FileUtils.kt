@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Environment
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 object FileUtils {
     fun startsWith(parent: File, child: String): Boolean {

@@ -42,7 +42,7 @@ class QueryAdapter(fragment: QueryFragment) :
             .into(binding.image)
         binding.root.setOnClickListener {
             Navigation
-                .findNavController(activity, android.R.id.home)
+                .findNavController(activity, R.id.home)
                 .navigate(R.id.action_query_to_gallery)
         }
     }

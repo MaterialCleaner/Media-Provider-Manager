@@ -6,7 +6,6 @@ import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.widget.ImageView
-import androidx.collection.LruCache
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.zhanghai.android.appiconloader.AppIconLoader

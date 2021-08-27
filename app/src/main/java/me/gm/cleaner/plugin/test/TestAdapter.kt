@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.HomeButtonBinding
 
+// https://developer.android.com/training/data-storage/shared/media?hl=zh-cn
+
 class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val activity: TestActivity = fragment.requireActivity() as TestActivity
     private val requestPermission =

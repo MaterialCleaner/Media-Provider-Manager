@@ -22,7 +22,6 @@ import android.content.SharedPreferences
 import android.text.TextUtils
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
-import java.util.*
 
 @SuppressLint("StaticFieldLeak")
 object ModulePreferences {

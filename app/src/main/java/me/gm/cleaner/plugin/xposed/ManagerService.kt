@@ -49,15 +49,13 @@ abstract class ManagerService : IManagerService.Stub() {
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
 
         val proxy = XposedHelpers.findClass("android.os.BinderProxy", classLoader)
-        return if (binder.javaClass == proxy) ParceledListSlice(list)
-        else ParceledListSlice(emptyList())
+        return ParceledListSlice(if (binder.javaClass == proxy) list else emptyList())
     }
 
     // FIXME
     @SuppressLint("SoonBlockedPrivateApi")
     override fun notifyPreferencesChanged() {
         try {
-            val context: Context = context.createDeviceProtectedStorageContext()
             context.javaClass.getDeclaredMethod("reloadSharedPreferences").invoke(context)
         } catch (tr: Throwable) {
             tr.printStackTrace()

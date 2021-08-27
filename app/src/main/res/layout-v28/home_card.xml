@@ -39,7 +39,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/item_background_button"
             android:minHeight="?attr/listPreferredItemHeightLarge"
             android:paddingHorizontal="@dimen/button_margin_horizontal"
             android:paddingVertical="@dimen/screen_edge_margin">

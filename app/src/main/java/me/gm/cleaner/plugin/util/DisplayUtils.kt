@@ -20,13 +20,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import androidx.annotation.FloatRange
 import androidx.appcompat.widget.AppCompatDrawableManager
-import me.gm.cleaner.plugin.R
-import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
 object DisplayUtils {

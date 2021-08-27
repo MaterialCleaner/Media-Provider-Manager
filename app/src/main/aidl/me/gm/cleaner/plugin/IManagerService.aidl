@@ -8,7 +8,5 @@ interface IManagerService {
 
     ParceledListSlice<PackageInfo> getInstalledPackages(int uid) = 10;
 
-    void notifyPreferencesChanged() = 11;
-
-    // TODO: getUsageRecord
+    void notifyPreferencesChanged() = 20;
 }

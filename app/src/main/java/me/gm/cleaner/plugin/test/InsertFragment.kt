@@ -19,4 +19,3 @@ package me.gm.cleaner.plugin.test
 import me.gm.cleaner.plugin.app.BaseFragment
 
 class InsertFragment : BaseFragment()
-// https://developer.android.com/training/data-storage/shared/media?hl=zh-cn#kotlin

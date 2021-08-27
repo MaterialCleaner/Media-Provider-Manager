@@ -21,7 +21,6 @@ import android.os.IBinder
 import android.os.Process
 import android.os.RemoteException
 import androidx.lifecycle.MutableLiveData
-import java.util.*
 
 object BinderReceiver {
     val MODULE_VER = MutableLiveData(-1)

@@ -13,7 +13,6 @@ import java.text.Collator
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Collectors
-import kotlin.collections.ArrayList
 
 class AppListViewModel : ViewModel() {
     val isSearching = MutableLiveData(false)

@@ -53,7 +53,7 @@
         <activity
             android:name=".test.TestActivity"
             android:exported="false"
-            android:label="@string/test"  />
+            android:label="@string/test" />
 
         <meta-data
             android:name="xposedmodule"
