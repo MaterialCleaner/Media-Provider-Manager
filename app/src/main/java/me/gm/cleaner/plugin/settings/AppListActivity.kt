@@ -25,8 +25,8 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -42,8 +42,8 @@ import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class AppListActivity : BaseActivity() {
+    private val viewModel by viewModels<AppListViewModel>()
     private lateinit var adapter: AppListAdapter
-    private lateinit var viewModel: AppListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +65,6 @@ class AppListActivity : BaseActivity() {
             }
         binding.list.adapter = adapter
 
-        viewModel = ViewModelProvider(this)[AppListViewModel::class.java]
         viewModel.isSearching.observe(this) {
             if (!it) {
                 viewModel.refreshShowingList()

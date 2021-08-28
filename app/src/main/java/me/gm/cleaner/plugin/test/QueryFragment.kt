@@ -21,7 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -31,6 +31,8 @@ import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class QueryFragment : BaseFragment() {
+    private val viewModel by viewModels<QueryViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -52,7 +54,6 @@ class QueryFragment : BaseFragment() {
             }
         binding.list.adapter = adapter
 
-        val viewModel = ViewModelProvider(this)[QueryViewModel::class.java]
         viewModel.images.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }

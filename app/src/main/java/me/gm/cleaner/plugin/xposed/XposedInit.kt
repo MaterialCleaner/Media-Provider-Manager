@@ -46,21 +46,21 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         XposedHelpers.findAndHookMethod(
                             File::class.java, "mkdir", FileHooker(this@XposedInit)
                         )
-
-                        XposedHelpers.findAndHookMethod(
-                            "com.android.providers.media.MediaProvider",
-                            classLoader, "queryInternal", Uri::class.java,
-                            Array<String>::class.java, Bundle::class.java,
-                            CancellationSignal::class.java, QueryHooker(this@XposedInit)
-                        )
-
-                        XposedBridge.hookAllMethods(
-                            XposedHelpers.findClass(
-                                "com.android.providers.media.MediaProvider", classLoader
-                            ), "insertInternal", InsertHooker(this@XposedInit)
-                        )
                     }
                 })
+
+                XposedHelpers.findAndHookMethod(
+                    "com.android.providers.media.MediaProvider",
+                    classLoader, "queryInternal", Uri::class.java,
+                    Array<String>::class.java, Bundle::class.java,
+                    CancellationSignal::class.java, QueryHooker(this@XposedInit)
+                )
+
+                XposedBridge.hookAllMethods(
+                    XposedHelpers.findClass(
+                        "com.android.providers.media.MediaProvider", classLoader
+                    ), "insertInternal", InsertHooker(this@XposedInit)
+                )
             }
         }
     }
