@@ -1,2 +1,3 @@
 include ':app'
+include ':about-page'
 rootProject.name = "Media Provider Manager"

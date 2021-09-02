@@ -1,0 +1,4 @@
+[submodule "about-page"]
+	path = about-page
+	url = https://github.com/GuhDoy/about-page.git
+	branch = master

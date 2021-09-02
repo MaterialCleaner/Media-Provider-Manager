@@ -34,11 +34,9 @@ class AppIconLoader(
 
         fun createBadgedIconBitmap(
             icon: Drawable, user: UserHandle, shrinkNonAdaptiveIcons: Boolean, isInstantApp: Boolean
-        ): BitmapInfo {
-            return super.createBadgedIconBitmap(
-                icon, user, shrinkNonAdaptiveIcons, isInstantApp, mTempScale
-            )
-        }
+        ): BitmapInfo = super.createBadgedIconBitmap(
+            icon, user, shrinkNonAdaptiveIcons, isInstantApp, mTempScale
+        )
     }
 
     init {

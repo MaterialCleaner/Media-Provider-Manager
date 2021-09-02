@@ -98,7 +98,7 @@ dependencies {
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
 
     implementation 'com.drakeet.multitype:multitype:4.3.0'
-    implementation 'com.drakeet.about:about:2.4.1'
+    implementation project(':about-page') exclude group: 'dev.rikka.rikkax.material', module: 'material'
 }
 
 configurations.all {

@@ -10,6 +10,7 @@ import androidx.collection.LruCache
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import rikka.core.util.BuildUtils
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 object AppIconCache : CoroutineScope {
@@ -26,7 +27,7 @@ object AppIconCache : CoroutineScope {
 
     private val lruCache: LruCache<Triple<String, Int, Int>, Bitmap>
 
-    private var appIconLoaders = HashMap<Int, AppIconLoader>()
+    private var appIconLoaders = ConcurrentHashMap<Int, AppIconLoader>()
 
     init {
         // Initialize app icon lru cache

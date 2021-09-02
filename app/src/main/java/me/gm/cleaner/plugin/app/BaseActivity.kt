@@ -40,7 +40,6 @@ abstract class BaseActivity : MaterialActivity() {
 
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
-        val window = window
         window.statusBarColor = Color.TRANSPARENT
         window.decorView.post {
             if (window.decorView.rootWindowInsets.systemWindowInsetBottom >=
