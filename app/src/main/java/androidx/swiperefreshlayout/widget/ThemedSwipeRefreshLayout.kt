@@ -9,7 +9,6 @@ import me.gm.cleaner.plugin.util.DisplayUtils.getColorByAttr
 open class ThemedSwipeRefreshLayout(context: Context, attrs: AttributeSet?) :
     SwipeRefreshLayout(context, attrs) {
     private fun init() {
-        val context = context
         setColorSchemeColors(context.getColorByAttr(android.R.attr.colorPrimary))
     }
 

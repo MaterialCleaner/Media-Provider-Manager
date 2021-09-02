@@ -29,13 +29,10 @@ object BinderReceiver {
     private val DEATH_RECIPIENT = IBinder.DeathRecipient {
         binder = null
         service = null
+        MODULE_VER.postValue(-1)
     }
 
-    fun pingBinder(): Boolean {
-        val ping = binder != null && binder!!.pingBinder()
-        if (!ping) MODULE_VER.postValue(-1)
-        return ping
-    }
+    fun pingBinder(): Boolean = binder != null && binder!!.pingBinder()
 
     fun onBinderReceived(newBinder: IBinder) {
         if (binder == newBinder) return
