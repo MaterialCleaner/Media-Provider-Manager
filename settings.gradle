@@ -1,3 +1,4 @@
 include ':app'
 include ':about-page'
+project(':about-page').projectDir = new File('about-page/library')
 rootProject.name = "Media Provider Manager"

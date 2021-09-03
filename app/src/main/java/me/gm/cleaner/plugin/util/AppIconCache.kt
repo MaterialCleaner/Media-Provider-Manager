@@ -11,6 +11,8 @@ import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import rikka.core.util.BuildUtils
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 object AppIconCache : CoroutineScope {
@@ -27,6 +29,8 @@ object AppIconCache : CoroutineScope {
 
     private val lruCache: LruCache<Triple<String, Int, Int>, Bitmap>
 
+    private val dispatcher: CoroutineDispatcher
+
     private var appIconLoaders = ConcurrentHashMap<Int, AppIconLoader>()
 
     init {
@@ -34,6 +38,16 @@ object AppIconCache : CoroutineScope {
         val maxMemory = Runtime.getRuntime().maxMemory() / 1024
         val availableCacheSize = (maxMemory / 4).toInt()
         lruCache = AppIconLruCache(availableCacheSize)
+
+        // Initialize load icon scheduler
+        val availableProcessorsCount = try {
+            Runtime.getRuntime().availableProcessors()
+        } catch (ignored: Exception) {
+            1
+        }
+        val threadCount = 1.coerceAtLeast(availableProcessorsCount / 2)
+        val loadIconExecutor: Executor = Executors.newFixedThreadPool(threadCount)
+        dispatcher = loadIconExecutor.asCoroutineDispatcher()
     }
 
     private fun get(packageName: String, userId: Int, size: Int): Bitmap? {
@@ -75,10 +89,9 @@ object AppIconCache : CoroutineScope {
         val size = view.measuredWidth.let {
             if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)
         }
-        view.setImageDrawable(null)
 
         val bitmap = try {
-            withContext(Dispatchers.Default) {
+            withContext(dispatcher) {
                 getOrLoadBitmap(context, info, userId, size)
             }
         } catch (e: CancellationException) {
@@ -90,6 +103,8 @@ object AppIconCache : CoroutineScope {
 
         if (bitmap != null) {
             view.setImageBitmap(bitmap)
+        } else {
+            view.setImageDrawable(null)
         }
     }
 }
