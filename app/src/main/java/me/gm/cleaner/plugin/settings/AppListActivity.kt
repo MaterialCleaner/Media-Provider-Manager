@@ -28,9 +28,6 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
@@ -76,11 +73,8 @@ class AppListActivity : BaseActivity() {
             }
         }
 
-        viewModel.installedPackagesCache.observe(this) {
-            viewModel.refreshShowingList()
-            binding.listContainer.isRefreshing = false
-        }
         viewModel.showingList.observe(this) {
+            binding.listContainer.isRefreshing = false
             if (viewModel.isSearching()) {
                 viewModel.refreshSearchingList()
             } else {
@@ -98,17 +92,13 @@ class AppListActivity : BaseActivity() {
             else binding.progress.progress = it
         }
         if (viewModel.installedPackagesCache.value!!.isEmpty()) {
-            MainScope().launch(Dispatchers.Default) {
-                viewModel.fetchInstalledPackages(packageManager)
-            }
+            viewModel.fetchInstalledPackages(packageManager)
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(shouldNotifyService: Boolean) {
-                MainScope().launch(Dispatchers.Default) {
-                    viewModel.refreshPreferencesCountInCache()
-                }
+                viewModel.refreshPreferencesCountForCache()
                 if (shouldNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
@@ -116,9 +106,7 @@ class AppListActivity : BaseActivity() {
         })
         binding.listContainer.setOnRefreshListener {
             binding.listContainer.isRefreshing = true
-            MainScope().launch(Dispatchers.Default) {
-                viewModel.fetchInstalledPackages(packageManager)
-            }
+            viewModel.fetchInstalledPackages(packageManager)
         }
     }
 

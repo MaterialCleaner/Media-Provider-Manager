@@ -5,6 +5,9 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
@@ -17,9 +20,11 @@ import java.util.stream.Collectors
 class AppListViewModel : ViewModel() {
     val isSearching = MutableLiveData(false)
     val queryText = MutableLiveData("")
+    val installedPackagesCache = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
+
+    // TODO: use MediatorLiveData
     val showingList = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
     val searchingList = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
-    val installedPackagesCache = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
     val loadingProgress = MutableLiveData(0)
 
     fun isSearching(): Boolean {
@@ -28,30 +33,36 @@ class AppListViewModel : ViewModel() {
     }
 
     private fun getInstalledPackagesForModulePreferences(pm: PackageManager): MutableList<PreferencesPackageInfo> {
-        val installedPackages = BinderReceiver.installedPackages.toMutableList().apply {
-            removeIf { !it.applicationInfo.enabled }
-        }
+        val installedPackages =
+            BinderReceiver.installedPackages.filter { it.applicationInfo.enabled }
         val size = installedPackages.size
         val count = AtomicInteger(0)
         return installedPackages.stream()
             .map {
                 loadingProgress.postValue(100 * count.incrementAndGet() / size)
                 PreferencesPackageInfo.newInstance(it, pm)
-            }.collect(Collectors.toList()).apply { loadingProgress.postValue(-1) }
+            }
+            .collect(Collectors.toList())
+            .apply { loadingProgress.postValue(-1) }
     }
 
     fun fetchInstalledPackages(pm: PackageManager) {
-        getInstalledPackagesForModulePreferences(pm).apply {
-            installedPackagesCache.postValue(this)
+        viewModelScope.launch(Dispatchers.Default) {
+            getInstalledPackagesForModulePreferences(pm).let {
+                installedPackagesCache.postValue(it)
+            }
+            refreshShowingList()
         }
     }
 
-    fun refreshPreferencesCountInCache() {
-        val list: MutableList<PreferencesPackageInfo> = ArrayList()
-        installedPackagesCache.value?.forEach {
-            list.add(it.copy())
+    fun refreshPreferencesCountForCache() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val list: MutableList<PreferencesPackageInfo> = ArrayList()
+            installedPackagesCache.value?.forEach {
+                list.add(it.copy())
+            }
+            installedPackagesCache.postValue(list)
         }
-        installedPackagesCache.postValue(list)
     }
 
     fun refreshShowingList() {

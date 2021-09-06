@@ -287,5 +287,4 @@ private fun ContentResolver.registerObserver(
     return contentObserver
 }
 
-
 private const val TAG = "MainActivityVM"

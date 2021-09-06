@@ -4,15 +4,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def gitCommitCount = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
+def target = 30
 
 android {
-    compileSdk 31
+    compileSdk target
     buildToolsVersion '31.0.0'
 
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
         minSdk 29
-        targetSdk 31
+        targetSdk target
         versionCode gitCommitCount
         versionName "alpha"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -89,7 +90,7 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
 
     implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
-    implementation 'dev.rikka.rikkax.material:material:1.6.5'
+    implementation 'dev.rikka.rikkax.material:material:1.6.6'
     implementation 'dev.rikka.rikkax.widget:borderview:1.0.1'
     implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2'
 
