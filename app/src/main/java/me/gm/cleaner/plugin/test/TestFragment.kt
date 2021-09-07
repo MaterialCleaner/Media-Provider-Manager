@@ -52,7 +52,8 @@ class TestFragment : BaseFragment() {
                 override fun handleOnBackPressed() {
                     requireActivity().finish()
                 }
-            })
+            }
+        )
         return binding.root
     }
 }
