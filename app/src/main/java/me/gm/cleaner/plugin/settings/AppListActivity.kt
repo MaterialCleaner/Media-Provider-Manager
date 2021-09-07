@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
@@ -28,6 +27,10 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
@@ -61,52 +64,42 @@ class AppListActivity : BaseActivity() {
                 appBarLayout?.isRaised = !top
             }
         binding.list.adapter = adapter
-
-        viewModel.isSearching.observe(this) {
-            if (!it) {
-                viewModel.refreshShowingList()
-            }
-        }
-        viewModel.queryText.observe(this) {
-            if (!TextUtils.isEmpty(it)) {
-                viewModel.refreshSearchingList()
-            }
-        }
-
         viewModel.showingList.observe(this) {
-            binding.listContainer.isRefreshing = false
-            if (viewModel.isSearching()) {
-                viewModel.refreshSearchingList()
-            } else {
-                adapter.submitList(it)
-            }
-        }
-        viewModel.searchingList.observe(this) {
-            if (viewModel.isSearching()) {
-                adapter.submitList(it)
-            }
+            adapter.submitList(it)
         }
 
-        viewModel.loadingProgress.observe(this) {
-            if (it == -1) binding.progress.hide()
-            else binding.progress.progress = it
-        }
-        if (viewModel.installedPackagesCache.value!!.isEmpty()) {
-            viewModel.fetchInstalledPackages(packageManager)
+        if (viewModel.installedPackages.value!!.isEmpty()) {
+            MainScope().launch(Dispatchers.Default) {
+                viewModel.installedPackages.load(
+                    packageManager, object : AppListLiveData.ProgressListener {
+                        override fun onProgress(progress: Int) {
+                            runOnUiThread {
+                                if (progress == -1) binding.progress.hide()
+                                else binding.progress.progress = progress
+                            }
+                        }
+                    }
+                )
+            }
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(shouldNotifyService: Boolean) {
-                viewModel.refreshPreferencesCountForCache()
+                viewModel.installedPackages.refreshPreferencesCount()
                 if (shouldNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
             }
         })
         binding.listContainer.setOnRefreshListener {
-            binding.listContainer.isRefreshing = true
-            viewModel.fetchInstalledPackages(packageManager)
+            MainScope().launch {
+                binding.listContainer.isRefreshing = true
+                withContext(Dispatchers.Default) {
+                    viewModel.installedPackages.load(packageManager, null)
+                }
+                binding.listContainer.isRefreshing = false
+            }
         }
     }
 
@@ -117,28 +110,30 @@ class AppListActivity : BaseActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_applist, menu)
         val searchItem = menu.findItem(R.id.menu_search)
-        if (viewModel.isSearching()) searchItem.expandActionView()
+        if (viewModel.isSearching) {
+            searchItem.expandActionView()
+        }
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                viewModel.isSearching.postValue(true)
+                viewModel.isSearching = true
                 return true
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                viewModel.isSearching.postValue(false)
+                viewModel.isSearching = false
                 return true
             }
         })
         val searchView = searchItem.actionView as SearchView
-        searchView.setQuery(viewModel.queryText.value, false)
+        searchView.setQuery(viewModel.queryText, false)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                viewModel.queryText.postValue(query)
+                viewModel.queryText = query
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                viewModel.queryText.postValue(newText)
+                viewModel.queryText = newText
                 return false
             }
         })
@@ -151,13 +146,9 @@ class AppListActivity : BaseActivity() {
         menu.findItem(R.id.menu_rule_count).isChecked = ModulePreferences.ruleCount
         menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
 
-        for (headerItem in listOf<MenuItem>(
-            menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
-        )) {
-            headerItem.apply {
-                isEnabled = false
-                title = getSpannableString(title)
-            }
+        listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
+            it.isEnabled = false
+            it.title = getSpannableString(it.title)
         }
         return super.onCreateOptionsMenu(menu)
     }

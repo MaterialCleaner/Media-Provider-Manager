@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.DevUtils
 import me.gm.cleaner.plugin.xposed.hooker.FileHooker
 import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
@@ -32,7 +33,9 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         classLoader = lpparam.classLoader
-        DevUtils.init(classLoader)
+        if (BuildConfig.DEBUG) {
+            DevUtils.init(classLoader)
+        }
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
                 XposedBridge.hookAllMethods(XposedHelpers.findClass(

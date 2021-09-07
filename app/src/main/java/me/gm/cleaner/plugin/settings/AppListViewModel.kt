@@ -1,96 +1,89 @@
+/*
+ * Copyright 2021 Green Mushroom
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package me.gm.cleaner.plugin.settings
 
 import android.Manifest
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo.Companion.copy
 import java.text.Collator
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.stream.Collectors
 
 class AppListViewModel : ViewModel() {
-    val isSearching = MutableLiveData(false)
-    val queryText = MutableLiveData("")
-    val installedPackagesCache = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
-
-    // TODO: use MediatorLiveData
-    val showingList = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
-    val searchingList = MutableLiveData<MutableList<PreferencesPackageInfo>>(ArrayList())
-    val loadingProgress = MutableLiveData(0)
-
-    fun isSearching(): Boolean {
-        val value = isSearching.value
-        return value != null && value
-    }
-
-    private fun getInstalledPackagesForModulePreferences(pm: PackageManager): MutableList<PreferencesPackageInfo> {
-        val installedPackages =
-            BinderReceiver.installedPackages.filter { it.applicationInfo.enabled }
-        val size = installedPackages.size
-        val count = AtomicInteger(0)
-        return installedPackages.stream()
-            .map {
-                loadingProgress.postValue(100 * count.incrementAndGet() / size)
-                PreferencesPackageInfo.newInstance(it, pm)
+    private val searchState = MutableLiveData(Pair(false, ""))
+    var isSearching: Boolean
+        get() = searchState.value!!.first
+        set(value) {
+            if (isSearching == value) {
+                return
             }
-            .collect(Collectors.toList())
-            .apply { loadingProgress.postValue(-1) }
-    }
-
-    fun fetchInstalledPackages(pm: PackageManager) {
-        viewModelScope.launch(Dispatchers.Default) {
-            getInstalledPackagesForModulePreferences(pm).let {
-                installedPackagesCache.postValue(it)
-            }
-            refreshShowingList()
+            searchState.postValue(Pair(value, queryText))
         }
-    }
-
-    fun refreshPreferencesCountForCache() {
-        viewModelScope.launch(Dispatchers.Default) {
-            val list: MutableList<PreferencesPackageInfo> = ArrayList()
-            installedPackagesCache.value?.forEach {
-                list.add(it.copy())
+    var queryText: String
+        get() = searchState.value!!.second
+        set(value) {
+            if (queryText == value) {
+                return
             }
-            installedPackagesCache.postValue(list)
+            searchState.postValue(Pair(isSearching, value))
         }
-    }
+    val installedPackages = AppListLiveData()
+    private val _showingList = SearchableAppListLiveData(installedPackages, searchState)
+    val showingList: LiveData<List<PreferencesPackageInfo>>
+        get() = _showingList
 
-    fun refreshShowingList() {
-        showingList.postValue(
-            installedPackagesCache.value!!.toMutableList().apply {
-                if (ModulePreferences.isHideSystemApp) {
-                    removeIf {
-                        it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
-                    }
-                }
-                if (ModulePreferences.isHideNoStoragePermissionApp) {
-                    removeIf {
-                        val requestedPermissions = it.requestedPermissions
-                        requestedPermissions == null || !listOf(*requestedPermissions)
-                            .contains(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }
-                }
-                when (ModulePreferences.sortBy) {
-                    ModulePreferences.SORT_BY_NAME ->
-                        sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
-                            Collator.getInstance().compare(o1?.label, o2?.label)
+    private class SearchableAppListLiveData(
+        private val source: AppListLiveData,
+        private val searchState: LiveData<Pair<Boolean, String>>
+    ) : MediatorLiveData<List<PreferencesPackageInfo>>() {
+        init {
+            addSource(source) { updateSource() }
+            addSource(searchState) { updateSource() }
+        }
+
+        fun updateSource() {
+            val list = source.value!!.toMutableList().apply {
+                if (searchState.value!!.first) {
+                    if (ModulePreferences.isHideSystemApp) {
+                        removeIf {
+                            it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
                         }
-                    ModulePreferences.SORT_BY_UPDATE_TIME ->
-                        sortWith(Comparator.comparingLong {
-                            -it!!.lastUpdateTime
-                        })
-                }
-                if (ModulePreferences.ruleCount) {
+                    }
+                    if (ModulePreferences.isHideNoStoragePermissionApp) {
+                        removeIf {
+                            val requestedPermissions = it.requestedPermissions
+                            requestedPermissions == null || !listOf(*requestedPermissions)
+                                .contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+                    when (ModulePreferences.sortBy) {
+                        ModulePreferences.SORT_BY_NAME ->
+                            sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
+                                Collator.getInstance().compare(o1?.label, o2?.label)
+                            }
+                        ModulePreferences.SORT_BY_UPDATE_TIME ->
+                            sortWith(Comparator.comparingLong {
+                                -it!!.lastUpdateTime
+                            })
+                    }
+                    if (ModulePreferences.ruleCount) {
 //                    sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
 //                        when (mTitle) {
 //                            R.string.storage_redirect_title -> return@sortWith o2!!.srCount - o1!!.srCount
@@ -98,21 +91,17 @@ class AppListViewModel : ViewModel() {
 //                            else -> return@sortWith 0
 //                        }
 //                    }
+                    }
+                } else {
+                    val lowerQuery = searchState.value!!.second.lowercase()
+                    removeIf {
+                        !it.label.lowercase().contains(lowerQuery)
+                                && !it.applicationInfo.packageName.lowercase()
+                            .contains(lowerQuery)
+                    }
                 }
             }
-        )
-    }
-
-    fun refreshSearchingList() {
-        val lowerQuery = queryText.value!!.lowercase(Locale.getDefault())
-        searchingList.postValue(
-            showingList.value!!.toMutableList().apply {
-                removeIf {
-                    !it.label.lowercase(Locale.getDefault()).contains(lowerQuery)
-                            && !it.applicationInfo.packageName.lowercase(Locale.getDefault())
-                        .contains(lowerQuery)
-                }
-            }
-        )
+            postValue(list)
+        }
     }
 }

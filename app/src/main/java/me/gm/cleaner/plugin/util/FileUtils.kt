@@ -11,8 +11,8 @@ object FileUtils {
     }
 
     fun startsWith(parent: String, child: String): Boolean {
-        val lowerParent = parent.lowercase(Locale.getDefault())
-        val lowerChild = child.lowercase(Locale.getDefault())
+        val lowerParent = parent.lowercase()
+        val lowerChild = child.lowercase()
         return lowerChild == lowerParent || lowerChild.startsWith(lowerParent + File.separator)
     }
 

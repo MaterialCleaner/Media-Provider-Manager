@@ -66,7 +66,8 @@ class QueryFragment : BaseFragment() {
                 override fun handleOnBackPressed() {
                     navigateUp()
                 }
-            })
+            }
+        )
         return binding.root
     }
 }
