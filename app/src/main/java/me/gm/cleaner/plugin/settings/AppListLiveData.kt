@@ -18,9 +18,9 @@ package me.gm.cleaner.plugin.settings
 
 import android.content.pm.PackageManager
 import androidx.lifecycle.LiveData
+import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo.Companion.copy
-import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Collectors
 
@@ -29,9 +29,8 @@ class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
         value = ArrayList()
     }
 
-    @TestOnly
     fun load(pm: PackageManager, l: ProgressListener?) {
-        val installedPackages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS).filter {
+        val installedPackages = BinderReceiver.installedPackages.filter {
             it.applicationInfo.enabled
         }
         val size = installedPackages.size
@@ -45,22 +44,6 @@ class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
             .apply { l?.onProgress(-1) }
         )
     }
-
-//    fun load(pm: PackageManager, l: ProgressListener?) {
-//        val installedPackages = BinderReceiver.installedPackages.filter {
-//            it.applicationInfo.enabled
-//        }
-//        val size = installedPackages.size
-//        val count = AtomicInteger(0)
-//        postValue(installedPackages.stream()
-//            .map {
-//                l?.onProgress(100 * count.incrementAndGet() / size)
-//                PreferencesPackageInfo.newInstance(it, pm)
-//            }
-//            .collect(Collectors.toList())
-//            .apply { l?.onProgress(-1) }
-//        )
-//    }
 
     fun refreshPreferencesCount() {
         val list = ArrayList<PreferencesPackageInfo>()

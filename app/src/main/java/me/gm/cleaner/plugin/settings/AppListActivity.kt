@@ -85,9 +85,9 @@ class AppListActivity : BaseActivity() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun onPreferencesChanged(shouldNotifyService: Boolean) {
+            override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.installedPackages.refreshPreferencesCount()
-                if (shouldNotifyService) {
+                if (isNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
             }
@@ -145,6 +145,8 @@ class AppListActivity : BaseActivity() {
         }
         menu.findItem(R.id.menu_rule_count).isChecked = ModulePreferences.ruleCount
         menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
+        menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
+            ModulePreferences.isHideNoStoragePermissionApp
 
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
             it.isEnabled = false

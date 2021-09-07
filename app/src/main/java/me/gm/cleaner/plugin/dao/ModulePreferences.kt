@@ -27,12 +27,9 @@ import me.gm.cleaner.plugin.R
 object ModulePreferences {
     const val SORT_BY_NAME = 0
     const val SORT_BY_UPDATE_TIME = 1
-    lateinit var DISPLAY_NAME: String
-        private set
-    lateinit var RELATIVE_PATH: String
-        private set
-    lateinit var MIME_TYPE: String
-        private set
+    private lateinit var DISPLAY_NAME: String
+    private lateinit var RELATIVE_PATH: String
+    private lateinit var MIME_TYPE: String
     private var broadcasting = false
     private val listeners: MutableSet<PreferencesChangeListener> = HashSet()
     private lateinit var defaultSp: SharedPreferences
@@ -57,13 +54,13 @@ object ModulePreferences {
         broadcasting = false
     }
 
-    private fun notifyListeners(shouldNotifyService: Boolean) {
+    private fun notifyListeners(isNotifyService: Boolean) {
         if (broadcasting) {
             return
         }
         broadcasting = true
         listeners.forEach {
-            it.onPreferencesChanged(shouldNotifyService)
+            it.onPreferencesChanged(isNotifyService)
         }
         broadcasting = false
     }
@@ -72,39 +69,34 @@ object ModulePreferences {
     var sortBy: Int
         get() = defaultSp.getInt(context.resources.getString(R.string.sort_key), SORT_BY_NAME)
         set(value) {
-            val editor = defaultSp.edit()
-            editor.putInt(context.resources.getString(R.string.sort_key), value)
-            editor.apply()
+            defaultSp.edit().apply {
+                putInt(context.resources.getString(R.string.sort_key), value)
+                apply()
+            }
             notifyListeners(false)
         }
 
     var ruleCount: Boolean
-        get() = defaultSp.getBoolean(
-            context.resources.getString(R.string.menu_rule_count_key), true
-        )
-        set(value) = putBoolean(context.resources.getString(R.string.menu_rule_count_key), value)
+        get() = defaultSp.getBoolean(context.getString(R.string.menu_rule_count_key), true)
+        set(value) = putBoolean(context.getString(R.string.menu_rule_count_key), value)
 
     var isHideSystemApp: Boolean
-        get() = defaultSp.getBoolean(
-            context.resources.getString(R.string.menu_hide_system_app_key), true
-        )
-        set(value) = putBoolean(
-            context.resources.getString(R.string.menu_hide_system_app_key), value
-        )
+        get() = defaultSp.getBoolean(context.getString(R.string.menu_hide_system_app_key), true)
+        set(value) = putBoolean(context.getString(R.string.menu_hide_system_app_key), value)
 
     var isHideNoStoragePermissionApp: Boolean
         get() = defaultSp.getBoolean(
-            context.resources.getString(R.string.menu_hide_no_storage_permission_key), true
+            context.getString(R.string.menu_hide_no_storage_permission_key), true
         )
         set(value) = putBoolean(
-            context.resources.getString(R.string.menu_hide_no_storage_permission_key),
-            value
+            context.getString(R.string.menu_hide_no_storage_permission_key), value
         )
 
     private fun putBoolean(key: String, value: Boolean) {
-        val editor = defaultSp.edit()
-        editor.putBoolean(key, value)
-        editor.apply()
+        defaultSp.edit().apply {
+            putBoolean(key, value)
+            apply()
+        }
         notifyListeners(false)
     }
 
@@ -115,8 +107,7 @@ object ModulePreferences {
     }
 
     fun putPackage(packageName: String, key: String, value: String?) {
-        val sp = context.getSharedPreferences(packageName, Context.MODE_PRIVATE)
-        sp.edit().apply {
+        context.getSharedPreferences(packageName, Context.MODE_PRIVATE).edit().apply {
             putString(key, value)
             commit()
         }
@@ -143,6 +134,6 @@ object ModulePreferences {
     }
 
     interface PreferencesChangeListener {
-        fun onPreferencesChanged(shouldNotifyService: Boolean)
+        fun onPreferencesChanged(isNotifyService: Boolean)
     }
 }

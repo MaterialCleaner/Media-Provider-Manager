@@ -22,6 +22,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
@@ -59,8 +62,8 @@ class AppListViewModel : ViewModel() {
         }
 
         fun updateSource() {
-            val list = source.value!!.toMutableList().apply {
-                if (searchState.value!!.first) {
+            MainScope().launch(Dispatchers.Default) {
+                val list = source.value!!.toMutableList().apply {
                     if (ModulePreferences.isHideSystemApp) {
                         removeIf {
                             it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
@@ -92,16 +95,17 @@ class AppListViewModel : ViewModel() {
 //                        }
 //                    }
                     }
-                } else {
-                    val lowerQuery = searchState.value!!.second.lowercase()
-                    removeIf {
-                        !it.label.lowercase().contains(lowerQuery)
-                                && !it.applicationInfo.packageName.lowercase()
-                            .contains(lowerQuery)
+                    if (searchState.value!!.first) {
+                        val lowerQuery = searchState.value!!.second.lowercase()
+                        removeIf {
+                            !it.label.lowercase().contains(lowerQuery)
+                                    && !it.applicationInfo.packageName.lowercase()
+                                .contains(lowerQuery)
+                        }
                     }
                 }
+                postValue(list)
             }
-            postValue(list)
         }
     }
 }
