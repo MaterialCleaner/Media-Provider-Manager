@@ -4,16 +4,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 def gitCommitCount = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
-def target = 30
+def sdk = 30
 
 android {
-    compileSdk target
+    compileSdk sdk
     buildToolsVersion '31.0.0'
 
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
         minSdk 29
-        targetSdk target
+        targetSdk sdk
         versionCode gitCommitCount
         versionName "alpha"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -82,8 +82,9 @@ dependencies {
     def androidx_lifecycle_version = '2.3.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
+    def kotlinx_coroutines_version = '1.5.2'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_coroutines_version"
 
     def appCenterSdkVersion = '4.2.0'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"

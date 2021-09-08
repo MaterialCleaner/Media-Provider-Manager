@@ -41,7 +41,7 @@ class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
                 PreferencesPackageInfo.newInstance(it, pm)
             }
             .collect(Collectors.toList())
-            .apply { l?.onProgress(-1) }
+            .apply { l?.onProgress(0) }
         )
     }
 

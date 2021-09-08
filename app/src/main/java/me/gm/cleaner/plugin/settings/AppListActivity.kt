@@ -74,8 +74,7 @@ class AppListActivity : BaseActivity() {
                     packageManager, object : AppListLiveData.ProgressListener {
                         override fun onProgress(progress: Int) {
                             runOnUiThread {
-                                if (progress == -1) binding.progress.hide()
-                                else binding.progress.progress = progress
+                                binding.progress.progress = progress
                             }
                         }
                     }

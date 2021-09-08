@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.settings
 
 import android.Manifest
 import android.content.pm.ApplicationInfo
+import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -72,8 +73,12 @@ class AppListViewModel : ViewModel() {
                     if (ModulePreferences.isHideNoStoragePermissionApp) {
                         removeIf {
                             val requestedPermissions = it.requestedPermissions
-                            requestedPermissions == null || !listOf(*requestedPermissions)
-                                .contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            requestedPermissions == null || !requestedPermissions.run {
+                                contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                        || contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                        || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                                        && contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                            }
                         }
                     }
                     when (ModulePreferences.sortBy) {
@@ -83,7 +88,7 @@ class AppListViewModel : ViewModel() {
                             }
                         ModulePreferences.SORT_BY_UPDATE_TIME ->
                             sortWith(Comparator.comparingLong {
-                                -it!!.lastUpdateTime
+                                -it.lastUpdateTime
                             })
                     }
                     if (ModulePreferences.ruleCount) {
@@ -98,9 +103,8 @@ class AppListViewModel : ViewModel() {
                     if (searchState.value!!.first) {
                         val lowerQuery = searchState.value!!.second.lowercase()
                         removeIf {
-                            !it.label.lowercase().contains(lowerQuery)
-                                    && !it.applicationInfo.packageName.lowercase()
-                                .contains(lowerQuery)
+                            !it.label.lowercase().contains(lowerQuery) &&
+                                    !it.applicationInfo.packageName.lowercase().contains(lowerQuery)
                         }
                     }
                 }
