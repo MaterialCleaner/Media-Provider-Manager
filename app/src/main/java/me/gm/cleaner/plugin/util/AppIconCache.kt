@@ -104,7 +104,7 @@ object AppIconCache : CoroutineScope {
         if (bitmap != null) {
             view.setImageBitmap(bitmap)
         } else {
-            view.setImageDrawable(null)
+            view.setImageDrawable(context.packageManager.defaultActivityIcon)
         }
     }
 }

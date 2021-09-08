@@ -108,8 +108,7 @@ class HomeAdapter(private val activity: HomeActivity) :
                 binding.icon.setImageResource(R.drawable.ic_outline_info_24)
                 binding.title.setText(R.string.about)
                 binding.background.setOnClickListener {
-                    // "https://github.com/GuhDoy/Media-Provider-Manager"
-                    // activity.startActivity(Intent(activity, ServiceSettingsActivity::class.java))
+                    activity.startActivity(Intent(activity, AboutActivity::class.java))
                 }
             }
         }

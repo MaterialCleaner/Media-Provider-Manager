@@ -47,14 +47,10 @@ abstract class BaseActivity : MaterialActivity() {
             ) {
                 window.navigationBarColor =
                     theme.resolveColor(android.R.attr.navigationBarColor) and 0x00ffffff or -0x20000000
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    window.isNavigationBarContrastEnforced = false
-                }
+                window.isNavigationBarContrastEnforced = false
             } else {
                 window.navigationBarColor = Color.TRANSPARENT
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    window.isNavigationBarContrastEnforced = true
-                }
+                window.isNavigationBarContrastEnforced = true
             }
         }
     }
