@@ -26,7 +26,7 @@ import java.util.stream.Collectors
 
 class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
     init {
-        value = ArrayList()
+        value = mutableListOf()
     }
 
     fun load(pm: PackageManager, l: ProgressListener?) {

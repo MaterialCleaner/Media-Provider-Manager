@@ -56,7 +56,7 @@ class AppListAdapter(private val activity: AppListActivity) :
 
     private fun getSummary(pi: PreferencesPackageInfo): CharSequence {
 //        if (pi.faInfo.isNotEmpty()) {
-//            val enabledFunctions: MutableList<String?> = ArrayList()
+//            val enabledFunctions = mutableListOf<String>()
 //            pi.faInfo.forEach {
 //                enabledFunctions.add(activity.getString(it))
 //            }

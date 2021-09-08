@@ -120,7 +120,7 @@ object ModulePreferences {
     }
 
     fun enquireAboutPackagePreferences(packageName: String): List<String> {
-        val list: MutableList<String> = ArrayList()
+        val list = mutableListOf<String>()
         if (!TextUtils.isEmpty(getStringSet(packageName, DISPLAY_NAME))) {
             list.add(DISPLAY_NAME)
         }

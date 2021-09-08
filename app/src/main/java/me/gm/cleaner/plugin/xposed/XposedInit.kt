@@ -53,9 +53,8 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                 })
 
                 XposedHelpers.findAndHookMethod(
-                    "com.android.providers.media.MediaProvider",
-                    classLoader, "queryInternal", Uri::class.java,
-                    Array<String>::class.java, Bundle::class.java,
+                    "com.android.providers.media.MediaProvider", classLoader,
+                    "queryInternal", Uri::class.java, Array<String>::class.java, Bundle::class.java,
                     CancellationSignal::class.java, QueryHooker(this@XposedInit)
                 )
 
