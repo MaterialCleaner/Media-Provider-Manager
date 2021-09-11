@@ -51,7 +51,9 @@ class QueryAdapter(private val fragment: QueryFragment) :
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    fragment.startPostponedEnterTransition()
+                    if (position == viewModel.currentPosition) {
+                        fragment.startPostponedEnterTransition()
+                    }
                     return false
                 }
 
@@ -59,7 +61,9 @@ class QueryAdapter(private val fragment: QueryFragment) :
                     resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
-                    fragment.startPostponedEnterTransition()
+                    if (position == viewModel.currentPosition) {
+                        fragment.startPostponedEnterTransition()
+                    }
                     return false
                 }
             })

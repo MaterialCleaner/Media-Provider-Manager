@@ -35,7 +35,7 @@ class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.Vi
         fragment.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
                 Navigation
-                    .findNavController(activity, android.R.id.home)
+                    .findNavController(activity, R.id.home)
                     .navigate(R.id.action_test_to_query)
             }
         }

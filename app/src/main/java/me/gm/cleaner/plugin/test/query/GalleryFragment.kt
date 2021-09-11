@@ -143,7 +143,7 @@ class GalleryFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    parentFragmentManager.findFragmentByTag("f${viewModel.currentPosition}")
+                    childFragmentManager.findFragmentByTag("f${viewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
                 // Map the first shared element name to the child ImageView.
