@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.github.chrisbanes.photoview.PhotoView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.GalleryFragmentBinding
@@ -54,21 +55,32 @@ class GalleryFragment : BaseFragment() {
         }
 
         viewPager = binding.viewPager
-        viewPager.adapter = PagerAdapter(this, viewModel.images.value!!.size)
+        val size = viewModel.images.value!!.size
+        viewPager.adapter = PagerAdapter(this, size)
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.currentItem = viewModel.currentPosition
+        viewPager.setCurrentItem(viewModel.currentPosition, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 viewModel.currentPosition = position
-                (requireActivity() as TestActivity).supportActionBar?.title =
-                    viewModel.images.value!![position].displayName
+                val photoView = viewPager.findViewById<PhotoView>(R.id.photo_view)
+                (requireActivity() as TestActivity).supportActionBar?.apply {
+                    title = viewModel.images.value!![position].displayName
+                    subtitle = "${position + 1} / $size"
+                    photoView.setOnViewTapListener { _, _, _ ->
+                        if (isShowing) hide()
+                        else show()
+                    }
+                }
+                photoView.setOnMatrixChangeListener {
+                    appBarLayout.isRaised = it.top < 0
+                }
+                val displayRect = photoView.displayRect ?: return
+                appBarLayout.isRaised = displayRect.top < 0
             }
         })
-
-        appBarLayout.isRaised = true
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
@@ -100,7 +112,7 @@ class GalleryFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    parentFragmentManager.findFragmentByTag("f" + viewModel.currentPosition)
+                    parentFragmentManager.findFragmentByTag("f${viewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
                 // Map the first shared element name to the child ImageView.

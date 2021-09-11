@@ -59,11 +59,10 @@ class QueryFragment : BaseFragment() {
             }
         val adapter = QueryAdapter(this)
         list.adapter = adapter
-
         viewModel.images.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-        if (viewModel.images.value == null) {
+        if (savedInstanceState == null) {
             viewModel.loadImages()
         }
 

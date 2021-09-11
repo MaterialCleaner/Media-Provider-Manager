@@ -30,7 +30,7 @@ import me.gm.cleaner.plugin.databinding.HomeCardBinding
 import me.gm.cleaner.plugin.databinding.HomeCardButtonBinding
 import me.gm.cleaner.plugin.settings.AppListActivity
 import me.gm.cleaner.plugin.test.TestActivity
-import java.util.*
+import me.gm.cleaner.plugin.usage.UsageRecordActivity
 
 class HomeAdapter(private val activity: HomeActivity) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -66,12 +66,10 @@ class HomeAdapter(private val activity: HomeActivity) :
                     BuildConfig.VERSION_CODE != ver -> {
                         binding.status.setCardBackgroundColor(activity.getColor(R.color.service_hint_warn))
                         binding.title.setText(R.string.restart_system)
-                        binding.summary.text =
-                            String.format(activity.getString(R.string.module_version), ver)
+                        binding.summary.text = activity.getString(R.string.module_version, ver)
                     }
                     else -> {
-                        binding.summary.text =
-                            String.format(activity.getString(R.string.module_version), ver)
+                        binding.summary.text = activity.getString(R.string.module_version, ver)
                     }
                 }
                 return
@@ -79,11 +77,13 @@ class HomeAdapter(private val activity: HomeActivity) :
             1 -> {
                 val binding = (holder as CardButtonHolder).binding
                 val count = 114514
-                binding.summary.text = String.format(
-                    Locale.ENGLISH, activity.getString(R.string.enabled_app_count), count
-                )
-                binding.root.setOnClickListener {
-                    activity.startActivity(Intent(activity, AppListActivity::class.java))
+                binding.summary.text = activity.getString(R.string.enabled_app_count, count)
+                if (ver == -1) {
+                    binding.root.isEnabled = false
+                } else {
+                    binding.root.setOnClickListener {
+                        activity.startActivity(Intent(activity, AppListActivity::class.java))
+                    }
                 }
                 return
             }
@@ -94,7 +94,7 @@ class HomeAdapter(private val activity: HomeActivity) :
                 binding.icon.setImageResource(R.drawable.ic_outline_history_24)
                 binding.title.setText(R.string.usage_record)
                 binding.background.setOnClickListener {
-                    // activity.startActivity(Intent(activity, ServiceSettingsActivity::class.java))
+                    activity.startActivity(Intent(activity, UsageRecordActivity::class.java))
                 }
             }
             1 -> {
@@ -136,7 +136,7 @@ class HomeAdapter(private val activity: HomeActivity) :
         }
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun onPreferencesChanged(shouldNotifyService: Boolean) {
+            override fun onPreferencesChanged(isNotifyService: Boolean) {
                 notifyItemChanged(1)
             }
         })

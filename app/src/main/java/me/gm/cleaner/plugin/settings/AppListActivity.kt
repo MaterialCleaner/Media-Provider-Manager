@@ -67,8 +67,7 @@ class AppListActivity : BaseActivity() {
         viewModel.showingList.observe(this) {
             adapter.submitList(it)
         }
-
-        if (viewModel.installedPackages.value!!.isEmpty()) {
+        if (savedInstanceState == null) {
             MainScope().launch(Dispatchers.Default) {
                 viewModel.installedPackages.load(
                     packageManager, object : AppListLiveData.ProgressListener {
