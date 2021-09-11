@@ -16,18 +16,14 @@
 
 package me.gm.cleaner.plugin.test.query
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.databinding.GalleryItemBinding
 
 /**
@@ -46,34 +42,22 @@ class GalleryItem : Fragment() {
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         binding.photoView.transitionName = uri.toString()
+        binding.photoView.setImage(ImageSource.uri(uri))
+        binding.photoView.setOnImageEventListener(object :
+            SubsamplingScaleImageView.OnImageEventListener {
+            override fun onImageLoaded() {
+                parentFragment?.startPostponedEnterTransition()
+            }
 
-        // Load the image with Glide to prevent OOM error when the image drawables are very large.
-        Glide.with(this)
-            .load(uri)
-            .listener(object : RequestListener<Drawable?> {
-                override fun onLoadFailed(
-                    e: GlideException?, model: Any?, target: Target<Drawable?>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                    // startPostponedEnterTransition() should also be called on it to get the transition
-                    // going in case of a failure.
-                    parentFragment?.startPostponedEnterTransition()
-                    return false
-                }
+            override fun onImageLoadError(e: Exception?) {
+                parentFragment?.startPostponedEnterTransition()
+            }
 
-                override fun onResourceReady(
-                    resource: Drawable?, model: Any?, target: Target<Drawable?>?,
-                    dataSource: DataSource?, isFirstResource: Boolean
-                ): Boolean {
-                    // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
-                    // startPostponedEnterTransition() should also be called on it to get the transition
-                    // going when the image is ready.
-                    parentFragment?.startPostponedEnterTransition()
-                    return false
-                }
-            })
-            .into(binding.photoView)
+            override fun onPreviewLoadError(e: Exception?) {}
+            override fun onTileLoadError(e: Exception?) {}
+            override fun onReady() {}
+            override fun onPreviewReleased() {}
+        })
         return binding.root
     }
 

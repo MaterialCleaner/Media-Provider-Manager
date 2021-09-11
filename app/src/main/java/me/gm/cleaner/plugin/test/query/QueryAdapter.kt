@@ -43,6 +43,7 @@ class QueryAdapter(private val fragment: QueryFragment) :
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val binding = holder.binding
         val uri = getItem(position).contentUri
+        // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(binding.image)
             .load(uri)
             .listener(object : RequestListener<Drawable?> {

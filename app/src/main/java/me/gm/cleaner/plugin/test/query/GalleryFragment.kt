@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.test.query
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
@@ -28,15 +29,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.github.chrisbanes.photoview.PhotoView
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.GalleryFragmentBinding
 import me.gm.cleaner.plugin.test.TestActivity
+import me.gm.cleaner.plugin.util.DisplayUtils.getDimenByAttr
 
 class GalleryFragment : BaseFragment() {
     private val viewModel by activityViewModels<QueryViewModel>()
     private lateinit var viewPager: ViewPager2
+    private val top by lazy {
+        val actionBarSize = requireContext().getDimenByAttr(android.R.attr.actionBarSize).toInt()
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        resources.getDimensionPixelSize(resourceId) + actionBarSize
+    }
 
     private class PagerAdapter(fragment: Fragment, private val imageCount: Int) :
         FragmentStateAdapter(fragment) {
@@ -65,20 +72,44 @@ class GalleryFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 viewModel.currentPosition = position
-                val photoView = viewPager.findViewById<PhotoView>(R.id.photo_view)
+                val photoView = viewPager.findViewById<SubsamplingScaleImageView>(R.id.photo_view)
                 (requireActivity() as TestActivity).supportActionBar?.apply {
                     title = viewModel.images.value!![position].displayName
                     subtitle = "${position + 1} / $size"
-                    photoView.setOnViewTapListener { _, _, _ ->
-                        if (isShowing) hide()
-                        else show()
+                    photoView.setOnClickListener {
+                        val decorView = requireActivity().window.decorView
+                        if (isShowing) {
+                            hide()
+                            decorView.systemUiVisibility =
+                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        } else {
+                            show()
+                            decorView.systemUiVisibility =
+                                View.SYSTEM_UI_FLAG_VISIBLE or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                        }
                     }
                 }
-                photoView.setOnMatrixChangeListener {
-                    appBarLayout.isRaised = it.top < 0
+                val a = PointF()
+                photoView.setOnStateChangedListener(object :
+                    SubsamplingScaleImageView.OnStateChangedListener {
+                    override fun onScaleChanged(newScale: Float, origin: Int) {
+                        if (photoView.isReady) {
+                            photoView.sourceToViewCoord(0f, 0f, a)
+                            appBarLayout.isRaised = a.y - top < 0
+                        }
+                    }
+
+                    override fun onCenterChanged(newCenter: PointF?, origin: Int) {
+                        if (photoView.isReady) {
+                            photoView.sourceToViewCoord(0f, 0f, a)
+                            appBarLayout.isRaised = a.y - top < 0
+                        }
+                    }
+                })
+                if (photoView.isReady) {
+                    photoView.sourceToViewCoord(0f, 0f, a)
+                    appBarLayout.isRaised = a.y - top < 0
                 }
-                val displayRect = photoView.displayRect ?: return
-                appBarLayout.isRaised = displayRect.top < 0
             }
         })
 
