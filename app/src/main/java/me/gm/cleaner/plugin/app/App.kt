@@ -54,7 +54,7 @@ class App : Application() {
             MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
         )?.use {
             BinderReceiver.onBinderReceived(
-                it.extras?.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use
+                it.extras.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use
             )
         }
     }

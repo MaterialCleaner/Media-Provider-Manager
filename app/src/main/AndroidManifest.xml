@@ -51,7 +51,8 @@
             android:exported="false" />
         <activity
             android:name=".usage.UsageRecordActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/usage_record" />
         <activity
             android:name=".test.TestActivity"
             android:exported="false"

@@ -16,7 +16,7 @@
 
 // https://github.com/android/storage-samples/blob/master/MediaStore/app/src/main/java/com/android/samples/mediastore/MediaStoreImage.kt
 
-package me.gm.cleaner.plugin.test
+package me.gm.cleaner.plugin.test.query
 
 import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil

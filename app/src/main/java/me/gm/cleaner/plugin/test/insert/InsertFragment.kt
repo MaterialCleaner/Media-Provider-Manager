@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test
+package me.gm.cleaner.plugin.test.insert
 
 import me.gm.cleaner.plugin.app.BaseFragment
 

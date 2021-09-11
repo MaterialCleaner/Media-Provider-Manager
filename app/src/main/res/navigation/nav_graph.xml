@@ -39,24 +39,19 @@
 
     <fragment
         android:id="@+id/query_fragment"
-        android:name="me.gm.cleaner.plugin.test.QueryFragment"
-        android:label="@string/query" >
-<!--    TODO: shared element anime    -->
+        android:name="me.gm.cleaner.plugin.test.query.QueryFragment"
+        android:label="@string/query">
         <action
             android:id="@+id/action_query_to_gallery"
-            app:destination="@id/gallery_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/gallery_fragment" />
     </fragment>
 
     <fragment
         android:id="@+id/gallery_fragment"
-        android:name="me.gm.cleaner.plugin.test.GalleryFragment" />
+        android:name="me.gm.cleaner.plugin.test.query.GalleryFragment" />
 
     <fragment
         android:id="@+id/insert_fragment"
-        android:name="me.gm.cleaner.plugin.test.InsertFragment"
+        android:name="me.gm.cleaner.plugin.test.insert.InsertFragment"
         android:label="@string/insert" />
 </navigation>

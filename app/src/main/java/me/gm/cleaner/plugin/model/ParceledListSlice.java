@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin;
+package me.gm.cleaner.plugin.model;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;

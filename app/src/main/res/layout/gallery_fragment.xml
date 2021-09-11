@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/hint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
@@ -9,16 +8,10 @@
     app:edgeToEdge="true"
     app:fitsSystemWindowsInsets="start|end">
 
-    <rikka.widget.borderview.BorderRecyclerView
-        android:id="@+id/list"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="?actionBarSize"
-        app:borderBottomVisibility="never"
-        app:borderTopDrawable="@null"
-        app:borderTopVisibility="whenTop"
-        app:fitsSystemWindowsInsets="top|bottom" />
+        android:layout_height="match_parent" />
 
     <include layout="@layout/appbar" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

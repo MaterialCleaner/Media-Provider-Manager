@@ -24,7 +24,7 @@ import android.os.IBinder
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
-import me.gm.cleaner.plugin.ParceledListSlice
+import me.gm.cleaner.plugin.model.ParceledListSlice
 import kotlin.system.exitProcess
 
 abstract class ManagerService : IManagerService.Stub() {

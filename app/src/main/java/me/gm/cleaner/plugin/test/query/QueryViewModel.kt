@@ -16,7 +16,7 @@
 
 // https://github.com/android/storage-samples/blob/master/MediaStore/app/src/main/java/com/android/samples/mediastore/MainActivityViewModel.kt
 
-package me.gm.cleaner.plugin.test
+package me.gm.cleaner.plugin.test.query
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -46,6 +46,15 @@ import java.util.concurrent.TimeUnit
 class QueryViewModel(application: Application) : AndroidViewModel(application) {
     private val _images = MutableLiveData<List<MediaStoreImage>>()
     val images: LiveData<List<MediaStoreImage>> get() = _images
+    private val _currentPosition = MutableLiveData(0)
+    var currentPosition: Int
+        get() = _currentPosition.value!!
+        set(value) {
+            if (currentPosition == value) {
+                return
+            }
+            _currentPosition.postValue(value)
+        }
 
     private var contentObserver: ContentObserver? = null
 

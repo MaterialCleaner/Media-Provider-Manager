@@ -93,7 +93,6 @@ class AppListActivity : BaseActivity() {
         })
         binding.listContainer.setOnRefreshListener {
             MainScope().launch {
-                binding.listContainer.isRefreshing = true
                 withContext(Dispatchers.Default) {
                     viewModel.installedPackages.load(packageManager, null)
                 }

@@ -15,7 +15,7 @@
     <string name="about">關於</string>
 
     <!-- 測試 -->
-    <string name="query">讀取</string>
+    <string name="query">查詢</string>
     <string name="insert">插入</string>
 
     <!-- 菜單 -->

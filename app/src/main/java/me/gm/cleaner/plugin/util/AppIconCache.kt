@@ -20,12 +20,12 @@ object AppIconCache : CoroutineScope {
     private class AppIconLruCache constructor(maxSize: Int) :
         LruCache<Triple<String, Int, Int>, Bitmap>(maxSize) {
 
-        override fun sizeOf(key: Triple<String, Int, Int>, bitmap: Bitmap): Int {
-            return bitmap.byteCount / 1024
-        }
+        override fun sizeOf(key: Triple<String, Int, Int>, bitmap: Bitmap): Int =
+            bitmap.byteCount / 1024
     }
 
-    override val coroutineContext: CoroutineContext get() = Dispatchers.Main
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     private val lruCache: LruCache<Triple<String, Int, Int>, Bitmap>
 
@@ -50,9 +50,8 @@ object AppIconCache : CoroutineScope {
         dispatcher = loadIconExecutor.asCoroutineDispatcher()
     }
 
-    private fun get(packageName: String, userId: Int, size: Int): Bitmap? {
-        return lruCache[Triple(packageName, userId, size)]
-    }
+    private fun get(packageName: String, userId: Int, size: Int): Bitmap? =
+        lruCache[Triple(packageName, userId, size)]
 
     private fun put(packageName: String, userId: Int, size: Int, bitmap: Bitmap) {
         if (get(packageName, userId, size) == null) {

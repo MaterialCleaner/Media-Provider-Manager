@@ -31,14 +31,14 @@ import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {
-    private val searchState = MutableLiveData(Pair(false, ""))
+    private val searchState = MutableLiveData(false to "")
     var isSearching: Boolean
         get() = searchState.value!!.first
         set(value) {
             if (isSearching == value) {
                 return
             }
-            searchState.postValue(Pair(value, queryText))
+            searchState.postValue(value to queryText)
         }
     var queryText: String
         get() = searchState.value!!.second
@@ -46,7 +46,7 @@ class AppListViewModel : ViewModel() {
             if (queryText == value) {
                 return
             }
-            searchState.postValue(Pair(isSearching, value))
+            searchState.postValue(isSearching to value)
         }
     val installedPackages = AppListLiveData()
     private val _showingList = SearchableAppListLiveData(installedPackages, searchState)

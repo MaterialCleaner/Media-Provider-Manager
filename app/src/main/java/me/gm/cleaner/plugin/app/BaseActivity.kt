@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.app
 
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import me.gm.cleaner.plugin.R

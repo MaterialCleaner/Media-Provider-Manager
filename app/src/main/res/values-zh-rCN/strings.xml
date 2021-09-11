@@ -15,7 +15,7 @@
     <string name="about">关于</string>
 
     <!-- 测试 -->
-    <string name="query">读取</string>
+    <string name="query">查询</string>
     <string name="insert">插入</string>
 
     <!-- 菜单 -->
