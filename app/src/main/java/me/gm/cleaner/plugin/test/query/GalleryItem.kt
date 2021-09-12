@@ -41,23 +41,25 @@ class GalleryItem : Fragment() {
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        binding.photoView.transitionName = uri.toString()
-        binding.photoView.setImage(ImageSource.uri(uri))
-        binding.photoView.setOnImageEventListener(object :
-            SubsamplingScaleImageView.OnImageEventListener {
-            override fun onImageLoaded() {
-                parentFragment?.startPostponedEnterTransition()
-            }
+        if (savedInstanceState == null) {
+            binding.photoView.transitionName = uri.toString()
+            binding.photoView.setImageSource(ImageSource.uri(uri))
+            binding.photoView.setOnImageEventListener(object :
+                SubsamplingScaleImageView.OnImageEventListener {
+                override fun onImageLoaded() {
+                    parentFragment?.startPostponedEnterTransition()
+                }
 
-            override fun onImageLoadError(e: Exception?) {
-                parentFragment?.startPostponedEnterTransition()
-            }
+                override fun onImageLoadError(e: Exception?) {
+                    parentFragment?.startPostponedEnterTransition()
+                }
 
-            override fun onPreviewLoadError(e: Exception?) {}
-            override fun onTileLoadError(e: Exception?) {}
-            override fun onReady() {}
-            override fun onPreviewReleased() {}
-        })
+                override fun onPreviewLoadError(e: Exception?) {}
+                override fun onTileLoadError(e: Exception?) {}
+                override fun onReady() {}
+                override fun onPreviewReleased() {}
+            })
+        }
         return binding.root
     }
 

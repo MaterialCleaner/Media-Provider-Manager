@@ -35,6 +35,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.GalleryFragmentBinding
 import me.gm.cleaner.plugin.test.TestActivity
 import me.gm.cleaner.plugin.util.DisplayUtils.getDimenByAttr
+import rikka.core.util.ResourceUtils
 
 class GalleryFragment : BaseFragment() {
     private val viewModel by activityViewModels<QueryViewModel>()
@@ -44,6 +45,7 @@ class GalleryFragment : BaseFragment() {
         val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
         resources.getDimensionPixelSize(resourceId) + actionBarSize
     }
+    private val vTarget by lazy { PointF() }
 
     private class PagerAdapter(fragment: Fragment, private val imageCount: Int) :
         FragmentStateAdapter(fragment) {
@@ -80,35 +82,44 @@ class GalleryFragment : BaseFragment() {
                         val decorView = requireActivity().window.decorView
                         if (isShowing) {
                             hide()
-                            decorView.systemUiVisibility =
-                                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            // Fullscreen is costly in my case, so I come to terms with immersive.
+                            // If you persist in fullscreen, I'd advise you to display the photos with activity.
+                            // See also: https://developer.android.com/training/system-ui/immersive
+                            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         } else {
                             show()
-                            decorView.systemUiVisibility =
-                                View.SYSTEM_UI_FLAG_VISIBLE or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                            var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            if (!ResourceUtils.isNightMode(resources.configuration)) {
+                                flags = flags or
+                                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                            }
+                            decorView.systemUiVisibility = flags
                         }
                     }
                 }
-                val a = PointF()
                 photoView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {
                     override fun onScaleChanged(newScale: Float, origin: Int) {
                         if (photoView.isReady) {
-                            photoView.sourceToViewCoord(0f, 0f, a)
-                            appBarLayout.isRaised = a.y - top < 0
+                            photoView.sourceToViewCoord(0f, 0f, vTarget)
+                            appBarLayout.isRaised = vTarget.y - top < 0
                         }
                     }
 
                     override fun onCenterChanged(newCenter: PointF?, origin: Int) {
                         if (photoView.isReady) {
-                            photoView.sourceToViewCoord(0f, 0f, a)
-                            appBarLayout.isRaised = a.y - top < 0
+                            photoView.sourceToViewCoord(0f, 0f, vTarget)
+                            appBarLayout.isRaised = vTarget.y - top < 0
                         }
                     }
                 })
                 if (photoView.isReady) {
-                    photoView.sourceToViewCoord(0f, 0f, a)
-                    appBarLayout.isRaised = a.y - top < 0
+                    photoView.sourceToViewCoord(0f, 0f, vTarget)
+                    appBarLayout.isRaised = vTarget.y - top < 0
                 }
             }
         })

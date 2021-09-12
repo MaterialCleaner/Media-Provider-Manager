@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:fitsSystemWindows="false">
 
-    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+    <me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
         android:id="@+id/photo_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

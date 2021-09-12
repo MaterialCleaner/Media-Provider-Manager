@@ -124,9 +124,7 @@ class QueryFragment : BaseFragment() {
                 if (viewAtPosition == null ||
                     layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
                 ) {
-                    list.post {
-                        layoutManager.smoothScrollToPosition(list, null, viewModel.currentPosition)
-                    }
+                    list.post { layoutManager.scrollToPosition(viewModel.currentPosition) }
                 }
             }
         })
