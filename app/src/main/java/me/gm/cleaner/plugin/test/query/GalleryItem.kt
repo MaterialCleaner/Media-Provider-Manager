@@ -41,8 +41,8 @@ class GalleryItem : Fragment() {
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
+        binding.photoView.transitionName = uri.toString()
         if (savedInstanceState == null) {
-            binding.photoView.transitionName = uri.toString()
             binding.photoView.setImageSource(ImageSource.uri(uri))
             binding.photoView.setOnImageEventListener(object :
                 SubsamplingScaleImageView.OnImageEventListener {
