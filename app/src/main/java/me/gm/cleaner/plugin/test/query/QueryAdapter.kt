@@ -35,7 +35,7 @@ import me.gm.cleaner.plugin.databinding.QueryItemBinding
 
 class QueryAdapter(private val fragment: QueryFragment) :
     ListAdapter<MediaStoreImage, QueryAdapter.ImageViewHolder>(MediaStoreImage.DiffCallback) {
-    private val viewModel by fragment.activityViewModels<QueryViewModel>()
+    private val viewModel: QueryViewModel by fragment.activityViewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder =
         ImageViewHolder(QueryItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -51,7 +51,7 @@ class QueryAdapter(private val fragment: QueryFragment) :
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    if (position == viewModel.currentPosition) {
+                    if (viewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -61,7 +61,7 @@ class QueryAdapter(private val fragment: QueryFragment) :
                     resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
-                    if (position == viewModel.currentPosition) {
+                    if (viewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false

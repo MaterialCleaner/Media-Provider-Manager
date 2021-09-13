@@ -22,11 +22,11 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -38,7 +38,7 @@ import me.gm.cleaner.plugin.util.DisplayUtils.getDimenByAttr
 import rikka.core.util.ResourceUtils
 
 class GalleryFragment : BaseFragment() {
-    private val viewModel by activityViewModels<QueryViewModel>()
+    private val viewModel: QueryViewModel by activityViewModels()
     private lateinit var viewPager: ViewPager2
     private val top by lazy {
         val actionBarSize = requireContext().getDimenByAttr(android.R.attr.actionBarSize).toInt()
@@ -59,7 +59,7 @@ class GalleryFragment : BaseFragment() {
     ): View {
         val binding = GalleryFragmentBinding.inflate(inflater)
         setAppBar(binding.root).apply {
-            setNavigationOnClickListener { navigateUp() }
+            setNavigationOnClickListener { it.findNavController().navigateUp() }
             setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
         }
 
@@ -74,7 +74,7 @@ class GalleryFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 viewModel.currentPosition = position
-                val photoView = viewPager.findViewById<SubsamplingScaleImageView>(R.id.photo_view)
+                val photoView: SubsamplingScaleImageView = viewPager.findViewById(R.id.photo_view)
                 (requireActivity() as TestActivity).supportActionBar?.apply {
                     title = viewModel.images.value!![position].displayName
                     subtitle = "${position + 1} / $size"
@@ -126,16 +126,7 @@ class GalleryFragment : BaseFragment() {
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        if (savedInstanceState == null) {
-            postponeEnterTransition()
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navigateUp()
-                }
-            }
-        )
+        savedInstanceState ?: postponeEnterTransition()
         return binding.root
     }
 

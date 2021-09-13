@@ -54,9 +54,7 @@ object AppIconCache : CoroutineScope {
         lruCache[Triple(packageName, userId, size)]
 
     private fun put(packageName: String, userId: Int, size: Int, bitmap: Bitmap) {
-        if (get(packageName, userId, size) == null) {
-            lruCache.put(Triple(packageName, userId, size), bitmap)
-        }
+        get(packageName, userId, size) ?: lruCache.put(Triple(packageName, userId, size), bitmap)
     }
 
     private fun remove(packageName: String, userId: Int, size: Int) {
@@ -69,12 +67,12 @@ object AppIconCache : CoroutineScope {
         if (cachedBitmap != null) {
             return cachedBitmap
         }
-        var loader = appIconLoaders[size]
-        if (loader == null) {
+        val loader = appIconLoaders[size] ?: let {
             val shrinkNonAdaptiveIcons =
                 BuildUtils.atLeast30 && context.applicationInfo.loadIcon(context.packageManager) is AdaptiveIconDrawable
-            loader = AppIconLoader(size, shrinkNonAdaptiveIcons, context)
-            appIconLoaders[size] = loader
+            val newLoader = AppIconLoader(size, shrinkNonAdaptiveIcons, context)
+            appIconLoaders[size] = newLoader
+            newLoader
         }
         val bitmap = loader.loadIcon(info, false)
         put(info.packageName, userId, size, bitmap)

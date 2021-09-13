@@ -99,8 +99,8 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
 
-    implementation 'com.drakeet.multitype:multitype:4.3.0'
     implementation project(':about-page') exclude group: 'dev.rikka.rikkax.material', module: 'material'
+    implementation 'com.drakeet.drawer:drawer:1.0.3'
 }
 
 configurations.all {

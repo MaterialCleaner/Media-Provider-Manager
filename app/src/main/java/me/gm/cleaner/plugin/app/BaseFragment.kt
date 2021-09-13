@@ -32,13 +32,4 @@ abstract class BaseFragment : Fragment() {
         (requireActivity() as BaseActivity).setAppBar(appBarLayout, toolbar)
         return toolbar
     }
-
-    protected fun navigateUp(): Boolean {
-        try {
-            NavHostFragment.findNavController(this).navigateUp()
-            return true
-        } catch (ignored: IllegalStateException) {
-        }
-        return false
-    }
 }

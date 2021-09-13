@@ -30,7 +30,7 @@ import me.gm.cleaner.plugin.databinding.GalleryItemBinding
  * A fragment for displaying an image.
  */
 class GalleryItem : Fragment() {
-    private val viewModel by activityViewModels<QueryViewModel>()
+    private val viewModel: QueryViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -42,9 +42,9 @@ class GalleryItem : Fragment() {
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         binding.photoView.transitionName = uri.toString()
-        if (savedInstanceState == null) {
-            binding.photoView.setImageSource(ImageSource.uri(uri))
-            binding.photoView.setOnImageEventListener(object :
+        savedInstanceState ?: binding.photoView.apply {
+            setImageSource(ImageSource.uri(uri))
+            setOnImageEventListener(object :
                 SubsamplingScaleImageView.OnImageEventListener {
                 override fun onImageLoaded() {
                     parentFragment?.startPostponedEnterTransition()

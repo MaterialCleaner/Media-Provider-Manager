@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.HomeButtonBinding
@@ -34,8 +35,7 @@ class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.Vi
     private val requestPermission =
         fragment.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
-                Navigation
-                    .findNavController(activity, R.id.home)
+                activity.findNavController(R.id.home)
                     .navigate(R.id.action_test_to_query)
             }
         }
@@ -52,8 +52,7 @@ class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.Vi
                 binding.title.setText(R.string.query)
                 binding.background.setOnClickListener {
                     if (haveStoragePermission()) {
-                        Navigation
-                            .findNavController(activity, R.id.home)
+                        activity.findNavController(R.id.home)
                             .navigate(R.id.action_test_to_query)
                     } else {
                         requestPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -64,8 +63,7 @@ class TestAdapter(fragment: TestFragment) : RecyclerView.Adapter<RecyclerView.Vi
                 binding.icon.setImageResource(R.drawable.ic_outline_save_alt_24)
                 binding.title.setText(R.string.insert)
                 binding.background.setOnClickListener {
-                    Navigation
-                        .findNavController(activity, android.R.id.home)
+                    activity.findNavController(R.id.home)
                         .navigate(R.id.action_test_to_insert)
                 }
             }

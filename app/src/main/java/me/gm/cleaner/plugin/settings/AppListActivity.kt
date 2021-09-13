@@ -42,7 +42,7 @@ import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class AppListActivity : BaseActivity() {
-    private val viewModel by viewModels<AppListViewModel>()
+    private val viewModel: AppListViewModel by viewModels()
     private lateinit var adapter: AppListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,18 +67,16 @@ class AppListActivity : BaseActivity() {
         viewModel.showingList.observe(this) {
             adapter.submitList(it)
         }
-        if (savedInstanceState == null) {
-            MainScope().launch(Dispatchers.Default) {
-                viewModel.installedPackages.load(
-                    packageManager, object : AppListLiveData.ProgressListener {
-                        override fun onProgress(progress: Int) {
-                            runOnUiThread {
-                                binding.progress.progress = progress
-                            }
+        savedInstanceState ?: MainScope().launch(Dispatchers.Default) {
+            viewModel.installedPackages.load(
+                packageManager, object : AppListLiveData.ProgressListener {
+                    override fun onProgress(progress: Int) {
+                        runOnUiThread {
+                            binding.progress.progress = progress
                         }
                     }
-                )
-            }
+                }
+            )
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :

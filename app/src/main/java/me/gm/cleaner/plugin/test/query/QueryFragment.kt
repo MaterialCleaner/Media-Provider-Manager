@@ -21,9 +21,9 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -34,7 +34,7 @@ import rikka.widget.borderview.BorderRecyclerView
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class QueryFragment : BaseFragment() {
-    private val viewModel by activityViewModels<QueryViewModel>()
+    private val viewModel: QueryViewModel by activityViewModels()
     private lateinit var list: BorderRecyclerView
 
     override fun onCreateView(
@@ -42,7 +42,7 @@ class QueryFragment : BaseFragment() {
     ): View {
         val binding = HomeActivityBinding.inflate(inflater)
         setAppBar(binding.root).apply {
-            setNavigationOnClickListener { navigateUp() }
+            setNavigationOnClickListener { it.findNavController().navigateUp() }
             setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
             setTitle(R.string.query)
         }
@@ -62,19 +62,10 @@ class QueryFragment : BaseFragment() {
         viewModel.images.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-        if (savedInstanceState == null) {
-            viewModel.loadImages()
-        }
+        savedInstanceState ?: viewModel.loadImages()
 
         prepareTransitions()
         postponeEnterTransition()
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navigateUp()
-                }
-            }
-        )
         return binding.root
     }
 
