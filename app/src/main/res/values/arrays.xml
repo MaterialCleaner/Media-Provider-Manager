@@ -3,5 +3,6 @@
     <array name="recommend_package">
         <item>com.android.providers.media</item><!--Q-->
         <item>com.android.providers.media.module</item><!--R-->
+        <item>com.android.providers.downloads</item>
     </array>
 </resources>

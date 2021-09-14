@@ -17,10 +17,10 @@
 package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
-import android.net.Uri
-import android.os.Bundle
-import android.os.CancellationSignal
-import de.robv.android.xposed.*
+import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.DevUtils
@@ -38,24 +38,20 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
         }
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
-                XposedBridge.hookAllMethods(XposedHelpers.findClass(
-                    "com.android.providers.media.MediaProvider", classLoader
-                ), "onCreate", object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        context =
-                            (param.thisObject as ContentProvider).context!!.createDeviceProtectedStorageContext()
-
-                        XposedHelpers.findAndHookMethod(
-                            File::class.java, "mkdir", FileHooker(this@XposedInit)
-                        )
-                    }
-                })
-
                 XposedHelpers.findAndHookMethod(
                     "com.android.providers.media.MediaProvider", classLoader,
-                    "queryInternal", Uri::class.java, Array<String>::class.java, Bundle::class.java,
-                    CancellationSignal::class.java, QueryHooker(this@XposedInit)
+                    "onCreate", object : XC_MethodHook() {
+                        @Throws(Throwable::class)
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            context = (param.thisObject as ContentProvider).context!!
+                        }
+                    }
+                )
+
+                XposedBridge.hookAllMethods(
+                    XposedHelpers.findClass(
+                        "com.android.providers.media.MediaProvider", classLoader
+                    ), "queryInternal", QueryHooker(this@XposedInit)
                 )
 
                 XposedBridge.hookAllMethods(
@@ -63,6 +59,29 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         "com.android.providers.media.MediaProvider", classLoader
                     ), "insertInternal", InsertHooker(this@XposedInit)
                 )
+            }
+            "com.android.providers.downloads" -> {
+//                File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
+                listOf(
+                    "com.android.providers.downloads.DownloadProvider",
+                    // 💩MIUI
+                    "com.android.providers.downloads.provider.DownloadProvider"
+                ).forEach {
+                    try {
+                        XposedHelpers.findAndHookMethod(
+                            it, classLoader, "onCreate", object : XC_MethodHook() {
+                                @Throws(Throwable::class)
+                                override fun beforeHookedMethod(param: MethodHookParam) {
+                                    val context = (param.thisObject as ContentProvider).context!!
+                                    XposedHelpers.findAndHookMethod(
+                                        File::class.java, "mkdir", FileHooker(context)
+                                    )
+                                }
+                            }
+                        )
+                    } catch (e: XposedHelpers.ClassNotFoundError) {
+                    }
+                }
             }
         }
     }
