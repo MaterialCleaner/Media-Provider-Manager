@@ -63,9 +63,8 @@ object AppIconCache : CoroutineScope {
 
     @SuppressLint("NewApi")
     fun getOrLoadBitmap(context: Context, info: ApplicationInfo, userId: Int, size: Int): Bitmap {
-        val cachedBitmap = get(info.packageName, userId, size)
-        if (cachedBitmap != null) {
-            return cachedBitmap
+        get(info.packageName, userId, size)?.let {
+            return it
         }
         val loader = appIconLoaders[size] ?: let {
             val shrinkNonAdaptiveIcons =

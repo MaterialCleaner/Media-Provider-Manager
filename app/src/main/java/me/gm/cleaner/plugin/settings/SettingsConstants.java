@@ -18,18 +18,8 @@ package me.gm.cleaner.plugin.settings;
 
 public class SettingsConstants {
     public static String APP_INFO;
-    public static String PATH;
-    public static String IS_CHECKED;
-
-    public static String TITLE;
-    public static String ICON;
 
     static {
         APP_INFO = "appInfo";
-        PATH = "path";
-        IS_CHECKED = "isChecked";
-
-        TITLE = "title";
-        ICON = "icon";
     }
 }

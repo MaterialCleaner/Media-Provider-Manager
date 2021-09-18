@@ -26,8 +26,7 @@ class StateSavedSubsamplingScaleImageView : SubsamplingScaleImageView {
     constructor(context: Context, attr: AttributeSet?) : super(context, attr)
 
     override fun onSaveInstanceState(): Parcelable {
-        val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
+        val ss = SavedState(super.onSaveInstanceState())
         ss.image = imageCache
         ss.state = state
         return ss

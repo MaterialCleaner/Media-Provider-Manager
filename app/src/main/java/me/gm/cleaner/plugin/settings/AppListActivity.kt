@@ -26,9 +26,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
@@ -67,8 +67,8 @@ class AppListActivity : BaseActivity() {
         viewModel.showingList.observe(this) {
             adapter.submitList(it)
         }
-        savedInstanceState ?: MainScope().launch(Dispatchers.Default) {
-            viewModel.installedPackages.load(
+        savedInstanceState ?: lifecycleScope.launch(Dispatchers.Default) {
+            viewModel.installedPackages.loadValue(
                 packageManager, object : AppListLiveData.ProgressListener {
                     override fun onProgress(progress: Int) {
                         runOnUiThread {
@@ -82,25 +82,21 @@ class AppListActivity : BaseActivity() {
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(isNotifyService: Boolean) {
-                viewModel.installedPackages.refreshPreferencesCount()
+                viewModel.installedPackages.updateValue()
                 if (isNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
             }
         })
         binding.listContainer.setOnRefreshListener {
-            MainScope().launch {
+            lifecycleScope.launch {
                 withContext(Dispatchers.Default) {
-                    viewModel.installedPackages.load(packageManager, null)
+                    viewModel.installedPackages.loadValue(packageManager, null)
                 }
                 binding.listContainer.isRefreshing = false
             }
         }
     }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean =
-        if (adapter.onContextItemSelected(item)) true
-        else super.onContextItemSelected(item)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_applist, menu)
@@ -132,6 +128,7 @@ class AppListActivity : BaseActivity() {
                 return false
             }
         })
+
         when (ModulePreferences.sortBy) {
             ModulePreferences.SORT_BY_NAME ->
                 menu.findItem(R.id.menu_sort_by_name).isChecked = true
@@ -142,7 +139,6 @@ class AppListActivity : BaseActivity() {
         menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
         menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
             ModulePreferences.isHideNoStoragePermissionApp
-
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
             it.isEnabled = false
             it.title = getSpannableString(it.title)
@@ -158,6 +154,10 @@ class AppListActivity : BaseActivity() {
             )
             setSpan(AbsoluteSizeSpan(14, true), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean =
+        if (adapter.onContextItemSelected(item)) true
+        else super.onContextItemSelected(item)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

@@ -29,7 +29,7 @@ class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
         value = mutableListOf()
     }
 
-    fun load(pm: PackageManager, l: ProgressListener?) {
+    fun loadValue(pm: PackageManager, l: ProgressListener?) {
         val installedPackages = BinderReceiver.installedPackages.filter {
             it.applicationInfo.enabled
         }
@@ -45,7 +45,7 @@ class AppListLiveData : LiveData<List<PreferencesPackageInfo>>() {
         )
     }
 
-    fun refreshPreferencesCount() {
+    fun updateValue() {
         val list = ArrayList<PreferencesPackageInfo>()
         value?.forEach {
             list.add(it.copy())

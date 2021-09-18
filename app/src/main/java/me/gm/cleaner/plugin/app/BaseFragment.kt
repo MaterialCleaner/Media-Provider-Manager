@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.app
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.NavHostFragment
 import me.gm.cleaner.plugin.R
 import rikka.material.widget.AppBarLayout
 

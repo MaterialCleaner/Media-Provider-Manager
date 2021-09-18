@@ -11,8 +11,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">@dimen/preference_header_top</item>
-        <item name="android:paddingStart">@dimen/screen_edge_margin</item>
-        <item name="android:paddingEnd">@dimen/screen_edge_margin</item>
+        <item name="android:paddingHorizontal">@dimen/screen_edge_margin</item>
         <item name="android:paddingBottom">@dimen/preference_header_bottom</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:textColor">?colorPrimary</item>

@@ -66,6 +66,8 @@ class QueryFragment : BaseFragment() {
 
         prepareTransitions()
         postponeEnterTransition()
+        // TODO: no image?
+        // startPostponedEnterTransition()
         return binding.root
     }
 

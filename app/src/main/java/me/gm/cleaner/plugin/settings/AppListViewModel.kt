@@ -19,51 +19,46 @@ package me.gm.cleaner.plugin.settings
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.os.Build
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {
-    private val searchState = MutableLiveData(false to "")
+    private val state = MutableLiveData(false to "")
     var isSearching: Boolean
-        get() = searchState.value!!.first
+        get() = state.value!!.first
         set(value) {
             if (isSearching == value) {
                 return
             }
-            searchState.postValue(value to queryText)
+            state.value = value to queryText
         }
     var queryText: String
-        get() = searchState.value!!.second
+        get() = state.value!!.second
         set(value) {
             if (queryText == value) {
                 return
             }
-            searchState.postValue(isSearching to value)
+            state.value = isSearching to value
         }
     val installedPackages = AppListLiveData()
-    private val _showingList = SearchableAppListLiveData(installedPackages, searchState)
+    private val _showingList = SearchableAppListLiveData(installedPackages, state)
     val showingList: LiveData<List<PreferencesPackageInfo>>
         get() = _showingList
 
-    private class SearchableAppListLiveData(
-        private val source: AppListLiveData,
-        private val searchState: LiveData<Pair<Boolean, String>>
+    inner class SearchableAppListLiveData(
+        private val source: AppListLiveData, state: LiveData<Pair<Boolean, String>>
     ) : MediatorLiveData<List<PreferencesPackageInfo>>() {
         init {
             addSource(source) { updateSource() }
-            addSource(searchState) { updateSource() }
+            addSource(state) { updateSource() }
         }
 
-        fun updateSource() {
-            MainScope().launch(Dispatchers.Default) {
+        private fun updateSource() {
+            viewModelScope.launch(Dispatchers.Default) {
                 val list = source.value!!.toMutableList().apply {
                     if (ModulePreferences.isHideSystemApp) {
                         removeIf {
@@ -100,8 +95,8 @@ class AppListViewModel : ViewModel() {
 //                        }
 //                    }
                     }
-                    if (searchState.value!!.first) {
-                        val lowerQuery = searchState.value!!.second.lowercase()
+                    if (isSearching) {
+                        val lowerQuery = queryText.lowercase()
                         removeIf {
                             !it.label.lowercase().contains(lowerQuery) &&
                                     !it.applicationInfo.packageName.lowercase().contains(lowerQuery)
