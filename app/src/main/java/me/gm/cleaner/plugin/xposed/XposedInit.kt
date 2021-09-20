@@ -38,30 +38,33 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
         }
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
-                XposedHelpers.findAndHookMethod(
-                    "com.android.providers.media.MediaProvider", classLoader,
-                    "onCreate", object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            context = (param.thisObject as ContentProvider).context!!
+                try {
+                    XposedHelpers.findAndHookMethod(
+                        "com.android.providers.media.MediaProvider", classLoader,
+                        "onCreate", object : XC_MethodHook() {
+                            @Throws(Throwable::class)
+                            override fun beforeHookedMethod(param: MethodHookParam) {
+                                context = (param.thisObject as ContentProvider).context!!
+                            }
                         }
-                    }
-                )
+                    )
 
-                XposedBridge.hookAllMethods(
-                    XposedHelpers.findClass(
-                        "com.android.providers.media.MediaProvider", classLoader
-                    ), "queryInternal", QueryHooker(this@XposedInit)
-                )
+                    XposedBridge.hookAllMethods(
+                        XposedHelpers.findClass(
+                            "com.android.providers.media.MediaProvider", classLoader
+                        ), "queryInternal", QueryHooker(this@XposedInit)
+                    )
 
-                XposedBridge.hookAllMethods(
-                    XposedHelpers.findClass(
-                        "com.android.providers.media.MediaProvider", classLoader
-                    ), "insertInternal", InsertHooker(this@XposedInit)
-                )
+                    XposedBridge.hookAllMethods(
+                        XposedHelpers.findClass(
+                            "com.android.providers.media.MediaProvider", classLoader
+                        ), "insertInternal", InsertHooker(this@XposedInit)
+                    )
+                } catch (e: Throwable) {
+                    // Mainly caused by differences between systems.
+                }
             }
             "com.android.providers.downloads" -> {
-//                File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DOWNLOADS)
                 listOf(
                     "com.android.providers.downloads.DownloadProvider",
                     // 💩MIUI

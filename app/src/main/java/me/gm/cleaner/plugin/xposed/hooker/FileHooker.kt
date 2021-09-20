@@ -35,13 +35,12 @@ class FileHooker(private val context: Context) : XC_MethodHook() {
         val path = XposedHelpers.getObjectField(param.thisObject, "path") as String
         // record
         // TODO
-        // redirect
+        // reject mkdir
         if (niceParents.none { FileUtils.startsWith(it, path) }) {
-            val redirect = redirectDir + path.substring(externalStorageDirectory.length)
-            XposedHelpers.setObjectField(param.thisObject, "path", redirect)
             if (BuildConfig.DEBUG) {
-                XposedBridge.log("redirected a dir: $redirect")
+                XposedBridge.log("rejected mkdir: $path")
             }
+            param.result = false
         }
     }
 }
