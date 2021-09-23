@@ -93,7 +93,7 @@ class AppListAdapter(private val activity: AppListActivity) :
         }
 
     fun onContextItemSelected(item: MenuItem): Boolean {
-        if (!this::selectedHolder.isInitialized) return false
+        if (!::selectedHolder.isInitialized) return false
         val position = selectedHolder.bindingAdapterPosition
         val pi = getItem(position)!!
         if (item.itemId == R.id.menu_delete_all_rules) {
@@ -112,7 +112,7 @@ class AppListAdapter(private val activity: AppListActivity) :
         lateinit var loadIconJob: Job
 
         fun onViewRecycled() {
-            if (this::loadIconJob.isInitialized && loadIconJob.isActive) {
+            if (::loadIconJob.isInitialized && loadIconJob.isActive) {
                 loadIconJob.cancel()
             }
         }

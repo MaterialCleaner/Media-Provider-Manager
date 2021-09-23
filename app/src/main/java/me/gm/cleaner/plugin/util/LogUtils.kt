@@ -1,8 +1,8 @@
 package me.gm.cleaner.plugin.util
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import me.gm.cleaner.plugin.BuildConfig
-import org.jetbrains.annotations.TestOnly
 
 object LogUtils {
     fun handleThrowable(tr: Throwable) {
@@ -20,19 +20,19 @@ object LogUtils {
     val getStackTraceString: String
         get() = Log.getStackTraceString(Exception())
 
-    @TestOnly
+    @VisibleForTesting
     @JvmStatic
     fun e(msg: Any) {
         Log.e(BuildConfig.APPLICATION_ID, msg.toString())
     }
 
-    @TestOnly
+    @VisibleForTesting
     @JvmStatic
     fun e(tag: Any, msg: Any) {
         Log.e(BuildConfig.APPLICATION_ID, "$tag: $msg")
     }
 
-    @TestOnly
+    @VisibleForTesting
     @JvmStatic
     fun i(msg: Any) {
         Log.i(BuildConfig.APPLICATION_ID, msg.toString())

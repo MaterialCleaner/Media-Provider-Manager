@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.HomeActivityBinding
-import rikka.recyclerview.addFastScroller
+import me.gm.cleaner.plugin.util.initFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderRecyclerView
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
@@ -51,7 +51,7 @@ class QueryFragment : BaseFragment() {
         list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
         list.fixEdgeEffect()
-        list.addFastScroller()
+        list.initFastScroller()
         list.isVerticalScrollBarEnabled = false
         list.borderViewDelegate.borderVisibilityChangedListener =
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->

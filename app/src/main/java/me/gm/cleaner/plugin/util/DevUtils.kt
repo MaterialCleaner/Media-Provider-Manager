@@ -16,18 +16,18 @@
 
 package me.gm.cleaner.plugin.util
 
+import androidx.annotation.VisibleForTesting
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import org.jetbrains.annotations.TestOnly
 import org.json.JSONObject
 import java.lang.reflect.Method
 
 object DevUtils {
     private lateinit var classLoader: ClassLoader
 
-    @TestOnly
+    @VisibleForTesting
     fun init(classLoader: ClassLoader) {
         this.classLoader = classLoader
     }

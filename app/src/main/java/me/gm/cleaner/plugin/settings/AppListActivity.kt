@@ -37,7 +37,7 @@ import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistActivityBinding
 import me.gm.cleaner.plugin.util.DisplayUtils.getColorByAttr
-import rikka.recyclerview.addFastScroller
+import me.gm.cleaner.plugin.util.initFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
@@ -58,7 +58,7 @@ class AppListActivity : BaseActivity() {
         binding.list.layoutManager = GridLayoutManager(this, 1)
         binding.list.setHasFixedSize(true)
         binding.list.fixEdgeEffect()
-        binding.list.addFastScroller()
+        binding.list.initFastScroller()
         binding.list.borderViewDelegate.borderVisibilityChangedListener =
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout?.isRaised = !top

@@ -25,7 +25,7 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
     var srCount = 0
 
     companion object {
-        private val fieldCache: MutableMap<Field, Field> by lazy { HashMap() }
+        private val fieldCache by lazy { mutableMapOf<Field, Field>() }
 
         private fun PreferencesPackageInfo.copyFieldsFrom(old: PackageInfo) {
             try {
