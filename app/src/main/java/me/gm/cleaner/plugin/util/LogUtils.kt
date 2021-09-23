@@ -22,17 +22,16 @@ object LogUtils {
 
     @VisibleForTesting
     @JvmStatic
-    fun e(msg: Any) {
+    fun e(msg: Any?) {
         Log.e(BuildConfig.APPLICATION_ID, msg.toString())
     }
 
     @VisibleForTesting
     @JvmStatic
-    fun e(tag: Any, msg: Any) {
+    fun e(tag: Any, msg: Any?) {
         Log.e(BuildConfig.APPLICATION_ID, "$tag: $msg")
     }
 
-    @VisibleForTesting
     @JvmStatic
     fun i(msg: Any) {
         Log.i(BuildConfig.APPLICATION_ID, msg.toString())

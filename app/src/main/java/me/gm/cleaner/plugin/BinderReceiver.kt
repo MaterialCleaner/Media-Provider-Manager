@@ -54,7 +54,7 @@ object BinderReceiver {
             service!!.getInstalledPackages(Process.myUid() / 100000).list
         } catch (e: RemoteException) {
             e.printStackTrace()
-            mutableListOf()
+            emptyList()
         }
 
     fun notifyPreferencesChanged() {

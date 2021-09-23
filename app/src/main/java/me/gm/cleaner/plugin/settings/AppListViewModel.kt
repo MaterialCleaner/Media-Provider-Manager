@@ -21,43 +21,37 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import me.gm.cleaner.plugin.BinderReceiver
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo.Companion.copy
 import java.text.Collator
-import java.util.concurrent.atomic.AtomicInteger
 
 class AppListViewModel : ViewModel() {
     private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
     val apps: StateFlow<SourceState> = _apps
-    suspend fun loadApps(pm: PackageManager) {
-        val installedPackages = BinderReceiver.installedPackages.filter {
-            it.applicationInfo.enabled
-        }
-        val size = installedPackages.size
-        val count = AtomicInteger(0)
-        _apps.emit(SourceState.Success(
-            installedPackages
-                .map {
-                    _apps.emit(SourceState.Load(100 * count.incrementAndGet() / size))
-                    PreferencesPackageInfo.newInstance(it, pm)
+    fun loadApps(pm: PackageManager) {
+        viewModelScope.launch {
+            val list = AppListLoader().load(pm, object : AppListLoader.ProgressListener {
+                override fun onProgress(progress: Int) {
+                    _apps.value = SourceState.Load(progress)
                 }
-                .apply { _apps.emit(SourceState.Load(0)) }
-        ))
+            })
+            /* @VisibleForTesting */ delay(1000)
+            _apps.emit(SourceState.Ready(list))
+        }
     }
 
-    suspend fun updateApps() {
-        val list = mutableListOf<PreferencesPackageInfo>()
-        if (_apps.value is SourceState.Success) {
-            (_apps.value as SourceState.Success).source.forEach {
-                list.add(it.copy())
+    fun updateApps() {
+        viewModelScope.launch {
+            if (_apps.value is SourceState.Ready) {
+                _apps.emit(SourceState.Ready(AppListLoader().update((_apps.value as SourceState.Ready).source)))
             }
         }
-        _apps.emit(SourceState.Success(list))
     }
 
     private val _isSearching = MutableStateFlow(false)
@@ -80,9 +74,9 @@ class AppListViewModel : ViewModel() {
         }
     val showingList = combine(apps, _isSearching, _queryText) { apps, isSearching, queryText ->
         if (apps is SourceState.Load) {
-            return@combine
+            return@combine emptyList<PreferencesPackageInfo>()
         }
-        (apps as SourceState.Success).source.toMutableList().apply {
+        (apps as SourceState.Ready).source.toMutableList().apply {
             if (ModulePreferences.isHideSystemApp) {
                 removeIf {
                     it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
@@ -131,5 +125,5 @@ class AppListViewModel : ViewModel() {
 
 sealed class SourceState {
     data class Load(var progress: Int) : SourceState()
-    data class Success(val source: List<PreferencesPackageInfo>) : SourceState()
+    data class Ready(val source: List<PreferencesPackageInfo>) : SourceState()
 }

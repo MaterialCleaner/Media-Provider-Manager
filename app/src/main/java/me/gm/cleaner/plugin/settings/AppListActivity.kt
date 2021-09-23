@@ -34,7 +34,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
@@ -48,7 +47,7 @@ import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 class AppListActivity : BaseActivity() {
     private val viewModel: AppListViewModel by viewModels()
     private lateinit var adapter: AppListAdapter
-    private val defaultDispatcher: CoroutineDispatcher by lazy { Dispatchers.Default }
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,31 +80,30 @@ class AppListActivity : BaseActivity() {
                     // New value received
                     when (apps) {
                         is SourceState.Load -> binding.progress.progress = apps.progress
-                        is SourceState.Success -> adapter.submitList(apps.source)
+                        is SourceState.Ready -> {
+                            binding.progress.progress = 0
+                            viewModel.showingList.collect {
+                                adapter.submitList(it)
+                            }
+                        }
                     }
                 }
             }
-            savedInstanceState ?: withContext(defaultDispatcher) {
-                viewModel.loadApps(packageManager)
-            }
         }
+        savedInstanceState ?: viewModel.loadApps(packageManager)
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(isNotifyService: Boolean) {
-                lifecycleScope.launch { viewModel.updateApps() }
+                viewModel.updateApps()
                 if (isNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
             }
         })
         binding.listContainer.setOnRefreshListener {
-            lifecycleScope.launch {
-                withContext(defaultDispatcher) {
-                    viewModel.loadApps(packageManager)
-                }
-                binding.listContainer.isRefreshing = false
-            }
+            viewModel.loadApps(packageManager)
+            binding.listContainer.isRefreshing = false
         }
     }
 
