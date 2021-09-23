@@ -26,9 +26,13 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
@@ -44,6 +48,7 @@ import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 class AppListActivity : BaseActivity() {
     private val viewModel: AppListViewModel by viewModels()
     private lateinit var adapter: AppListAdapter
+    private val defaultDispatcher: CoroutineDispatcher by lazy { Dispatchers.Default }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,25 +69,31 @@ class AppListActivity : BaseActivity() {
                 appBarLayout?.isRaised = !top
             }
         binding.list.adapter = adapter
-        viewModel.showingList.observe(this) {
-            adapter.submitList(it)
-        }
-        savedInstanceState ?: lifecycleScope.launch(Dispatchers.Default) {
-            viewModel.installedPackages.loadValue(
-                packageManager, object : AppListLiveData.ProgressListener {
-                    override fun onProgress(progress: Int) {
-                        runOnUiThread {
-                            binding.progress.progress = progress
-                        }
+        // Start a coroutine in the lifecycle scope
+        lifecycleScope.launch {
+            // repeatOnLifecycle launches the block in a new coroutine every time the
+            // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Trigger the flow and start listening for values.
+                // Note that this happens when lifecycle is STARTED and stops
+                // collecting when the lifecycle is STOPPED
+                viewModel.apps.collect { apps ->
+                    // New value received
+                    when (apps) {
+                        is SourceState.Load -> binding.progress.progress = apps.progress
+                        is SourceState.Success -> adapter.submitList(apps.source)
                     }
                 }
-            )
+            }
+            savedInstanceState ?: withContext(defaultDispatcher) {
+                viewModel.loadApps(packageManager)
+            }
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override fun onPreferencesChanged(isNotifyService: Boolean) {
-                viewModel.installedPackages.updateValue()
+                lifecycleScope.launch { viewModel.updateApps() }
                 if (isNotifyService) {
                     BinderReceiver.notifyPreferencesChanged()
                 }
@@ -90,8 +101,8 @@ class AppListActivity : BaseActivity() {
         })
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
-                withContext(Dispatchers.Default) {
-                    viewModel.installedPackages.loadValue(packageManager, null)
+                withContext(defaultDispatcher) {
+                    viewModel.loadApps(packageManager)
                 }
                 binding.listContainer.isRefreshing = false
             }
