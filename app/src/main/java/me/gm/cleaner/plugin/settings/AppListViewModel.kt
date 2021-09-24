@@ -22,9 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
@@ -32,28 +30,6 @@ import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {
-    private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
-    val apps: StateFlow<SourceState> = _apps
-    fun loadApps(pm: PackageManager) {
-        viewModelScope.launch {
-            val list = AppListLoader().load(pm, object : AppListLoader.ProgressListener {
-                override fun onProgress(progress: Int) {
-                    _apps.value = SourceState.Load(progress)
-                }
-            })
-            /* @VisibleForTesting */ delay(1000)
-            _apps.emit(SourceState.Ready(list))
-        }
-    }
-
-    fun updateApps() {
-        viewModelScope.launch {
-            if (_apps.value is SourceState.Ready) {
-                _apps.emit(SourceState.Ready(AppListLoader().update((_apps.value as SourceState.Ready).source)))
-            }
-        }
-    }
-
     private val _isSearching = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearching.value
@@ -72,38 +48,39 @@ class AppListViewModel : ViewModel() {
             }
             _queryText.value = value
         }
-    val showingList = combine(apps, _isSearching, _queryText) { apps, isSearching, queryText ->
-        if (apps is SourceState.Load) {
-            return@combine emptyList<PreferencesPackageInfo>()
-        }
-        (apps as SourceState.Ready).source.toMutableList().apply {
-            if (ModulePreferences.isHideSystemApp) {
-                removeIf {
-                    it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
-                }
-            }
-            if (ModulePreferences.isHideNoStoragePermissionApp) {
-                removeIf {
-                    val requestedPermissions = it.requestedPermissions
-                    requestedPermissions == null || !requestedPermissions.run {
-                        contains(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                || contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                && contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+    private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
+    val apps = combine(_apps, _isSearching, _queryText) { source, isSearching, queryText ->
+        when (source) {
+            is SourceState.Load -> SourceState.Load(source.progress)
+            is SourceState.Ready -> SourceState.Ready(
+                source.list.toMutableList().apply {
+                    if (ModulePreferences.isHideSystemApp) {
+                        removeIf {
+                            it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
+                        }
                     }
-                }
-            }
-            when (ModulePreferences.sortBy) {
-                ModulePreferences.SORT_BY_NAME ->
-                    sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
-                        Collator.getInstance().compare(o1?.label, o2?.label)
+                    if (ModulePreferences.isHideNoStoragePermissionApp) {
+                        removeIf {
+                            val requestedPermissions = it.requestedPermissions
+                            requestedPermissions == null || !requestedPermissions.run {
+                                contains(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                        || contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                        || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                                        && contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                            }
+                        }
                     }
-                ModulePreferences.SORT_BY_UPDATE_TIME ->
-                    sortWith(Comparator.comparingLong {
-                        -it.lastUpdateTime
-                    })
-            }
-            if (ModulePreferences.ruleCount) {
+                    when (ModulePreferences.sortBy) {
+                        ModulePreferences.SORT_BY_NAME ->
+                            sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
+                                Collator.getInstance().compare(o1?.label, o2?.label)
+                            }
+                        ModulePreferences.SORT_BY_UPDATE_TIME ->
+                            sortWith(Comparator.comparingLong {
+                                -it.lastUpdateTime
+                            })
+                    }
+                    if (ModulePreferences.ruleCount) {
 //                    sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
 //                        when (mTitle) {
 //                            R.string.storage_redirect_title -> return@sortWith o2!!.srCount - o1!!.srCount
@@ -111,13 +88,36 @@ class AppListViewModel : ViewModel() {
 //                            else -> return@sortWith 0
 //                        }
 //                    }
-            }
-            if (isSearching) {
-                val lowerQuery = queryText.lowercase()
-                removeIf {
-                    !it.label.lowercase().contains(lowerQuery) &&
-                            !it.applicationInfo.packageName.lowercase().contains(lowerQuery)
+                    }
+                    if (isSearching) {
+                        val lowerQuery = queryText.lowercase()
+                        removeIf {
+                            !it.label.lowercase().contains(lowerQuery) &&
+                                    !it.applicationInfo.packageName.lowercase()
+                                        .contains(lowerQuery)
+                        }
+                    }
                 }
+            )
+        }
+    }
+
+    fun loadApps(pm: PackageManager) {
+        viewModelScope.launch {
+            val list = AppListLoader().load(pm, object : AppListLoader.ProgressListener {
+                override fun onProgress(progress: Int) {
+                    _apps.value = SourceState.Load(progress)
+                }
+            })
+            _apps.value = SourceState.Ready(list)
+        }
+    }
+
+    fun updateApps() {
+        viewModelScope.launch {
+            if (_apps.value is SourceState.Ready) {
+                val list = AppListLoader().update((_apps.value as SourceState.Ready).list)
+                _apps.value = SourceState.Ready(list)
             }
         }
     }
@@ -125,5 +125,5 @@ class AppListViewModel : ViewModel() {
 
 sealed class SourceState {
     data class Load(var progress: Int) : SourceState()
-    data class Ready(val source: List<PreferencesPackageInfo>) : SourceState()
+    data class Ready(val list: List<PreferencesPackageInfo>) : SourceState()
 }

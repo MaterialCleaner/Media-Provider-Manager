@@ -30,8 +30,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
@@ -47,7 +45,6 @@ import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 class AppListActivity : BaseActivity() {
     private val viewModel: AppListViewModel by viewModels()
     private lateinit var adapter: AppListAdapter
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,9 +79,8 @@ class AppListActivity : BaseActivity() {
                         is SourceState.Load -> binding.progress.progress = apps.progress
                         is SourceState.Ready -> {
                             binding.progress.progress = 0
-                            viewModel.showingList.collect {
-                                adapter.submitList(it)
-                            }
+                            binding.listContainer.isRefreshing = false
+                            adapter.submitList(apps.list)
                         }
                     }
                 }
@@ -103,7 +99,6 @@ class AppListActivity : BaseActivity() {
         })
         binding.listContainer.setOnRefreshListener {
             viewModel.loadApps(packageManager)
-            binding.listContainer.isRefreshing = false
         }
     }
 
