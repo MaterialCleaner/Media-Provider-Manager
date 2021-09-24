@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.settings
 import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
@@ -35,6 +36,7 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
             val count = AtomicInteger(0)
             installedPackages
                 .map {
+                    ensureActive()
                     l?.onProgress(100 * count.incrementAndGet() / size)
                     PreferencesPackageInfo.newInstance(it, pm)
                 }
@@ -43,11 +45,11 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
 
     suspend fun update(old: List<PreferencesPackageInfo>): List<PreferencesPackageInfo> {
         return withContext(defaultDispatcher) {
-            val list = mutableListOf<PreferencesPackageInfo>()
-            old.forEach {
-                list.add(it.copy())
+            mutableListOf<PreferencesPackageInfo>().apply {
+                old.forEach {
+                    add(it.copy())
+                }
             }
-            list
         }
     }
 

@@ -56,15 +56,16 @@ class AppListActivity : BaseActivity() {
         }
 
         adapter = AppListAdapter(this)
-        binding.list.layoutManager = GridLayoutManager(this, 1)
-        binding.list.setHasFixedSize(true)
-        binding.list.fixEdgeEffect()
-        binding.list.initFastScroller()
-        binding.list.borderViewDelegate.borderVisibilityChangedListener =
+        val list = binding.list
+        list.layoutManager = GridLayoutManager(this, 1)
+        list.setHasFixedSize(true)
+        list.fixEdgeEffect()
+        list.initFastScroller()
+        list.borderViewDelegate.borderVisibilityChangedListener =
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout?.isRaised = !top
             }
-        binding.list.adapter = adapter
+        list.adapter = adapter
         // Start a coroutine in the lifecycle scope
         lifecycleScope.launch {
             // repeatOnLifecycle launches the block in a new coroutine every time the

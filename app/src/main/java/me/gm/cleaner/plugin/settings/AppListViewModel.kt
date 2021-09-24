@@ -34,18 +34,12 @@ class AppListViewModel : ViewModel() {
     var isSearching: Boolean
         get() = _isSearching.value
         set(value) {
-            if (isSearching == value) {
-                return
-            }
             _isSearching.value = value
         }
     private val _queryText = MutableStateFlow("")
     var queryText: String
         get() = _queryText.value
         set(value) {
-            if (queryText == value) {
-                return
-            }
             _queryText.value = value
         }
     private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
