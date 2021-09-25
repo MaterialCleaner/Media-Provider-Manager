@@ -44,7 +44,7 @@ import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class AppListActivity : BaseActivity() {
     private val viewModel: AppListViewModel by viewModels()
-    private lateinit var adapter: AppListAdapter
+    private val adapter by lazy { AppListAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +55,8 @@ class AppListActivity : BaseActivity() {
             setHomeAsUpIndicator(R.drawable.ic_outline_arrow_back_24)
         }
 
-        adapter = AppListAdapter(this)
         val list = binding.list
+        list.adapter = adapter
         list.layoutManager = GridLayoutManager(this, 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect()
@@ -65,7 +65,6 @@ class AppListActivity : BaseActivity() {
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout?.isRaised = !top
             }
-        list.adapter = adapter
         // Start a coroutine in the lifecycle scope
         lifecycleScope.launch {
             // repeatOnLifecycle launches the block in a new coroutine every time the

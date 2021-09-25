@@ -38,14 +38,15 @@ class TestFragment : BaseFragment() {
             setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
         }
 
-        binding.list.layoutManager = GridLayoutManager(requireContext(), 1)
-        binding.list.setHasFixedSize(true)
-        binding.list.fixEdgeEffect()
-        binding.list.borderViewDelegate.borderVisibilityChangedListener =
+        val list = binding.list
+        list.adapter = TestAdapter(this)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.setHasFixedSize(true)
+        list.fixEdgeEffect()
+        list.borderViewDelegate.borderVisibilityChangedListener =
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout.isRaised = !top
             }
-        binding.list.adapter = TestAdapter(this)
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {

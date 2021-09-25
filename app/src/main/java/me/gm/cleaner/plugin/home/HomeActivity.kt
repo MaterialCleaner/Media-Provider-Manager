@@ -29,6 +29,7 @@ abstract class HomeActivity : BaseActivity() {
         val binding = HomeActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val list = binding.list
+        list.adapter = HomeAdapter(this)
         list.layoutManager = GridLayoutManager(this, 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect()
@@ -36,6 +37,5 @@ abstract class HomeActivity : BaseActivity() {
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout?.isRaised = !top
             }
-        list.adapter = HomeAdapter(this)
     }
 }

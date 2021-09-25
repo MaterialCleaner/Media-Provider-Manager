@@ -30,20 +30,20 @@ import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {
-    private val _isSearching = MutableStateFlow(false)
+    private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean
-        get() = _isSearching.value
+        get() = _isSearchingFlow.value
         set(value) {
-            _isSearching.value = value
+            _isSearchingFlow.value = value
         }
-    private val _queryText = MutableStateFlow("")
+    private val _queryTextFlow = MutableStateFlow("")
     var queryText: String
-        get() = _queryText.value
+        get() = _queryTextFlow.value
         set(value) {
-            _queryText.value = value
+            _queryTextFlow.value = value
         }
     private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
-    val apps = combine(_apps, _isSearching, _queryText) { source, isSearching, queryText ->
+    val apps = combine(_apps, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
         when (source) {
             is SourceState.Load -> SourceState.Load(source.progress)
             is SourceState.Ready -> SourceState.Ready(
@@ -118,6 +118,6 @@ class AppListViewModel : ViewModel() {
 }
 
 sealed class SourceState {
-    data class Load(var progress: Int) : SourceState()
+    data class Load(val progress: Int) : SourceState()
     data class Ready(val list: List<PreferencesPackageInfo>) : SourceState()
 }

@@ -47,7 +47,9 @@ class QueryFragment : BaseFragment() {
             setTitle(R.string.query)
         }
 
+        val adapter = QueryAdapter(this)
         list = binding.list
+        list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
         list.fixEdgeEffect()
@@ -57,8 +59,6 @@ class QueryFragment : BaseFragment() {
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout.isRaised = !top
             }
-        val adapter = QueryAdapter(this)
-        list.adapter = adapter
         viewModel.images.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
