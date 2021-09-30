@@ -34,12 +34,11 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
             }
             val size = installedPackages.size
             val count = AtomicInteger(0)
-            installedPackages
-                .map {
-                    ensureActive()
-                    l?.onProgress(100 * count.incrementAndGet() / size)
-                    PreferencesPackageInfo.newInstance(it, pm)
-                }
+            installedPackages.map {
+                ensureActive()
+                l?.onProgress(100 * count.incrementAndGet() / size)
+                PreferencesPackageInfo.newInstance(it, pm)
+            }
         }
     }
 

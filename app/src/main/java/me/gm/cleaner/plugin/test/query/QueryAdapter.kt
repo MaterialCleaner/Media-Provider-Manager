@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.test.query
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -70,7 +69,7 @@ class QueryAdapter(private val fragment: QueryFragment) :
             .thumbnail(0.33f)
             .centerCrop()
             .into(binding.image)
-        ViewCompat.setTransitionName(binding.image, uri.toString())
+        binding.image.transitionName = uri.toString()
         binding.root.setOnClickListener {
             viewModel.currentPosition = holder.bindingAdapterPosition
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)

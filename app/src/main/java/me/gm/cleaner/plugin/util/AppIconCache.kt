@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.graphics.drawable.AdaptiveIconDrawable
+import android.util.SparseArray
 import android.widget.ImageView
 import androidx.collection.LruCache
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import rikka.core.util.BuildUtils
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -31,7 +31,7 @@ object AppIconCache : CoroutineScope {
 
     private val dispatcher: CoroutineDispatcher
 
-    private var appIconLoaders = ConcurrentHashMap<Int, AppIconLoader>()
+    private var appIconLoaders = SparseArray<AppIconLoader>()
 
     init {
         // Initialize app icon lru cache

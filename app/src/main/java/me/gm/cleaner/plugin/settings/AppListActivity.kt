@@ -65,6 +65,10 @@ class AppListActivity : BaseActivity() {
             OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
                 appBarLayout?.isRaised = !top
             }
+        binding.listContainer.setOnRefreshListener {
+            viewModel.loadApps(packageManager, null)
+        }
+
         // Start a coroutine in the lifecycle scope
         lifecycleScope.launch {
             // repeatOnLifecycle launches the block in a new coroutine every time the
@@ -97,9 +101,6 @@ class AppListActivity : BaseActivity() {
                 }
             }
         })
-        binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(packageManager)
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

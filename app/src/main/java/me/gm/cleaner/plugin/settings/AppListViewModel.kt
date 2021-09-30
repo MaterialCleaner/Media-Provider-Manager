@@ -96,13 +96,16 @@ class AppListViewModel : ViewModel() {
         }
     }
 
-    fun loadApps(pm: PackageManager) {
+    fun loadApps(
+        pm: PackageManager,
+        l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
+            override fun onProgress(progress: Int) {
+                _apps.value = SourceState.Load(progress)
+            }
+        }
+    ) {
         viewModelScope.launch {
-            val list = AppListLoader().load(pm, object : AppListLoader.ProgressListener {
-                override fun onProgress(progress: Int) {
-                    _apps.value = SourceState.Load(progress)
-                }
-            })
+            val list = AppListLoader().load(pm, l)
             _apps.value = SourceState.Ready(list)
         }
     }
