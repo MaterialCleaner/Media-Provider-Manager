@@ -24,35 +24,35 @@ import android.os.Bundle
 import android.widget.EdgeEffect
 import androidx.recyclerview.widget.RecyclerView
 import com.drakeet.about.AbsAboutActivity
-import me.gm.cleaner.plugin.util.DisplayUtils.getColorByAttr
+import com.drakeet.about.R
+import me.gm.cleaner.plugin.util.colorPrimary
 import rikka.core.res.resolveColor
 import rikka.core.util.ResourceUtils
 
 abstract class ThemedAboutActivity : AbsAboutActivity() {
+    private val aboutPageBackgroundColor by lazy { getColor(R.color.about_page_card_normal) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (ResourceUtils.isNightMode(resources.configuration)) {
-            val aboutPageBackground = getColor(com.drakeet.about.R.color.about_page_background)
-            val backgroundDrawable = ColorDrawable(aboutPageBackground)
-            setHeaderBackground(backgroundDrawable)
-            setHeaderContentScrim(backgroundDrawable)
+            setHeaderBackgroundColor(aboutPageBackgroundColor)
+            setHeaderContentScrim(ColorDrawable(aboutPageBackgroundColor))
         }
     }
 
     override fun onCreateEdgeEffect(view: RecyclerView, direction: Int, rect: Rect?): EdgeEffect =
         super.onCreateEdgeEffect(view, direction, rect).apply {
             if (ResourceUtils.isNightMode(resources.configuration)) {
-                color =
-                    getColor(com.drakeet.about.R.color.about_page_background) and 0xffffff or 0x33000000
+                color = getColor(R.color.about_page_background) and 0xffffff or 0x33000000
             }
         }
 
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
         window.statusBarColor = if (ResourceUtils.isNightMode(resources.configuration)) {
-            getColor(com.drakeet.about.R.color.about_page_background)
+            aboutPageBackgroundColor
         } else {
-            getColorByAttr(android.R.attr.colorPrimary)
+            colorPrimary
         }
         window.decorView.post {
             if (window.decorView.rootWindowInsets.systemWindowInsetBottom >=

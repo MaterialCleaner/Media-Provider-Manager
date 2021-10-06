@@ -28,8 +28,8 @@ import me.gm.cleaner.plugin.R
 class AboutActivity : ThemedAboutActivity() {
     override fun onCreateHeader(icon: ImageView, slogan: TextView, version: TextView) {
         icon.setImageDrawable(packageManager.defaultActivityIcon)
-        slogan.text = getString(R.string.app_name)
-        version.text = BuildConfig.VERSION_NAME
+        slogan.setText(R.string.description)
+        version.text = "${getString(R.string.app_name)} ${BuildConfig.VERSION_NAME}"
     }
 
     override fun onItemsCreated(items: MutableList<Any>) {

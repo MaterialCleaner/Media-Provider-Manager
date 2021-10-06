@@ -32,8 +32,9 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.util.AppIconCache
-import me.gm.cleaner.plugin.util.DisplayUtils.getColorByAttr
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
+import me.gm.cleaner.plugin.util.colorPrimary
+import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
 class AppListAdapter(private val activity: AppListActivity) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
@@ -66,6 +67,10 @@ class AppListAdapter(private val activity: AppListActivity) :
             menu.setHeaderTitle(pi.label)
             if (pi.srCount == 0) {
                 menu.removeItem(R.id.menu_delete_all_rules)
+            } else {
+                menu.setOnMenuItemClickListener { item ->
+                    return@setOnMenuItemClickListener onContextItemSelected(item)
+                }
             }
         }
     }
@@ -86,13 +91,13 @@ class AppListAdapter(private val activity: AppListActivity) :
     private fun getSpannableString(text: CharSequence): SpannableStringBuilder =
         SpannableStringBuilder(text).apply {
             setSpan(
-                ForegroundColorSpan(activity.getColorByAttr(android.R.attr.colorPrimary)), 0,
-                length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                ForegroundColorSpan(activity.colorPrimary), 0, length,
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE
             )
             setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
-    fun onContextItemSelected(item: MenuItem): Boolean {
+    private fun onContextItemSelected(item: MenuItem): Boolean {
         if (!::selectedHolder.isInitialized) return false
         val position = selectedHolder.bindingAdapterPosition
         val pi = getItem(position)!!
@@ -123,12 +128,11 @@ class AppListAdapter(private val activity: AppListActivity) :
             object : DiffUtil.ItemCallback<PreferencesPackageInfo>() {
                 override fun areItemsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
-                ): Boolean =
-                    oldItem.applicationInfo.packageName == newItem.applicationInfo.packageName
+                ) = oldItem.applicationInfo.packageName == newItem.applicationInfo.packageName
 
                 override fun areContentsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
-                ): Boolean = oldItem.srCount == newItem.srCount
+                ) = oldItem.srCount == newItem.srCount
             }
     }
 }

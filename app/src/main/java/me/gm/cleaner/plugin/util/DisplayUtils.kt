@@ -20,47 +20,56 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.icu.text.ListFormatter
+import android.view.ContextMenu
+import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
 import kotlin.math.roundToInt
 
-object DisplayUtils {
-    fun Context.getDimenByAttr(attr: Int): Float {
-        val a = obtainStyledAttributes(intArrayOf(attr))
-        val dimen = a.getDimension(0, 0f)
-        a.recycle()
-        return dimen
-    }
+fun Collection<*>.listFormat(delimiter: String): String = ListFormatter.getInstance().format(this)
 
-    @ColorInt
-    fun Context.getColorByAttr(attr: Int): Int {
-        val a = obtainStyledAttributes(intArrayOf(attr))
-        val color = a.getColorStateList(0)!!.defaultColor
-        a.recycle()
-        return color
+fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> Boolean) {
+    for (i in 0 until size()) {
+        getItem(i).setOnMenuItemClickListener(menuItemClickListener)
     }
+}
 
-    @SuppressLint("RestrictedApi")
-    fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
-        val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
-        val bitmap = Bitmap.createBitmap(
-            drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.setTint(getColorByAttr(android.R.attr.colorPrimary))
-        drawable.draw(canvas)
-        return bitmap
-    }
+fun Context.getDimenByAttr(attr: Int): Float {
+    val a = obtainStyledAttributes(intArrayOf(attr))
+    val dimen = a.getDimension(0, 0f)
+    a.recycle()
+    return dimen
+}
 
-    fun Context.dipToPx(dipValue: Float): Int {
-        val scale = resources.displayMetrics.density
-        return (dipValue * scale + 0.5f).roundToInt()
-    }
+@ColorInt
+fun Context.getColorByAttr(attr: Int): Int {
+    val a = obtainStyledAttributes(intArrayOf(attr))
+    val color = a.getColorStateList(0)!!.defaultColor
+    a.recycle()
+    return color
+}
 
-    fun Context.pxToDip(pxValue: Float): Int {
-        val scale = resources.displayMetrics.density
-        return (pxValue / scale + 0.5f).roundToInt()
-    }
+@SuppressLint("RestrictedApi")
+fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
+    val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
+    val bitmap = Bitmap.createBitmap(
+        drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.setTint(colorPrimary)
+    drawable.draw(canvas)
+    return bitmap
+}
+
+fun Context.dipToPx(dipValue: Float): Int {
+    val scale = resources.displayMetrics.density
+    return (dipValue * scale + 0.5f).roundToInt()
+}
+
+fun Context.pxToDip(pxValue: Float): Int {
+    val scale = resources.displayMetrics.density
+    return (pxValue / scale + 0.5f).roundToInt()
 }

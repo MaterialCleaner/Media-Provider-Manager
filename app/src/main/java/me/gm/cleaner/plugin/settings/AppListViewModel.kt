@@ -42,11 +42,11 @@ class AppListViewModel : ViewModel() {
         set(value) {
             _queryTextFlow.value = value
         }
-    private val _apps = MutableStateFlow<SourceState>(SourceState.Load(0))
+    private val _apps = MutableStateFlow<SourceState>(SourceState.Loading(0))
     val apps = combine(_apps, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
         when (source) {
-            is SourceState.Load -> SourceState.Load(source.progress)
-            is SourceState.Ready -> SourceState.Ready(
+            is SourceState.Loading -> SourceState.Loading(source.progress)
+            is SourceState.Done -> SourceState.Done(
                 source.list.toMutableList().apply {
                     if (ModulePreferences.isHideSystemApp) {
                         removeIf {
@@ -100,27 +100,27 @@ class AppListViewModel : ViewModel() {
         pm: PackageManager,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
-                _apps.value = SourceState.Load(progress)
+                _apps.value = SourceState.Loading(progress)
             }
         }
     ) {
         viewModelScope.launch {
             val list = AppListLoader().load(pm, l)
-            _apps.value = SourceState.Ready(list)
+            _apps.value = SourceState.Done(list)
         }
     }
 
     fun updateApps() {
         viewModelScope.launch {
-            if (_apps.value is SourceState.Ready) {
-                val list = AppListLoader().update((_apps.value as SourceState.Ready).list)
-                _apps.value = SourceState.Ready(list)
+            if (_apps.value is SourceState.Done) {
+                val list = AppListLoader().update((_apps.value as SourceState.Done).list)
+                _apps.value = SourceState.Done(list)
             }
         }
     }
 }
 
 sealed class SourceState {
-    data class Load(val progress: Int) : SourceState()
-    data class Ready(val list: List<PreferencesPackageInfo>) : SourceState()
+    data class Loading(val progress: Int) : SourceState()
+    data class Done(val list: List<PreferencesPackageInfo>) : SourceState()
 }

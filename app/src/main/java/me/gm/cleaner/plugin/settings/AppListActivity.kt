@@ -37,7 +37,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistActivityBinding
-import me.gm.cleaner.plugin.util.DisplayUtils.getColorByAttr
+import me.gm.cleaner.plugin.util.colorPrimary
 import me.gm.cleaner.plugin.util.initFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
@@ -80,8 +80,8 @@ class AppListActivity : BaseActivity() {
                 viewModel.apps.collect { apps ->
                     // New value received
                     when (apps) {
-                        is SourceState.Load -> binding.progress.progress = apps.progress
-                        is SourceState.Ready -> {
+                        is SourceState.Loading -> binding.progress.progress = apps.progress
+                        is SourceState.Done -> {
                             binding.progress.progress = 0
                             binding.listContainer.isRefreshing = false
                             adapter.submitList(apps.list)
@@ -146,23 +146,15 @@ class AppListActivity : BaseActivity() {
             ModulePreferences.isHideNoStoragePermissionApp
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
             it.isEnabled = false
-            it.title = getSpannableString(it.title)
+            it.title = SpannableStringBuilder(it.title).apply {
+                setSpan(
+                    ForegroundColorSpan(colorPrimary), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
+                setSpan(AbsoluteSizeSpan(14, true), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
         return super.onCreateOptionsMenu(menu)
     }
-
-    private fun getSpannableString(text: CharSequence): SpannableStringBuilder =
-        SpannableStringBuilder(text).apply {
-            setSpan(
-                ForegroundColorSpan(getColorByAttr(android.R.attr.colorPrimary)), 0, length,
-                Spannable.SPAN_INCLUSIVE_INCLUSIVE
-            )
-            setSpan(AbsoluteSizeSpan(14, true), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean =
-        if (adapter.onContextItemSelected(item)) true
-        else super.onContextItemSelected(item)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

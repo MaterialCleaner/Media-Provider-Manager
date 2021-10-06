@@ -34,7 +34,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.GalleryFragmentBinding
 import me.gm.cleaner.plugin.test.TestActivity
-import me.gm.cleaner.plugin.util.DisplayUtils.getDimenByAttr
+import me.gm.cleaner.plugin.util.getDimenByAttr
 import rikka.core.util.ResourceUtils
 
 class GalleryFragment : BaseFragment() {
