@@ -136,6 +136,7 @@ class HomeAdapter(private val activity: HomeActivity) :
         }
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
+            override fun getLifecycleState() = activity
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 notifyItemChanged(1)
             }

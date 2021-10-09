@@ -94,6 +94,7 @@ class AppListActivity : BaseActivity() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
+            override fun getLifecycleState() = this@AppListActivity
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.updateApps()
                 if (isNotifyService) {

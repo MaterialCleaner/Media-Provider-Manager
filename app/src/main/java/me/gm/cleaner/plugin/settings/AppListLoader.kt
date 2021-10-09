@@ -27,27 +27,23 @@ import me.gm.cleaner.plugin.util.PreferencesPackageInfo.Companion.copy
 import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {
-    suspend fun load(pm: PackageManager, l: ProgressListener?): List<PreferencesPackageInfo> {
-        return withContext(defaultDispatcher) {
-            val installedPackages = BinderReceiver.installedPackages.filter {
-                it.applicationInfo.enabled
-            }
-            val size = installedPackages.size
-            val count = AtomicInteger(0)
-            installedPackages.map {
-                ensureActive()
-                l?.onProgress(100 * count.incrementAndGet() / size)
-                PreferencesPackageInfo.newInstance(it, pm)
-            }
+    suspend fun load(pm: PackageManager, l: ProgressListener?) = withContext(defaultDispatcher) {
+        val installedPackages = BinderReceiver.installedPackages.filter {
+            it.applicationInfo.enabled
+        }
+        val size = installedPackages.size
+        val count = AtomicInteger(0)
+        installedPackages.map {
+            ensureActive()
+            l?.onProgress(100 * count.incrementAndGet() / size)
+            PreferencesPackageInfo.newInstance(it, pm)
         }
     }
 
-    suspend fun update(old: List<PreferencesPackageInfo>): List<PreferencesPackageInfo> {
-        return withContext(defaultDispatcher) {
-            mutableListOf<PreferencesPackageInfo>().apply {
-                old.forEach {
-                    add(it.copy())
-                }
+    suspend fun update(old: List<PreferencesPackageInfo>) = withContext(defaultDispatcher) {
+        mutableListOf<PreferencesPackageInfo>().apply {
+            old.forEach {
+                add(it.copy())
             }
         }
     }

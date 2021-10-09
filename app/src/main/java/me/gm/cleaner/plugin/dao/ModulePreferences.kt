@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.TextUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
 
@@ -59,8 +61,20 @@ object ModulePreferences {
             return
         }
         broadcasting = true
-        listeners.forEach {
-            it.onPreferencesChanged(isNotifyService)
+        val it = listeners.iterator()
+        while (it.hasNext()) {
+            val l = it.next()
+            val currentLifecycleState = try {
+                l.getLifecycleState().lifecycle.currentState
+            } catch (e: IllegalStateException) {
+                it.remove()
+                continue
+            }
+            if (currentLifecycleState == Lifecycle.State.DESTROYED) {
+                it.remove()
+            } else if (currentLifecycleState.isAtLeast(Lifecycle.State.CREATED)) {
+                l.onPreferencesChanged(isNotifyService)
+            }
         }
         broadcasting = false
     }
@@ -134,6 +148,7 @@ object ModulePreferences {
     }
 
     interface PreferencesChangeListener {
+        fun getLifecycleState(): LifecycleOwner
         fun onPreferencesChanged(isNotifyService: Boolean)
     }
 }
