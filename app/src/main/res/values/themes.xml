@@ -10,6 +10,7 @@
         <item name="colorSecondaryVariant">?colorPrimary</item>
         <item name="colorOnSecondary">@android:color/white</item>
 
+        <item name="overlapAnchor">false</item>
         <item name="actionBarStyle">@style/Widget.Material.ActionBar.Surface</item>
         <item name="actionBarTheme">@style/ThemeOverlay.ActionBar</item>
         <item name="toolbarStyle">@style/Widget.Material.Toolbar</item>
@@ -24,6 +25,9 @@
         <item name="windowNoTitle">true</item>
 
         <!-- Preference title -->
+        <item name="preferenceTheme">@style/ThemeOverlay.Preference</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
+        </item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
     </style>
 
@@ -36,6 +40,7 @@
         <item name="colorSecondaryVariant">?colorPrimary</item>
         <item name="colorOnSecondary">@android:color/black</item>
 
+        <item name="overlapAnchor">false</item>
         <item name="actionBarStyle">@style/Widget.Material.ActionBar.Surface</item>
         <item name="actionBarTheme">@style/ThemeOverlay.ActionBar</item>
         <item name="toolbarStyle">@style/Widget.Material.Toolbar</item>
@@ -50,6 +55,9 @@
         <item name="windowNoTitle">true</item>
 
         <!-- Preference title -->
+        <item name="preferenceTheme">@style/ThemeOverlay.Preference</item>
+        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
+        </item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
     </style>
 

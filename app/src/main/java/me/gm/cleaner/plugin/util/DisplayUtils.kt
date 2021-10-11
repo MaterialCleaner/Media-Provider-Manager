@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.icu.text.ListFormatter
 import android.os.Build
 import android.text.Spannable
@@ -79,11 +80,18 @@ fun Context.getDimenByAttr(attr: Int): Float {
 }
 
 @ColorInt
-fun Context.getColorByAttr(attr: Int): Int {
+fun Context.getColorByAttr(attr: Int): Int? {
     val a = obtainStyledAttributes(intArrayOf(attr))
-    val color = a.getColorStateList(0)!!.defaultColor
+    val color = a.getColorStateList(0)?.defaultColor
     a.recycle()
     return color
+}
+
+fun Context.getDrawableByAttr(attr: Int): Drawable? {
+    val a = obtainStyledAttributes(intArrayOf(attr))
+    val drawable = a.getDrawable(0)
+    a.recycle()
+    return drawable
 }
 
 fun Context.dipToPx(dipValue: Float): Int {

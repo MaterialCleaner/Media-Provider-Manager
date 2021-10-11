@@ -141,7 +141,6 @@ class AppListActivity : BaseActivity() {
         menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
             ModulePreferences.isHideNoStoragePermissionApp
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
-            it.isEnabled = false
             it.title = buildStyledTitle(it.title)
         }
         return super.onCreateOptionsMenu(menu)
@@ -150,12 +149,12 @@ class AppListActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_sort_by_name -> {
-                ModulePreferences.sortBy = ModulePreferences.SORT_BY_NAME
                 item.isChecked = true
+                ModulePreferences.sortBy = ModulePreferences.SORT_BY_NAME
             }
             R.id.menu_sort_by_update_time -> {
-                ModulePreferences.sortBy = ModulePreferences.SORT_BY_UPDATE_TIME
                 item.isChecked = true
+                ModulePreferences.sortBy = ModulePreferences.SORT_BY_UPDATE_TIME
             }
             R.id.menu_rule_count -> {
                 val ruleCount = !item.isChecked
