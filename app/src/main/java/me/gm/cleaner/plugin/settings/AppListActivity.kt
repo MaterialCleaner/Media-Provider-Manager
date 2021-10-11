@@ -17,11 +17,6 @@
 package me.gm.cleaner.plugin.settings
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.AbsoluteSizeSpan
-import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -37,7 +32,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistActivityBinding
-import me.gm.cleaner.plugin.util.colorPrimary
+import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.initFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
@@ -94,7 +89,7 @@ class AppListActivity : BaseActivity() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun getLifecycleState() = this@AppListActivity
+            override fun getLifecycleOwner() = this@AppListActivity
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.updateApps()
                 if (isNotifyService) {
@@ -147,12 +142,7 @@ class AppListActivity : BaseActivity() {
             ModulePreferences.isHideNoStoragePermissionApp
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
             it.isEnabled = false
-            it.title = SpannableStringBuilder(it.title).apply {
-                setSpan(
-                    ForegroundColorSpan(colorPrimary), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
-                )
-                setSpan(AbsoluteSizeSpan(14, true), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+            it.title = buildStyledTitle(it.title)
         }
         return super.onCreateOptionsMenu(menu)
     }

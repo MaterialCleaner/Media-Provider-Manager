@@ -17,11 +17,6 @@
 package me.gm.cleaner.plugin.settings
 
 import android.content.Intent
-import android.graphics.Typeface
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
 import androidx.recyclerview.widget.DiffUtil
@@ -33,7 +28,7 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.util.AppIconCache
 import me.gm.cleaner.plugin.util.PreferencesPackageInfo
-import me.gm.cleaner.plugin.util.colorPrimary
+import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
 class AppListAdapter(private val activity: AppListActivity) :
@@ -50,7 +45,11 @@ class AppListAdapter(private val activity: AppListActivity) :
             activity, pi.applicationInfo, pi.applicationInfo.uid / 100000, binding.icon
         )
         binding.title.text = pi.label
-        binding.summary.text = getSummary(pi)
+        binding.summary.text = if (pi.srCount > 0) {
+            activity.buildStyledTitle(pi.srCount.toString())
+        } else {
+            pi.packageName
+        }
         binding.root.setOnClickListener {
             activity.startActivity(
                 Intent(activity, SettingsActivity::class.java).putExtra(
@@ -74,28 +73,6 @@ class AppListAdapter(private val activity: AppListActivity) :
             }
         }
     }
-
-    private fun getSummary(pi: PreferencesPackageInfo): CharSequence {
-//        if (pi.faInfo.isNotEmpty()) {
-//            val enabledFunctions = mutableListOf<String>()
-//            pi.faInfo.forEach {
-//                enabledFunctions.add(activity.getString(it))
-//            }
-//            return getSpannableString(
-//                TextUtils.join(String(charArrayOf(',', ' ')), enabledFunctions)
-//            )
-//        }
-        return pi.packageName
-    }
-
-    private fun getSpannableString(text: CharSequence): SpannableStringBuilder =
-        SpannableStringBuilder(text).apply {
-            setSpan(
-                ForegroundColorSpan(activity.colorPrimary), 0, length,
-                Spannable.SPAN_INCLUSIVE_INCLUSIVE
-            )
-            setSpan(StyleSpan(Typeface.BOLD), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-        }
 
     private fun onContextItemSelected(item: MenuItem): Boolean {
         if (!::selectedHolder.isInitialized) return false

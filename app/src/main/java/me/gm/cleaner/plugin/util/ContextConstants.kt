@@ -7,6 +7,10 @@ val Context.colorPrimary: Int
     @ColorInt
     get() = getColorByAttr(android.R.attr.colorPrimary)
 
+val Context.colorControlHighlight: Int
+    @ColorInt
+    get() = getColorByAttr(android.R.attr.colorControlHighlight)
+
 val Context.shortAnimTime
     get() = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
 

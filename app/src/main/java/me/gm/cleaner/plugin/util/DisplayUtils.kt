@@ -21,6 +21,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.icu.text.ListFormatter
+import android.os.Build
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.TextAppearanceSpan
 import android.view.ContextMenu
 import android.view.MenuItem
 import androidx.annotation.ColorInt
@@ -28,12 +34,41 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
 import kotlin.math.roundToInt
 
-fun Collection<*>.listFormat(delimiter: String): String = ListFormatter.getInstance().format(this)
+fun Collection<*>.listFormat(delimiter: String): String =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        ListFormatter.getInstance().format(this)
+    } else {
+        joinToString(delimiter)
+    }
 
 fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> Boolean) {
     for (i in 0 until size()) {
         getItem(i).setOnMenuItemClickListener(menuItemClickListener)
     }
+}
+
+@SuppressLint("RestrictedApi")
+fun Context.buildStyledTitle(text: CharSequence) = SpannableStringBuilder(text).apply {
+    setSpan(
+        TextAppearanceSpan(
+            this@buildStyledTitle, androidx.appcompat.R.style.TextAppearance_AppCompat_Body2
+        ),
+        0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+    )
+    setSpan(ForegroundColorSpan(colorPrimary), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+}
+
+@SuppressLint("RestrictedApi")
+fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
+    val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
+    val bitmap = Bitmap.createBitmap(
+        drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.setTint(colorPrimary)
+    drawable.draw(canvas)
+    return bitmap
 }
 
 fun Context.getDimenByAttr(attr: Int): Float {
@@ -49,19 +84,6 @@ fun Context.getColorByAttr(attr: Int): Int {
     val color = a.getColorStateList(0)!!.defaultColor
     a.recycle()
     return color
-}
-
-@SuppressLint("RestrictedApi")
-fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
-    val drawable = AppCompatDrawableManager.get().getDrawable(this, drawableId)
-    val bitmap = Bitmap.createBitmap(
-        drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.setTint(colorPrimary)
-    drawable.draw(canvas)
-    return bitmap
 }
 
 fun Context.dipToPx(dipValue: Float): Int {

@@ -65,7 +65,7 @@ object ModulePreferences {
         while (it.hasNext()) {
             val l = it.next()
             val currentLifecycleState = try {
-                l.getLifecycleState().lifecycle.currentState
+                l.getLifecycleOwner().lifecycle.currentState
             } catch (e: IllegalStateException) {
                 it.remove()
                 continue
@@ -148,7 +148,7 @@ object ModulePreferences {
     }
 
     interface PreferencesChangeListener {
-        fun getLifecycleState(): LifecycleOwner
+        fun getLifecycleOwner(): LifecycleOwner
         fun onPreferencesChanged(isNotifyService: Boolean)
     }
 }

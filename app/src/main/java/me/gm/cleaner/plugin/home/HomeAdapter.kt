@@ -36,18 +36,18 @@ class HomeAdapter(private val activity: HomeActivity) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int = when (position) {
-        0 -> TYPE_CARD
-        1 -> TYPE_CARD_BUTTON
-        else -> TYPE_BUTTON
+        0 -> R.layout.home_card
+        1 -> R.layout.home_card_button
+        else -> R.layout.home_button
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
-            TYPE_CARD -> CardHolder(HomeCardBinding.inflate(LayoutInflater.from(parent.context)))
-            TYPE_CARD_BUTTON -> CardButtonHolder(
+            R.layout.home_card -> CardHolder(HomeCardBinding.inflate(LayoutInflater.from(parent.context)))
+            R.layout.home_card_button -> CardButtonHolder(
                 HomeCardButtonBinding.inflate(LayoutInflater.from(parent.context))
             )
-            TYPE_BUTTON -> ButtonHolder(HomeButtonBinding.inflate(LayoutInflater.from(parent.context)))
+            R.layout.home_button -> ButtonHolder(HomeButtonBinding.inflate(LayoutInflater.from(parent.context)))
             else -> throw IllegalArgumentException("undefined view type")
         }
 
@@ -136,7 +136,7 @@ class HomeAdapter(private val activity: HomeActivity) :
         }
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun getLifecycleState() = activity
+            override fun getLifecycleOwner() = activity
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 notifyItemChanged(1)
             }

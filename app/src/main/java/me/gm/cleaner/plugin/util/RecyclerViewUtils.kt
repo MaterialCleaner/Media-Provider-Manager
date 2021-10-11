@@ -2,15 +2,45 @@ package me.gm.cleaner.plugin.util
 
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import me.zhanghai.android.fastscroll.Predicate
+
+fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPercentage(
+    list: List<T>, layoutManager: LinearLayoutManager
+) {
+    val position = layoutManager.findFirstVisibleItemPosition()
+    if (position == RecyclerView.NO_POSITION) {
+        submitList(list)
+    } else {
+        val newPosition = list.size * position / layoutManager.childCount
+        submitList(list) {
+            layoutManager.scrollToPosition(newPosition)
+        }
+    }
+}
+
+fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
+    list: List<T>, layoutManager: LinearLayoutManager
+) {
+    val position = layoutManager.findFirstVisibleItemPosition()
+    if (position == RecyclerView.NO_POSITION) {
+        submitList(list)
+    } else {
+        val offset = layoutManager.findViewByPosition(position)!!.top
+        submitList(list) {
+            layoutManager.scrollToPositionWithOffset(position, offset)
+        }
+    }
+}
 
 fun RecyclerView.initFastScroller() {
     FastScrollerBuilder(this)
@@ -42,7 +72,7 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
         list.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(
                 recyclerView: RecyclerView, event: MotionEvent
-            ): Boolean = onTouchEvent.test(event)
+            ) = onTouchEvent.test(event)
 
             override fun onTouchEvent(recyclerView: RecyclerView, event: MotionEvent) {
                 onTouchEvent.test(event)
@@ -50,10 +80,10 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
         })
     }
 
-    override fun getScrollRange(): Int =
+    override fun getScrollRange() =
         list.computeVerticalScrollRange() + list.paddingTop + list.paddingBottom
 
-    override fun getScrollOffset(): Int = list.computeVerticalScrollOffset()
+    override fun getScrollOffset() = list.computeVerticalScrollOffset()
 
     override fun scrollTo(offset: Int) {
         if (getItemCount() < CUTOFF) {
@@ -180,4 +210,107 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
         // Therefore, I set up a cut-off point to let each way make use of its strengths.
         private const val CUTOFF = 300
     }
+}
+
+class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecoration() {
+    private lateinit var mDivider: Drawable
+    private var mDividerHeight = 0
+    private var mAllowDividerAfterLastItem = true
+
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        if (!::mDivider.isInitialized) {
+            return
+        }
+        val childCount = parent.childCount
+        val width = parent.width
+        for (childViewIndex in 0 until childCount) {
+            val view = parent.getChildAt(childViewIndex)
+            if (shouldDrawDividerBelow(view, parent)) {
+                val top = view.y.toInt() + view.height
+                mDivider.setBounds(0, top, width, top + mDividerHeight)
+                mDivider.setTint(parent.context.colorControlHighlight)
+                mDivider.draw(c)
+            }
+        }
+    }
+
+    override fun getItemOffsets(
+        outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
+    ) {
+        if (shouldDrawDividerBelow(view, parent)) {
+            outRect.bottom = mDividerHeight
+        }
+    }
+
+    private fun shouldDrawDividerBelow(view: View, parent: RecyclerView): Boolean {
+        val holder = parent.getChildViewHolder(view)
+        val dividerAllowedBelow = holder is DividerViewHolder && holder.isDividerAllowedBelow
+        if (dividerAllowedBelow) {
+            return true
+        }
+        var nextAllowed = mAllowDividerAfterLastItem
+        val index = parent.indexOfChild(view)
+        if (index < parent.childCount - 1) {
+            val nextView = parent.getChildAt(index + 1)
+            val nextHolder = parent.getChildViewHolder(nextView)
+            nextAllowed = nextHolder is DividerViewHolder && nextHolder.isDividerAllowedAbove
+        }
+        return nextAllowed
+    }
+
+    fun setDivider(divider: Drawable) {
+        mDividerHeight = divider.intrinsicHeight
+        mDivider = divider
+        list.invalidateItemDecorations()
+    }
+
+    fun setDividerHeight(dividerHeight: Int) {
+        mDividerHeight = dividerHeight
+        list.invalidateItemDecorations()
+    }
+
+    fun setAllowDividerAfterLastItem(allowDividerAfterLastItem: Boolean) {
+        mAllowDividerAfterLastItem = allowDividerAfterLastItem
+    }
+}
+
+open class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @return `true` if dividers are allowed above this item
+     */
+    var isDividerAllowedAbove = false
+
+    /**
+     * Dividers are only drawn between items if both items allow it, or above the first and below
+     * the last item if that item allows it.
+     *
+     * @return `true` if dividers are allowed below this item
+     */
+    var isDividerAllowedBelow = false
+}
+
+fun RecyclerView.overScrollIfContentScrolls() {
+    overScrollMode = if (shouldDrawOverScroll(this)) {
+        View.OVER_SCROLL_IF_CONTENT_SCROLLS
+    } else {
+        View.OVER_SCROLL_NEVER
+    }
+}
+
+private fun shouldDrawOverScroll(recyclerView: RecyclerView): Boolean {
+    val layoutManager = recyclerView.layoutManager
+    if (layoutManager == null || recyclerView.adapter == null || recyclerView.adapter?.itemCount == 0) {
+        return false
+    }
+    if (layoutManager is LinearLayoutManager) {
+        val itemCount = layoutManager.itemCount
+        val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+        val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+        return firstPosition != 0 || lastPosition != itemCount - 1
+    }
+    return true
 }
