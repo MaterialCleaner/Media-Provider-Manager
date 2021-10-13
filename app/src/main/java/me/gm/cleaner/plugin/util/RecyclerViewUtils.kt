@@ -5,31 +5,29 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import me.zhanghai.android.fastscroll.Predicate
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPercentage(
-    list: List<T>, layoutManager: LinearLayoutManager
+    list: List<T>, layoutManager: LinearLayoutManager, commitCallback: Runnable? = null
 ) {
-    val position = layoutManager.findFirstVisibleItemPosition()
+    val position = layoutManager.findFirstCompletelyVisibleItemPosition()
     if (position == RecyclerView.NO_POSITION) {
         submitList(list)
     } else {
         val newPosition = list.size * position / layoutManager.childCount
         submitList(list) {
             layoutManager.scrollToPosition(newPosition)
+            commitCallback?.run()
         }
     }
 }
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
-    list: List<T>, layoutManager: LinearLayoutManager
+    list: List<T>, layoutManager: LinearLayoutManager, commitCallback: Runnable? = null
 ) {
     val position = layoutManager.findFirstVisibleItemPosition()
     if (position == RecyclerView.NO_POSITION) {
@@ -38,6 +36,7 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
         val offset = layoutManager.findViewByPosition(position)!!.top
         submitList(list) {
             layoutManager.scrollToPositionWithOffset(position, offset)
+            commitCallback?.run()
         }
     }
 }
@@ -274,7 +273,7 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
     }
 }
 
-open class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+abstract class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     /**
      * Dividers are only drawn between items if both items allow it, or above the first and below
@@ -294,23 +293,90 @@ open class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
 
 fun RecyclerView.overScrollIfContentScrolls() {
-    overScrollMode = if (shouldDrawOverScroll(this)) {
+    val isConcatAdapter = adapter is ConcatAdapter
+    overScrollMode = if (!isConcatAdapter && isContentScrolls(this) ||
+        isConcatAdapter && isListScrollable(this)
+    ) {
         View.OVER_SCROLL_IF_CONTENT_SCROLLS
     } else {
         View.OVER_SCROLL_NEVER
     }
 }
 
-private fun shouldDrawOverScroll(recyclerView: RecyclerView): Boolean {
-    val layoutManager = recyclerView.layoutManager
-    if (layoutManager == null || recyclerView.adapter == null || recyclerView.adapter?.itemCount == 0) {
+private fun isContentScrolls(list: RecyclerView): Boolean {
+    val layoutManager = list.layoutManager
+    if (layoutManager == null || list.adapter == null || list.adapter?.itemCount == 0) {
         return false
     }
-    if (layoutManager is LinearLayoutManager) {
-        val itemCount = layoutManager.itemCount
-        val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-        val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
-        return firstPosition != 0 || lastPosition != itemCount - 1
+    if (layoutManager !is LinearLayoutManager) {
+        return true
     }
-    return true
+    val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+    if (firstPosition != 0) {
+        return true
+    }
+    val itemCount = layoutManager.itemCount
+    val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+    return lastPosition != itemCount - 1
+}
+
+private fun isListScrollable(list: RecyclerView): Boolean {
+    val layoutManager = list.layoutManager
+    if (layoutManager == null || list.adapter == null || list.adapter?.itemCount == 0) {
+        return false
+    }
+    if (layoutManager !is LinearLayoutManager) {
+        return true
+    }
+    val firstViewHolder = list.findViewHolderForAdapterPosition(0) ?: return true
+    val viewBoundsCheck =
+        ViewBoundsCheck(if (layoutManager.orientation == RecyclerView.HORIZONTAL) {
+            object : ViewBoundsCheck.Callback {
+                override fun getChildAt(index: Int): View? = layoutManager.getChildAt(index)
+                override fun getParentStart() = layoutManager.getPaddingLeft()
+                override fun getParentEnd() =
+                    layoutManager.getWidth() - layoutManager.getPaddingRight()
+
+                override fun getChildStart(view: View): Int {
+                    val params = view.layoutParams as RecyclerView.LayoutParams
+                    return layoutManager.getDecoratedLeft(view) - params.leftMargin
+                }
+
+                override fun getChildEnd(view: View): Int {
+                    val params = view.layoutParams as RecyclerView.LayoutParams
+                    return layoutManager.getDecoratedRight(view) + params.rightMargin
+                }
+            }
+        } else {
+            object : ViewBoundsCheck.Callback {
+                override fun getChildAt(index: Int) = layoutManager.getChildAt(index)
+                override fun getParentStart() = layoutManager.getPaddingTop()
+                override fun getParentEnd() =
+                    layoutManager.getHeight() - layoutManager.getPaddingBottom()
+
+                override fun getChildStart(view: View): Int {
+                    val params = view.layoutParams as RecyclerView.LayoutParams
+                    return layoutManager.getDecoratedTop(view) - params.topMargin
+                }
+
+                override fun getChildEnd(view: View): Int {
+                    val params = view.layoutParams as RecyclerView.LayoutParams
+                    return layoutManager.getDecoratedBottom(view) + params.bottomMargin
+                }
+            }
+        })
+    val completelyVisiblePreferredBoundsFlag = ViewBoundsCheck.FLAG_CVS_GT_PVS or
+            ViewBoundsCheck.FLAG_CVS_EQ_PVS or ViewBoundsCheck.FLAG_CVE_LT_PVE or
+            ViewBoundsCheck.FLAG_CVE_EQ_PVE
+    if (!viewBoundsCheck.isItemViewWithinBoundFlags(
+            firstViewHolder.itemView, completelyVisiblePreferredBoundsFlag
+        )
+    ) {
+        return true
+    }
+    val itemCount = layoutManager.itemCount
+    val lastViewHolder = list.findViewHolderForAdapterPosition(itemCount - 1) ?: return true
+    return !viewBoundsCheck.isItemViewWithinBoundFlags(
+        lastViewHolder.itemView, completelyVisiblePreferredBoundsFlag
+    )
 }
