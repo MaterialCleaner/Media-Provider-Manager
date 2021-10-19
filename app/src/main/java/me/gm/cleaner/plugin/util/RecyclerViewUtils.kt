@@ -328,55 +328,54 @@ private fun isListScrollable(list: RecyclerView): Boolean {
     if (layoutManager !is LinearLayoutManager) {
         return true
     }
-    val firstViewHolder = list.findViewHolderForAdapterPosition(0) ?: return true
-    val viewBoundsCheck =
-        ViewBoundsCheck(if (layoutManager.orientation == RecyclerView.HORIZONTAL) {
-            object : ViewBoundsCheck.Callback {
-                override fun getChildAt(index: Int): View? = layoutManager.getChildAt(index)
-                override fun getParentStart() = layoutManager.getPaddingLeft()
-                override fun getParentEnd() =
-                    layoutManager.getWidth() - layoutManager.getPaddingRight()
-
-                override fun getChildStart(view: View): Int {
-                    val params = view.layoutParams as RecyclerView.LayoutParams
-                    return layoutManager.getDecoratedLeft(view) - params.leftMargin
-                }
-
-                override fun getChildEnd(view: View): Int {
-                    val params = view.layoutParams as RecyclerView.LayoutParams
-                    return layoutManager.getDecoratedRight(view) + params.rightMargin
-                }
-            }
-        } else {
-            object : ViewBoundsCheck.Callback {
-                override fun getChildAt(index: Int) = layoutManager.getChildAt(index)
-                override fun getParentStart() = layoutManager.getPaddingTop()
-                override fun getParentEnd() =
-                    layoutManager.getHeight() - layoutManager.getPaddingBottom()
-
-                override fun getChildStart(view: View): Int {
-                    val params = view.layoutParams as RecyclerView.LayoutParams
-                    return layoutManager.getDecoratedTop(view) - params.topMargin
-                }
-
-                override fun getChildEnd(view: View): Int {
-                    val params = view.layoutParams as RecyclerView.LayoutParams
-                    return layoutManager.getDecoratedBottom(view) + params.bottomMargin
-                }
-            }
-        })
-    val completelyVisiblePreferredBoundsFlag = ViewBoundsCheck.FLAG_CVS_GT_PVS or
-            ViewBoundsCheck.FLAG_CVS_EQ_PVS or ViewBoundsCheck.FLAG_CVE_LT_PVE or
-            ViewBoundsCheck.FLAG_CVE_EQ_PVE
-    if (!viewBoundsCheck.isItemViewWithinBoundFlags(
-            firstViewHolder.itemView, completelyVisiblePreferredBoundsFlag
-        )
-    ) {
+    val firstViewHolder = list.findViewHolderForAdapterPosition(0)
+    if (!layoutManager.isItemCompletelyVisible(firstViewHolder)) {
         return true
     }
     val itemCount = layoutManager.itemCount
-    val lastViewHolder = list.findViewHolderForAdapterPosition(itemCount - 1) ?: return true
-    return !viewBoundsCheck.isItemViewWithinBoundFlags(
-        lastViewHolder.itemView, completelyVisiblePreferredBoundsFlag
+    val lastViewHolder = list.findViewHolderForAdapterPosition(itemCount - 1)
+    return !layoutManager.isItemCompletelyVisible(lastViewHolder)
+}
+
+fun LinearLayoutManager.isItemCompletelyVisible(viewHolder: RecyclerView.ViewHolder?): Boolean {
+    viewHolder ?: return false
+    val viewBoundsCheck = ViewBoundsCheck(if (orientation == RecyclerView.HORIZONTAL) {
+        object : ViewBoundsCheck.Callback {
+            override fun getChildAt(index: Int): View = getChildAt(index)
+            override fun getParentStart() = paddingLeft
+            override fun getParentEnd() = width - paddingRight
+
+            override fun getChildStart(view: View): Int {
+                val params = view.layoutParams as RecyclerView.LayoutParams
+                return getDecoratedLeft(view) - params.leftMargin
+            }
+
+            override fun getChildEnd(view: View): Int {
+                val params = view.layoutParams as RecyclerView.LayoutParams
+                return getDecoratedRight(view) + params.rightMargin
+            }
+        }
+    } else {
+        object : ViewBoundsCheck.Callback {
+            override fun getChildAt(index: Int): View = getChildAt(index)
+            override fun getParentStart() = paddingTop
+            override fun getParentEnd() = height - paddingBottom
+
+            override fun getChildStart(view: View): Int {
+                val params = view.layoutParams as RecyclerView.LayoutParams
+                return getDecoratedTop(view) - params.topMargin
+            }
+
+            override fun getChildEnd(view: View): Int {
+                val params = view.layoutParams as RecyclerView.LayoutParams
+                return getDecoratedBottom(view) + params.bottomMargin
+            }
+        }
+    })
+    val completelyVisiblePreferredBoundsFlag = ViewBoundsCheck.FLAG_CVS_GT_PVS or
+            ViewBoundsCheck.FLAG_CVS_EQ_PVS or ViewBoundsCheck.FLAG_CVE_LT_PVE or
+            ViewBoundsCheck.FLAG_CVE_EQ_PVE
+    return viewBoundsCheck.isItemViewWithinBoundFlags(
+        viewHolder.itemView, completelyVisiblePreferredBoundsFlag
     )
 }

@@ -58,13 +58,13 @@ class HomeAdapter(private val activity: HomeActivity) :
                 val binding = (holder as CardHolder).binding
                 when {
                     ver == -1 -> {
-                        binding.status.setCardBackgroundColor(activity.getColor(R.color.service_hint_error))
+                        binding.status.setCardBackgroundColor(activity.getColor(R.color.hint_error))
                         binding.icon.setImageResource(R.drawable.ic_baseline_error_24)
                         binding.title.setText(R.string.module_not_active)
                         binding.summary.visibility = View.GONE
                     }
                     BuildConfig.VERSION_CODE != ver -> {
-                        binding.status.setCardBackgroundColor(activity.getColor(R.color.service_hint_warn))
+                        binding.status.setCardBackgroundColor(activity.getColor(R.color.hint_warn))
                         binding.title.setText(R.string.restart_system)
                         binding.summary.text = activity.getString(R.string.module_version, ver)
                     }

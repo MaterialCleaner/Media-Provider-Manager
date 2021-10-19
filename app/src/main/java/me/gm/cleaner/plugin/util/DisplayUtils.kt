@@ -22,7 +22,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.icu.text.ListFormatter
-import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -35,12 +34,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
 import kotlin.math.roundToInt
 
-fun Collection<*>.listFormat(delimiter: String): String =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        ListFormatter.getInstance().format(this)
-    } else {
-        joinToString(delimiter)
-    }
+fun Collection<*>.listFormat(delimiter: String) = ListFormatter.getInstance().format(this)
 
 fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> Boolean) {
     for (i in 0 until size()) {
@@ -49,15 +43,15 @@ fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> 
 }
 
 @SuppressLint("RestrictedApi")
-fun Context.buildStyledTitle(text: CharSequence) = SpannableStringBuilder(text).apply {
-    setSpan(
-        TextAppearanceSpan(
-            this@buildStyledTitle, androidx.appcompat.R.style.TextAppearance_AppCompat_Body2
-        ),
-        0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-    )
-    setSpan(ForegroundColorSpan(colorPrimary), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-}
+fun Context.buildStyledTitle(text: CharSequence, color: Int = colorPrimary) =
+    SpannableStringBuilder(text).apply {
+        setSpan(
+            TextAppearanceSpan(
+                this@buildStyledTitle, androidx.appcompat.R.style.TextAppearance_AppCompat_Body2
+            ), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        setSpan(ForegroundColorSpan(color), 0, length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+    }
 
 @SuppressLint("RestrictedApi")
 fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
