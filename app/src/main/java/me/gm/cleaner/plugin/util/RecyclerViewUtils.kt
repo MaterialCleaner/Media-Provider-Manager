@@ -27,15 +27,16 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPercentag
 }
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
-    list: List<T>, layoutManager: LinearLayoutManager, commitCallback: Runnable? = null
+    list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
 ) {
+    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
     val position = layoutManager.findFirstVisibleItemPosition()
     if (position == RecyclerView.NO_POSITION) {
         submitList(list)
     } else {
         val offset = layoutManager.findViewByPosition(position)!!.top
         submitList(list) {
-            layoutManager.scrollToPositionWithOffset(position, offset)
+            layoutManager.scrollToPositionWithOffset(position, offset - recyclerView.paddingTop)
             commitCallback?.run()
         }
     }

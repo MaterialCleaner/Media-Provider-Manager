@@ -3,18 +3,30 @@
     <string name="app_name">Media Provider Manager</string>
     <string name="description">An Xposed module intended to prevent media storage abuse.</string>
 
-    <!-- Home -->
+    <!-- Drawer -->
+    <string name="module">Module</string>
+    <string name="app_management">App Management</string>
+    <string name="usage_record">Media store usage record</string>
+    <string name="settings">Settings</string>
+
+    <string name="media_store">Media Store</string>
+    <string name="audio">Audio</string>
+    <string name="downloads">Downloads</string>
+    <string name="files">Files</string>
+    <string name="images">Images</string>
+    <string name="video">Video</string>
+
+    <string name="experiment">Experiment</string>
+    <string name="about">About</string>
+
+    <!-- Module -->
     <string name="module_not_active">MODULE NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="module_active">MODULE ACTIVATED</string>
     <string name="module_version">Module version: %d</string>
-    <string name="app_management">APP MANAGEMENT</string>
     <string name="enabled_app_count">Enabled for %d app(s)</string>
-    <string name="usage_record">Media store usage record</string>
-    <string name="test">Test media store</string>
-    <string name="about">About</string>
 
-    <!-- Test -->
+    <!-- TODO: delete -->
     <string name="query">Query</string>
     <string name="insert">Insert</string>
 

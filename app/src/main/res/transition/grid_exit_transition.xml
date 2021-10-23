@@ -17,10 +17,10 @@
   -->
 
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@integer/config_activityDefaultDur"
+    android:duration="@integer/material_motion_duration_short_2"
     android:interpolator="@android:interpolator/fast_out_slow_in"
     android:startDelay="25">
-  <fade>
-    <targets android:targetId="@id/image"/>
-  </fade>
+    <fade>
+        <targets android:targetId="@id/image" />
+    </fade>
 </transitionSet>

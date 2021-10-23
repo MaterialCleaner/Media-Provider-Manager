@@ -43,20 +43,12 @@
         </activity-alias>
 
         <activity
-            android:name=".settings.AppListActivity"
-            android:exported="false"
-            android:label="@string/app_management" />
-        <activity
             android:name=".settings.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".usage.UsageRecordActivity"
-            android:exported="false"
-            android:label="@string/usage_record" />
-        <activity
             android:name=".test.TestActivity"
             android:exported="false"
-            android:label="@string/test" />
+            android:label="@string/experiment" />
         <activity
             android:name=".home.AboutActivity"
             android:exported="false"

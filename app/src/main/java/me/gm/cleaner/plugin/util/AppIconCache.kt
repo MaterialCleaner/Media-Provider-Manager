@@ -69,9 +69,9 @@ object AppIconCache : CoroutineScope {
         val loader = appIconLoaders[size] ?: let {
             val shrinkNonAdaptiveIcons =
                 BuildUtils.atLeast30 && context.applicationInfo.loadIcon(context.packageManager) is AdaptiveIconDrawable
-            val newLoader = AppIconLoader(size, shrinkNonAdaptiveIcons, context)
-            appIconLoaders[size] = newLoader
-            newLoader
+            val _loader = AppIconLoader(size, shrinkNonAdaptiveIcons, context)
+            appIconLoaders[size] = _loader
+            _loader
         }
         val bitmap = loader.loadIcon(info, false)
         put(info.packageName, userId, size, bitmap)
@@ -83,7 +83,7 @@ object AppIconCache : CoroutineScope {
         context: Context, info: ApplicationInfo, userId: Int, view: ImageView
     ): Job = launch {
         val size = view.measuredWidth.let {
-            if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.large_icon_size)
+            if (it > 0) it else context.resources.getDimensionPixelSize(R.dimen.icon_size)
         }
 
         val bitmap = try {

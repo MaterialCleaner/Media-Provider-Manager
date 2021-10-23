@@ -3,12 +3,12 @@ package androidx.swiperefreshlayout.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import me.gm.cleaner.plugin.util.colorPrimary
+import me.gm.cleaner.plugin.util.colorAccent
 
 open class ThemedSwipeRefreshLayout(context: Context, attrs: AttributeSet?) :
     SwipeRefreshLayout(context, attrs) {
     private fun init() {
-        setColorSchemeColors(context.colorPrimary)
+        setColorSchemeColors(context.colorAccent)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

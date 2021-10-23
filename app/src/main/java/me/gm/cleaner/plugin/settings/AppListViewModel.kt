@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {

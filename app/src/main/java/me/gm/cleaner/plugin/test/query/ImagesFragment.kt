@@ -27,20 +27,20 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.HomeActivityBinding
+import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.util.initFastScroller
 import rikka.recyclerview.fixEdgeEffect
 import rikka.widget.borderview.BorderRecyclerView
 import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
-class QueryFragment : BaseFragment() {
+class ImagesFragment : BaseFragment() {
     private val viewModel: QueryViewModel by activityViewModels()
     private lateinit var list: BorderRecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = HomeActivityBinding.inflate(inflater)
+        val binding = ImagesFragmentBinding.inflate(inflater)
         setAppBar(binding.root).apply {
             setNavigationOnClickListener { it.findNavController().navigateUp() }
             setNavigationIcon(R.drawable.ic_outline_arrow_back_24)

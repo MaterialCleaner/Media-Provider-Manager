@@ -37,7 +37,7 @@ import me.gm.cleaner.plugin.test.TestActivity
 import me.gm.cleaner.plugin.util.getDimenByAttr
 import rikka.core.util.ResourceUtils
 
-class GalleryFragment : BaseFragment() {
+class ImageFragment : BaseFragment() {
     private val viewModel: QueryViewModel by activityViewModels()
     private lateinit var viewPager: ViewPager2
     private val top by lazy {

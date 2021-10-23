@@ -20,19 +20,27 @@ import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
 import android.os.RemoteException
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
 
 object BinderReceiver {
-    val MODULE_VER = MutableLiveData(-1)
+    private val _moduleVersionFlow = MutableStateFlow(-1)
+    val moduleVersionLiveData = _moduleVersionFlow.asLiveData()
+    var moduleVersion: Int
+        get() = _moduleVersionFlow.value
+        set(value) {
+            _moduleVersionFlow.tryEmit(value)
+        }
+
     private var binder: IBinder? = null
     private var service: IManagerService? = null
     private val DEATH_RECIPIENT = IBinder.DeathRecipient {
         binder = null
         service = null
-        MODULE_VER.postValue(-1)
+        moduleVersion = -1
     }
 
-    fun pingBinder(): Boolean = binder != null && binder!!.pingBinder()
+    fun pingBinder() = binder != null && binder!!.pingBinder()
 
     fun onBinderReceived(newBinder: IBinder) {
         if (binder == newBinder) return
@@ -40,14 +48,8 @@ object BinderReceiver {
         binder = newBinder
         service = IManagerService.Stub.asInterface(newBinder)
         binder?.linkToDeath(DEATH_RECIPIENT, 0)
-        MODULE_VER.postValue(service!!.serviceVersion)
+        moduleVersion = service!!.moduleVersion
     }
-
-    val serviceVersion: Int
-        get() {
-            val value = MODULE_VER.value
-            return value ?: -1
-        }
 
     val installedPackages: List<PackageInfo>
         get() = try {

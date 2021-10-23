@@ -31,7 +31,7 @@ abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
     lateinit var context: Context
 
-    override fun getServiceVersion(): Int = BuildConfig.VERSION_CODE
+    override fun getModuleVersion(): Int = BuildConfig.VERSION_CODE
 
     override fun getInstalledPackages(uid: Int): ParceledListSlice<PackageInfo> {
         val binder = XposedHelpers.callStaticMethod(

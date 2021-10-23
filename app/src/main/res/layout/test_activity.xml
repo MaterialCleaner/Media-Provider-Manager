@@ -16,11 +16,12 @@
   ~ limitations under the License.
   -->
 
-<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/home"
-    android:name="androidx.navigation.fragment.NavHostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:defaultNavHost="true"
-    app:navGraph="@navigation/nav_graph" />
+    android:fitsSystemWindows="false"
+    app:consumeSystemWindowsInsets="start|end"
+    app:edgeToEdge="true"
+    app:fitsSystemWindowsInsets="start|end">
+</FrameLayout>

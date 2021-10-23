@@ -16,42 +16,20 @@
 
 package me.gm.cleaner.plugin.app
 
-import android.content.res.Resources
-import android.graphics.Color
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
-import rikka.core.res.resolveColor
-import rikka.material.app.MaterialActivity
-import rikka.material.widget.AppBarLayout
 
-abstract class BaseActivity : MaterialActivity() {
+abstract class BaseActivity : AppCompatActivity() {
     var appBarLayout: AppBarLayout? = null
 
     override fun setContentView(view: View) {
         super.setContentView(view)
         appBarLayout = findViewById(R.id.toolbar_container)
-        appBarLayout?.apply {
-            val toolbar: Toolbar = findViewById(R.id.toolbar)
-            setAppBar(this, toolbar)
-        }
-    }
-
-    override fun onApplyTranslucentSystemBars() {
-        super.onApplyTranslucentSystemBars()
-        window.statusBarColor = Color.TRANSPARENT
-        window.decorView.post {
-            if (window.decorView.rootWindowInsets.systemWindowInsetBottom >=
-                Resources.getSystem().displayMetrics.density * 40
-            ) {
-                window.navigationBarColor =
-                    theme.resolveColor(android.R.attr.navigationBarColor) and 0x00ffffff or -0x20000000
-                window.isNavigationBarContrastEnforced = false
-            } else {
-                window.navigationBarColor = Color.TRANSPARENT
-                window.isNavigationBarContrastEnforced = true
-            }
-        }
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
     }
 
     override fun onSupportNavigateUp(): Boolean {

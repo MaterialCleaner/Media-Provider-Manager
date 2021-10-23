@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util
+package me.gm.cleaner.plugin.settings
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import me.gm.cleaner.plugin.util.LogUtils
 import java.lang.reflect.Field
 
 class PreferencesPackageInfo private constructor() : PackageInfo() {

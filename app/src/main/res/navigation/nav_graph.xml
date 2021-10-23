@@ -18,42 +18,28 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@id/test_fragment">
+    app:startDestination="@id/applist_fragment">
+
     <fragment
-        android:id="@+id/test_fragment"
-        android:name="me.gm.cleaner.plugin.test.TestFragment"
-        android:label="@string/test">
+        android:id="@+id/applist_fragment"
+        android:name="me.gm.cleaner.plugin.settings.AppListFragment"
+        android:label="@string/app_management">
         <action
-            android:id="@+id/action_test_to_query"
-            app:destination="@id/query_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-        <action
-            android:id="@+id/action_test_to_insert"
-            app:destination="@id/insert_fragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            android:id="@+id/action_query_to_gallery"
+            app:destination="@id/image_fragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/query_fragment"
-        android:name="me.gm.cleaner.plugin.test.query.QueryFragment"
+        android:id="@+id/images_fragment"
+        android:name="me.gm.cleaner.plugin.test.query.ImagesFragment"
         android:label="@string/query">
         <action
             android:id="@+id/action_query_to_gallery"
-            app:destination="@id/gallery_fragment" />
+            app:destination="@id/image_fragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/gallery_fragment"
-        android:name="me.gm.cleaner.plugin.test.query.GalleryFragment" />
+        android:id="@+id/image_fragment"
+        android:name="me.gm.cleaner.plugin.test.query.ImageFragment" />
 
-    <fragment
-        android:id="@+id/insert_fragment"
-        android:name="me.gm.cleaner.plugin.test.insert.InsertFragment"
-        android:label="@string/insert" />
 </navigation>

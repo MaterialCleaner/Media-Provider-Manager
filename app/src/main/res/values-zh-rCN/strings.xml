@@ -3,16 +3,28 @@
     <string name="app_name">媒体存储设备管理</string>
     <string name="description">防止媒体存储滥用</string>
 
+    <!-- 侧栏 -->
+    <string name="module">模块</string>
+    <string name="app_management">应用管理</string>
+    <string name="usage_record">媒体存储使用记录</string>
+    <string name="settings">设置</string>
+
+    <string name="media_store">媒体存储</string>
+    <string name="audio">音频</string>
+    <string name="downloads">下载</string>
+    <string name="files">文件</string>
+    <string name="images">图像</string>
+    <string name="video">录像</string>
+
+    <string name="experiment">实验</string>
+    <string name="about">关于</string>
+
     <!-- 主页 -->
     <string name="module_not_active">模块未激活</string>
     <string name="restart_system">重启系统以升级模块</string>
     <string name="module_active">模块已激活</string>
     <string name="module_version">模块版本：%d</string>
-    <string name="app_management">应用管理</string>
     <string name="enabled_app_count">对 %d 个应用启用</string>
-    <string name="usage_record">媒体存储使用记录</string>
-    <string name="test">测试媒体存储</string>
-    <string name="about">关于</string>
 
     <!-- 测试 -->
     <string name="query">查询</string>

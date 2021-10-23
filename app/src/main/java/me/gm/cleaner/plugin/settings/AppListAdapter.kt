@@ -26,13 +26,14 @@ import kotlinx.coroutines.Job
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
+import me.gm.cleaner.plugin.home.HomeActivity
 import me.gm.cleaner.plugin.util.AppIconCache
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
-class AppListAdapter(private val activity: AppListActivity) :
+class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
+    private val activity: HomeActivity = fragment.requireActivity() as HomeActivity
     private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
@@ -62,14 +63,12 @@ class AppListAdapter(private val activity: AppListActivity) :
             false
         }
         binding.root.setOnCreateContextMenuListener { menu: ContextMenu, _: View?, _: ContextMenuInfo? ->
-            activity.menuInflater.inflate(R.menu.menu_applist_item, menu)
+            activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
             menu.setHeaderTitle(pi.label)
             if (pi.srCount == 0) {
                 menu.removeItem(R.id.menu_delete_all_rules)
             } else {
-                menu.setOnMenuItemClickListener { item ->
-                    return@setOnMenuItemClickListener onContextItemSelected(item)
-                }
+                menu.setOnMenuItemClickListener(::onContextItemSelected)
             }
         }
     }
@@ -110,6 +109,7 @@ class AppListAdapter(private val activity: AppListActivity) :
                 override fun areContentsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
                 ) = oldItem.srCount == newItem.srCount
+                // TODO: oldItem == newItem
             }
     }
 }

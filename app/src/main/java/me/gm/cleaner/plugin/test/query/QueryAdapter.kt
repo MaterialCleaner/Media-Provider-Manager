@@ -32,7 +32,7 @@ import com.bumptech.glide.request.target.Target
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.QueryItemBinding
 
-class QueryAdapter(private val fragment: QueryFragment) :
+class QueryAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, QueryAdapter.ImageViewHolder>(MediaStoreImage.DiffCallback) {
     private val viewModel: QueryViewModel by fragment.activityViewModels()
 
@@ -74,7 +74,7 @@ class QueryAdapter(private val fragment: QueryFragment) :
             viewModel.currentPosition = holder.bindingAdapterPosition
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
             Navigation
-                .findNavController(fragment.requireActivity(), R.id.home)
+                .findNavController(fragment.requireActivity(), R.id.nav_host)
                 .navigate(R.id.action_query_to_gallery, null, null, extras)
         }
     }

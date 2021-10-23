@@ -22,15 +22,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo
-import me.gm.cleaner.plugin.util.PreferencesPackageInfo.Companion.copy
+import me.gm.cleaner.plugin.settings.PreferencesPackageInfo.Companion.copy
 import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {
     suspend fun load(pm: PackageManager, l: ProgressListener?) = withContext(defaultDispatcher) {
-        val installedPackages = BinderReceiver.installedPackages.filter {
-            it.applicationInfo.enabled
-        }
+        val installedPackages = BinderReceiver.installedPackages
         val size = installedPackages.size
         val count = AtomicInteger(0)
         installedPackages.map {

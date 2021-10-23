@@ -11,7 +11,7 @@
     <string name="app_management">應用管理</string>
     <string name="enabled_app_count">對 %d 個應用啟用</string>
     <string name="usage_record">媒體儲存使用記錄</string>
-    <string name="test">測試媒體儲存</string>
+    <string name="experiment">測試媒體儲存</string>
     <string name="about">關於</string>
 
     <!-- 測試 -->

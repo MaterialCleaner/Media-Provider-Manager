@@ -42,8 +42,7 @@ fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> 
     }
 }
 
-@SuppressLint("RestrictedApi")
-fun Context.buildStyledTitle(text: CharSequence, color: Int = colorPrimary) =
+fun Context.buildStyledTitle(text: CharSequence, color: Int = colorAccent) =
     SpannableStringBuilder(text).apply {
         setSpan(
             TextAppearanceSpan(

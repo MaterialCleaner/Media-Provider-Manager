@@ -17,10 +17,9 @@
 package me.gm.cleaner.plugin.settings
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import androidx.activity.viewModels
+import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,46 +28,40 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.BaseActivity
+import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.databinding.ApplistActivityBinding
+import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.initFastScroller
-import rikka.recyclerview.fixEdgeEffect
-import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
-class AppListActivity : BaseActivity() {
+class AppListFragment : BaseFragment() {
     private val viewModel: AppListViewModel by viewModels()
     private val adapter by lazy { AppListAdapter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ApplistActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_outline_arrow_back_24)
-        }
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val binding = ApplistFragmentBinding.inflate(layoutInflater)
 
         val list = binding.list
         list.adapter = adapter
-        list.layoutManager = GridLayoutManager(this, 1)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
-        list.fixEdgeEffect()
         list.initFastScroller()
-        list.borderViewDelegate.borderVisibilityChangedListener =
-            OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
-                appBarLayout?.isRaised = !top
-            }
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(packageManager, null)
+            viewModel.loadApps(requireContext().packageManager, null)
         }
 
         // Start a coroutine in the lifecycle scope
         lifecycleScope.launch {
             // repeatOnLifecycle launches the block in a new coroutine every time the
             // lifecycle is in the STARTED state (or above) and cancels it when it's STOPPED.
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Trigger the flow and start listening for values.
                 // Note that this happens when lifecycle is STARTED and stops
                 // collecting when the lifecycle is STOPPED
@@ -85,11 +78,11 @@ class AppListActivity : BaseActivity() {
                 }
             }
         }
-        savedInstanceState ?: viewModel.loadApps(packageManager)
+        savedInstanceState ?: viewModel.loadApps(requireContext().packageManager)
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun getLifecycleOwner() = this@AppListActivity
+            override fun getLifecycleOwner() = this@AppListFragment
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.updateApps()
                 if (isNotifyService) {
@@ -97,10 +90,12 @@ class AppListActivity : BaseActivity() {
                 }
             }
         })
+        return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_applist, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.applist_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)
         if (viewModel.isSearching) {
             searchItem.expandActionView()
@@ -141,9 +136,8 @@ class AppListActivity : BaseActivity() {
         menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
             ModulePreferences.isHideNoStoragePermissionApp
         listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
-            it.title = buildStyledTitle(it.title)
+            it.title = requireContext().buildStyledTitle(it.title)
         }
-        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

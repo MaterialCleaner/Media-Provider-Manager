@@ -16,12 +16,11 @@
   ~ limitations under the License.
   -->
 
-<transitionSet
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@integer/config_activityDefaultDur"
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/material_motion_duration_short_2"
     android:interpolator="@android:interpolator/fast_out_slow_in"
     android:transitionOrdering="together">
-  <changeClipBounds/>
-  <changeTransform/>
-  <changeBounds/>
+    <changeClipBounds />
+    <changeTransform />
+    <changeBounds />
 </transitionSet>

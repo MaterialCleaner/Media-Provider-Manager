@@ -16,6 +16,6 @@
 
 package me.gm.cleaner.plugin.usage
 
-import me.gm.cleaner.plugin.app.BaseActivity
+import me.gm.cleaner.plugin.app.BaseFragment
 
-class UsageRecordActivity : BaseActivity()
+class UsageRecordFragment : BaseFragment()

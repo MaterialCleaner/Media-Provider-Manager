@@ -23,6 +23,10 @@ val Context.colorPrimary: Int
     @ColorInt
     get() = getColorByAttr(android.R.attr.colorPrimary)!!
 
+val Context.colorAccent: Int
+    @ColorInt
+    get() = getColorByAttr(android.R.attr.colorAccent)!!
+
 val Context.colorControlHighlight: Int
     @ColorInt
     get() = getColorByAttr(android.R.attr.colorControlHighlight)!!

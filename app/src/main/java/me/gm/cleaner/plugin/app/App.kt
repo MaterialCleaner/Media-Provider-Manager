@@ -19,15 +19,13 @@ package me.gm.cleaner.plugin.app
 import android.app.Application
 import android.content.Context
 import android.provider.MediaStore
+import androidx.appcompat.app.AppCompatDelegate
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import rikka.material.app.DayNightDelegate
-import rikka.material.app.LocaleDelegate
-import java.util.*
 
 class App : Application() {
     override fun attachBaseContext(base: Context) {
@@ -43,9 +41,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         ModulePreferences.init(createDeviceProtectedStorageContext())
-        LocaleDelegate.defaultLocale = Locale.getDefault()
-        DayNightDelegate.setApplicationContext(this)
-        DayNightDelegate.setDefaultNightMode(DayNightDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         initBinder()
     }
 

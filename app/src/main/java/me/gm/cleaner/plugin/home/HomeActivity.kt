@@ -17,25 +17,43 @@
 package me.gm.cleaner.plugin.home
 
 import android.os.Bundle
-import androidx.recyclerview.widget.GridLayoutManager
+import android.view.Menu
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.databinding.HomeActivityBinding
-import rikka.recyclerview.fixEdgeEffect
-import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 abstract class HomeActivity : BaseActivity() {
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var navController: NavController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = HomeActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val list = binding.list
-        list.adapter = HomeAdapter(this)
-        list.layoutManager = GridLayoutManager(this, 1)
-        list.setHasFixedSize(true)
-        list.fixEdgeEffect()
-        list.borderViewDelegate.borderVisibilityChangedListener =
-            OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
-                appBarLayout?.isRaised = !top
-            }
+
+        navController = findNavController(R.id.nav_host)
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.applist_fragment, R.id.images_fragment), binding.drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        binding.navView.setupWithNavController(navController)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+//        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

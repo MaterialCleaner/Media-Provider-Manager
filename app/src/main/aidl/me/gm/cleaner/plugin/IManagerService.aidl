@@ -20,7 +20,7 @@ import me.gm.cleaner.plugin.model.ParceledListSlice;
 
 interface IManagerService {
 
-    int getServiceVersion() = 0;
+    int getModuleVersion() = 0;
 
     ParceledListSlice<PackageInfo> getInstalledPackages(int uid) = 10;
 
