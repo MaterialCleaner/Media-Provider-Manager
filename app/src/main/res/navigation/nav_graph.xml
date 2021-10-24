@@ -22,17 +22,17 @@
 
     <fragment
         android:id="@+id/applist_fragment"
-        android:name="me.gm.cleaner.plugin.settings.AppListFragment"
+        android:name="me.gm.cleaner.plugin.module.AppListFragment"
         android:label="@string/app_management">
-        <action
-            android:id="@+id/action_query_to_gallery"
-            app:destination="@id/image_fragment" />
+<!--        <action-->
+<!--            android:id="@+id/action_query_to_gallery"-->
+<!--            app:destination="@id/image_fragment" />-->
     </fragment>
 
     <fragment
         android:id="@+id/images_fragment"
-        android:name="me.gm.cleaner.plugin.test.query.ImagesFragment"
-        android:label="@string/query">
+        android:name="me.gm.cleaner.plugin.mediastore.images.ImagesFragment"
+        android:label="@string/images">
         <action
             android:id="@+id/action_query_to_gallery"
             app:destination="@id/image_fragment" />
@@ -40,6 +40,6 @@
 
     <fragment
         android:id="@+id/image_fragment"
-        android:name="me.gm.cleaner.plugin.test.query.ImageFragment" />
+        android:name="me.gm.cleaner.plugin.mediastore.images.ImageFragment" />
 
 </navigation>

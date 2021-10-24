@@ -1,36 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Base.AppTheme.Light" parent="Theme.Material.Light.LightStatusBar">
-        <item name="colorAccent">@color/color_primary_light</item>
+    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorAccent">@color/color_accent</item>
         <item name="android:colorEdgeEffect">?colorAccent</item>
-
-        <item name="overlapAnchor">false</item>
-
-        <item name="preferenceHeader">@style/PreferenceHeader</item>
-        <item name="preferenceSummary">@style/PreferenceSummary</item>
-
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowLightStatusBar">?isLightTheme</item>
-        <item name="android:windowLightNavigationBar">?isLightTheme</item>
-        <item name="android:navigationBarColor">?colorPrimaryDark</item>
-        <!-- Preference title -->
-        <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
-        </item>
-        <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
-    </style>
-
-    <style name="Theme.Light" parent="Base.AppTheme.Light" />
-
-    <style name="Base.AppTheme" parent="Theme.Material">
-        <item name="colorAccent">@color/color_primary_light</item>
-        <item name="android:colorEdgeEffect">?colorAccent</item>
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">@color/cardBackground</item>
 
         <item name="overlapAnchor">false</item>
 

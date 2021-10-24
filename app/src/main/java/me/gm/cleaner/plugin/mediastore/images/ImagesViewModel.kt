@@ -16,7 +16,7 @@
 
 // https://github.com/android/storage-samples/blob/master/MediaStore/app/src/main/java/com/android/samples/mediastore/MainActivityViewModel.kt
 
-package me.gm.cleaner.plugin.test.query
+package me.gm.cleaner.plugin.mediastore.images
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -37,26 +37,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class QueryViewModel(application: Application) : AndroidViewModel(application) {
-    private val _images = MutableLiveData<List<MediaStoreImage>>()
-    val images: LiveData<List<MediaStoreImage>> get() = _images
-    private val _currentPosition = MutableLiveData(0)
-    var currentPosition: Int
-        get() = _currentPosition.value!!
-        set(value) {
-            if (currentPosition == value) {
-                return
-            }
-            _currentPosition.postValue(value)
-        }
+class ImagesViewModel(application: Application) : AndroidViewModel(application) {
+    private val _images = MutableStateFlow<List<MediaStoreImage>>(emptyList())
+    val images = _images.asStateFlow()
+    var currentPosition = 0
 
-    private var contentObserver: ContentObserver? = null
+    private lateinit var contentObserver: ContentObserver
 
     private var pendingDeleteImage: MediaStoreImage? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
@@ -69,9 +63,9 @@ class QueryViewModel(application: Application) : AndroidViewModel(application) {
     fun loadImages() {
         viewModelScope.launch {
             val imageList = queryImages()
-            _images.postValue(imageList)
+            _images.value = imageList
 
-            if (contentObserver == null) {
+            if (!::contentObserver.isInitialized) {
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
@@ -274,8 +268,8 @@ class QueryViewModel(application: Application) : AndroidViewModel(application) {
      * is being released.
      */
     override fun onCleared() {
-        contentObserver?.let {
-            getApplication<Application>().contentResolver.unregisterContentObserver(it)
+        if (::contentObserver.isInitialized) {
+            getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
         }
     }
 }

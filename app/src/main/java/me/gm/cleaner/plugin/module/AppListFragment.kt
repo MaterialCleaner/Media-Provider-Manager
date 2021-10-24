@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.settings
+package me.gm.cleaner.plugin.module
 
 import android.os.Bundle
 import android.view.*

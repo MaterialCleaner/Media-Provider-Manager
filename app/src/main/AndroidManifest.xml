@@ -43,16 +43,12 @@
         </activity-alias>
 
         <activity
-            android:name=".settings.SettingsActivity"
+            android:name=".module.SettingsActivity"
             android:exported="false" />
         <activity
             android:name=".test.TestActivity"
             android:exported="false"
             android:label="@string/experiment" />
-        <activity
-            android:name=".home.AboutActivity"
-            android:exported="false"
-            android:theme="@style/AboutPage" />
 
         <meta-data
             android:name="xposedmodule"

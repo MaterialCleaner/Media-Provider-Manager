@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test.query
+package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
 import android.transition.TransitionInflater
@@ -23,51 +23,54 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.util.initFastScroller
-import rikka.recyclerview.fixEdgeEffect
-import rikka.widget.borderview.BorderRecyclerView
-import rikka.widget.borderview.BorderView.OnBorderVisibilityChangedListener
 
 class ImagesFragment : BaseFragment() {
-    private val viewModel: QueryViewModel by activityViewModels()
-    private lateinit var list: BorderRecyclerView
+    private val viewModel: ImagesViewModel by activityViewModels()
+    private lateinit var list: RecyclerView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImagesFragmentBinding.inflate(inflater)
-        setAppBar(binding.root).apply {
-            setNavigationOnClickListener { it.findNavController().navigateUp() }
-            setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
-            setTitle(R.string.query)
-        }
 
-        val adapter = QueryAdapter(this)
+        val adapter = ImagesAdapter(this)
         list = binding.list
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
-        list.fixEdgeEffect()
         list.initFastScroller()
-        list.isVerticalScrollBarEnabled = false
-        list.borderViewDelegate.borderVisibilityChangedListener =
-            OnBorderVisibilityChangedListener { top: Boolean, _: Boolean, _: Boolean, _: Boolean ->
-                appBarLayout.isRaised = !top
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.images.collect { images ->
+                    adapter.submitList(images) {
+                        if (images.isEmpty()) {
+                            // No image
+                            startPostponedEnterTransition()
+                        }
+                    }
+                }
             }
-        viewModel.images.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
         }
         savedInstanceState ?: viewModel.loadImages()
 
         prepareTransitions()
         postponeEnterTransition()
-        // TODO: no image?
-        // startPostponedEnterTransition()
         return binding.root
     }
 
@@ -122,4 +125,11 @@ class ImagesFragment : BaseFragment() {
             }
         })
     }
+
+    // TODO: refresh by media scanner
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//    }
 }

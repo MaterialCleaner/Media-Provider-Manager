@@ -4,10 +4,9 @@
     <string name="description">防止媒體儲存濫用</string>
 
     <!-- 首頁 -->
-    <string name="module_not_active">模組未啟動</string>
+    <string name="not_active">未激活</string>
     <string name="restart_system">重啟系統以升級模組</string>
-    <string name="module_active">模組已啟動</string>
-    <string name="module_version">模組版本：%d</string>
+    <string name="active">已啟動</string>
     <string name="app_management">應用管理</string>
     <string name="enabled_app_count">對 %d 個應用啟用</string>
     <string name="usage_record">媒體儲存使用記錄</string>

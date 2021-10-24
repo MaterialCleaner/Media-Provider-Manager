@@ -60,7 +60,7 @@ fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
     )
     val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.setTint(colorPrimary)
+    drawable.setTint(colorAccent)
     drawable.draw(canvas)
     return bitmap
 }

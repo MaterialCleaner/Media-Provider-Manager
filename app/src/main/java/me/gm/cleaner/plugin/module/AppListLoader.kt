@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.settings
+package me.gm.cleaner.plugin.module
 
 import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.BinderReceiver
-import me.gm.cleaner.plugin.settings.PreferencesPackageInfo.Companion.copy
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
 import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {

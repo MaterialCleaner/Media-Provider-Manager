@@ -6,7 +6,7 @@
     <!-- 侧栏 -->
     <string name="module">模块</string>
     <string name="app_management">应用管理</string>
-    <string name="usage_record">媒体存储使用记录</string>
+    <string name="usage_record">使用记录</string>
     <string name="settings">设置</string>
 
     <string name="media_store">媒体存储</string>
@@ -20,10 +20,9 @@
     <string name="about">关于</string>
 
     <!-- 主页 -->
-    <string name="module_not_active">模块未激活</string>
+    <string name="not_active">未激活</string>
     <string name="restart_system">重启系统以升级模块</string>
-    <string name="module_active">模块已激活</string>
-    <string name="module_version">模块版本：%d</string>
+    <string name="active">已激活</string>
     <string name="enabled_app_count">对 %d 个应用启用</string>
 
     <!-- 测试 -->

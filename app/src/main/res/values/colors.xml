@@ -17,10 +17,16 @@
   -->
 
 <resources>
-    <color name="color_primary_light">@color/material_green_400</color>
-    <color name="color_primary_dark">@color/material_light_green_400</color>
+    <color name="color_primary_light">@color/material_grey_100</color>
+    <color name="color_primary_dark">@color/material_grey_900</color>
     <color name="color_primary">@color/color_primary_light</color>
+    <color name="color_accent_light">@color/material_green_400</color>
+    <color name="color_accent_dark">@color/material_green_200</color>
+    <color name="color_accent">@color/color_accent_light</color>
+    <color name="cardBackground">#ffffff</color>
 
-    <color name="hint_warn">@color/material_yellow_700</color>
-    <color name="hint_error">@color/material_red_700</color>
+    <color name="color_surface">@android:color/white</color>
+
+    <color name="color_warning">@color/material_yellow_700</color>
+    <color name="color_error">@color/material_red_700</color>
 </resources>

@@ -17,26 +17,27 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/menu_search"
-        android:actionViewClass="me.gm.cleaner.plugin.widget.FixLayoutSearchView"
         android:icon="@drawable/ic_outline_search_24"
-        android:showAsAction="always|collapseActionView"
         android:title="@string/search"
+        app:actionViewClass="me.gm.cleaner.plugin.widget.FixLayoutSearchView"
+        app:showAsAction="always|collapseActionView"
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/menu_view"
         android:icon="@drawable/ic_outline_tune_24"
-        android:showAsAction="always"
-        android:title="@string/view">
+        android:title="@string/view"
+        app:showAsAction="always">
         <menu>
             <item
                 android:id="@+id/menu_header_sort"
                 android:enabled="false"
-                android:showAsAction="never"
-                android:title="@string/sort_title" />
+                android:title="@string/sort_title"
+                app:showAsAction="never" />
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/menu_sort_by_name"
@@ -47,24 +48,24 @@
                 <item
                     android:id="@+id/menu_rule_count"
                     android:checkable="true"
-                    android:showAsAction="never"
-                    android:title="@string/menu_rule_count" />
+                    android:title="@string/menu_rule_count"
+                    app:showAsAction="never" />
             </group>
             <item
                 android:id="@+id/menu_header_hide"
                 android:enabled="false"
-                android:showAsAction="never"
-                android:title="@string/menu_hide_title" />
+                android:title="@string/menu_hide_title"
+                app:showAsAction="never" />
             <item
                 android:id="@+id/menu_hide_system_app"
                 android:checkable="true"
-                android:showAsAction="never"
-                android:title="@string/menu_hide_system_app_title" />
+                android:title="@string/menu_hide_system_app_title"
+                app:showAsAction="never" />
             <item
                 android:id="@+id/menu_hide_no_storage_permission"
                 android:checkable="true"
-                android:showAsAction="never"
-                android:title="@string/menu_hide_no_storage_permission_title" />
+                android:title="@string/menu_hide_no_storage_permission_title"
+                app:showAsAction="never" />
         </menu>
     </item>
 </menu>

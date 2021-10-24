@@ -23,7 +23,7 @@ import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
 
 abstract class BaseActivity : AppCompatActivity() {
-    var appBarLayout: AppBarLayout? = null
+    lateinit var appBarLayout: AppBarLayout
 
     override fun setContentView(view: View) {
         super.setContentView(view)

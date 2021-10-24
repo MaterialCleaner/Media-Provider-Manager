@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.settings
+package me.gm.cleaner.plugin.module;
 
-import me.gm.cleaner.plugin.app.BaseActivity
+public class SettingsConstants {
+    public static String APP_INFO;
 
-class SettingsActivity : BaseActivity()
+    static {
+        APP_INFO = "appInfo";
+    }
+}

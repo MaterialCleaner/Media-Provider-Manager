@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.Light" />
+    <style name="AppTheme" parent="Theme" />
 
     <style name="AboutPage" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/color_primary_light</item>
+        <item name="colorPrimary">@color/color_accent_light</item>
     </style>
 
     <style name="PreferenceHeader">

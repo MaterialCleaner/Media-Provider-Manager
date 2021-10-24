@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test.query
+package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -30,16 +30,16 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.databinding.QueryItemBinding
+import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
-class QueryAdapter(private val fragment: ImagesFragment) :
-    ListAdapter<MediaStoreImage, QueryAdapter.ImageViewHolder>(MediaStoreImage.DiffCallback) {
-    private val viewModel: QueryViewModel by fragment.activityViewModels()
+class ImagesAdapter(private val fragment: ImagesFragment) :
+    ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
+    private val viewModel: ImagesViewModel by fragment.activityViewModels()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder =
-        ImageViewHolder(QueryItemBinding.inflate(LayoutInflater.from(parent.context)))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
 
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val uri = getItem(position).contentUri
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
@@ -66,7 +66,7 @@ class QueryAdapter(private val fragment: ImagesFragment) :
                     return false
                 }
             })
-            .thumbnail(0.33f)
+            .thumbnail(0.33F)
             .centerCrop()
             .into(binding.image)
         binding.image.transitionName = uri.toString()
@@ -79,5 +79,5 @@ class QueryAdapter(private val fragment: ImagesFragment) :
         }
     }
 
-    class ImageViewHolder(val binding: QueryItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: ImagesItemBinding) : RecyclerView.ViewHolder(binding.root)
 }

@@ -20,35 +20,30 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
-import rikka.material.widget.AppBarLayout
 
 abstract class BaseFragment : Fragment() {
-    lateinit var appBarLayout: AppBarLayout
-    lateinit var toolbar: MaterialToolbar
+    val supportActionBar: ActionBar?
+        get() = (requireActivity() as AppCompatActivity).supportActionBar
+    val appBarLayout: AppBarLayout
+        get() {
+            val appBarLayout: AppBarLayout = requireActivity().findViewById(R.id.toolbar_container)
+            appBarLayout.setLiftable(true)
+            return appBarLayout
+        }
     protected lateinit var dialog: AlertDialog
-
-    @Deprecated("find app bar instead")
-    protected fun setAppBar(root: ViewGroup): Toolbar {
-        appBarLayout = root.findViewById(R.id.toolbar_container)
-        toolbar = root.findViewById(R.id.toolbar)
-//        (requireActivity() as BaseActivity).setAppBar(appBarLayout, toolbar)
-        return toolbar
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        toolbar.post {
-            savedInstanceState?.run {
-                toolbar.title = getString(SAVED_TITLE)
-                if (::dialog.isInitialized && getBoolean(SAVED_SHOWS_DIALOG, false)) {
-                    dialog.show()
-                }
+        savedInstanceState?.run {
+            if (::dialog.isInitialized && getBoolean(SAVED_SHOWS_DIALOG, false)) {
+                dialog.show()
             }
         }
         return container!!
@@ -56,9 +51,6 @@ abstract class BaseFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (::toolbar.isInitialized) {
-            outState.putString(SAVED_TITLE, toolbar.title.toString())
-        }
         if (::dialog.isInitialized) {
             outState.putBoolean(SAVED_SHOWS_DIALOG, dialog.isShowing)
         }
@@ -72,7 +64,6 @@ abstract class BaseFragment : Fragment() {
     }
 
     companion object {
-        private const val SAVED_TITLE = "android:title"
         private const val SAVED_SHOWS_DIALOG = "android:showsDialog"
     }
 }

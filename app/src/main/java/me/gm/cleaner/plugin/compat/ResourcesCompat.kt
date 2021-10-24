@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test
+package me.gm.cleaner.plugin.compat
 
-import android.os.Bundle
-import me.gm.cleaner.plugin.app.BaseActivity
-import me.gm.cleaner.plugin.databinding.TestActivityBinding
+import android.content.res.Configuration
+import android.os.Build
 
-// TODO: rename to experiment
-class TestActivity : BaseActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = TestActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+val Configuration.isNightModeActivated
+    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        isNightModeActive
+    } else {
+        uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
-}
