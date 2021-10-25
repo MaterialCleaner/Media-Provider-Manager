@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.home
+package me.gm.cleaner.plugin.drawer
 
 import android.os.Bundle
 import androidx.navigation.NavController
@@ -25,15 +25,15 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
-import me.gm.cleaner.plugin.databinding.HomeActivityBinding
+import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
 
-abstract class HomeActivity : BaseActivity() {
+abstract class DrawerActivity : BaseActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = HomeActivityBinding.inflate(layoutInflater)
+        val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         navController = findNavController(R.id.nav_host)

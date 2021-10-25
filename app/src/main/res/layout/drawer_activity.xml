@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/home_content" />
+        <include layout="@layout/drawer_content" />
 
         <include layout="@layout/appbar" />
     </com.drakeet.drawer.FullDraggableContainer>
@@ -38,6 +38,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/home_nav_header"
+        app:headerLayout="@layout/drawer_nav_header"
         app:menu="@menu/home_drawer" />
 </androidx.drawerlayout.widget.DrawerLayout>

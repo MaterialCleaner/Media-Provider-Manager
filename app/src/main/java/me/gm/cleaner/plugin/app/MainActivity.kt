@@ -16,6 +16,6 @@
 
 package me.gm.cleaner.plugin.app
 
-import me.gm.cleaner.plugin.home.HomeActivity
+import me.gm.cleaner.plugin.drawer.DrawerActivity
 
-class MainActivity : HomeActivity()
+class MainActivity : DrawerActivity()

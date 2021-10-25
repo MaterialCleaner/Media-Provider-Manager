@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test
+package me.gm.cleaner.plugin.mediastore
 
+import android.Manifest
 import android.os.Bundle
-import me.gm.cleaner.plugin.app.BaseActivity
-import me.gm.cleaner.plugin.databinding.TestActivityBinding
+import android.util.Log
+import me.gm.cleaner.plugin.app.BaseFragment
 
-// TODO: rename to experiment
-class TestActivity : BaseActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = TestActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+abstract class MediaStoreFragment : BaseFragment() {
+    override val requiredPermissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+    override fun onRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
+        // TODO: show rationale
+        Log.i(javaClass.simpleName, "useful overriding method")
+        super.onRequestPermissions(permissions, savedInstanceState)
     }
 }

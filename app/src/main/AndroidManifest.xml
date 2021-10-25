@@ -45,10 +45,6 @@
         <activity
             android:name=".module.SettingsActivity"
             android:exported="false" />
-        <activity
-            android:name=".test.TestActivity"
-            android:exported="false"
-            android:label="@string/experiment" />
 
         <meta-data
             android:name="xposedmodule"

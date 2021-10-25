@@ -16,13 +16,19 @@
 
 package me.gm.cleaner.plugin.app
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
@@ -36,17 +42,71 @@ abstract class BaseFragment : Fragment() {
             appBarLayout.setLiftable(true)
             return appBarLayout
         }
-    protected lateinit var dialog: AlertDialog
 
+    // PERMISSIONS
+    open val requiredPermissions = emptyArray<String>()
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<out String>>
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestMultiplePermissions =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+                val granted = result.filterValues { it }.keys
+                if (granted.isNotEmpty()) {
+                    onRequestPermissionsSuccess(granted, savedInstanceState)
+                }
+                val denied = requiredPermissions.toSet() - granted
+                if (denied.isNotEmpty()) {
+                    val canRequestAgain = denied.asSequence().filter {
+                        ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
+                    }.toSet()
+                    val permanentlyDenied = denied - canRequestAgain
+                    onRequestPermissionsFailure(
+                        canRequestAgain, permanentlyDenied, savedInstanceState
+                    )
+                }
+            }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        onRequestPermissions(requiredPermissions, savedInstanceState)
+    }
+
+    protected open fun onRequestPermissions(
+        permissions: Array<String>, savedInstanceState: Bundle?
+    ) {
+        requestMultiplePermissions.launch(permissions)
+    }
+
+    protected open fun onRequestPermissionsSuccess(
+        permissions: Set<String>, savedInstanceState: Bundle?
+    ) {
+    }
+
+    protected open fun onRequestPermissionsFailure(
+        canRequestAgain: Set<String>, permanentlyDenied: Set<String>, savedInstanceState: Bundle?
+    ) {
+        if (canRequestAgain.isNotEmpty()) {
+            onRequestPermissions(canRequestAgain.toTypedArray(), savedInstanceState)
+        }
+        if (permanentlyDenied.isNotEmpty()) {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.fromParts("package", requireActivity().packageName, null)
+            startActivity(intent)
+        }
+    }
+
+    // ALERT DIALOG
+    protected lateinit var dialog: AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         savedInstanceState?.run {
             if (::dialog.isInitialized && getBoolean(SAVED_SHOWS_DIALOG, false)) {
                 dialog.show()
             }
         }
-        return container!!
+        return container
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

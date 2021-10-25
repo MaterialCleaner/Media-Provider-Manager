@@ -31,11 +31,11 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.util.initFastScroller
 
-class ImagesFragment : BaseFragment() {
+class ImagesFragment : MediaStoreFragment() {
     private val viewModel: ImagesViewModel by activityViewModels()
     private lateinit var list: RecyclerView
 
@@ -67,7 +67,6 @@ class ImagesFragment : BaseFragment() {
                 }
             }
         }
-        savedInstanceState ?: viewModel.loadImages()
 
         prepareTransitions()
         postponeEnterTransition()
@@ -97,8 +96,11 @@ class ImagesFragment : BaseFragment() {
         })
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onRequestPermissionsSuccess(
+        permissions: Set<String>, savedInstanceState: Bundle?
+    ) {
+        super.onRequestPermissionsSuccess(permissions, savedInstanceState)
+        savedInstanceState ?: viewModel.loadImages()
         scrollToPosition()
     }
 

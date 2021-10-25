@@ -26,14 +26,14 @@ import kotlinx.coroutines.Job
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
-import me.gm.cleaner.plugin.home.HomeActivity
+import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.util.AppIconCache
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
-class AppListAdapter(private val fragment: AppListFragment) :
+class AppListAdapter(fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
-    private val activity: HomeActivity = fragment.requireActivity() as HomeActivity
+    private val activity = fragment.requireActivity() as DrawerActivity
     private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =

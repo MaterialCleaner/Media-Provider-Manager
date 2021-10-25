@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.test.insert
+package me.gm.cleaner.plugin.experiment
 
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
 
-class InsertFragment : BaseFragment()
+class ExperimentFragment : BaseFragment() {
+
+    val binding = ExperimentFragmentBinding.inflate(layoutInflater)
+
+}
