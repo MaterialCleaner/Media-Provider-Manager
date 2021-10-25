@@ -5,7 +5,10 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
@@ -294,10 +297,7 @@ abstract class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
 }
 
 fun RecyclerView.overScrollIfContentScrolls() {
-    val isConcatAdapter = adapter is ConcatAdapter
-    overScrollMode = if (!isConcatAdapter && isContentScrolls(this) ||
-        isConcatAdapter && isListScrollable(this)
-    ) {
+    overScrollMode = if (isContentScrolls(this)) {
         View.OVER_SCROLL_IF_CONTENT_SCROLLS
     } else {
         View.OVER_SCROLL_NEVER
@@ -305,23 +305,6 @@ fun RecyclerView.overScrollIfContentScrolls() {
 }
 
 private fun isContentScrolls(list: RecyclerView): Boolean {
-    val layoutManager = list.layoutManager
-    if (layoutManager == null || list.adapter == null || list.adapter?.itemCount == 0) {
-        return false
-    }
-    if (layoutManager !is LinearLayoutManager) {
-        return true
-    }
-    val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-    if (firstPosition != 0) {
-        return true
-    }
-    val itemCount = layoutManager.itemCount
-    val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
-    return lastPosition != itemCount - 1
-}
-
-private fun isListScrollable(list: RecyclerView): Boolean {
     val layoutManager = list.layoutManager
     if (layoutManager == null || list.adapter == null || list.adapter?.itemCount == 0) {
         return false

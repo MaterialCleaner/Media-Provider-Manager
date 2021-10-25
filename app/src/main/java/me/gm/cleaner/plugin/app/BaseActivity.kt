@@ -28,6 +28,8 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun setContentView(view: View) {
         super.setContentView(view)
         appBarLayout = findViewById(R.id.toolbar_container)
+        appBarLayout.setLiftable(true)
+        appBarLayout.isLifted = false
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
     }

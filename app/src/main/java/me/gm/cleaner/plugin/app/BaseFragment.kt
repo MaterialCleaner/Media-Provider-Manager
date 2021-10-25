@@ -37,11 +37,7 @@ abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?
         get() = (requireActivity() as AppCompatActivity).supportActionBar
     val appBarLayout: AppBarLayout
-        get() {
-            val appBarLayout: AppBarLayout = requireActivity().findViewById(R.id.toolbar_container)
-            appBarLayout.setLiftable(true)
-            return appBarLayout
-        }
+        get() = requireActivity().findViewById(R.id.toolbar_container)
 
     // PERMISSIONS
     open val requiredPermissions = emptyArray<String>()

@@ -23,7 +23,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
@@ -33,6 +35,8 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.initFastScroller
+import me.gm.cleaner.plugin.util.isItemCompletelyVisible
+import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
 
 class AppListFragment : BaseFragment() {
     private val viewModel: AppListViewModel by viewModels()
@@ -49,10 +53,24 @@ class AppListFragment : BaseFragment() {
         val binding = ApplistFragmentBinding.inflate(layoutInflater)
 
         val list = binding.list
+        val layoutManager = GridLayoutManager(requireContext(), 1)
         list.adapter = adapter
-        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.layoutManager = layoutManager
         list.setHasFixedSize(true)
         list.initFastScroller()
+        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val firstViewHolder = list.findViewHolderForAdapterPosition(0)
+                appBarLayout.isLifted = !layoutManager.isItemCompletelyVisible(firstViewHolder)
+            }
+        })
+        list.itemAnimator = object : DefaultItemAnimator() {
+            override fun onAnimationFinished(viewHolder: RecyclerView.ViewHolder) {
+                super.onAnimationFinished(viewHolder)
+                list.overScrollIfContentScrolls()
+            }
+        }
         binding.listContainer.setOnRefreshListener {
             viewModel.loadApps(requireContext().packageManager, null)
         }
