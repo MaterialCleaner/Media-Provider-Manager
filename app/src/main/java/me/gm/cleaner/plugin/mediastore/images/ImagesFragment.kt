@@ -18,7 +18,9 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
 import android.transition.TransitionInflater
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
@@ -38,11 +40,6 @@ import me.gm.cleaner.plugin.util.initFastScroller
 class ImagesFragment : MediaStoreFragment() {
     private val viewModel: ImagesViewModel by activityViewModels()
     private lateinit var list: RecyclerView
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -129,9 +126,8 @@ class ImagesFragment : MediaStoreFragment() {
     }
 
     // TODO: refresh by media scanner
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.i(javaClass.simpleName, "useful overriding method")
+        return super.onOptionsItemSelected(item)
+    }
 }

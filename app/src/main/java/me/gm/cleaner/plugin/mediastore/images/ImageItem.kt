@@ -20,34 +20,42 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageItemBinding
 
 /**
  * A fragment for displaying an image.
  */
-class ImageItem : Fragment() {
-    private val viewModel: ImagesViewModel by activityViewModels()
+class ImageItem : BaseFragment() {
+    private val viewModel: ImageViewModel by viewModels()
+    private val imagesViewModel: ImagesViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImageItemBinding.inflate(inflater)
         val position = requireArguments().getInt(KEY_IMAGE_URI)
-        val uri = viewModel.images.value[position].contentUri
+        val uri = imagesViewModel.images.value[position].contentUri
 
+        val photoView = binding.photoView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        binding.photoView.transitionName = uri.toString()
-        savedInstanceState ?: binding.photoView.apply {
+        photoView.transitionName = uri.toString()
+        savedInstanceState ?: photoView.apply {
             setImageSource(ImageSource.uri(uri))
             setOnImageEventListener(object :
                 SubsamplingScaleImageView.OnImageEventListener {
                 override fun onImageLoaded() {
                     parentFragment?.startPostponedEnterTransition()
+                    appBarLayout.isLifted = viewModel.isOverlay(photoView)
+                    supportActionBar?.apply {
+                        title = imagesViewModel.images.value[position].displayName
+                        subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
+                    }
                 }
 
                 override fun onImageLoadError(e: Exception?) {

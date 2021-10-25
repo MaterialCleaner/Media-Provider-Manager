@@ -19,14 +19,27 @@ package me.gm.cleaner.plugin.mediastore
 import android.Manifest
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 
 abstract class MediaStoreFragment : BaseFragment() {
     override val requiredPermissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
         // TODO: show rationale
         Log.i(javaClass.simpleName, "useful overriding method")
         super.onRequestPermissions(permissions, savedInstanceState)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.mediastore_toolbar, menu)
     }
 }

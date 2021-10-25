@@ -25,34 +25,23 @@ import android.view.ViewGroup
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.compat.isNightModeActivated
 import me.gm.cleaner.plugin.databinding.ImageFragmentBinding
-import me.gm.cleaner.plugin.util.getDimenByAttr
 
 class ImageFragment : BaseFragment() {
-    private val viewModel: ImagesViewModel by activityViewModels()
-    private val top by lazy {
-        val actionBarSize = requireContext().getDimenByAttr(android.R.attr.actionBarSize).toInt()
-        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        resources.getDimensionPixelSize(resourceId) + actionBarSize
-    }
-    private val vTarget by lazy { PointF() }
+    private val viewModel: ImageViewModel by viewModels()
+    private val imagesViewModel: ImagesViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImageFragmentBinding.inflate(inflater)
-        val size = viewModel.images.value.size
-        val entryPosition = viewModel.currentPosition
-        supportActionBar?.apply {
-            title = viewModel.images.value[entryPosition].displayName
-            subtitle = "${entryPosition + 1} / $size"
-        }
+        val size = imagesViewModel.images.value.size
 
         val viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
@@ -61,58 +50,31 @@ class ImageFragment : BaseFragment() {
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(entryPosition, false)
+        viewPager.setCurrentItem(imagesViewModel.currentPosition, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
-                viewModel.currentPosition = position
+                imagesViewModel.currentPosition = position
                 val photoView: SubsamplingScaleImageView = viewPager.findViewById(R.id.photo_view)
                 supportActionBar?.apply {
-                    title = viewModel.images.value[position].displayName
+                    title = imagesViewModel.images.value[position].displayName
                     subtitle = "${position + 1} / $size"
                     photoView.setOnClickListener {
-                        val decorView = requireActivity().window.decorView
-                        if (isShowing) {
-                            hide()
-                            // Fullscreen is costly in my case, so I come to terms with immersive.
-                            // If you persist in fullscreen, I'd advise you to display the photos with activity.
-                            // See also: https://developer.android.com/training/system-ui/immersive
-                            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        } else {
-                            show()
-                            var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            if (!resources.configuration.isNightModeActivated) {
-                                flags = flags or
-                                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
-                                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                            }
-                            decorView.systemUiVisibility = flags
-                        }
+                        toggleAppBar(!isShowing)
                     }
                 }
                 photoView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {
                     override fun onScaleChanged(newScale: Float, origin: Int) {
-                        appBarLayout.isLifted = isOverlay(photoView)
+                        appBarLayout.isLifted = viewModel.isOverlay(photoView)
                     }
 
                     override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        appBarLayout.isLifted = isOverlay(photoView)
+                        appBarLayout.isLifted = viewModel.isOverlay(photoView)
                     }
                 })
-                appBarLayout.isLifted = isOverlay(photoView)
-            }
-
-            private fun isOverlay(photoView: SubsamplingScaleImageView): Boolean {
-                if (!photoView.isReady) {
-                    return false
-                }
-                photoView.sourceToViewCoord(0f, 0f, vTarget)
-                return vTarget.y - top < 0
+                appBarLayout.isLifted = viewModel.isOverlay(photoView)
             }
         })
 
@@ -137,7 +99,7 @@ class ImageFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    childFragmentManager.findFragmentByTag("f${viewModel.currentPosition}")
+                    childFragmentManager.findFragmentByTag("f${imagesViewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
                 // Map the first shared element name to the child ImageView.
@@ -151,5 +113,6 @@ class ImageFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         supportActionBar?.subtitle = null
+        toggleAppBar(true)
     }
 }
