@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/screen_edge"
         android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
     <TextView
         android:id="@+id/status"

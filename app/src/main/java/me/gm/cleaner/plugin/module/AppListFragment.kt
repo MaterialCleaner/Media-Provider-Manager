@@ -88,7 +88,7 @@ class AppListFragment : BaseFragment() {
                     when (apps) {
                         is SourceState.Loading -> binding.progress.progress = apps.progress
                         is SourceState.Done -> {
-                            binding.progress.progress = 0
+                            binding.progress.hide()
                             binding.listContainer.isRefreshing = false
                             adapter.submitList(apps.list)
                         }

@@ -41,5 +41,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:indeterminate="false"
-        app:indicatorColor="?colorAccent" />
+        app:hideAnimationBehavior="outward" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

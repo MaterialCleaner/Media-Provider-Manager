@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorAccent">@color/color_accent</item>
-        <item name="android:colorEdgeEffect">?colorAccent</item>
-        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">@color/cardBackground</item>
+    <style name="Base.AppTheme" parent="Theme.Material3.DayNight">
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>
 
         <item name="overlapAnchor">false</item>
 
@@ -21,7 +18,6 @@
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowLightStatusBar">?isLightTheme</item>
         <item name="android:windowLightNavigationBar">?isLightTheme</item>
-        <item name="android:navigationBarColor">?colorPrimaryDark</item>
         <!-- Preference title -->
         <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
         </item>
