@@ -19,6 +19,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginHorizontal="28dp"
     android:layout_marginTop="@dimen/screen_edge"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
@@ -26,7 +27,6 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/screen_edge"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
@@ -34,7 +34,6 @@
         android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/screen_edge"
         android:text="@string/not_active"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="?android:textColorSecondary" />
@@ -43,5 +42,5 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/screen_edge"
-        android:background="?colorControlHighlight" />
+        android:background="?android:attr/listDivider" />
 </LinearLayout>
