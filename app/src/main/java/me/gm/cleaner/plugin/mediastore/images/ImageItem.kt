@@ -26,6 +26,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageItemBinding
+import me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
 
 /**
  * A fragment for displaying an image.
@@ -33,42 +34,45 @@ import me.gm.cleaner.plugin.databinding.ImageItemBinding
 class ImageItem : BaseFragment() {
     private val viewModel: ImageViewModel by viewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
-
+    private val position by lazy { requireArguments().getInt(KEY_IMAGE_URI) }
+    private lateinit var photoView: StateSavedSubsamplingScaleImageView
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImageItemBinding.inflate(inflater)
-        val position = requireArguments().getInt(KEY_IMAGE_URI)
-        val uri = imagesViewModel.images.value[position].contentUri
 
-        val photoView = binding.photoView
+        val uri = imagesViewModel.images.value[position].contentUri
+        photoView = binding.photoView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         photoView.transitionName = uri.toString()
-        savedInstanceState ?: photoView.apply {
-            setImageSource(ImageSource.uri(uri))
-            setOnImageEventListener(object :
-                SubsamplingScaleImageView.OnImageEventListener {
-                override fun onImageLoaded() {
-                    parentFragment?.startPostponedEnterTransition()
-                    appBarLayout.isLifted = viewModel.isOverlay(photoView)
-                    supportActionBar?.apply {
-                        title = imagesViewModel.images.value[position].displayName
-                        subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
-                    }
-                }
+        photoView.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
+            override fun onImageLoaded() {
+                parentFragment?.startPostponedEnterTransition()
+                appBarLayout.isLifted = viewModel.isOverlay(photoView)
+            }
 
-                override fun onImageLoadError(e: Exception?) {
-                    parentFragment?.startPostponedEnterTransition()
-                }
+            override fun onImageLoadError(e: Exception?) {
+                parentFragment?.startPostponedEnterTransition()
+            }
 
-                override fun onPreviewLoadError(e: Exception?) {}
-                override fun onTileLoadError(e: Exception?) {}
-                override fun onReady() {}
-                override fun onPreviewReleased() {}
-            })
-        }
+            override fun onPreviewLoadError(e: Exception?) {}
+            override fun onTileLoadError(e: Exception?) {}
+            override fun onReady() {}
+            override fun onPreviewReleased() {}
+        })
+        savedInstanceState ?: photoView.setImageSource(ImageSource.uri(uri))
         return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        appBarLayout.post {
+            supportActionBar?.apply {
+                title = imagesViewModel.images.value[position].displayName
+                subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
+            }
+        }
     }
 
     companion object {
