@@ -21,7 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -32,7 +32,7 @@ import me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
  * A fragment for displaying an image.
  */
 class ImageItem : BaseFragment() {
-    private val viewModel: ImageViewModel by viewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
     private val position by lazy { requireArguments().getInt(KEY_IMAGE_URI) }
     private lateinit var subsamplingScaleImageView: StateSavedSubsamplingScaleImageView
@@ -41,37 +41,53 @@ class ImageItem : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImageItemBinding.inflate(inflater)
-        imagesViewModel.isPostponed = true
 
         val uri = imagesViewModel.images.value[position].contentUri
-        subsamplingScaleImageView = binding.subsamplingScaleImageView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        subsamplingScaleImageView.transitionName = uri.toString()
+        binding.imageView.transitionName = uri.toString()
+        binding.imageView.setImageBitmap(
+            requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)
+        )
+        parentFragment?.startPostponedEnterTransition()
+        subsamplingScaleImageView = binding.subsamplingScaleImageView
         subsamplingScaleImageView.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
-            override fun onReady() {
-                if (imagesViewModel.isPostponed) {
-                    imagesViewModel.isPostponed = false
-                    supportActionBar?.apply {
-                        title = imagesViewModel.images.value[position].displayName
-                        subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
-                    }
-                    val isOverlay = viewModel.isOverlay(subsamplingScaleImageView)
-                    appBarLayout.isLifted = isOverlay
-                    savedInstanceState ?: toggleAppBar(!isOverlay)
+            private fun updateAppBar() {
+                supportActionBar?.apply {
+                    title = imagesViewModel.images.value[position].displayName
+                    subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
                 }
+                val isOverlay = imageViewModel.isOverlay(subsamplingScaleImageView)
+                appBarLayout.isLifted = isOverlay
+                savedInstanceState ?: toggleAppBar(!isOverlay)
+            }
+
+            override fun onReady() {
+                updateAppBar()
+            }
+
+            override fun onImageLoadError(e: Exception?) {
+                updateAppBar()
+                Glide.with(this@ImageItem)
+                    .load(uri)
+                    .into(binding.imageView)
             }
 
             override fun onImageLoaded() {}
-            override fun onImageLoadError(e: Exception?) {}
             override fun onPreviewLoadError(e: Exception?) {}
             override fun onTileLoadError(e: Exception?) {}
             override fun onPreviewReleased() {}
         })
-        savedInstanceState ?: subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
-        // FIXME: whether load thumbnail can fix this problem?
-        parentFragment?.startPostponedEnterTransition()
+        if (imageViewModel.isPostponed) {
+            imageViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
+                if (!it) {
+                    subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
+                }
+            }
+        } else {
+            subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
+        }
         return binding.root
     }
 

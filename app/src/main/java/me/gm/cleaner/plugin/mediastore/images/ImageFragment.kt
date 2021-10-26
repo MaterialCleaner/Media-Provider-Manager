@@ -24,8 +24,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
+import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -34,7 +34,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageFragmentBinding
 
 class ImageFragment : BaseFragment() {
-    private val viewModel: ImageViewModel by viewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -68,14 +68,14 @@ class ImageFragment : BaseFragment() {
                 subsamplingScaleImageView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {
                     override fun onScaleChanged(newScale: Float, origin: Int) {
-                        appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
+                        appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
                     }
 
                     override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
+                        appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
                     }
                 })
-                appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
+                appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
             }
         })
 
@@ -87,7 +87,11 @@ class ImageFragment : BaseFragment() {
 
     private fun prepareSharedElementTransition() {
         sharedElementEnterTransition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.image_shared_element_transition)
+            .inflateTransition(R.transition.image_shared_element_transition).apply {
+                doOnEnd {
+                    imageViewModel.isPostponed = false
+                }
+            }
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -105,7 +109,7 @@ class ImageFragment : BaseFragment() {
 
                 // Map the first shared element name to the child ImageView.
                 if (names.isNotEmpty()) {
-                    sharedElements[names[0]] = view.findViewById(R.id.subsampling_scale_image_view)
+                    sharedElements[names[0]] = view.findViewById(R.id.image_view)
                 }
             }
         })
@@ -113,6 +117,7 @@ class ImageFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        imageViewModel.isPostponed = true
         supportActionBar?.subtitle = null
         toggleAppBar(true)
     }

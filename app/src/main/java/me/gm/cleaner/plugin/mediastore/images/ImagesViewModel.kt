@@ -49,7 +49,6 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     private val _images = MutableStateFlow<List<MediaStoreImage>>(emptyList())
     val images = _images.asStateFlow()
     var currentPosition = 0
-    var isPostponed = true
 
     private lateinit var contentObserver: ContentObserver
 
@@ -133,7 +132,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
              */
             val selectionArgs = arrayOf(
                 // Release day of the G1. :)
-                dateToTimestamp(day = 22, month = 10, year = 2008).toString()
+                dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
             /**

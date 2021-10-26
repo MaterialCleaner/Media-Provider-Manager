@@ -18,10 +18,25 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Application
 import android.graphics.PointF
+import android.util.Size
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asLiveData
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
+    private val _isPostponedFlow = MutableStateFlow(true)
+    val isPostponedLiveData = _isPostponedFlow.asLiveData()
+    var isPostponed: Boolean
+        get() = _isPostponedFlow.value
+        set(value) {
+            _isPostponedFlow.value = value
+        }
+
+    val size by lazy {
+        val displayMetrics = getApplication<Application>().resources.displayMetrics
+        Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
+    }
     private val top by lazy {
         val res = getApplication<Application>().resources
         val actionBarSize =
