@@ -48,20 +48,17 @@ class ImageItem : BaseFragment() {
         photoView.transitionName = uri.toString()
         photoView.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
-                parentFragment?.startPostponedEnterTransition()
                 appBarLayout.isLifted = viewModel.isOverlay(photoView)
             }
 
-            override fun onImageLoadError(e: Exception?) {
-                parentFragment?.startPostponedEnterTransition()
-            }
-
+            override fun onImageLoadError(e: Exception?) {}
             override fun onPreviewLoadError(e: Exception?) {}
             override fun onTileLoadError(e: Exception?) {}
             override fun onReady() {}
             override fun onPreviewReleased() {}
         })
         savedInstanceState ?: photoView.setImageSource(ImageSource.uri(uri))
+        parentFragment?.startPostponedEnterTransition()
         return binding.root
     }
 

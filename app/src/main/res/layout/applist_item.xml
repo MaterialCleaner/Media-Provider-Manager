@@ -21,20 +21,18 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
     android:gravity="center_vertical"
-    android:minHeight="?listPreferredItemHeight"
     android:orientation="horizontal"
-    android:paddingStart="?listPreferredItemPaddingStart"
-    android:paddingEnd="?listPreferredItemPaddingEnd">
+    android:padding="@dimen/screen_edge">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size" />
+        android:layout_width="@dimen/badge_size"
+        android:layout_height="@dimen/badge_size" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="?listPreferredItemPaddingStart"
+        android:layout_marginStart="@dimen/m3_compound_button_preferred_margin_start"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -44,7 +42,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:textColorPrimary" />
 
         <TextView
             android:id="@+id/summary"
@@ -52,6 +52,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>

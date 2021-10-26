@@ -22,8 +22,8 @@
     <dimen name="screen_edge">16dp</dimen>
     <dimen name="preference_header_top">24dp</dimen>
     <dimen name="icon_center_from_screen_edge">28dp</dimen>
-    <dimen name="content_start_from_screen_edge">72dp</dimen>
-    <dimen name="content_start_from_screen_edge_minus_screen_edge">56dp</dimen>
+    <dimen name="m3_content_start_from_screen_edge">60dp</dimen>
+    <dimen name="m3_compound_button_preferred_margin_start">20dp</dimen>
     <dimen name="icon_size">40dp</dimen>
     <dimen name="badge_size">24dp</dimen>
 </resources>
