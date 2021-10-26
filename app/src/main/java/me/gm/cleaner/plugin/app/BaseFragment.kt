@@ -32,6 +32,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.compat.isNightModeActivated
 
 abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?
@@ -116,6 +117,29 @@ abstract class BaseFragment : Fragment() {
         super.onDestroyView()
         if (::dialog.isInitialized && dialog.isShowing) {
             dialog.dismiss()
+        }
+    }
+
+    fun toggleAppBar(isShow: Boolean) {
+        val decorView = requireActivity().window.decorView
+        if (isShow) {
+            supportActionBar?.show()
+            var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            if (!resources.configuration.isNightModeActivated) {
+                flags = flags or
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            }
+            decorView.systemUiVisibility = flags
+        } else {
+            supportActionBar?.hide()
+            // Fullscreen is costly in my case, so I come to terms with immersive.
+            // If you persist in fullscreen, I'd advise you to display the photos with activity.
+            // See also: https://developer.android.com/training/system-ui/immersive
+            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
     }
 

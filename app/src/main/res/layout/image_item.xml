@@ -22,7 +22,7 @@
     android:fitsSystemWindows="false">
 
     <me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
-        android:id="@+id/photo_view"
+        android:id="@+id/subsampling_scale_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

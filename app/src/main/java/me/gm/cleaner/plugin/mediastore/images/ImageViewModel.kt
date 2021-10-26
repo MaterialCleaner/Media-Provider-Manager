@@ -18,11 +18,8 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Application
 import android.graphics.PointF
-import android.view.View
 import androidx.lifecycle.AndroidViewModel
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.compat.isNightModeActivated
 
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
     private val top by lazy {
@@ -34,34 +31,11 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
     }
     private val vTarget by lazy { PointF() }
 
-    fun isOverlay(photoView: SubsamplingScaleImageView): Boolean {
-        if (!photoView.isReady) {
+    fun isOverlay(subsamplingScaleImageView: SubsamplingScaleImageView): Boolean {
+        if (!subsamplingScaleImageView.isReady) {
             return false
         }
-        photoView.sourceToViewCoord(0f, 0f, vTarget)
+        subsamplingScaleImageView.sourceToViewCoord(0f, 0f, vTarget)
         return vTarget.y - top < 0
-    }
-}
-
-fun BaseFragment.toggleAppBar(isShow: Boolean) {
-    val decorView = requireActivity().window.decorView
-    if (isShow) {
-        supportActionBar?.show()
-        var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        if (!resources.configuration.isNightModeActivated) {
-            flags = flags or
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
-                    View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-        }
-        decorView.systemUiVisibility = flags
-    } else {
-        supportActionBar?.hide()
-        // Fullscreen is costly in my case, so I come to terms with immersive.
-        // If you persist in fullscreen, I'd advise you to display the photos with activity.
-        // See also: https://developer.android.com/training/system-ui/immersive
-        decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
     }
 }

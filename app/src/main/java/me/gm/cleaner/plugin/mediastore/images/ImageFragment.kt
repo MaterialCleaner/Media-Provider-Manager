@@ -56,25 +56,26 @@ class ImageFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 imagesViewModel.currentPosition = position
-                val photoView: SubsamplingScaleImageView = viewPager.findViewById(R.id.photo_view)
+                val subsamplingScaleImageView: SubsamplingScaleImageView =
+                    viewPager.findViewById(R.id.subsampling_scale_image_view)
                 supportActionBar?.apply {
                     title = imagesViewModel.images.value[position].displayName
                     subtitle = "${position + 1} / $size"
-                    photoView.setOnClickListener {
+                    subsamplingScaleImageView.setOnClickListener {
                         toggleAppBar(!isShowing)
                     }
                 }
-                photoView.setOnStateChangedListener(object :
+                subsamplingScaleImageView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {
                     override fun onScaleChanged(newScale: Float, origin: Int) {
-                        appBarLayout.isLifted = viewModel.isOverlay(photoView)
+                        appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
                     }
 
                     override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        appBarLayout.isLifted = viewModel.isOverlay(photoView)
+                        appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
                     }
                 })
-                appBarLayout.isLifted = viewModel.isOverlay(photoView)
+                appBarLayout.isLifted = viewModel.isOverlay(subsamplingScaleImageView)
             }
         })
 
@@ -85,7 +86,7 @@ class ImageFragment : BaseFragment() {
     }
 
     private fun prepareSharedElementTransition() {
-        sharedElementEnterTransition = TransitionInflater.from(context)
+        sharedElementEnterTransition = TransitionInflater.from(requireContext())
             .inflateTransition(R.transition.image_shared_element_transition)
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
@@ -104,7 +105,7 @@ class ImageFragment : BaseFragment() {
 
                 // Map the first shared element name to the child ImageView.
                 if (names.isNotEmpty()) {
-                    sharedElements[names[0]] = view.findViewById(R.id.photo_view)
+                    sharedElements[names[0]] = view.findViewById(R.id.subsampling_scale_image_view)
                 }
             }
         })
