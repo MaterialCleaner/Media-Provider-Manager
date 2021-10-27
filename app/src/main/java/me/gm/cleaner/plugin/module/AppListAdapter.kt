@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Job
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.util.AppIconCache
@@ -78,7 +77,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
         val position = selectedHolder.bindingAdapterPosition
         val pi = getItem(position)!!
         if (item.itemId == R.id.menu_delete_all_rules) {
-            ModulePreferences.removePackage(pi.packageName)
+//            ModulePreferences.removePackage(pi.packageName)
             return true
         }
         return false

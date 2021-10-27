@@ -4,6 +4,7 @@
     <string name="description">An Xposed module intended to prevent media storage abuse.</string>
 
     <!-- Drawer -->
+    <string name="start_destination_key" translatable="false">start_destination</string>
     <string name="module">Module</string>
     <string name="app_management">App Management</string>
     <string name="usage_record">Usage Record</string>

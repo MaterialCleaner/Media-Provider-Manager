@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.experiment
+package me.gm.cleaner.plugin.drawer
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,7 +23,7 @@ import android.view.ViewGroup
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
 
-class ExperimentFragment : BaseFragment() {
+class AboutFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

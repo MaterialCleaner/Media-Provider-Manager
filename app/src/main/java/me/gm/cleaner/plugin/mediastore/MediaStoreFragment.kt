@@ -55,7 +55,7 @@ abstract class MediaStoreFragment : BaseFragment() {
                 val scanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_DIR").apply {
                     data = Uri.fromFile(dirToBroadcast)
                 }
-                requireContext().sendBroadcast(scanIntent)
+//                requireContext().sendBroadcast(scanIntent)
             }
             onRescanBroadcast()
             true

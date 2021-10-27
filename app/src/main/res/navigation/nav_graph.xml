@@ -42,4 +42,13 @@
         android:id="@+id/image_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.images.ImageFragment" />
 
+    <fragment
+        android:id="@+id/experiment_fragment"
+        android:label="@string/experiment"
+        android:name="me.gm.cleaner.plugin.experiment.ExperimentFragment" />
+
+    <fragment
+        android:id="@+id/about_fragment"
+        android:label="@string/about"
+        android:name="me.gm.cleaner.plugin.drawer.AboutFragment" />
 </navigation>

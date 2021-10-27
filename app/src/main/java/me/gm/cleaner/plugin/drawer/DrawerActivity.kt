@@ -23,9 +23,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
+import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
 
 abstract class DrawerActivity : BaseActivity() {
@@ -42,12 +42,13 @@ abstract class DrawerActivity : BaseActivity() {
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
-            if (BuildConfig.DEBUG) {
-                setStartDestination(R.id.images_fragment)
-            }
-            // TODO: else restore persistent destination
+            setStartDestination(
+                if (ModulePreferences.startDestination in topLevelDestinationIds) ModulePreferences.startDestination
+                else R.id.about_fragment
+            )
         }
         navController.graph = navGraph
+        ModulePreferences.isNavInitialized = true
 
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -58,7 +59,7 @@ abstract class DrawerActivity : BaseActivity() {
         when {
             drawerLayout.isOpen -> drawerLayout.close()
             navController.currentDestination!!.id in topLevelDestinationIds -> {
-                // TODO: persistent destination
+                ModulePreferences.isNavInitialized = false
                 super.onSupportNavigateUp()
             }
             else -> super.onBackPressed()
@@ -69,6 +70,11 @@ abstract class DrawerActivity : BaseActivity() {
         navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 
     companion object {
-        val topLevelDestinationIds = setOf(R.id.applist_fragment, R.id.images_fragment)
+        val topLevelDestinationIds = setOf(
+            R.id.applist_fragment,
+            R.id.images_fragment,
+            R.id.experiment_fragment,
+            R.id.about_fragment,
+        )
     }
 }
