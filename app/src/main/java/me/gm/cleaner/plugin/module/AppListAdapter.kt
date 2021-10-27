@@ -31,7 +31,7 @@ import me.gm.cleaner.plugin.util.AppIconCache
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
-class AppListAdapter(fragment: AppListFragment) :
+class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
     private val activity = fragment.requireActivity() as DrawerActivity
     private lateinit var selectedHolder: ViewHolder
@@ -52,7 +52,7 @@ class AppListAdapter(fragment: AppListFragment) :
             pi.packageName
         }
         binding.root.setOnClickListener {
-            activity.startActivity(
+            fragment.startActivity(
                 Intent(activity, SettingsActivity::class.java).putExtra(
                     SettingsConstants.APP_INFO, pi.applicationInfo
                 )

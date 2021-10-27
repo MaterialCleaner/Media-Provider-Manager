@@ -39,6 +39,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.util.initFastScroller
 import me.gm.cleaner.plugin.util.isItemCompletelyVisible
 import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
+import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
     private val imageViewModel: ImageViewModel by activityViewModels()
@@ -57,6 +58,7 @@ class ImagesFragment : MediaStoreFragment() {
         list.layoutManager = layoutManager
         list.setHasFixedSize(true)
         list.initFastScroller()
+        list.fixEdgeEffect(false)
         list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -117,7 +119,9 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         savedInstanceState ?: imagesViewModel.loadImages()
-        scrollToPosition()
+        if (!imageViewModel.isPostponed) {
+            scrollToPosition()
+        }
         val currentDestination = findNavController().currentDestination ?: return
         if (currentDestination.id == R.id.images_fragment) {
             supportActionBar?.subtitle = null

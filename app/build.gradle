@@ -99,6 +99,7 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-analytics:$appCenterSdkVersion"
     implementation "com.microsoft.appcenter:appcenter-crashes:$appCenterSdkVersion"
 
+    implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2'
     implementation 'com.drakeet.drawer:drawer:1.0.3'
     implementation 'me.zhanghai.android.fastscroll:library:1.1.7'
     implementation 'me.zhanghai.android.appiconloader:appiconloader-iconloaderlib:1.3.1'

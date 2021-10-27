@@ -26,6 +26,7 @@ import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -89,7 +90,13 @@ class ImageFragment : BaseFragment() {
         sharedElementEnterTransition = TransitionInflater.from(requireContext())
             .inflateTransition(R.transition.image_shared_element_transition).apply {
                 doOnEnd {
-                    imageViewModel.isPostponed = false
+                    val currentDestination =
+                        findNavController().currentDestination ?: return@doOnEnd
+                    imageViewModel.isPostponed = when (currentDestination.id) {
+                        R.id.images_fragment -> true
+                        R.id.image_fragment -> false
+                        else -> throw IllegalStateException()
+                    }
                 }
             }
 

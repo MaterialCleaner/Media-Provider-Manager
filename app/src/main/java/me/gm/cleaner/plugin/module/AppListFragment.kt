@@ -37,6 +37,7 @@ import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.initFastScroller
 import me.gm.cleaner.plugin.util.isItemCompletelyVisible
 import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
+import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : BaseFragment() {
     private val viewModel: AppListViewModel by viewModels()
@@ -58,6 +59,7 @@ class AppListFragment : BaseFragment() {
         list.layoutManager = layoutManager
         list.setHasFixedSize(true)
         list.initFastScroller()
+        list.fixEdgeEffect(false)
         list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)

@@ -16,16 +16,8 @@
   ~ limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/hint"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?actionBarSize">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fitsSystemWindows="true" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+<resources>
+    <color name="system_window_scrim_light">#99FFFFFF</color>
+    <color name="system_window_scrim_dark">#52000000</color>
+    <color name="system_window_scrim">@color/system_window_scrim_light</color>
+</resources>

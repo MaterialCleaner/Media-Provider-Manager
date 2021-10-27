@@ -47,7 +47,6 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
         res.getDimensionPixelSize(resourceId) + actionBarSize
     }
     private val vTarget by lazy { PointF() }
-
     fun isOverlay(subsamplingScaleImageView: SubsamplingScaleImageView): Boolean {
         if (!subsamplingScaleImageView.isReady) {
             return false

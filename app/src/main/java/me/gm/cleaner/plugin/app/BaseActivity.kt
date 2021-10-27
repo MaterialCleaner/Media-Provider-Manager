@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.app
 
+import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -30,6 +31,14 @@ abstract class BaseActivity : AppCompatActivity() {
         appBarLayout = findViewById(R.id.toolbar_container)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val decorView = window.decorView
+        decorView.systemUiVisibility = decorView.systemUiVisibility or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 
     override fun onSupportNavigateUp(): Boolean {

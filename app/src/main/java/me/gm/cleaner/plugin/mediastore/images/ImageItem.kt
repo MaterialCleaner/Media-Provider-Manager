@@ -26,7 +26,6 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageItemBinding
-import me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
 
 /**
  * A fragment for displaying an image.
@@ -35,7 +34,6 @@ class ImageItem : BaseFragment() {
     private val imageViewModel: ImageViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
     private val position by lazy { requireArguments().getInt(KEY_IMAGE_URI) }
-    private lateinit var subsamplingScaleImageView: StateSavedSubsamplingScaleImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,14 +41,15 @@ class ImageItem : BaseFragment() {
         val binding = ImageItemBinding.inflate(inflater)
 
         val uri = imagesViewModel.images.value[position].contentUri
+        val imageView = binding.imageView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        binding.imageView.transitionName = uri.toString()
-        binding.imageView.setImageBitmap(
+        imageView.transitionName = uri.toString()
+        imageView.setImageBitmap(
             requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)
         )
         parentFragment?.startPostponedEnterTransition()
-        subsamplingScaleImageView = binding.subsamplingScaleImageView
+        val subsamplingScaleImageView = binding.subsamplingScaleImageView
         subsamplingScaleImageView.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
             private fun updateAppBar() {
@@ -91,7 +90,9 @@ class ImageItem : BaseFragment() {
         if (imageViewModel.isPostponed) {
             imageViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
                 if (!it) {
-                    subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
+                    imageView.post {
+                        subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
+                    }
                 }
             }
         } else {
