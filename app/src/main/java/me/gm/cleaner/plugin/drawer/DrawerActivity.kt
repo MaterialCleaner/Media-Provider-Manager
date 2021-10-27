@@ -41,13 +41,15 @@ abstract class DrawerActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
-            setStartDestination(
-                if (ModulePreferences.startDestination in topLevelDestinationIds) ModulePreferences.startDestination
-                else R.id.about_fragment
-            )
+        if (savedInstanceState == null) {
+            val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
+                setStartDestination(
+                    if (ModulePreferences.startDestination in topLevelDestinationIds) ModulePreferences.startDestination
+                    else R.id.about_fragment
+                )
+            }
+            navController.graph = navGraph
         }
-        navController.graph = navGraph
         ModulePreferences.isNavInitialized = true
 
         drawerLayout = binding.drawerLayout
