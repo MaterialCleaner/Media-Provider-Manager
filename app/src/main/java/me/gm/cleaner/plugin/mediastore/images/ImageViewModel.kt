@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.app.Application
 import android.graphics.PointF
 import android.util.Size
+import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -34,6 +35,13 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
         set(value) {
             _isPostponedFlow.value = value
         }
+
+    fun updateAppBar(supportActionBar: ActionBar?, images: List<MediaStoreImage>) {
+        supportActionBar?.apply {
+            title = images[currentPosition].displayName
+            subtitle = "${currentPosition + 1} / ${images.size}"
+        }
+    }
 
     val size by lazy {
         val displayMetrics = getApplication<Application>().resources.displayMetrics

@@ -40,7 +40,7 @@ class ImageItem : BaseFragment() {
     ): View {
         val binding = ImageItemBinding.inflate(inflater)
 
-        val uri = imagesViewModel.images.value[position].contentUri
+        val uri = imagesViewModel.images[position].contentUri
         val imageView = binding.imageView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
@@ -52,18 +52,8 @@ class ImageItem : BaseFragment() {
         val subsamplingScaleImageView = binding.subsamplingScaleImageView
         subsamplingScaleImageView.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
-            private fun updateAppBar() {
-                if (!imageViewModel.isAppBarUpToDate) {
-                    supportActionBar?.apply {
-                        title = imagesViewModel.images.value[position].displayName
-                        subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
-                    }
-                }
-            }
-
             private fun consumeAppBar() {
                 if (!imageViewModel.isAppBarUpToDate) {
-                    updateAppBar()
                     imageViewModel.isAppBarUpToDate = true
                     val isOverlay = imageViewModel.isOverlay(subsamplingScaleImageView)
                     appBarLayout.isLifted = isOverlay
@@ -76,7 +66,7 @@ class ImageItem : BaseFragment() {
             }
 
             override fun onImageLoadError(e: Exception?) {
-                updateAppBar()
+                imageViewModel.isAppBarUpToDate = true
                 Glide.with(this@ImageItem)
                     .load(uri)
                     .into(binding.imageView)
@@ -104,6 +94,15 @@ class ImageItem : BaseFragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (savedInstanceState != null) {
+            appBarLayout.post {
+                imageViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
+            }
+        }
     }
 
     companion object {

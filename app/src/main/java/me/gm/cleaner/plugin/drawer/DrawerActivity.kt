@@ -23,6 +23,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
@@ -33,13 +34,20 @@ abstract class DrawerActivity : BaseActivity() {
     private val appBarConfiguration by lazy {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        AppBarConfiguration(setOf(R.id.applist_fragment, R.id.images_fragment), drawerLayout)
+        AppBarConfiguration(topLevelDestinationIds, drawerLayout)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
+            if (BuildConfig.DEBUG) {
+                setStartDestination(R.id.images_fragment)
+            }
+            // TODO: else restore persistent destination
+        }
+        navController.graph = navGraph
 
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -47,10 +55,20 @@ abstract class DrawerActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isOpen) drawerLayout.close()
-        else super.onBackPressed()
+        when {
+            drawerLayout.isOpen -> drawerLayout.close()
+            navController.currentDestination!!.id in topLevelDestinationIds -> {
+                // TODO: persistent destination
+                super.onSupportNavigateUp()
+            }
+            else -> super.onBackPressed()
+        }
     }
 
     override fun onSupportNavigateUp() =
         navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+
+    companion object {
+        val topLevelDestinationIds = setOf(R.id.applist_fragment, R.id.images_fragment)
+    }
 }

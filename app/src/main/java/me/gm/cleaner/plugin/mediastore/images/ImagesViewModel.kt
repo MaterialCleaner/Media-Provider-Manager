@@ -38,6 +38,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,8 +47,10 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ImagesViewModel(application: Application) : AndroidViewModel(application) {
-    private val _images = MutableStateFlow<List<MediaStoreImage>>(emptyList())
-    val images = _images.asStateFlow()
+    private val _imagesFlow = MutableStateFlow<List<MediaStoreImage>>(emptyList())
+    val imagesFlow = _imagesFlow.asStateFlow()
+    val images: List<MediaStoreImage>
+        get() = _imagesFlow.value
 
     private lateinit var contentObserver: ContentObserver
 
@@ -57,12 +60,12 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
 
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
-     * the [_images] [LiveData] above.
+     * the [_imagesFlow] [StateFlow] above.
      */
     fun loadImages() {
         viewModelScope.launch {
             val imageList = queryImages()
-            _images.value = imageList
+            _imagesFlow.value = imageList
 
             if (!::contentObserver.isInitialized) {
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(

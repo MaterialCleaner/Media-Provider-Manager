@@ -42,7 +42,7 @@ class ImageFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImageFragmentBinding.inflate(inflater)
-        val size = imagesViewModel.images.value.size
+        val size = imagesViewModel.images.size
 
         val viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
@@ -57,14 +57,11 @@ class ImageFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 imageViewModel.currentPosition = position
+                imageViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
                 val subsamplingScaleImageView: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
-                supportActionBar?.apply {
-                    title = imagesViewModel.images.value[position].displayName
-                    subtitle = "${position + 1} / $size"
-                    subsamplingScaleImageView.setOnClickListener {
-                        toggleAppBar(!isShowing)
-                    }
+                subsamplingScaleImageView.setOnClickListener {
+                    toggleAppBar(!supportActionBar!!.isShowing)
                 }
                 subsamplingScaleImageView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {

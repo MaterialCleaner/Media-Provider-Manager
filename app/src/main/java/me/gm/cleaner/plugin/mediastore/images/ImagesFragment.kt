@@ -17,9 +17,10 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
+import android.os.Environment.DIRECTORY_DCIM
+import android.os.Environment.DIRECTORY_PICTURES
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
@@ -74,7 +75,7 @@ class ImagesFragment : MediaStoreFragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                imagesViewModel.images.collect { images ->
+                imagesViewModel.imagesFlow.collect { images ->
                     adapter.submitList(images) {
                         if (images.isEmpty()) {
                             // No image
@@ -148,12 +149,8 @@ class ImagesFragment : MediaStoreFragment() {
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_refresh -> {
-            // TODO: refresh by media scanner
-            imagesViewModel.loadImages()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+    override val dirsToBroadcast = arrayOf(DIRECTORY_PICTURES, DIRECTORY_DCIM)
+    override fun onRescanBroadcast() {
+        imagesViewModel.loadImages()
     }
 }

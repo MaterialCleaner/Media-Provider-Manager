@@ -35,6 +35,7 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
     private val imageViewModel: ImageViewModel by fragment.activityViewModels()
+    private val imagesViewModel: ImagesViewModel by fragment.activityViewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -73,6 +74,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         binding.root.setOnClickListener {
             imageViewModel.isAppBarUpToDate = false
             imageViewModel.currentPosition = holder.bindingAdapterPosition
+            imageViewModel.updateAppBar(fragment.supportActionBar, imagesViewModel.images)
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
             fragment.findNavController()
                 .navigate(R.id.action_images_to_image, null, null, extras)
