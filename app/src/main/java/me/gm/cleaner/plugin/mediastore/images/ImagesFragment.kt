@@ -27,7 +27,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -121,11 +120,6 @@ class ImagesFragment : MediaStoreFragment() {
         savedInstanceState ?: imagesViewModel.loadImages()
         if (!imageViewModel.isPostponed) {
             scrollToPosition()
-        }
-        val currentDestination = findNavController().currentDestination ?: return
-        if (currentDestination.id == R.id.images_fragment) {
-            supportActionBar?.subtitle = null
-            toggleAppBar(true)
         }
     }
 

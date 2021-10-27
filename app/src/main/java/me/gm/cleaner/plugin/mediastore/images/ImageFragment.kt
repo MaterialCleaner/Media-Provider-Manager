@@ -125,5 +125,10 @@ class ImageFragment : BaseFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         imageViewModel.isAppBarUpToDate = false
+        val currentDestination = findNavController().currentDestination ?: return
+        if (currentDestination.id != R.id.image_fragment) {
+            supportActionBar?.subtitle = null
+            toggleAppBar(true)
+        }
     }
 }

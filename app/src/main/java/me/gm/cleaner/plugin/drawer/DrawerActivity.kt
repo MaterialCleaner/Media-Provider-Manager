@@ -17,7 +17,7 @@
 package me.gm.cleaner.plugin.drawer
 
 import android.os.Bundle
-import androidx.navigation.NavController
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -28,25 +28,29 @@ import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
 
 abstract class DrawerActivity : BaseActivity() {
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var navController: NavController
+    private lateinit var drawerLayout: DrawerLayout
+    private val navController by lazy { findNavController(R.id.nav_host) }
+    private val appBarConfiguration by lazy {
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        AppBarConfiguration(setOf(R.id.applist_fragment, R.id.images_fragment), drawerLayout)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        navController = findNavController(R.id.nav_host)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.applist_fragment, R.id.images_fragment), binding.drawerLayout
-        )
+        drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    override fun onBackPressed() {
+        if (drawerLayout.isOpen) drawerLayout.close()
+        else super.onBackPressed()
     }
+
+    override fun onSupportNavigateUp() =
+        navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
 }
