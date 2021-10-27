@@ -50,12 +50,12 @@ class ImageFragment : BaseFragment() {
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(imagesViewModel.currentPosition, false)
+        viewPager.setCurrentItem(imageViewModel.currentPosition, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
-                imagesViewModel.currentPosition = position
+                imageViewModel.currentPosition = position
                 val subsamplingScaleImageView: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
                 supportActionBar?.apply {
@@ -104,7 +104,7 @@ class ImageFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    childFragmentManager.findFragmentByTag("f${imagesViewModel.currentPosition}")
+                    childFragmentManager.findFragmentByTag("f${imageViewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
                 // Map the first shared element name to the child ImageView.
@@ -117,8 +117,6 @@ class ImageFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        imageViewModel.isPostponed = true
-        supportActionBar?.subtitle = null
-        toggleAppBar(true)
+        imageViewModel.isAppBarUpToDate = false
     }
 }

@@ -54,17 +54,26 @@ class ImageItem : BaseFragment() {
         subsamplingScaleImageView.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
             private fun updateAppBar() {
-                supportActionBar?.apply {
-                    title = imagesViewModel.images.value[position].displayName
-                    subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
+                if (!imageViewModel.isAppBarUpToDate) {
+                    supportActionBar?.apply {
+                        title = imagesViewModel.images.value[position].displayName
+                        subtitle = "${position + 1} / ${imagesViewModel.images.value.size}"
+                    }
                 }
-                val isOverlay = imageViewModel.isOverlay(subsamplingScaleImageView)
-                appBarLayout.isLifted = isOverlay
-                savedInstanceState ?: toggleAppBar(!isOverlay)
+            }
+
+            private fun consumeAppBar() {
+                if (!imageViewModel.isAppBarUpToDate) {
+                    updateAppBar()
+                    imageViewModel.isAppBarUpToDate = true
+                    val isOverlay = imageViewModel.isOverlay(subsamplingScaleImageView)
+                    appBarLayout.isLifted = isOverlay
+                    toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
+                }
             }
 
             override fun onReady() {
-                updateAppBar()
+                consumeAppBar()
             }
 
             override fun onImageLoadError(e: Exception?) {
@@ -91,7 +100,13 @@ class ImageItem : BaseFragment() {
         return binding.root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
+    }
+
     companion object {
+        private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
 
         fun newInstance(position: Int): ImageItem {

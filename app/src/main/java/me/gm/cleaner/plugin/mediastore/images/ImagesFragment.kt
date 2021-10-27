@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
 import android.transition.TransitionInflater
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +27,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +41,8 @@ import me.gm.cleaner.plugin.util.isItemCompletelyVisible
 import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
 
 class ImagesFragment : MediaStoreFragment() {
-    private val viewModel: ImagesViewModel by activityViewModels()
+    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val imagesViewModel: ImagesViewModel by activityViewModels()
     private lateinit var list: RecyclerView
 
     override fun onCreateView(
@@ -72,7 +73,7 @@ class ImagesFragment : MediaStoreFragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.images.collect { images ->
+                imagesViewModel.images.collect { images ->
                     adapter.submitList(images) {
                         if (images.isEmpty()) {
                             // No image
@@ -103,7 +104,7 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 // Locate the ViewHolder for the clicked position.
                 val selectedViewHolder =
-                    list.findViewHolderForAdapterPosition(viewModel.currentPosition) ?: return
+                    list.findViewHolderForAdapterPosition(imageViewModel.currentPosition) ?: return
 
                 // Map the first shared element name to the child ImageView.
                 sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image)
@@ -115,8 +116,13 @@ class ImagesFragment : MediaStoreFragment() {
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
-        savedInstanceState ?: viewModel.loadImages()
+        savedInstanceState ?: imagesViewModel.loadImages()
         scrollToPosition()
+        val currentDestination = findNavController().currentDestination ?: return
+        if (currentDestination.id == R.id.images_fragment) {
+            supportActionBar?.subtitle = null
+            toggleAppBar(true)
+        }
     }
 
     /**
@@ -131,21 +137,25 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 list.removeOnLayoutChangeListener(this)
                 val layoutManager = list.layoutManager ?: return
-                val viewAtPosition = layoutManager.findViewByPosition(viewModel.currentPosition)
+                val viewAtPosition =
+                    layoutManager.findViewByPosition(imageViewModel.currentPosition)
                 // Scroll to position if the view for the current position is null (not currently part of
                 // layout manager children), or it's not completely visible.
                 if (viewAtPosition == null ||
                     layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
                 ) {
-                    list.post { layoutManager.scrollToPosition(viewModel.currentPosition) }
+                    list.post { layoutManager.scrollToPosition(imageViewModel.currentPosition) }
                 }
             }
         })
     }
 
-    // TODO: refresh by media scanner
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Log.i(javaClass.simpleName, "useful overriding method")
-        return super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_refresh -> {
+            // TODO: refresh by media scanner
+            imagesViewModel.loadImages()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

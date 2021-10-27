@@ -34,7 +34,7 @@
         android:name="me.gm.cleaner.plugin.mediastore.images.ImagesFragment"
         android:label="@string/images">
         <action
-            android:id="@+id/action_query_to_gallery"
+            android:id="@+id/action_images_to_image"
             app:destination="@id/image_fragment" />
     </fragment>
 

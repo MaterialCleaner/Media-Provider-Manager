@@ -25,6 +25,8 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
+    var currentPosition = 0
+    var isAppBarUpToDate = true
     private val _isPostponedFlow = MutableStateFlow(true)
     val isPostponedLiveData = _isPostponedFlow.asLiveData()
     var isPostponed: Boolean

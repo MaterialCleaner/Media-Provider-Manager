@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit
 class ImagesViewModel(application: Application) : AndroidViewModel(application) {
     private val _images = MutableStateFlow<List<MediaStoreImage>>(emptyList())
     val images = _images.asStateFlow()
-    var currentPosition = 0
 
     private lateinit var contentObserver: ContentObserver
 

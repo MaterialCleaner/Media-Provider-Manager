@@ -20,8 +20,8 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,7 +34,7 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
-    private val viewModel: ImagesViewModel by fragment.activityViewModels()
+    private val imageViewModel: ImageViewModel by fragment.activityViewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -50,7 +50,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    if (viewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (imageViewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -60,7 +60,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
-                    if (viewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (imageViewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -71,11 +71,11 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .into(binding.image)
         binding.image.transitionName = uri.toString()
         binding.root.setOnClickListener {
-            viewModel.currentPosition = holder.bindingAdapterPosition
+            imageViewModel.isAppBarUpToDate = false
+            imageViewModel.currentPosition = holder.bindingAdapterPosition
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
-            Navigation
-                .findNavController(fragment.requireActivity(), R.id.nav_host)
-                .navigate(R.id.action_query_to_gallery, null, null, extras)
+            fragment.findNavController()
+                .navigate(R.id.action_images_to_image, null, null, extras)
         }
     }
 
