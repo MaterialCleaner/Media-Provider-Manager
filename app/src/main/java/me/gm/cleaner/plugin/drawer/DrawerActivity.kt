@@ -41,12 +41,11 @@ abstract class DrawerActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (savedInstanceState == null) {
+        val shouldAlterStartDestination =
+            savedInstanceState == null && ModulePreferences.startDestination in topLevelDestinationIds
+        if (shouldAlterStartDestination) {
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
-                setStartDestination(
-                    if (ModulePreferences.startDestination in topLevelDestinationIds) ModulePreferences.startDestination
-                    else R.id.about_fragment
-                )
+                setStartDestination(ModulePreferences.startDestination)
             }
             navController.graph = navGraph
         }
@@ -54,7 +53,11 @@ abstract class DrawerActivity : BaseActivity() {
 
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
+        val navView = binding.navView
+        navView.setupWithNavController(navController)
+        if (shouldAlterStartDestination) {
+            navView.setCheckedItem(ModulePreferences.startDestination)
+        }
     }
 
     override fun onBackPressed() {

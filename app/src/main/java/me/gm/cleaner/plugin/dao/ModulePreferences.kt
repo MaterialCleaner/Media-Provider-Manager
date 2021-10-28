@@ -74,8 +74,7 @@ object ModulePreferences {
     var isNavInitialized = false
     var startDestination: Int
         get() = defaultSp.getInt(
-            resources.getString(R.string.start_destination_key),
-            R.id.about_fragment
+            resources.getString(R.string.start_destination_key), R.id.about_fragment
         )
         set(value) {
             if (!isNavInitialized) {
