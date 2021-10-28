@@ -74,7 +74,13 @@ abstract class DrawerActivity : BaseActivity() {
     companion object {
         val topLevelDestinationIds = setOf(
             R.id.applist_fragment,
+            R.id.usage_record_fragment,
+            R.id.settings_fragment,
+            R.id.audio_fragment,
+            R.id.downloads_fragment,
+            R.id.files_fragment,
             R.id.images_fragment,
+            R.id.video_fragment,
             R.id.experiment_fragment,
             R.id.about_fragment,
         )

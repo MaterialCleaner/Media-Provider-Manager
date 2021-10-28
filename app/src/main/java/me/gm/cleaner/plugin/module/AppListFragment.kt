@@ -23,6 +23,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +43,7 @@ import rikka.recyclerview.fixEdgeEffect
 class AppListFragment : BaseFragment() {
     private val viewModel: AppListViewModel by viewModels()
     private val adapter by lazy { AppListAdapter(this) }
+    private val navController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,7 +142,9 @@ class AppListFragment : BaseFragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                viewModel.queryText = newText
+                if (navController.currentDestination?.id == R.id.applist_fragment) {
+                    viewModel.queryText = newText
+                }
                 return false
             }
         })

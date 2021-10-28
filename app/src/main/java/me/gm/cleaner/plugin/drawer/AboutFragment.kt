@@ -21,13 +21,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
+import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
 class AboutFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        val binding = ExperimentFragmentBinding.inflate(layoutInflater)
+    ): View {
+        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
         return binding.root
     }
 }

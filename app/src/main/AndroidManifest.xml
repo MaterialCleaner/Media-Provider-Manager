@@ -42,10 +42,6 @@
             </intent-filter>
         </activity-alias>
 
-        <activity
-            android:name=".module.SettingsActivity"
-            android:exported="false" />
-
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

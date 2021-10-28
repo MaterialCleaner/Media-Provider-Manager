@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.mediastore.video
 
-import me.gm.cleaner.plugin.app.BaseActivity
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
-class SettingsActivity : BaseActivity()
+class VideoFragment : BaseFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+        return binding.root
+    }
+}

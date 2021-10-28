@@ -16,9 +16,9 @@
 
 package me.gm.cleaner.plugin.module
 
-import android.content.Intent
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -51,11 +51,11 @@ class AppListAdapter(private val fragment: AppListFragment) :
             pi.packageName
         }
         binding.root.setOnClickListener {
-            fragment.startActivity(
-                Intent(activity, SettingsActivity::class.java).putExtra(
-                    SettingsConstants.APP_INFO, pi.applicationInfo
-                )
-            )
+            val navController = fragment.findNavController()
+            if (navController.currentDestination?.id == R.id.applist_fragment) {
+                val direction = AppListFragmentDirections.actionApplistToApp(pi)
+                navController.navigate(direction)
+            }
         }
         binding.root.setOnLongClickListener {
             selectedHolder = holder
