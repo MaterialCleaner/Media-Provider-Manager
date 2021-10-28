@@ -17,12 +17,15 @@
 package me.gm.cleaner.plugin.drawer
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import me.gm.cleaner.plugin.BinderReceiver
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
@@ -58,6 +61,14 @@ abstract class DrawerActivity : BaseActivity() {
         if (shouldAlterStartDestination) {
             navView.setCheckedItem(ModulePreferences.startDestination)
         }
+
+        navView.getHeaderView(0).findViewById<TextView>(R.id.status).setText(
+            when {
+                !BinderReceiver.pingBinder() -> R.string.not_active
+                BinderReceiver.moduleVersion != BuildConfig.VERSION_CODE -> R.string.restart_system
+                else -> R.string.active
+            }
+        )
     }
 
     override fun onBackPressed() {
