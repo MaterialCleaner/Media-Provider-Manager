@@ -22,11 +22,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Job
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.drawer.DrawerActivity
-import me.gm.cleaner.plugin.util.AppIconCache
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
@@ -41,9 +39,9 @@ class AppListAdapter(private val fragment: AppListFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val pi = getItem(position)
-        holder.loadIconJob = AppIconCache.loadIconBitmapAsync(
-            activity, pi.applicationInfo, pi.applicationInfo.uid / 100000, binding.icon
-        )
+        GlideApp.with(activity)
+            .load(pi)
+            .into(binding.icon)
         binding.title.text = pi.label
         binding.summary.text = if (pi.srCount > 0) {
             activity.buildStyledTitle(pi.srCount.toString())
@@ -83,20 +81,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
         return false
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.onViewRecycled()
-    }
-
-    class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        lateinit var loadIconJob: Job
-
-        fun onViewRecycled() {
-            if (::loadIconJob.isInitialized && loadIconJob.isActive) {
-                loadIconJob.cancel()
-            }
-        }
-    }
+    class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
         private val CALLBACK: DiffUtil.ItemCallback<PreferencesPackageInfo> =

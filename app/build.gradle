@@ -75,7 +75,7 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly 'de.robv.android.xposed:api:82:sources'
     implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.fragment:fragment-ktx:1.3.6'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.5.0-alpha05'
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
-    def androidx_lifecycle_version = '2.4.0-alpha02'
+    def androidx_lifecycle_version = '2.4.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
@@ -102,7 +102,9 @@ dependencies {
     implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2'
     implementation 'com.drakeet.drawer:drawer:1.0.3'
     implementation 'me.zhanghai.android.fastscroll:library:1.1.7'
-    implementation 'me.zhanghai.android.appiconloader:appiconloader-iconloaderlib:1.3.1'
+    implementation 'me.zhanghai.android.appiconloader:appiconloader:1.3.1'
+    implementation 'me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1'
     implementation 'com.github.bumptech.glide:glide:4.12.0'
+    kapt 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
 }

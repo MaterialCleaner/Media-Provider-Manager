@@ -17,8 +17,6 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
-import android.os.Environment.DIRECTORY_DCIM
-import android.os.Environment.DIRECTORY_PICTURES
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
@@ -147,10 +145,5 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         })
-    }
-
-    override val dirsToBroadcast = arrayOf(DIRECTORY_PICTURES, DIRECTORY_DCIM)
-    override fun onRescanBroadcast() {
-        imagesViewModel.loadImages()
     }
 }

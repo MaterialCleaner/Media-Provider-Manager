@@ -16,11 +16,16 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -45,9 +50,26 @@ class ImageItem : BaseFragment() {
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         imageView.transitionName = uri.toString()
-        imageView.setImageBitmap(
-            requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)
-        )
+        imagesViewModel.deleteImage(imagesViewModel.images[position])
+        try {
+            imageView.setImageBitmap(
+                requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)
+            )
+        } catch (securityException: Throwable) {
+            Toast.makeText(requireContext(), securityException.message, Toast.LENGTH_SHORT).show()
+            // https://developer.android.com/training/data-storage/shared/media#update-other-apps-files
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                try {
+//                    requireContext().contentResolver.openFileDescriptor(uri, "w")
+//                } catch (securityException: SecurityException) {
+//                    if (securityException is RecoverableSecurityException) {
+//                        val intentSender = securityException.userAction.actionIntent.intentSender
+//                        startIntentSenderForResult(intentSender, REQUEST_CODE, null, 0, 0, 0, null)
+//                    }
+//                } catch (e: FileNotFoundException) {
+//                }
+//            }
+        }
         parentFragment?.startPostponedEnterTransition()
         val subsamplingScaleImageView = binding.subsamplingScaleImageView
         subsamplingScaleImageView.setOnImageEventListener(object :
@@ -80,7 +102,7 @@ class ImageItem : BaseFragment() {
         if (imageViewModel.isPostponed) {
             imageViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
                 if (!it) {
-                    imageView.post {
+                    imageView.doOnPreDraw {
                         subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
                     }
                 }
@@ -89,6 +111,13 @@ class ImageItem : BaseFragment() {
             subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
         }
         return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (REQUEST_CODE == requestCode && resultCode == Activity.RESULT_OK) {
+            findNavController().navigateUp()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -106,6 +135,7 @@ class ImageItem : BaseFragment() {
     }
 
     companion object {
+        private const val REQUEST_CODE = 0
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
 

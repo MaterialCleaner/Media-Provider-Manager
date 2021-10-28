@@ -20,11 +20,11 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.appcompat.app.AlertDialog
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 
@@ -36,10 +36,30 @@ abstract class MediaStoreFragment : BaseFragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
-        // TODO: show rationale
-        Log.i(javaClass.simpleName, "useful overriding method")
-        super.onRequestPermissions(permissions, savedInstanceState)
+    override fun onRequestPermissionsFailure(
+        shouldShowRationale: Set<String>, permanentlyDenied: Set<String>,
+        savedInstanceState: Bundle?
+    ) {
+        if (shouldShowRationale.isNotEmpty()) {
+            dialog = AlertDialog.Builder(requireContext())
+                .setMessage(R.string.rationale_shouldShowRationale)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
+                }
+                .show()
+        } else if (permanentlyDenied.isNotEmpty()) {
+            dialog = AlertDialog.Builder(requireContext())
+                .setMessage(R.string.rationale_permanentlyDenied)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", requireActivity().packageName, null)
+                    }
+                    startActivity(intent)
+                }
+                .show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -47,22 +67,11 @@ abstract class MediaStoreFragment : BaseFragment() {
         inflater.inflate(R.menu.mediastore_toolbar, menu)
     }
 
-    @Suppress("DEPRECATION")
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_refresh -> {
-            dirsToBroadcast.forEach {
-                val dirToBroadcast = Environment.getExternalStoragePublicDirectory(it)
-                val scanIntent = Intent("android.intent.action.MEDIA_SCANNER_SCAN_DIR").apply {
-                    data = Uri.fromFile(dirToBroadcast)
-                }
-//                requireContext().sendBroadcast(scanIntent)
-            }
-            onRescanBroadcast()
+            dispatchRequestPermissions(requiredPermissions, null)
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
-
-    open val dirsToBroadcast = emptyArray<String>()
-    abstract fun onRescanBroadcast()
 }

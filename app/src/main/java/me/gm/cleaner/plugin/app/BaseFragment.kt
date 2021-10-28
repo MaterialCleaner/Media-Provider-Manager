@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -54,14 +55,14 @@ abstract class BaseFragment : Fragment() {
                 if (granted.isNotEmpty()) {
                     onRequestPermissionsSuccess(granted, savedInstanceState)
                 }
-                val denied = requiredPermissions.toSet() - granted
+                val denied = result.keys - granted
                 if (denied.isNotEmpty()) {
-                    val canRequestAgain = denied.asSequence().filter {
+                    val shouldShowRationale = denied.asSequence().filter {
                         ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
                     }.toSet()
-                    val permanentlyDenied = denied - canRequestAgain
+                    val permanentlyDenied = denied - shouldShowRationale
                     onRequestPermissionsFailure(
-                        canRequestAgain, permanentlyDenied, savedInstanceState
+                        shouldShowRationale, permanentlyDenied, savedInstanceState
                     )
                 }
             }
@@ -75,7 +76,30 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        onRequestPermissions(requiredPermissions, savedInstanceState)
+        dispatchRequestPermissions(requiredPermissions, savedInstanceState)
+    }
+
+    fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
+        val granted = permissions.asSequence().filter {
+            ActivityCompat.checkSelfPermission(requireContext(), it) ==
+                    PackageManager.PERMISSION_GRANTED
+        }.toSet()
+        if (granted.isNotEmpty()) {
+            onRequestPermissionsSuccess(granted, savedInstanceState)
+        }
+        if (permissions.size > granted.size) {
+            val denied = permissions.toSet() - granted
+            val shouldShowRationale = denied.asSequence().filter {
+                ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
+            }.toSet()
+            if (shouldShowRationale.isNotEmpty()) {
+                onRequestPermissionsFailure(shouldShowRationale, emptySet(), savedInstanceState)
+            } else {
+                // Permissions that have never been explicitly denied and that are permanently denied
+                // can't be distinguished unless we actually request.
+                onRequestPermissions(denied.toTypedArray(), savedInstanceState)
+            }
+        }
     }
 
     protected open fun onRequestPermissions(
@@ -90,14 +114,15 @@ abstract class BaseFragment : Fragment() {
     }
 
     protected open fun onRequestPermissionsFailure(
-        canRequestAgain: Set<String>, permanentlyDenied: Set<String>, savedInstanceState: Bundle?
+        shouldShowRationale: Set<String>, permanentlyDenied: Set<String>,
+        savedInstanceState: Bundle?
     ) {
-        if (canRequestAgain.isNotEmpty()) {
-            onRequestPermissions(canRequestAgain.toTypedArray(), savedInstanceState)
-        }
-        if (permanentlyDenied.isNotEmpty()) {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.fromParts("package", requireActivity().packageName, null)
+        if (shouldShowRationale.isNotEmpty()) {
+            onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
+        } else if (permanentlyDenied.isNotEmpty()) {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireActivity().packageName, null)
+            }
             startActivity(intent)
         }
     }
