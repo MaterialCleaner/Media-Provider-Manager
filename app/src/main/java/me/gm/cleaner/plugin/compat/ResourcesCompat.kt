@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.compat
 
 import android.content.res.Configuration
 import android.os.Build
+import android.view.View
 
 val Configuration.isNightModeActivated
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -25,3 +26,6 @@ val Configuration.isNightModeActivated
     } else {
         uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
+
+val Configuration.isRtl
+    get() = layoutDirection == View.LAYOUT_DIRECTION_RTL

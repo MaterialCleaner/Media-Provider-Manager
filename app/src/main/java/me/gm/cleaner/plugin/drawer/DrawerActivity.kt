@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.drawer
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
@@ -24,12 +25,16 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.internal.NavigationMenuPresenter
+import com.google.android.material.internal.NavigationMenuView
+import com.google.android.material.navigation.NavigationView
 import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
+import rikka.recyclerview.fixEdgeEffect
 
 abstract class DrawerActivity : BaseActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -58,6 +63,7 @@ abstract class DrawerActivity : BaseActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         val navView = binding.navView
         navView.setupWithNavController(navController)
+        customizeNavViewStyle(navView)
         if (shouldAlterStartDestination) {
             navView.setCheckedItem(ModulePreferences.startDestination)
         }
@@ -69,6 +75,15 @@ abstract class DrawerActivity : BaseActivity() {
                 else -> R.string.active
             }
         )
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun customizeNavViewStyle(navView: NavigationView) {
+        val presenter = navView.javaClass.declaredFields
+            .first { it.type == NavigationMenuPresenter::class.java }
+            .apply { isAccessible = true }[navView] as NavigationMenuPresenter
+        val menuView = presenter.getMenuView(navView) as NavigationMenuView
+        menuView.fixEdgeEffect()
     }
 
     override fun onBackPressed() {

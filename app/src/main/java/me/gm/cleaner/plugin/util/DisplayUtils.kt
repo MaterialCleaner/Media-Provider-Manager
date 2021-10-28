@@ -32,14 +32,13 @@ import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
+import androidx.core.view.forEach
 import kotlin.math.roundToInt
 
 fun Collection<*>.listFormat(delimiter: String) = ListFormatter.getInstance().format(this)
 
 fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> Boolean) {
-    for (i in 0 until size()) {
-        getItem(i).setOnMenuItemClickListener(menuItemClickListener)
-    }
+    forEach { it.setOnMenuItemClickListener(menuItemClickListener) }
 }
 
 fun Context.buildStyledTitle(text: CharSequence, color: Int = colorAccent) =
