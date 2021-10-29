@@ -26,7 +26,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
@@ -34,9 +33,9 @@ import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.initFastScroller
-import me.gm.cleaner.plugin.util.isItemCompletelyVisible
-import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
+import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
@@ -57,19 +56,18 @@ class ImagesFragment : MediaStoreFragment() {
         list.setHasFixedSize(true)
         list.initFastScroller()
         list.fixEdgeEffect(false)
-        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val firstViewHolder = list.findViewHolderForAdapterPosition(0)
-                appBarLayout.isLifted = !layoutManager.isItemCompletelyVisible(firstViewHolder)
-            }
-        })
-        list.itemAnimator = object : DefaultItemAnimator() {
-            override fun onAnimationFinished(viewHolder: RecyclerView.ViewHolder) {
-                super.onAnimationFinished(viewHolder)
-                list.overScrollIfContentScrolls()
-            }
-        }
+        list.overScrollIfContentScrollsPersistent()
+        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+//        list.addOnItemTouchListener( object : RecyclerView.OnItemTouchListener {
+//            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+//            }
+//
+//            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+//            }
+//
+//            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+//            }
+//        })
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

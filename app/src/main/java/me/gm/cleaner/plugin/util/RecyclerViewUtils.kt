@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Green Mushroom
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package me.gm.cleaner.plugin.util
 
 import android.graphics.Canvas
@@ -5,10 +21,8 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.MotionEvent
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.core.view.doOnPreDraw
+import androidx.recyclerview.widget.*
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
@@ -142,7 +156,7 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
             return RecyclerView.NO_POSITION
         }
         val itelist: View = list.getChildAt(0)
-        val linearLayoutManager: LinearLayoutManager =
+        val linearLayoutManager =
             getVerticalLinearLayoutManager() ?: return RecyclerView.NO_POSITION
         return linearLayoutManager.getPosition(itelist)
     }
@@ -170,24 +184,16 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
 
     @JvmName("getVerticalLinearLayoutManager1")
     private fun getVerticalLinearLayoutManager(): LinearLayoutManager? {
-        val layoutManager: RecyclerView.LayoutManager =
-            list.layoutManager as? LinearLayoutManager ?: return null
-        val linearLayoutManager = layoutManager as LinearLayoutManager
-        return if (linearLayoutManager.orientation != RecyclerView.VERTICAL) {
-            null
-        } else linearLayoutManager
+        val linearLayoutManager = list.layoutManager as? LinearLayoutManager ?: return null
+        return if (linearLayoutManager.orientation != RecyclerView.VERTICAL) null
+        else linearLayoutManager
     }
 
     override fun getPopupText(): String? {
-        val adapter = list.adapter
-        if (adapter !is PopupTextProvider) {
-            return null
-        }
-        val popupTextProvider = adapter as PopupTextProvider
+        val popupTextProvider = list.adapter as? PopupTextProvider ?: return null
         val position = getItemAdapterPositionForPopup()
-        return if (position == RecyclerView.NO_POSITION) {
-            null
-        } else popupTextProvider.getPopupText(position)
+        return if (position == RecyclerView.NO_POSITION) null
+        else popupTextProvider.getPopupText(position)
     }
 
     private fun getItemAdapterPositionForPopup(): Int {
@@ -195,15 +201,14 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
             return RecyclerView.NO_POSITION
         }
         return verticalLinearLayoutManager?.findFirstCompletelyVisibleItemPosition()
-            ?: return RecyclerView.NO_POSITION
+            ?: RecyclerView.NO_POSITION
     }
 
     private val verticalLinearLayoutManager: LinearLayoutManager?
         get() {
             val layoutManager = list.layoutManager as? LinearLayoutManager ?: return null
-            return if (layoutManager.orientation != RecyclerView.VERTICAL) {
-                null
-            } else layoutManager
+            return if (layoutManager.orientation != RecyclerView.VERTICAL) null
+            else layoutManager
         }
 
     companion object {
@@ -216,12 +221,12 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
 }
 
 class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecoration() {
-    private lateinit var mDivider: Drawable
-    private var mDividerHeight = 0
-    private var mAllowDividerAfterLastItem = true
+    private lateinit var divider: Drawable
+    private var dividerHeight = 0
+    private var allowDividerAfterLastItem = true
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        if (!::mDivider.isInitialized) {
+        if (!::divider.isInitialized) {
             return
         }
         val childCount = parent.childCount
@@ -230,9 +235,9 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
             val view = parent.getChildAt(childViewIndex)
             if (shouldDrawDividerBelow(view, parent)) {
                 val top = view.y.toInt() + view.height
-                mDivider.setBounds(0, top, width, top + mDividerHeight)
-                mDivider.setTint(parent.context.colorControlHighlight)
-                mDivider.draw(c)
+                divider.setBounds(0, top, width, top + dividerHeight)
+                divider.setTint(parent.context.colorControlHighlight)
+                divider.draw(c)
             }
         }
     }
@@ -241,7 +246,7 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
         outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
     ) {
         if (shouldDrawDividerBelow(view, parent)) {
-            outRect.bottom = mDividerHeight
+            outRect.bottom = dividerHeight
         }
     }
 
@@ -251,7 +256,7 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
         if (dividerAllowedBelow) {
             return true
         }
-        var nextAllowed = mAllowDividerAfterLastItem
+        var nextAllowed = allowDividerAfterLastItem
         val index = parent.indexOfChild(view)
         if (index < parent.childCount - 1) {
             val nextView = parent.getChildAt(index + 1)
@@ -262,18 +267,18 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
     }
 
     fun setDivider(divider: Drawable) {
-        mDividerHeight = divider.intrinsicHeight
-        mDivider = divider
+        dividerHeight = divider.intrinsicHeight
+        this.divider = divider
         list.invalidateItemDecorations()
     }
 
     fun setDividerHeight(dividerHeight: Int) {
-        mDividerHeight = dividerHeight
+        this.dividerHeight = dividerHeight
         list.invalidateItemDecorations()
     }
 
     fun setAllowDividerAfterLastItem(allowDividerAfterLastItem: Boolean) {
-        mAllowDividerAfterLastItem = allowDividerAfterLastItem
+        this.allowDividerAfterLastItem = allowDividerAfterLastItem
     }
 }
 
@@ -294,6 +299,35 @@ abstract class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
      * @return `true` if dividers are allowed below this item
      */
     var isDividerAllowedBelow = false
+}
+
+fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            val layoutManager = layoutManager
+            require(layoutManager is LinearLayoutManager)
+            val firstViewHolder = findViewHolderForAdapterPosition(0)
+            callback(!layoutManager.isItemCompletelyVisible(firstViewHolder))
+        }
+    })
+}
+
+fun RecyclerView.overScrollIfContentScrollsPersistent(supportsChangeAnimations: Boolean = true) {
+    doOnPreDraw {
+        overScrollIfContentScrolls()
+    }
+    addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> overScrollIfContentScrolls() }
+    itemAnimator = object : DefaultItemAnimator() {
+        init {
+            this.supportsChangeAnimations = supportsChangeAnimations
+        }
+
+        override fun onAnimationFinished(viewHolder: RecyclerView.ViewHolder) {
+            super.onAnimationFinished(viewHolder)
+            overScrollIfContentScrolls()
+        }
+    }
 }
 
 fun RecyclerView.overScrollIfContentScrolls() {

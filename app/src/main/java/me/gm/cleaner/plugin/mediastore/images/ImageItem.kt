@@ -17,7 +17,9 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Activity
+import android.app.RecoverableSecurityException
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageItemBinding
+import java.io.FileNotFoundException
 
 /**
  * A fragment for displaying an image.
@@ -58,17 +61,17 @@ class ImageItem : BaseFragment() {
         } catch (securityException: Throwable) {
             Toast.makeText(requireContext(), securityException.message, Toast.LENGTH_SHORT).show()
             // https://developer.android.com/training/data-storage/shared/media#update-other-apps-files
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                try {
-//                    requireContext().contentResolver.openFileDescriptor(uri, "w")
-//                } catch (securityException: SecurityException) {
-//                    if (securityException is RecoverableSecurityException) {
-//                        val intentSender = securityException.userAction.actionIntent.intentSender
-//                        startIntentSenderForResult(intentSender, REQUEST_CODE, null, 0, 0, 0, null)
-//                    }
-//                } catch (e: FileNotFoundException) {
-//                }
-//            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    requireContext().contentResolver.openFileDescriptor(uri, "w")
+                } catch (securityException: SecurityException) {
+                    if (securityException is RecoverableSecurityException) {
+                        val intentSender = securityException.userAction.actionIntent.intentSender
+                        startIntentSenderForResult(intentSender, REQUEST_CODE, null, 0, 0, 0, null)
+                    }
+                } catch (e: FileNotFoundException) {
+                }
+            }
         }
         parentFragment?.startPostponedEnterTransition()
         val subsamplingScaleImageView = binding.subsamplingScaleImageView

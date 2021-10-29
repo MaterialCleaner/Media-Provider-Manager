@@ -24,9 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BinderReceiver
@@ -34,10 +32,10 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
+import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.buildStyledTitle
 import me.gm.cleaner.plugin.util.initFastScroller
-import me.gm.cleaner.plugin.util.isItemCompletelyVisible
-import me.gm.cleaner.plugin.util.overScrollIfContentScrolls
+import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : BaseFragment() {
@@ -62,19 +60,8 @@ class AppListFragment : BaseFragment() {
         list.setHasFixedSize(true)
         list.initFastScroller()
         list.fixEdgeEffect(false)
-        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val firstViewHolder = list.findViewHolderForAdapterPosition(0)
-                appBarLayout.isLifted = !layoutManager.isItemCompletelyVisible(firstViewHolder)
-            }
-        })
-        list.itemAnimator = object : DefaultItemAnimator() {
-            override fun onAnimationFinished(viewHolder: RecyclerView.ViewHolder) {
-                super.onAnimationFinished(viewHolder)
-                list.overScrollIfContentScrolls()
-            }
-        }
+        list.overScrollIfContentScrollsPersistent()
+        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         binding.listContainer.setOnRefreshListener {
             viewModel.loadApps(requireContext().packageManager, null)
         }

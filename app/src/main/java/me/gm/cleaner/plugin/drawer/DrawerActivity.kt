@@ -34,6 +34,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
+import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class DrawerActivity : BaseActivity() {
@@ -83,7 +84,8 @@ abstract class DrawerActivity : BaseActivity() {
             .first { it.type == NavigationMenuPresenter::class.java }
             .apply { isAccessible = true }[navView] as NavigationMenuPresenter
         val menuView = presenter.getMenuView(navView) as NavigationMenuView
-        menuView.fixEdgeEffect()
+        menuView.fixEdgeEffect(false)
+        menuView.overScrollIfContentScrollsPersistent()
     }
 
     override fun onBackPressed() {
