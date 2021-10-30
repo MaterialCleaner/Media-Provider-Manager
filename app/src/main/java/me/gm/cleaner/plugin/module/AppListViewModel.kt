@@ -41,8 +41,8 @@ class AppListViewModel : ViewModel() {
         set(value) {
             _queryTextFlow.value = value
         }
-    private val _apps = MutableStateFlow<SourceState>(SourceState.Loading(0))
-    val apps = combine(_apps, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
+    private val _appsFlow = MutableStateFlow<SourceState>(SourceState.Loading(0))
+    val appsFlow = combine(_appsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
         when (source) {
             is SourceState.Loading -> SourceState.Loading(source.progress)
             is SourceState.Done -> SourceState.Done(
@@ -99,21 +99,21 @@ class AppListViewModel : ViewModel() {
         pm: PackageManager,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
-                _apps.value = SourceState.Loading(progress)
+                _appsFlow.value = SourceState.Loading(progress)
             }
         }
     ) {
         viewModelScope.launch {
             val list = AppListLoader().load(pm, l)
-            _apps.value = SourceState.Done(list)
+            _appsFlow.value = SourceState.Done(list)
         }
     }
 
     fun updateApps() {
         viewModelScope.launch {
-            if (_apps.value is SourceState.Done) {
-                val list = AppListLoader().update((_apps.value as SourceState.Done).list)
-                _apps.value = SourceState.Done(list)
+            if (_appsFlow.value is SourceState.Done) {
+                val list = AppListLoader().update((_appsFlow.value as SourceState.Done).list)
+                _appsFlow.value = SourceState.Done(list)
             }
         }
     }

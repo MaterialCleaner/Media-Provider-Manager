@@ -40,8 +40,6 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
             android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="?android:textColorPrimary" />
@@ -50,8 +48,6 @@
             android:id="@+id/summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
             android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:textColor="?android:textColorSecondary" />

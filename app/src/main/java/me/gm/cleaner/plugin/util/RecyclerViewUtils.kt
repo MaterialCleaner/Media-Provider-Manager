@@ -28,21 +28,6 @@ import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import me.zhanghai.android.fastscroll.Predicate
 
-fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPercentage(
-    list: List<T>, layoutManager: LinearLayoutManager, commitCallback: Runnable? = null
-) {
-    val position = layoutManager.findFirstCompletelyVisibleItemPosition()
-    if (position == RecyclerView.NO_POSITION) {
-        submitList(list)
-    } else {
-        val newPosition = list.size * position / layoutManager.childCount
-        submitList(list) {
-            layoutManager.scrollToPosition(newPosition)
-            commitCallback?.run()
-        }
-    }
-}
-
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
 ) {
@@ -51,9 +36,12 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     if (position == RecyclerView.NO_POSITION) {
         submitList(list)
     } else {
-        val offset = layoutManager.findViewByPosition(position)!!.top
+        val rect = Rect()
+        recyclerView.getDecoratedBoundsWithMargins(
+            layoutManager.findViewByPosition(position)!!, rect
+        )
         submitList(list) {
-            layoutManager.scrollToPositionWithOffset(position, offset - recyclerView.paddingTop)
+            layoutManager.scrollToPositionWithOffset(position, rect.top - recyclerView.paddingTop)
             commitCallback?.run()
         }
     }
@@ -103,26 +91,22 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
     override fun getScrollOffset() = list.computeVerticalScrollOffset()
 
     override fun scrollTo(offset: Int) {
+        // Stop any scroll in progress for RecyclerView.
+        list.stopScroll()
         if (getItemCount() < CUTOFF) {
-            list.stopScroll()
-
-            val oldOffset = scrollOffset
-            list.scrollBy(0, offset - oldOffset)
+            list.scrollBy(0, offset - scrollOffset)
             return
         }
-        // Stop any scroll in progress for RecyclerView.
-        var offset = offset
-        list.stopScroll()
-        offset -= list.paddingTop
-        val itemHeight: Int = getItemHeight()
+        val scrolledOffset = offset - list.paddingTop
+        val itemHeight = getItemHeight()
         // firstItemPosition should be non-negative even if paddingTop is greater than item height.
-        val firstItemPosition = 0.coerceAtLeast(offset / itemHeight)
-        val firstItemTop = firstItemPosition * itemHeight - offset
+        val firstItemPosition = 0.coerceAtLeast(scrolledOffset / itemHeight)
+        val firstItemTop = firstItemPosition * itemHeight - scrolledOffset
         scrollToPositionWithOffset(firstItemPosition, firstItemTop)
     }
 
     private fun getItemCount(): Int {
-        val linearLayoutManager: LinearLayoutManager = getVerticalLinearLayoutManager() ?: return 0
+        val linearLayoutManager = getVerticalLinearLayoutManager() ?: return 0
         var itemCount = linearLayoutManager.itemCount
         if (itemCount == 0) {
             return 0
@@ -143,7 +127,7 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
 
     private fun getFirstItemPosition(): Int {
         var position = getFirstItemAdapterPosition()
-        val linearLayoutManager: LinearLayoutManager =
+        val linearLayoutManager =
             getVerticalLinearLayoutManager() ?: return RecyclerView.NO_POSITION
         if (linearLayoutManager is GridLayoutManager) {
             position /= linearLayoutManager.spanCount
@@ -173,7 +157,7 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
     private fun scrollToPositionWithOffset(position: Int, offset: Int) {
         var position = position
         var offset = offset
-        val linearLayoutManager: LinearLayoutManager = getVerticalLinearLayoutManager() ?: return
+        val linearLayoutManager = getVerticalLinearLayoutManager() ?: return
         if (linearLayoutManager is GridLayoutManager) {
             position *= linearLayoutManager.spanCount
         }
@@ -308,7 +292,9 @@ fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) 
             val layoutManager = layoutManager
             require(layoutManager is LinearLayoutManager)
             val firstViewHolder = findViewHolderForAdapterPosition(0)
-            callback(!layoutManager.isItemCompletelyVisible(firstViewHolder))
+            callback(
+                adapter?.itemCount != 0 && !layoutManager.isItemCompletelyVisible(firstViewHolder)
+            )
         }
     })
 }
@@ -350,8 +336,7 @@ private fun isContentScrolls(list: RecyclerView): Boolean {
     if (!layoutManager.isItemCompletelyVisible(firstViewHolder)) {
         return true
     }
-    val itemCount = layoutManager.itemCount
-    val lastViewHolder = list.findViewHolderForAdapterPosition(itemCount - 1)
+    val lastViewHolder = list.findViewHolderForAdapterPosition(layoutManager.itemCount - 1)
     return !layoutManager.isItemCompletelyVisible(lastViewHolder)
 }
 

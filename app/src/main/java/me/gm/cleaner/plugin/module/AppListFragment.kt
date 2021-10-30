@@ -32,10 +32,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
-import me.gm.cleaner.plugin.util.addLiftOnScrollListener
-import me.gm.cleaner.plugin.util.buildStyledTitle
-import me.gm.cleaner.plugin.util.initFastScroller
-import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.util.*
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : BaseFragment() {
@@ -54,9 +51,8 @@ class AppListFragment : BaseFragment() {
         val binding = ApplistFragmentBinding.inflate(layoutInflater)
 
         val list = binding.list
-        val layoutManager = GridLayoutManager(requireContext(), 1)
         list.adapter = adapter
-        list.layoutManager = layoutManager
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.initFastScroller()
         list.fixEdgeEffect(false)
@@ -74,14 +70,14 @@ class AppListFragment : BaseFragment() {
                 // Trigger the flow and start listening for values.
                 // Note that this happens when lifecycle is STARTED and stops
                 // collecting when the lifecycle is STOPPED
-                viewModel.apps.collect { apps ->
+                viewModel.appsFlow.collect { apps ->
                     // New value received
                     when (apps) {
                         is SourceState.Loading -> binding.progress.progress = apps.progress
                         is SourceState.Done -> {
                             binding.progress.hide()
                             binding.listContainer.isRefreshing = false
-                            adapter.submitList(apps.list)
+                            adapter.submitListKeepPosition(apps.list, list)
                         }
                     }
                 }
