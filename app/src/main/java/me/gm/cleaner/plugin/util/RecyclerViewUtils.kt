@@ -27,6 +27,7 @@ import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import me.zhanghai.android.fastscroll.Predicate
+import kotlin.math.absoluteValue
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
@@ -93,8 +94,9 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
     override fun scrollTo(offset: Int) {
         // Stop any scroll in progress for RecyclerView.
         list.stopScroll()
-        if (getItemCount() < CUTOFF) {
-            list.scrollBy(0, offset - scrollOffset)
+        val delta = offset - scrollOffset
+        if (delta.absoluteValue <= getItemHeight() || getItemCount() < CUTOFF) {
+            list.scrollBy(0, delta)
             return
         }
         val scrolledOffset = offset - list.paddingTop

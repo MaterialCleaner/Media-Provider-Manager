@@ -33,7 +33,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
     private val activity = fragment.requireActivity() as DrawerActivity
     private lateinit var selectedHolder: ViewHolder
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ApplistItemBinding.inflate(LayoutInflater.from(parent.context)))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
