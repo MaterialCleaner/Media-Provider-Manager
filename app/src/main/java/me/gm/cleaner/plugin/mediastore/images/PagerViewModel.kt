@@ -33,14 +33,7 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
         set(value) {
             _currentPositionFlow.value = value
         }
-    var isAppBarUpToDate = true
-    private val _isPostponedFlow = MutableStateFlow(true)
-    val isPostponedLiveData = _isPostponedFlow.asLiveData()
-    var isPostponed: Boolean
-        get() = _isPostponedFlow.value
-        set(value) {
-            _isPostponedFlow.value = value
-        }
+    var isFirstEntrance = false
 
     fun updateAppBar(supportActionBar: ActionBar?, images: List<MediaStoreImage>) {
         supportActionBar?.apply {

@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -112,9 +111,6 @@ class ImagesFragment : MediaStoreFragment() {
      * that affect the flow.
      */
     private fun prepareTransitions() {
-        exitTransition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.grid_exit_transition)
-
         // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -135,9 +131,7 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         savedInstanceState ?: imagesViewModel.loadImages()
-        if (!pagerViewModel.isPostponed) {
-            scrollToPosition()
-        }
+        scrollToPosition()
     }
 
     /**

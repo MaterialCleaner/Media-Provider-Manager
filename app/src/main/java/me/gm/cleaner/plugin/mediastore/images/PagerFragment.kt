@@ -16,9 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.graphics.PointF
 import android.os.Bundle
-import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,21 +28,23 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ImageFragmentBinding
+import me.gm.cleaner.plugin.databinding.PagerFragmentBinding
 
 class PagerFragment : BaseFragment() {
     private val pagerViewModel: PagerViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ImageFragmentBinding.inflate(inflater)
+        val binding = PagerFragmentBinding.inflate(inflater)
         val size = imagesViewModel.images.size
 
-        val viewPager = binding.viewPager
+        viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = PagerItem.newInstance(position)
             override fun getItemCount() = size
@@ -57,23 +57,11 @@ class PagerFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 pagerViewModel.currentPosition = position
-                pagerViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
-                val subsamplingScaleImageView: SubsamplingScaleImageView =
+                val ssiv: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
-                subsamplingScaleImageView.setOnClickListener {
-                    toggleAppBar(!supportActionBar!!.isShowing)
-                }
-                subsamplingScaleImageView.setOnStateChangedListener(object :
-                    SubsamplingScaleImageView.OnStateChangedListener {
-                    override fun onScaleChanged(newScale: Float, origin: Int) {
-                        appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
-                    }
-
-                    override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
-                    }
-                })
-                appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
+                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+                // TODO: use flow
+                pagerViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
             }
         })
 
@@ -84,18 +72,11 @@ class PagerFragment : BaseFragment() {
     }
 
     private fun prepareSharedElementTransition() {
-        sharedElementEnterTransition = TransitionInflater.from(requireContext())
-            .inflateTransition(R.transition.image_shared_element_transition).apply {
-                doOnEnd {
-                    val currentDestination =
-                        findNavController().currentDestination ?: return@doOnEnd
-                    pagerViewModel.isPostponed = when (currentDestination.id) {
-                        R.id.images_fragment -> true
-                        R.id.image_fragment -> false
-                        else -> throw IllegalStateException()
-                    }
-                }
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            doOnEnd {
+                viewPager.visibility = View.VISIBLE
             }
+        }
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(object : SharedElementCallback() {
@@ -121,9 +102,9 @@ class PagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        pagerViewModel.isAppBarUpToDate = false
+        pagerViewModel.isFirstEntrance = true
         val currentDestination = findNavController().currentDestination ?: return
-        if (currentDestination.id != R.id.image_fragment) {
+        if (currentDestination.id != R.id.pager_fragment) {
             supportActionBar?.subtitle = null
             toggleAppBar(true)
         }

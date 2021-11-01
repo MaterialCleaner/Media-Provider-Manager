@@ -72,12 +72,11 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .into(binding.image)
         binding.image.transitionName = uri.toString()
         binding.root.setOnClickListener {
-            pagerViewModel.isAppBarUpToDate = false
+            pagerViewModel.isFirstEntrance = true
             pagerViewModel.currentPosition = holder.bindingAdapterPosition
             pagerViewModel.updateAppBar(fragment.supportActionBar, imagesViewModel.images)
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
-            fragment.findNavController()
-                .navigate(R.id.action_images_to_image, null, null, extras)
+            fragment.findNavController().navigate(R.id.action_images_to_pager, null, null, extras)
         }
     }
 

@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.graphics.PointF
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,7 +29,7 @@ import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ImageItemBinding
+import me.gm.cleaner.plugin.databinding.PagerItemBinding
 import java.io.FileNotFoundException
 
 /**
@@ -42,7 +43,7 @@ class PagerItem : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ImageItemBinding.inflate(inflater)
+        val binding = PagerItemBinding.inflate(inflater)
 
         val uri = imagesViewModel.images[position].contentUri
         val imageView = binding.imageView
@@ -64,46 +65,47 @@ class PagerItem : BaseFragment() {
                 }
             }
         }
-        parentFragment?.startPostponedEnterTransition()
-        val subsamplingScaleImageView = binding.subsamplingScaleImageView
-        subsamplingScaleImageView.setOnImageEventListener(object :
+        val ssiv = binding.subsamplingScaleImageView
+        ssiv.setImageSource(ImageSource.uri(uri))
+        ssiv.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
-            private fun consumeAppBar() {
-                if (!pagerViewModel.isAppBarUpToDate) {
-                    pagerViewModel.isAppBarUpToDate = true
-                    val isOverlay = pagerViewModel.isOverlay(subsamplingScaleImageView)
+            override fun onImageLoaded() {
+                imageView.visibility = View.INVISIBLE
+                if (pagerViewModel.isFirstEntrance) {
+                    pagerViewModel.isFirstEntrance = false
+                    val isOverlay = pagerViewModel.isOverlay(ssiv)
                     appBarLayout.isLifted = isOverlay
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
             }
 
-            override fun onReady() {
-                consumeAppBar()
-            }
-
             override fun onImageLoadError(e: Exception?) {
-                pagerViewModel.isAppBarUpToDate = true
+                pagerViewModel.isFirstEntrance = false
+                imageView.visibility = View.VISIBLE
                 Glide.with(this@PagerItem)
                     .load(uri)
-                    .into(binding.imageView)
+                    .into(imageView)
             }
 
-            override fun onImageLoaded() {}
+            override fun onReady() {}
             override fun onPreviewLoadError(e: Exception?) {}
             override fun onTileLoadError(e: Exception?) {}
             override fun onPreviewReleased() {}
         })
-        if (pagerViewModel.isPostponed) {
-            pagerViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
-                if (!it) {
-                    imageView.doOnPreDraw {
-                        subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
-                    }
-                }
-            }
-        } else {
-            subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
+        ssiv.setOnClickListener {
+            toggleAppBar(!supportActionBar!!.isShowing)
         }
+        ssiv.setOnStateChangedListener(object :
+            SubsamplingScaleImageView.OnStateChangedListener {
+            override fun onScaleChanged(newScale: Float, origin: Int) {
+                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+            }
+
+            override fun onCenterChanged(newCenter: PointF?, origin: Int) {
+                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+            }
+        })
+        parentFragment?.startPostponedEnterTransition()
         return binding.root
     }
 

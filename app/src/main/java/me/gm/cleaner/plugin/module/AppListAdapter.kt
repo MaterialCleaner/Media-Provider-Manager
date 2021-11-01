@@ -39,7 +39,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val pi = getItem(position)
-        GlideApp.with(activity)
+        GlideApp.with(fragment)
             .load(pi)
             .into(binding.icon)
         binding.title.text = pi.label

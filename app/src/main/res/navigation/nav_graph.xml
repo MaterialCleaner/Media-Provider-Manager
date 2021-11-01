@@ -68,11 +68,11 @@
         android:name="me.gm.cleaner.plugin.mediastore.images.ImagesFragment"
         android:label="@string/images">
         <action
-            android:id="@+id/action_images_to_image"
-            app:destination="@id/image_fragment" />
+            android:id="@+id/action_images_to_pager"
+            app:destination="@id/pager_fragment" />
     </fragment>
     <fragment
-        android:id="@+id/image_fragment"
+        android:id="@+id/pager_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.images.PagerFragment" />
 
     <fragment
