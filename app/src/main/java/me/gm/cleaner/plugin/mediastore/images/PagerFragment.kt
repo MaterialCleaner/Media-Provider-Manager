@@ -24,7 +24,6 @@ import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -60,8 +59,6 @@ class PagerFragment : BaseFragment() {
                 val ssiv: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
                 appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
-                // TODO: use flow
-                pagerViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
             }
         })
 
@@ -102,11 +99,7 @@ class PagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        pagerViewModel.isFirstEntrance = true
-        val currentDestination = findNavController().currentDestination ?: return
-        if (currentDestination.id != R.id.pager_fragment) {
-            supportActionBar?.subtitle = null
-            toggleAppBar(true)
-        }
+        supportActionBar?.subtitle = null
+        toggleAppBar(true)
     }
 }

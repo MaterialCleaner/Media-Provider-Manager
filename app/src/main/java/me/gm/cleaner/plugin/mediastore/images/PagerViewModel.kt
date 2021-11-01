@@ -19,27 +19,47 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.app.Application
 import android.graphics.PointF
 import android.util.Size
-import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
+import androidx.navigation.NavController
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import me.gm.cleaner.plugin.R
 
 class PagerViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentPositionFlow = MutableStateFlow(0)
-    val currentPositionFlow = _currentPositionFlow.asLiveData()
     var currentPosition
         get() = _currentPositionFlow.value
         set(value) {
             _currentPositionFlow.value = value
         }
     var isFirstEntrance = false
-
-    fun updateAppBar(supportActionBar: ActionBar?, images: List<MediaStoreImage>) {
-        supportActionBar?.apply {
-            title = images[currentPosition].displayName
-            subtitle = "${currentPosition + 1} / ${images.size}"
+    private val _currentDestinationFlow = MutableStateFlow(R.id.images_fragment)
+    private val destinationChangedListener =
+        NavController.OnDestinationChangedListener { controller, destination, _ ->
+            when {
+                _currentDestinationFlow.value == R.id.images_fragment &&
+                        destination.id == R.id.pager_fragment -> isFirstEntrance = true
+                _currentDestinationFlow.value !in setOf(
+                    R.id.images_fragment, R.id.pager_fragment
+                ) && destination.id == R.id.pager_fragment
+                -> {
+                    currentPosition = 0
+                    controller.navigate(R.id.images_fragment)
+                }
+            }
+            _currentDestinationFlow.value = destination.id
         }
+
+    fun setDestinationChangedListener(navController: NavController) {
+        navController.removeOnDestinationChangedListener(destinationChangedListener)
+        navController.addOnDestinationChangedListener(destinationChangedListener)
+    }
+
+    val currentAppBarTitleSourceFlow = combine(
+        _currentPositionFlow, _currentDestinationFlow
+    ) { currentPosition, currentDestination ->
+        currentPosition to currentDestination
     }
 
     val size by lazy {
@@ -53,7 +73,7 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
         val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
         res.getDimensionPixelSize(resourceId) + actionBarSize
     }
-    private val vTarget by lazy { PointF() }
+    private val vTarget = PointF()
     fun isOverlay(subsamplingScaleImageView: SubsamplingScaleImageView): Boolean {
         if (!subsamplingScaleImageView.isReady) {
             return false

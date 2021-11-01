@@ -25,8 +25,10 @@ import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
@@ -93,6 +95,22 @@ class ImagesFragment : MediaStoreFragment() {
                 )
             }
         }
+        pagerViewModel.currentAppBarTitleSourceFlow.asLiveData().observe(viewLifecycleOwner) {
+            val currentPosition = it.first
+            val currentDestination = it.second
+            when (currentDestination) {
+                R.id.images_fragment -> {
+                    supportActionBar?.subtitle = null
+                    toggleAppBar(true)
+                }
+                R.id.pager_fragment -> {
+                    supportActionBar?.apply {
+                        title = imagesViewModel.images[currentPosition].displayName
+                        subtitle = "${currentPosition + 1} / ${imagesViewModel.images.size}"
+                    }
+                }
+            }
+        }
 
         prepareTransitions()
         postponeEnterTransition()
@@ -130,7 +148,10 @@ class ImagesFragment : MediaStoreFragment() {
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
-        savedInstanceState ?: imagesViewModel.loadImages()
+        if (savedInstanceState == null) {
+            imagesViewModel.loadImages()
+            pagerViewModel.setDestinationChangedListener(findNavController())
+        }
         scrollToPosition()
     }
 
