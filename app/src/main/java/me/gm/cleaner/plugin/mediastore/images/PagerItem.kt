@@ -16,16 +16,12 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.app.Activity
-import android.app.RecoverableSecurityException
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -38,8 +34,8 @@ import java.io.FileNotFoundException
 /**
  * A fragment for displaying an image.
  */
-class ImageItem : BaseFragment() {
-    private val imageViewModel: ImageViewModel by activityViewModels()
+class PagerItem : BaseFragment() {
+    private val pagerViewModel: PagerViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
     private val position by lazy { requireArguments().getInt(KEY_IMAGE_URI) }
 
@@ -55,19 +51,15 @@ class ImageItem : BaseFragment() {
         imageView.transitionName = uri.toString()
         try {
             imageView.setImageBitmap(
-                requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)
+                requireContext().contentResolver.loadThumbnail(uri, pagerViewModel.size, null)
             )
-        } catch (securityException: Throwable) {
-            Toast.makeText(requireContext(), securityException.message, Toast.LENGTH_SHORT).show()
+        } catch (e: Throwable) {
+            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             // https://developer.android.com/training/data-storage/shared/media#update-other-apps-files
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 try {
-                    requireContext().contentResolver.openFileDescriptor(uri, "w")
-                } catch (securityException: SecurityException) {
-                    if (securityException is RecoverableSecurityException) {
-                        val intentSender = securityException.userAction.actionIntent.intentSender
-                        startIntentSenderForResult(intentSender, REQUEST_CODE, null, 0, 0, 0, null)
-                    }
+                    imagesViewModel.deleteImage(imagesViewModel.images[position])
+                    findNavController().navigateUp()
                 } catch (e: FileNotFoundException) {
                 }
             }
@@ -77,9 +69,9 @@ class ImageItem : BaseFragment() {
         subsamplingScaleImageView.setOnImageEventListener(object :
             SubsamplingScaleImageView.OnImageEventListener {
             private fun consumeAppBar() {
-                if (!imageViewModel.isAppBarUpToDate) {
-                    imageViewModel.isAppBarUpToDate = true
-                    val isOverlay = imageViewModel.isOverlay(subsamplingScaleImageView)
+                if (!pagerViewModel.isAppBarUpToDate) {
+                    pagerViewModel.isAppBarUpToDate = true
+                    val isOverlay = pagerViewModel.isOverlay(subsamplingScaleImageView)
                     appBarLayout.isLifted = isOverlay
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
@@ -90,8 +82,8 @@ class ImageItem : BaseFragment() {
             }
 
             override fun onImageLoadError(e: Exception?) {
-                imageViewModel.isAppBarUpToDate = true
-                Glide.with(this@ImageItem)
+                pagerViewModel.isAppBarUpToDate = true
+                Glide.with(this@PagerItem)
                     .load(uri)
                     .into(binding.imageView)
             }
@@ -101,8 +93,8 @@ class ImageItem : BaseFragment() {
             override fun onTileLoadError(e: Exception?) {}
             override fun onPreviewReleased() {}
         })
-        if (imageViewModel.isPostponed) {
-            imageViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
+        if (pagerViewModel.isPostponed) {
+            pagerViewModel.isPostponedLiveData.observe(viewLifecycleOwner) {
                 if (!it) {
                     imageView.doOnPreDraw {
                         subsamplingScaleImageView.setImageSource(ImageSource.uri(uri))
@@ -115,37 +107,29 @@ class ImageItem : BaseFragment() {
         return binding.root
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (REQUEST_CODE == requestCode && resultCode == Activity.RESULT_OK) {
-            findNavController().navigateUp()
-        }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
+        outState.putCharSequence(SAVED_TITLE, supportActionBar?.title)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (savedInstanceState != null) {
-            appBarLayout.post {
-                imageViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
-            }
+        savedInstanceState?.run {
+            supportActionBar?.title = getCharSequence(SAVED_TITLE)
         }
     }
 
     companion object {
-        private const val REQUEST_CODE = 0
+        private const val SAVED_TITLE = "android:title"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
 
-        fun newInstance(position: Int): ImageItem {
+        fun newInstance(position: Int): PagerItem {
             val argument = Bundle(1).apply {
                 putInt(KEY_IMAGE_URI, position)
             }
-            return ImageItem().apply { arguments = argument }
+            return PagerItem().apply { arguments = argument }
         }
     }
 }

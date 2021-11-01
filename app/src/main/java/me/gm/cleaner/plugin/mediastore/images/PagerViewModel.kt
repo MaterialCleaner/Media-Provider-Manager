@@ -25,8 +25,14 @@ import androidx.lifecycle.asLiveData
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ImageViewModel(application: Application) : AndroidViewModel(application) {
-    var currentPosition = 0
+class PagerViewModel(application: Application) : AndroidViewModel(application) {
+    private val _currentPositionFlow = MutableStateFlow(0)
+    val currentPositionFlow = _currentPositionFlow.asLiveData()
+    var currentPosition
+        get() = _currentPositionFlow.value
+        set(value) {
+            _currentPositionFlow.value = value
+        }
     var isAppBarUpToDate = true
     private val _isPostponedFlow = MutableStateFlow(true)
     val isPostponedLiveData = _isPostponedFlow.asLiveData()

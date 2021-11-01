@@ -73,7 +73,7 @@
     </fragment>
     <fragment
         android:id="@+id/image_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.images.ImageFragment" />
+        android:name="me.gm.cleaner.plugin.mediastore.images.PagerFragment" />
 
     <fragment
         android:id="@+id/video_fragment"

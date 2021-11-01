@@ -41,7 +41,7 @@ import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
-    private val imageViewModel: ImageViewModel by activityViewModels()
+    private val pagerViewModel: PagerViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
     private lateinit var list: RecyclerView
 
@@ -122,7 +122,7 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 // Locate the ViewHolder for the clicked position.
                 val selectedViewHolder =
-                    list.findViewHolderForAdapterPosition(imageViewModel.currentPosition) ?: return
+                    list.findViewHolderForAdapterPosition(pagerViewModel.currentPosition) ?: return
 
                 // Map the first shared element name to the child ImageView.
                 sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image)
@@ -135,7 +135,7 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         savedInstanceState ?: imagesViewModel.loadImages()
-        if (!imageViewModel.isPostponed) {
+        if (!pagerViewModel.isPostponed) {
             scrollToPosition()
         }
     }
@@ -153,13 +153,13 @@ class ImagesFragment : MediaStoreFragment() {
                 list.removeOnLayoutChangeListener(this)
                 val layoutManager = list.layoutManager ?: return
                 val viewAtPosition =
-                    layoutManager.findViewByPosition(imageViewModel.currentPosition)
+                    layoutManager.findViewByPosition(pagerViewModel.currentPosition)
                 // Scroll to position if the view for the current position is null (not currently part of
                 // layout manager children), or it's not completely visible.
                 if (viewAtPosition == null ||
                     layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
                 ) {
-                    list.post { layoutManager.scrollToPosition(imageViewModel.currentPosition) }
+                    list.post { layoutManager.scrollToPosition(pagerViewModel.currentPosition) }
                 }
             }
         })

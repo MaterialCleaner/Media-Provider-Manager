@@ -34,7 +34,7 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
-    private val imageViewModel: ImageViewModel by fragment.activityViewModels()
+    private val pagerViewModel: PagerViewModel by fragment.activityViewModels()
     private val imagesViewModel: ImagesViewModel by fragment.activityViewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -51,7 +51,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    if (imageViewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -61,7 +61,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
-                    if (imageViewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -72,9 +72,9 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .into(binding.image)
         binding.image.transitionName = uri.toString()
         binding.root.setOnClickListener {
-            imageViewModel.isAppBarUpToDate = false
-            imageViewModel.currentPosition = holder.bindingAdapterPosition
-            imageViewModel.updateAppBar(fragment.supportActionBar, imagesViewModel.images)
+            pagerViewModel.isAppBarUpToDate = false
+            pagerViewModel.currentPosition = holder.bindingAdapterPosition
+            pagerViewModel.updateAppBar(fragment.supportActionBar, imagesViewModel.images)
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
             fragment.findNavController()
                 .navigate(R.id.action_images_to_image, null, null, extras)

@@ -34,8 +34,8 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImageFragmentBinding
 
-class ImageFragment : BaseFragment() {
-    private val imageViewModel: ImageViewModel by activityViewModels()
+class PagerFragment : BaseFragment() {
+    private val pagerViewModel: PagerViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -46,18 +46,18 @@ class ImageFragment : BaseFragment() {
 
         val viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun createFragment(position: Int) = ImageItem.newInstance(position)
+            override fun createFragment(position: Int) = PagerItem.newInstance(position)
             override fun getItemCount() = size
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(imageViewModel.currentPosition, false)
+        viewPager.setCurrentItem(pagerViewModel.currentPosition, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
-                imageViewModel.currentPosition = position
-                imageViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
+                pagerViewModel.currentPosition = position
+                pagerViewModel.updateAppBar(supportActionBar, imagesViewModel.images)
                 val subsamplingScaleImageView: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
                 subsamplingScaleImageView.setOnClickListener {
@@ -66,14 +66,14 @@ class ImageFragment : BaseFragment() {
                 subsamplingScaleImageView.setOnStateChangedListener(object :
                     SubsamplingScaleImageView.OnStateChangedListener {
                     override fun onScaleChanged(newScale: Float, origin: Int) {
-                        appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
+                        appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
                     }
 
                     override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                        appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
+                        appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
                     }
                 })
-                appBarLayout.isLifted = imageViewModel.isOverlay(subsamplingScaleImageView)
+                appBarLayout.isLifted = pagerViewModel.isOverlay(subsamplingScaleImageView)
             }
         })
 
@@ -89,7 +89,7 @@ class ImageFragment : BaseFragment() {
                 doOnEnd {
                     val currentDestination =
                         findNavController().currentDestination ?: return@doOnEnd
-                    imageViewModel.isPostponed = when (currentDestination.id) {
+                    pagerViewModel.isPostponed = when (currentDestination.id) {
                         R.id.images_fragment -> true
                         R.id.image_fragment -> false
                         else -> throw IllegalStateException()
@@ -108,7 +108,7 @@ class ImageFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    childFragmentManager.findFragmentByTag("f${imageViewModel.currentPosition}")
+                    childFragmentManager.findFragmentByTag("f${pagerViewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
                 // Map the first shared element name to the child ImageView.
@@ -121,7 +121,7 @@ class ImageFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        imageViewModel.isAppBarUpToDate = false
+        pagerViewModel.isAppBarUpToDate = false
         val currentDestination = findNavController().currentDestination ?: return
         if (currentDestination.id != R.id.image_fragment) {
             supportActionBar?.subtitle = null
