@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.Material3.ActionBar.Title" />
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
     <TextView
         android:id="@+id/status"

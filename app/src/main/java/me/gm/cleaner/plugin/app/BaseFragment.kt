@@ -121,7 +121,7 @@ abstract class BaseFragment : Fragment() {
             onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
         } else if (permanentlyDenied.isNotEmpty()) {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", requireActivity().packageName, null)
+                data = Uri.fromParts("package", requireContext().packageName, null)
             }
             startActivity(intent)
         }

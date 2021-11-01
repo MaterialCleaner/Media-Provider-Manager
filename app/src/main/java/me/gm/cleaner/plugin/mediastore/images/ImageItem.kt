@@ -53,7 +53,6 @@ class ImageItem : BaseFragment() {
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         imageView.transitionName = uri.toString()
-        imagesViewModel.deleteImage(imagesViewModel.images[position])
         try {
             imageView.setImageBitmap(
                 requireContext().contentResolver.loadThumbnail(uri, imageViewModel.size, null)

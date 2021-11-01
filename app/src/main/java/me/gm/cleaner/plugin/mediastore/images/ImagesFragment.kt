@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
@@ -81,10 +83,28 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         }
+        imagesViewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
+            intentSender?.let {
+                // On Android 10+, if the app doesn't have permission to modify
+                // or delete an item, it returns an `IntentSender` that we can
+                // use here to prompt the user to grant permission to delete (or modify)
+                // the image.
+                startIntentSenderForResult(
+                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
+                )
+            }
+        }
 
         prepareTransitions()
         postponeEnterTransition()
         return binding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
+            imagesViewModel.deletePendingImage()
+        }
     }
 
     /**
@@ -143,5 +163,12 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         })
+    }
+
+    companion object {
+        /**
+         * Code used with [IntentSender] to request user permission to delete an image with scoped storage.
+         */
+        private const val DELETE_PERMISSION_REQUEST = 0x1033
     }
 }

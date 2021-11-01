@@ -133,7 +133,6 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
              * in the `selection`.
              */
             val selectionArgs = arrayOf(
-                // Release day of the G1. :)
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
