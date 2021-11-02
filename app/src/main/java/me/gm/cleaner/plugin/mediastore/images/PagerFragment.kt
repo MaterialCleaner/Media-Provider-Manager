@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.FitsScaleMaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.PagerFragmentBinding
@@ -69,7 +70,8 @@ class PagerFragment : BaseFragment() {
     }
 
     private fun prepareSharedElementTransition() {
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
+        sharedElementEnterTransition = FitsScaleMaterialContainerTransform().apply {
+            scrimColor = Color.TRANSPARENT
             doOnEnd {
                 viewPager.visibility = View.VISIBLE
             }

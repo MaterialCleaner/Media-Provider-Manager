@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -51,6 +52,7 @@ class PagerItem : BaseFragment() {
         // value of the image res.
         imageView.transitionName = uri.toString()
         try {
+            // Setting thumbnail on an invisible image view to figure out the image's size for a better transition.
             imageView.setImageBitmap(
                 requireContext().contentResolver.loadThumbnail(uri, pagerViewModel.size, null)
             )
@@ -67,16 +69,28 @@ class PagerItem : BaseFragment() {
         }
         val ssiv = binding.subsamplingScaleImageView
         ssiv.setImageSource(ImageSource.uri(uri))
-        ssiv.setOnImageEventListener(object :
-            SubsamplingScaleImageView.OnImageEventListener {
+        ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
-                imageView.visibility = View.INVISIBLE
                 if (pagerViewModel.isFirstEntrance) {
                     pagerViewModel.isFirstEntrance = false
                     val isOverlay = pagerViewModel.isOverlay(ssiv)
                     appBarLayout.isLifted = isOverlay
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
+                imageView.visibility = View.INVISIBLE
+                // Change the registered shared element for a better exit transition.
+                // Note that this is not the perfect solution but much better than don't.
+                imageView.transitionName = null
+                ssiv.transitionName = uri.toString()
+                parentFragment?.setEnterSharedElementCallback(object : SharedElementCallback() {
+                    override fun onMapSharedElements(
+                        names: List<String>, sharedElements: MutableMap<String, View>
+                    ) {
+                        if (names.isNotEmpty()) {
+                            sharedElements[names[0]] = ssiv
+                        }
+                    }
+                })
             }
 
             override fun onImageLoadError(e: Exception?) {
@@ -95,8 +109,7 @@ class PagerItem : BaseFragment() {
         ssiv.setOnClickListener {
             toggleAppBar(!supportActionBar!!.isShowing)
         }
-        ssiv.setOnStateChangedListener(object :
-            SubsamplingScaleImageView.OnStateChangedListener {
+        ssiv.setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
             override fun onScaleChanged(newScale: Float, origin: Int) {
                 appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
             }

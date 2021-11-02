@@ -78,7 +78,7 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
         if (!subsamplingScaleImageView.isReady) {
             return false
         }
-        subsamplingScaleImageView.sourceToViewCoord(0f, 0f, vTarget)
+        subsamplingScaleImageView.sourceToViewCoord(0F, 0F, vTarget)
         return vTarget.y - top < 0
     }
 }
