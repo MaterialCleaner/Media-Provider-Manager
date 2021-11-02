@@ -145,18 +145,20 @@ class ImagesFragment : MediaStoreFragment() {
      */
     private fun scrollToPosition(position: Int) {
         list.doOnPreDraw {
-            val layoutManager = list.layoutManager ?: return@doOnPreDraw
+            val layoutManager = list.layoutManager as? GridLayoutManager ?: return@doOnPreDraw
             val viewAtPosition = layoutManager.findViewByPosition(position)
             // Scroll to position if the view for the current position is null (not currently part of
             // layout manager children), or it's not completely visible.
             if (viewAtPosition == null ||
                 layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
             ) {
-                layoutManager.scrollToPosition(position)
+                if (position >= layoutManager.findLastCompletelyVisibleItemPosition()) {
+                    layoutManager.scrollToPosition(position)
+                } else {
+                    layoutManager.scrollToPositionWithOffset(position, list.paddingTop)
+                }
             }
-            list.doOnPreDraw {
-                startPostponedEnterTransition()
-            }
+            startPostponedEnterTransition()
         }
     }
 
