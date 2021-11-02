@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
@@ -25,17 +24,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
     private val pagerViewModel: PagerViewModel by fragment.activityViewModels()
-    private val imagesViewModel: ImagesViewModel by fragment.activityViewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -46,28 +40,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(binding.image)
             .load(uri)
-            .listener(object : RequestListener<Drawable?> {
-                override fun onLoadFailed(
-                    e: GlideException?, model: Any?, target: Target<Drawable?>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
-                        fragment.startPostponedEnterTransition()
-                    }
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?, model: Any?, target: Target<Drawable?>?,
-                    dataSource: DataSource?, isFirstResource: Boolean
-                ): Boolean {
-                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
-                        fragment.startPostponedEnterTransition()
-                    }
-                    return false
-                }
-            })
-            .thumbnail(0.33F)
+            .thumbnail((1 / 3).toFloat())
             .centerCrop()
             .into(binding.image)
         binding.image.transitionName = uri.toString()

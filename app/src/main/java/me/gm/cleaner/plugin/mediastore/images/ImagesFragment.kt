@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -143,23 +144,20 @@ class ImagesFragment : MediaStoreFragment() {
      * navigating back from the grid.
      */
     private fun scrollToPosition(position: Int) {
-        list.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-            override fun onLayoutChange(
-                v: View, left: Int, top: Int, right: Int, bottom: Int,
-                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
+        list.doOnPreDraw {
+            val layoutManager = list.layoutManager ?: return@doOnPreDraw
+            val viewAtPosition = layoutManager.findViewByPosition(position)
+            // Scroll to position if the view for the current position is null (not currently part of
+            // layout manager children), or it's not completely visible.
+            if (viewAtPosition == null ||
+                layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
             ) {
-                list.removeOnLayoutChangeListener(this)
-                val layoutManager = list.layoutManager ?: return
-                val viewAtPosition = layoutManager.findViewByPosition(position)
-                // Scroll to position if the view for the current position is null (not currently part of
-                // layout manager children), or it's not completely visible.
-                if (viewAtPosition == null ||
-                    layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
-                ) {
-                    list.post { layoutManager.scrollToPosition(position) }
-                }
+                layoutManager.scrollToPosition(position)
             }
-        })
+            list.doOnPreDraw {
+                startPostponedEnterTransition()
+            }
+        }
     }
 
     companion object {
