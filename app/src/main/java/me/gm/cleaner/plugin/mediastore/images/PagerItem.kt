@@ -27,7 +27,6 @@ import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.PagerItemBinding
@@ -68,7 +67,6 @@ class PagerItem : BaseFragment() {
             }
         }
         val ssiv = binding.subsamplingScaleImageView
-        ssiv.setImageSource(ImageSource.uri(uri))
         ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
                 if (pagerViewModel.isFirstEntrance) {
@@ -118,6 +116,9 @@ class PagerItem : BaseFragment() {
                 appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
             }
         })
+        if (savedInstanceState == null) {
+            ssiv.setImageUri(uri)
+        }
         parentFragment?.startPostponedEnterTransition()
         return binding.root
     }
@@ -126,17 +127,22 @@ class PagerItem : BaseFragment() {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
         outState.putCharSequence(SAVED_TITLE, supportActionBar?.title)
+        outState.putCharSequence(SAVED_SUBTITLE, supportActionBar?.subtitle)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         savedInstanceState?.run {
-            supportActionBar?.title = getCharSequence(SAVED_TITLE)
+            supportActionBar?.apply {
+                title = getCharSequence(SAVED_TITLE)
+                subtitle = getCharSequence(SAVED_SUBTITLE)
+            }
         }
     }
 
     companion object {
         private const val SAVED_TITLE = "android:title"
+        private const val SAVED_SUBTITLE = "android:subtitle"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
 

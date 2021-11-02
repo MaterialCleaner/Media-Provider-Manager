@@ -25,6 +25,9 @@ import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
+import androidx.navigation.NavDestination
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -62,10 +65,25 @@ class PagerFragment : BaseFragment() {
                 appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
             }
         })
+        pagerViewModel.currentAppBarTitleSourceFlow.asLiveData().observe(viewLifecycleOwner) {
+            val currentPosition = it.first
+            val currentDestination = it.second ?: return@observe
+            when (currentDestination.id) {
+                R.id.images_fragment -> toDefaultAppBarState(currentDestination)
+                R.id.pager_fragment -> supportActionBar?.apply {
+                    title = imagesViewModel.images[currentPosition].displayName
+                    subtitle = "${currentPosition + 1} / ${imagesViewModel.images.size}"
+                }
+            }
+        }
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        savedInstanceState ?: postponeEnterTransition()
+        if (savedInstanceState == null) {
+            postponeEnterTransition()
+        } else {
+            viewPager.visibility = View.VISIBLE
+        }
         return binding.root
     }
 
@@ -101,7 +119,20 @@ class PagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        supportActionBar?.subtitle = null
+        val currentDestination = findNavController().currentDestination ?: return
+        // Restore AppBar state.
+        if (currentDestination.id == R.id.pager_fragment) {
+            pagerViewModel.isFirstEntrance = true
+        } else {
+            toDefaultAppBarState(currentDestination)
+        }
+    }
+
+    private fun toDefaultAppBarState(currentDestination: NavDestination) {
+        supportActionBar?.apply {
+            title = currentDestination.label
+            subtitle = null
+        }
         toggleAppBar(true)
     }
 }

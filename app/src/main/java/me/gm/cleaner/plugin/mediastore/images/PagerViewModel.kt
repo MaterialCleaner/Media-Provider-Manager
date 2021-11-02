@@ -21,6 +21,7 @@ import android.graphics.PointF
 import android.util.Size
 import androidx.lifecycle.AndroidViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -28,28 +29,27 @@ import me.gm.cleaner.plugin.R
 
 class PagerViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentPositionFlow = MutableStateFlow(0)
-    var currentPosition
+    var currentPosition: Int
         get() = _currentPositionFlow.value
         set(value) {
             _currentPositionFlow.value = value
         }
-    var isFirstEntrance = false
-    private val _currentDestinationFlow = MutableStateFlow(R.id.images_fragment)
+    private val _currentDestinationFlow: MutableStateFlow<NavDestination?> = MutableStateFlow(null)
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { controller, destination, _ ->
             when {
-                _currentDestinationFlow.value == R.id.images_fragment &&
+                _currentDestinationFlow.value?.id == R.id.images_fragment &&
                         destination.id == R.id.pager_fragment -> isFirstEntrance = true
-                _currentDestinationFlow.value !in setOf(
+                _currentDestinationFlow.value?.id !in setOf(
                     R.id.images_fragment, R.id.pager_fragment
                 ) && destination.id == R.id.pager_fragment
                 -> {
-                    currentPosition = 0
                     controller.navigate(R.id.images_fragment)
                 }
             }
-            _currentDestinationFlow.value = destination.id
+            _currentDestinationFlow.value = destination
         }
+    var isFirstEntrance = false
 
     fun setDestinationChangedListener(navController: NavController) {
         navController.removeOnDestinationChangedListener(destinationChangedListener)
@@ -58,9 +58,7 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
 
     val currentAppBarTitleSourceFlow = combine(
         _currentPositionFlow, _currentDestinationFlow
-    ) { currentPosition, currentDestination ->
-        currentPosition to currentDestination
-    }
+    ) { currentPosition, currentDestination -> currentPosition to currentDestination }
 
     val size by lazy {
         val displayMetrics = getApplication<Application>().resources.displayMetrics

@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -95,22 +94,6 @@ class ImagesFragment : MediaStoreFragment() {
                 )
             }
         }
-        pagerViewModel.currentAppBarTitleSourceFlow.asLiveData().observe(viewLifecycleOwner) {
-            val currentPosition = it.first
-            val currentDestination = it.second
-            when (currentDestination) {
-                R.id.images_fragment -> {
-                    supportActionBar?.subtitle = null
-                    toggleAppBar(true)
-                }
-                R.id.pager_fragment -> {
-                    supportActionBar?.apply {
-                        title = imagesViewModel.images[currentPosition].displayName
-                        subtitle = "${currentPosition + 1} / ${imagesViewModel.images.size}"
-                    }
-                }
-            }
-        }
 
         prepareTransitions()
         postponeEnterTransition()
@@ -151,15 +134,15 @@ class ImagesFragment : MediaStoreFragment() {
         if (savedInstanceState == null) {
             imagesViewModel.loadImages()
             pagerViewModel.setDestinationChangedListener(findNavController())
+            scrollToPosition(pagerViewModel.currentPosition)
         }
-        scrollToPosition()
     }
 
     /**
      * Scrolls the recycler view to show the last viewed item in the grid. This is important when
      * navigating back from the grid.
      */
-    private fun scrollToPosition() {
+    private fun scrollToPosition(position: Int) {
         list.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
             override fun onLayoutChange(
                 v: View, left: Int, top: Int, right: Int, bottom: Int,
@@ -167,14 +150,13 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 list.removeOnLayoutChangeListener(this)
                 val layoutManager = list.layoutManager ?: return
-                val viewAtPosition =
-                    layoutManager.findViewByPosition(pagerViewModel.currentPosition)
+                val viewAtPosition = layoutManager.findViewByPosition(position)
                 // Scroll to position if the view for the current position is null (not currently part of
                 // layout manager children), or it's not completely visible.
                 if (viewAtPosition == null ||
                     layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
                 ) {
-                    list.post { layoutManager.scrollToPosition(pagerViewModel.currentPosition) }
+                    list.post { layoutManager.scrollToPosition(position) }
                 }
             }
         })
