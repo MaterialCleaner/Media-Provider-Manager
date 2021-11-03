@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package me.gm.cleaner.plugin.data
 
-import me.gm.cleaner.plugin.data.model.UnsplashPhoto
-import retrofit2.Call
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import me.gm.cleaner.plugin.data.unsplash.UnsplashService
+import javax.inject.Singleton
 
-/**
- * Modeling the unsplash.it API.
- */
-interface UnsplashService {
-    @get:GET("/list")
-    val feed: Call<List<UnsplashPhoto>>
+@InstallIn(SingletonComponent::class)
+@Module
+class NetworkModule {
 
-    companion object {
-        const val BASE_URL = "https://unsplash.it"
-
-        fun create(): UnsplashService = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(UnsplashService::class.java)
+    @Singleton
+    @Provides
+    fun provideUnsplashService(): UnsplashService {
+        return UnsplashService.create()
     }
 }

@@ -20,25 +20,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.data.UnsplashService
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 import me.gm.cleaner.plugin.util.LogUtils
 
+@AndroidEntryPoint
 class ExperimentFragment : BaseFragment() {
+    private val viewModel: ExperimentViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
 
-        val unsplashApi = UnsplashService.create()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            LogUtils.e(unsplashApi.feed.execute().body())
+        viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) { result ->
+            result.onSuccess {
+                LogUtils.e(it)
+            }
         }
+        viewModel.loadPhotos()
 
         return binding.root
     }

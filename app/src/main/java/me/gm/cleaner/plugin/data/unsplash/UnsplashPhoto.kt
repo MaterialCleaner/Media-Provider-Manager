@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.data.model
+package me.gm.cleaner.plugin.data.unsplash
 
 import com.google.gson.annotations.SerializedName
 

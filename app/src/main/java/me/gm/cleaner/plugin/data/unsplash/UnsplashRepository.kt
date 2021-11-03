@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.data.unsplash
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.drawer.DrawerActivity
+import javax.inject.Inject
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+class UnsplashRepository @Inject constructor(private val service: UnsplashService) {
+
+    fun fetchUnsplashPhotoList(): Result<List<UnsplashPhoto>> = runCatching {
+        service.feed.execute().body() ?: emptyList()
+    }
+}
