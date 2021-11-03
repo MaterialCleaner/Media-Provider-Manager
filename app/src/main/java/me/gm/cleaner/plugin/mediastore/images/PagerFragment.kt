@@ -35,6 +35,7 @@ import com.google.android.material.transition.platform.FitsScaleMaterialContaine
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.PagerFragmentBinding
+import me.gm.cleaner.plugin.util.mediumAnimTime
 
 class PagerFragment : BaseFragment() {
     private val pagerViewModel: PagerViewModel by activityViewModels()
@@ -90,6 +91,7 @@ class PagerFragment : BaseFragment() {
     private fun prepareSharedElementTransition() {
         sharedElementEnterTransition = FitsScaleMaterialContainerTransform().apply {
             scrimColor = Color.TRANSPARENT
+            duration = requireContext().mediumAnimTime
             doOnEnd {
                 viewPager.visibility = View.VISIBLE
             }

@@ -16,18 +16,43 @@
 
 package me.gm.cleaner.plugin.mediastore.downloads
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
 class DownloadsFragment : BaseFragment() {
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // TODO: reload list
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                requireActivity().registerReceiver(
+                    receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+                )
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                requireActivity().unregisterReceiver(receiver)
+            }
+        })
         return binding.root
     }
 }

@@ -52,9 +52,11 @@ class PagerItem : BaseFragment() {
         imageView.transitionName = uri.toString()
         try {
             // Setting thumbnail on an invisible image view to figure out the image's size for a better transition.
-            imageView.setImageBitmap(
-                requireContext().contentResolver.loadThumbnail(uri, pagerViewModel.size, null)
-            )
+            if (pagerViewModel.isFirstEntrance) {
+                imageView.setImageBitmap(
+                    requireContext().contentResolver.loadThumbnail(uri, pagerViewModel.size, null)
+                )
+            }
         } catch (e: Throwable) {
             Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             // https://developer.android.com/training/data-storage/shared/media#update-other-apps-files

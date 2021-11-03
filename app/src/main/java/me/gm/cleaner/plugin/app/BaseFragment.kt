@@ -51,6 +51,9 @@ abstract class BaseFragment : Fragment() {
         super.onCreate(savedInstanceState)
         requestMultiplePermissions =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+                // We should dispatch by ourselves rather than call dispatchRequestPermissions(),
+                // or we'll stick in infinite recursion because dispatchRequestPermissions()
+                // can't distinguish permanently denied permissions and never dispatches them.
                 val granted = result.filterValues { it }.keys
                 if (granted.isNotEmpty()) {
                     onRequestPermissionsSuccess(granted, savedInstanceState)

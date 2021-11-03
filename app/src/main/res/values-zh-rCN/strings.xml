@@ -50,8 +50,8 @@
     <string name="mime_type">MIME 类型</string>
 
     <!-- 媒体存储 -->
-    <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取存储外部存储空间权限</string>
-    <string name="rationale_permanentlyDenied">访问其它应用创建的媒体文件需要读取存储外部存储空间权限，请在应用信息中手动授予</string>
+    <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>
+    <string name="rationale_permanentlyDenied">访问其它应用创建的媒体文件需要读取外部存储空间权限，请在应用信息中手动授予</string>
 
     <!-- 关于 -->
     <string name="source_code">源代码</string>

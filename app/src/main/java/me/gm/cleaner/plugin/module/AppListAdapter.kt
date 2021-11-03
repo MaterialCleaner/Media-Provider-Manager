@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.module
 
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
+import androidx.core.view.forEach
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -26,7 +27,6 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.util.buildStyledTitle
-import me.gm.cleaner.plugin.util.setOnMenuItemClickListener
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
@@ -65,7 +65,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             if (pi.srCount == 0) {
                 menu.removeItem(R.id.menu_delete_all_rules)
             } else {
-                menu.setOnMenuItemClickListener(::onContextItemSelected)
+                menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
             }
         }
     }

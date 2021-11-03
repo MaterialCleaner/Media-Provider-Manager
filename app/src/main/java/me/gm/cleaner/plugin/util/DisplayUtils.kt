@@ -27,19 +27,12 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.TextAppearanceSpan
-import android.view.ContextMenu
-import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
-import androidx.core.view.forEach
 import kotlin.math.roundToInt
 
-fun Collection<*>.listFormat(delimiter: String) = ListFormatter.getInstance().format(this)
-
-fun ContextMenu.setOnMenuItemClickListener(menuItemClickListener: (MenuItem) -> Boolean) {
-    forEach { it.setOnMenuItemClickListener(menuItemClickListener) }
-}
+fun Collection<*>.listFormat() = ListFormatter.getInstance().format(this)
 
 fun Context.buildStyledTitle(text: CharSequence, color: Int = colorAccent) =
     SpannableStringBuilder(text).apply {

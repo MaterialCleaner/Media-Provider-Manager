@@ -40,16 +40,20 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
             when {
                 _currentDestinationFlow.value?.id == R.id.images_fragment &&
                         destination.id == R.id.pager_fragment -> isFirstEntrance = true
+                _currentDestinationFlow.value?.id == R.id.pager_fragment &&
+                        destination.id == R.id.images_fragment -> isFromPager = true
                 _currentDestinationFlow.value?.id !in setOf(
                     R.id.images_fragment, R.id.pager_fragment
                 ) && destination.id == R.id.pager_fragment
                 -> {
+                    isFromPager = false
                     controller.navigate(R.id.images_fragment)
                 }
             }
             _currentDestinationFlow.value = destination
         }
     var isFirstEntrance = false
+    var isFromPager = false
 
     fun setDestinationChangedListener(navController: NavController) {
         navController.removeOnDestinationChangedListener(destinationChangedListener)

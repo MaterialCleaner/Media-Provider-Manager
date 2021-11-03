@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -75,12 +76,7 @@ class ImagesFragment : MediaStoreFragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 imagesViewModel.imagesFlow.collect { images ->
-                    adapter.submitList(images) {
-                        if (images.isEmpty()) {
-                            // No image
-                            startPostponedEnterTransition()
-                        }
-                    }
+                    adapter.submitList(images)
                 }
             }
         }
@@ -97,7 +93,9 @@ class ImagesFragment : MediaStoreFragment() {
         }
 
         prepareTransitions()
-        postponeEnterTransition()
+        if (pagerViewModel.isFromPager) {
+            postponeEnterTransition()
+        }
         return binding.root
     }
 
@@ -134,8 +132,12 @@ class ImagesFragment : MediaStoreFragment() {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
             imagesViewModel.loadImages()
-            pagerViewModel.setDestinationChangedListener(findNavController())
-            scrollToPosition(pagerViewModel.currentPosition)
+            val navController = findNavController()
+            pagerViewModel.setDestinationChangedListener(navController)
+            if (pagerViewModel.isFromPager) {
+                pagerViewModel.isFromPager = false
+                scrollToPosition(pagerViewModel.currentPosition)
+            }
         }
     }
 
@@ -145,7 +147,7 @@ class ImagesFragment : MediaStoreFragment() {
      */
     private fun scrollToPosition(position: Int) {
         list.doOnPreDraw {
-            val layoutManager = list.layoutManager as? GridLayoutManager ?: return@doOnPreDraw
+            val layoutManager = list.layoutManager as? LinearLayoutManager ?: return@doOnPreDraw
             val viewAtPosition = layoutManager.findViewByPosition(position)
             // Scroll to position if the view for the current position is null (not currently part of
             // layout manager children), or it's not completely visible.
@@ -158,7 +160,6 @@ class ImagesFragment : MediaStoreFragment() {
                     layoutManager.scrollToPositionWithOffset(position, list.paddingTop)
                 }
             }
-            startPostponedEnterTransition()
         }
     }
 
