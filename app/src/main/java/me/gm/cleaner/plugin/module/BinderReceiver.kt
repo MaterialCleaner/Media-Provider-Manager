@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin
+package me.gm.cleaner.plugin.module
 
 import android.content.pm.PackageInfo
 import android.os.IBinder
@@ -22,6 +22,7 @@ import android.os.Process
 import android.os.RemoteException
 import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
+import me.gm.cleaner.plugin.IManagerService
 
 object BinderReceiver {
     private val _moduleVersionFlow = MutableStateFlow(-1)

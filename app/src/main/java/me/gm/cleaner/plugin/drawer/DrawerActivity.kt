@@ -28,12 +28,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.internal.NavigationMenuPresenter
 import com.google.android.material.internal.NavigationMenuView
 import com.google.android.material.navigation.NavigationView
-import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
+import me.gm.cleaner.plugin.module.BinderReceiver
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 

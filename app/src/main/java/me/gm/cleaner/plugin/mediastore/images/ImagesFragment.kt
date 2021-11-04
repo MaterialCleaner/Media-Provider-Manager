@@ -62,6 +62,15 @@ class ImagesFragment : MediaStoreFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+//        var tracker = SelectionTracker.Builder(
+//            "my-selection-id",
+//            recyclerView,
+//            StableIdKeyProvider(recyclerView),
+//            MyDetailsLookup(recyclerView),
+//            StorageStrategy.createLongStorage())
+//            .withOnItemActivatedListener(myItemActivatedListener)
+//            .build()
+//
 //        list.addOnItemTouchListener( object : RecyclerView.OnItemTouchListener {
 //            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
 //            }

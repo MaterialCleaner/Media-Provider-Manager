@@ -21,10 +21,7 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.RecoverableSecurityException
-import android.content.ContentProvider
-import android.content.ContentResolver
-import android.content.ContentUris
-import android.content.IntentSender
+import android.content.*
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
@@ -54,7 +51,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
 
     private lateinit var contentObserver: ContentObserver
 
-    private var pendingDeleteImage: MediaStoreImage? = null
+    private var pendingDeleteImage: Array<out MediaStoreImage>? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
     val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
@@ -83,10 +80,20 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun deleteImages(vararg images: MediaStoreImage) {
+        viewModelScope.launch {
+            performDeleteImages(*images)
+        }
+    }
+
     fun deletePendingImage() {
         pendingDeleteImage?.let { image ->
             pendingDeleteImage = null
-            deleteImage(image)
+            if (image.size == 1) {
+                deleteImage(image.single())
+            } else {
+                deleteImages(*image)
+            }
         }
     }
 
@@ -239,7 +246,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
-                    pendingDeleteImage = image
+                    pendingDeleteImage = arrayOf(image)
                     _permissionNeededForDelete.postValue(
                         recoverableSecurityException.userAction.actionIntent.intentSender
                     )
@@ -271,6 +278,91 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     override fun onCleared() {
         if (::contentObserver.isInitialized) {
             getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
+        }
+    }
+
+    /**
+     * This is the same as queryImages() except replace EXTERNAL_CONTENT_URI to INTERNAL_CONTENT_URI
+     */
+    private suspend fun queryInternalImages(): List<MediaStoreImage> {
+        val images = mutableListOf<MediaStoreImage>()
+
+        withContext(Dispatchers.IO) {
+            val projection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_ADDED
+            )
+            val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
+            val selectionArgs = arrayOf(
+                dateToTimestamp(day = 1, month = 1, year = 1970).toString()
+            )
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+            getApplication<Application>().contentResolver.query(
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder
+            )?.use { cursor ->
+
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val displayNameColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val dateModifiedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
+                    val displayName = cursor.getString(displayNameColumn)
+                    val dateModified =
+                        Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
+                    val contentUri = ContentUris.withAppendedId(
+                        MediaStore.Images.Media.INTERNAL_CONTENT_URI,
+                        id
+                    )
+
+                    val image = MediaStoreImage(id, displayName, dateModified, contentUri)
+                    images += image
+                }
+            }
+        }
+        return images
+    }
+
+    private suspend fun performDeleteImages(vararg images: MediaStoreImage) {
+        withContext(Dispatchers.IO) {
+            val operations = images.map {
+                ContentProviderOperation
+                    .newDelete(it.contentUri)
+                    .withSelection(
+                        "${MediaStore.Images.Media._ID} = ?",
+                        arrayOf(it.id.toString())
+                    )
+                    .build()
+            } as ArrayList
+            try {
+                getApplication<Application>().contentResolver.applyBatch(
+                    images.first().contentUri.authority!!,
+                    operations
+                )
+            } catch (securityException: SecurityException) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val recoverableSecurityException =
+                        securityException as? RecoverableSecurityException
+                            ?: throw securityException
+
+                    // Signal to the Activity that it needs to request permission and
+                    // try the delete again if it succeeds.
+                    pendingDeleteImage = images
+                    _permissionNeededForDelete.postValue(
+                        recoverableSecurityException.userAction.actionIntent.intentSender
+                    )
+                } else {
+                    throw securityException
+                }
+            }
         }
     }
 }

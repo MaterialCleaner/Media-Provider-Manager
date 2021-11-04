@@ -24,9 +24,9 @@ import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
-import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.module.BinderReceiver
 
 @HiltAndroidApp
 class App : Application() {

@@ -27,7 +27,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.BinderReceiver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences

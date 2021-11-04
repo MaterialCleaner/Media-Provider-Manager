@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.data.unsplash
 
 import com.google.gson.annotations.SerializedName
+import java.util.*
 
 /**
  * Data class that represents a photo from Unsplash.
@@ -30,4 +31,12 @@ data class UnsplashPhoto(
     @field:SerializedName("author") val author: String,
     @field:SerializedName("author_url") val authorUrl: String,
     @field:SerializedName("post_url") val postUrl: String,
-)
+) {
+
+    fun getPhotoUrl(requestWidth: Int) =
+        String.format(Locale.getDefault(), PHOTO_URL_BASE, requestWidth, id)
+
+    companion object {
+        private const val PHOTO_URL_BASE = "https://unsplash.it/%d?image=%d"
+    }
+}

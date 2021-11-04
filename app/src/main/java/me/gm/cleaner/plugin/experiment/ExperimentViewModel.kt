@@ -31,7 +31,7 @@ import javax.inject.Inject
 class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
     private val _unsplashPhotosFlow: MutableStateFlow<Result<List<UnsplashPhoto>>> =
-        MutableStateFlow(Result.success(emptyList()))
+        MutableStateFlow(Result.failure(IllegalStateException()))
     val unsplashPhotosFlow = _unsplashPhotosFlow.asLiveData()
 
     fun loadPhotos() {

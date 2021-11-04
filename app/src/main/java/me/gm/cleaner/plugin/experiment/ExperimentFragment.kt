@@ -16,7 +16,11 @@
 
 package me.gm.cleaner.plugin.experiment
 
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,11 +28,13 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
-import me.gm.cleaner.plugin.util.LogUtils
+
 
 @AndroidEntryPoint
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()
+    private val width by lazy { resources.displayMetrics.widthPixels }
+    private val downloadManager by lazy { requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,8 +42,16 @@ class ExperimentFragment : BaseFragment() {
         val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
 
         viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) { result ->
-            result.onSuccess {
-                LogUtils.e(it)
+            result.onSuccess { unsplashPhotos ->
+                repeat(15) {
+                    val unsplashPhoto = unsplashPhotos.random()
+                    val request = DownloadManager
+                        .Request(Uri.parse(unsplashPhoto.getPhotoUrl(width)))
+                        .setDestinationInExternalPublicDir(
+                            Environment.DIRECTORY_PICTURES, unsplashPhoto.filename
+                        )
+                    val id = downloadManager.enqueue(request)
+                }
             }
         }
         viewModel.loadPhotos()

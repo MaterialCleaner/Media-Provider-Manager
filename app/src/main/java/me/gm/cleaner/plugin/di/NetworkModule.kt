@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.data
+package me.gm.cleaner.plugin.di
 
 import dagger.Module
 import dagger.Provides
