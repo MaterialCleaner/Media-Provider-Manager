@@ -28,6 +28,6 @@
     <item
         android:id="@+id/menu_show_all"
         android:checkable="true"
-        android:title="@string/show_all"
+        android:title="@string/menu_show_all_title"
         app:showAsAction="never" />
 </menu>

@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
@@ -101,6 +102,15 @@ class ImagesFragment : MediaStoreFragment() {
             }
         }
 
+        ModulePreferences.setOnPreferenceChangeListener(object :
+            ModulePreferences.PreferencesChangeListener {
+            override fun getLifecycleOwner() = viewLifecycleOwner
+            override fun onPreferencesChanged(isNotifyService: Boolean) {
+                imagesViewModel.contentObserver = null
+                dispatchRequestPermissions(requiredPermissions, savedInstanceState)
+            }
+        })
+
         prepareTransitions()
         if (pagerViewModel.isFromPager) {
             postponeEnterTransition()
@@ -140,7 +150,11 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
-            imagesViewModel.loadImages()
+            if (ModulePreferences.isShowAllMediaFiles) {
+                imagesViewModel.loadImages()
+            } else {
+                imagesViewModel.loadInternalImages()
+            }
             val navController = findNavController()
             pagerViewModel.setDestinationChangedListener(navController)
             if (pagerViewModel.isFromPager) {

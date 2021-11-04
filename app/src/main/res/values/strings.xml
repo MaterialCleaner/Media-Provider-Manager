@@ -47,7 +47,8 @@
     <string name="delete">Delete</string>
     <string name="delete_all_rules">Delete All Rules</string>
     <string name="refresh">Refresh</string>
-    <string name="show_all">Show other apps\' media files</string>
+    <string name="menu_show_all_key" translatable="false">show_all</string>
+    <string name="menu_show_all_title">Show other apps\' media files</string>
 
     <!-- Settings -->
     <string name="display_name_key" translatable="false">_display_name</string>

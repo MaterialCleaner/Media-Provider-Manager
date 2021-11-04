@@ -40,12 +40,6 @@ object ModulePreferences {
 
     fun setOnPreferenceChangeListener(l: PreferencesChangeListener) {
         listeners.add(l)
-        if (broadcasting) {
-            return
-        }
-        broadcasting = true
-        l.onPreferencesChanged(false)
-        broadcasting = false
     }
 
     private fun notifyListeners(isNotifyService: Boolean) {
@@ -109,6 +103,14 @@ object ModulePreferences {
         )
         set(value) = putBoolean(
             resources.getString(R.string.menu_hide_no_storage_permission_key), value
+        )
+
+    var isShowAllMediaFiles: Boolean
+        get() = defaultSp.getBoolean(
+            resources.getString(R.string.menu_show_all_key), true
+        )
+        set(value) = putBoolean(
+            resources.getString(R.string.menu_show_all_key), value
         )
 
     private fun putBoolean(key: String, value: Boolean) {

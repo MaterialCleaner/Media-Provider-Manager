@@ -86,7 +86,7 @@ class AppListFragment : BaseFragment() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun getLifecycleOwner() = this@AppListFragment
+            override fun getLifecycleOwner() = viewLifecycleOwner
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.updateApps()
                 if (isNotifyService) {

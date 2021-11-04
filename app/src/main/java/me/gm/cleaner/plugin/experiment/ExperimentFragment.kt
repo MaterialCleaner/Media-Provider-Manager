@@ -29,7 +29,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
-
 @AndroidEntryPoint
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()

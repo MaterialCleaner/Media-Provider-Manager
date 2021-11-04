@@ -82,7 +82,7 @@ abstract class BaseFragment : Fragment() {
         dispatchRequestPermissions(requiredPermissions, savedInstanceState)
     }
 
-    fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
+    open fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
         val granted = permissions.asSequence().filter {
             ActivityCompat.checkSelfPermission(requireContext(), it) ==
                     PackageManager.PERMISSION_GRANTED

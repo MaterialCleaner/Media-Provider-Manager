@@ -28,6 +28,7 @@ import androidx.appcompat.app.AlertDialog
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.dao.ModulePreferences
 
 abstract class MediaStoreFragment : BaseFragment() {
     override val requiredPermissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -35,6 +36,16 @@ abstract class MediaStoreFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    override fun dispatchRequestPermissions(
+        permissions: Array<String>, savedInstanceState: Bundle?
+    ) {
+        if (ModulePreferences.isShowAllMediaFiles) {
+            super.dispatchRequestPermissions(permissions, savedInstanceState)
+        } else {
+            onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
+        }
     }
 
     override fun onRequestPermissionsFailure(
@@ -66,11 +77,18 @@ abstract class MediaStoreFragment : BaseFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.mediastore_toolbar, menu)
+        menu.findItem(R.id.menu_show_all).isChecked = ModulePreferences.isShowAllMediaFiles
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_refresh -> {
             dispatchRequestPermissions(requiredPermissions, null)
+            true
+        }
+        R.id.menu_show_all -> {
+            val isShowAllMediaFiles = !item.isChecked
+            item.isChecked = isShowAllMediaFiles
+            ModulePreferences.isShowAllMediaFiles = isShowAllMediaFiles
             true
         }
         else -> super.onOptionsItemSelected(item)

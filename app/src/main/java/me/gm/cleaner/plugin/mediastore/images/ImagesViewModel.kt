@@ -49,7 +49,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     val images: List<MediaStoreImage>
         get() = _imagesFlow.value
 
-    private lateinit var contentObserver: ContentObserver
+     var contentObserver: ContentObserver? = null
 
     private var pendingDeleteImage: Array<out MediaStoreImage>? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
@@ -64,11 +64,26 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
             val imageList = queryImages()
             _imagesFlow.value = imageList
 
-            if (!::contentObserver.isInitialized) {
+            if (contentObserver == null) {
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 ) {
                     loadImages()
+                }
+            }
+        }
+    }
+
+    fun loadInternalImages() {
+        viewModelScope.launch {
+            val imageList = queryInternalImages()
+            _imagesFlow.value = imageList
+
+            if (contentObserver == null) {
+                contentObserver = getApplication<Application>().contentResolver.registerObserver(
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
+                ) {
+                    loadInternalImages()
                 }
             }
         }
@@ -276,7 +291,8 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
      * is being released.
      */
     override fun onCleared() {
-        if (::contentObserver.isInitialized) {
+        val contentObserver = contentObserver
+        if (contentObserver != null) {
             getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
         }
     }
