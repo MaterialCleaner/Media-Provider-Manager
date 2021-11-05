@@ -56,8 +56,9 @@
 
     <!-- 实验 -->
     <string name="experiment_header">这里有一些关于媒体存储的实验，您可以通过它们了解媒体存储和测试模块功能。</string>
-    <string name="download_manager_unsplash_title">通过下载管理程序下载 15 张来自 Unsplash 的随机图片。</string>
+    <string name="download_manager_unsplash_title">通过下载管理程序下载 15 张来自 Unsplash 的随机图片</string>
     <string name="download_manager_unsplash_summary">通过下载管理程序下载文件无需请求存储权限，且下载的文件归因于发起请求的应用。即使您不授予应用存储权限，应用也能访问这些文件。</string>
+    <string name="start">开始</string>
 
     <!-- 关于 -->
     <string name="source_code">源代码</string>

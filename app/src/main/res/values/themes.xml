@@ -39,7 +39,6 @@
         <!-- android:windowTranslucentNavigation conflicts with android:navigationBarColor,
           ~ so we don't use it, but alter systemUiVisibility programmatically instead.
           -->
-        <item name="android:navigationBarColor">@color/system_window_scrim</item>
         <!-- Preference title -->
         <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
         </item>

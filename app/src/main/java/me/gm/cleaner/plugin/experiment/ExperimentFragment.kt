@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.experiment
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
@@ -24,12 +25,20 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
+import me.gm.cleaner.plugin.util.LogUtils
+import me.gm.cleaner.plugin.util.addLiftOnScrollListener
+import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
+import rikka.recyclerview.fixEdgeEffect
 
 @AndroidEntryPoint
+@SuppressLint("RestrictedApi")
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()
     private val width by lazy { resources.displayMetrics.widthPixels }
@@ -38,7 +47,19 @@ class ExperimentFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+        val binding = ExperimentFragmentBinding.inflate(layoutInflater)
+
+        val list = binding.list
+        list.adapter = ExperimentAdapter(this)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.setHasFixedSize(true)
+        list.fixEdgeEffect(false)
+        list.overScrollIfContentScrollsPersistent()
+        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+
+        val menu = MenuBuilder(requireContext())
+        requireActivity().menuInflater.inflate(R.menu.experiment_content, menu)
+        LogUtils.e(menu.visibleItems)
 
         viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) { result ->
             result.onSuccess { unsplashPhotos ->
@@ -53,7 +74,7 @@ class ExperimentFragment : BaseFragment() {
                 }
             }
         }
-        viewModel.loadPhotos()
+//        viewModel.loadPhotos()
 
         return binding.root
     }
