@@ -152,6 +152,7 @@ abstract class BaseFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requestMultiplePermissions.unregister()
         if (::dialog.isInitialized && dialog.isShowing) {
             dialog.dismiss()
         }

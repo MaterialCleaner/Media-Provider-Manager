@@ -104,7 +104,7 @@ class ImagesFragment : MediaStoreFragment() {
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
-            override fun getLifecycleOwner() = viewLifecycleOwner
+            override val lifecycle = getLifecycle()
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 imagesViewModel.contentObserver = null
                 dispatchRequestPermissions(requiredPermissions, savedInstanceState)
@@ -150,11 +150,7 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
-            if (ModulePreferences.isShowAllMediaFiles) {
                 imagesViewModel.loadImages()
-            } else {
-                imagesViewModel.loadInternalImages()
-            }
             val navController = findNavController()
             pagerViewModel.setDestinationChangedListener(navController)
             if (pagerViewModel.isFromPager) {

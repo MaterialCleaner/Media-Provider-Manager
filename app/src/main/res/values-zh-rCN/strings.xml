@@ -52,6 +52,7 @@
     <!-- 媒体存储 -->
     <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>
     <string name="rationale_permanentlyDenied">访问其它应用创建的媒体文件需要读取外部存储空间权限，请在应用信息中手动授予</string>
+    <string name="revoke_self_permission">只显示自己的媒体文件需要撤销应用的读取外部存储空间权限，在模块未激活的情况下这不可能自动完成，请在应用信息中手动撤销</string>
 
     <!-- 关于 -->
     <string name="source_code">源代码</string>

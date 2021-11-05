@@ -22,7 +22,9 @@ interface IManagerService {
 
     int getModuleVersion() = 0;
 
-    ParceledListSlice<PackageInfo> getInstalledPackages(int uid) = 10;
+    ParceledListSlice<PackageInfo> getInstalledPackages(int userId) = 10;
+
+    void revokeRuntimePermission(String packageName, String permissionName, int userId) = 11;
 
     void notifyPreferencesChanged() = 20;
 }

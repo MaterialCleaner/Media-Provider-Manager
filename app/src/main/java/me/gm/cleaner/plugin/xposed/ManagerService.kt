@@ -20,7 +20,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.IBinder
+import android.os.IInterface
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
@@ -31,25 +33,50 @@ abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
     lateinit var context: Context
 
-    override fun getModuleVersion(): Int = BuildConfig.VERSION_CODE
-
-    override fun getInstalledPackages(uid: Int): ParceledListSlice<PackageInfo> {
+    val packageManager: IInterface by lazy {
         val binder = XposedHelpers.callStaticMethod(
             XposedHelpers.findClass("android.os.ServiceManager", classLoader),
             "getService", "package"
         ) as IBinder
-        val packageManager = XposedHelpers.callStaticMethod(
+        XposedHelpers.callStaticMethod(
             XposedHelpers.findClass(
                 "android.content.pm.IPackageManager\$Stub", classLoader
             ), "asInterface", binder
-        )
+        ) as IInterface
+    }
+    val permissionManager: IInterface by lazy {
+        val binder = XposedHelpers.callStaticMethod(
+            XposedHelpers.findClass("android.os.ServiceManager", classLoader),
+            "getService", "package"
+        ) as IBinder
+        XposedHelpers.callStaticMethod(
+            XposedHelpers.findClass(
+                "android.permission.IPermissionManager\$Stub", classLoader
+            ), "asInterface", binder
+        ) as IInterface
+    }
+
+    override fun getModuleVersion(): Int = BuildConfig.VERSION_CODE
+
+    override fun getInstalledPackages(userId: Int): ParceledListSlice<PackageInfo> {
         val parceledListSlice = XposedHelpers.callMethod(
-            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, uid
+            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, userId
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
+        return ParceledListSlice(list)
+    }
 
-        val proxy = XposedHelpers.findClass("android.os.BinderProxy", classLoader)
-        return ParceledListSlice(if (binder.javaClass == proxy) list else emptyList())
+    override fun revokeRuntimePermission(packageName: String, permissionName: String, userId: Int) {
+        when (Build.VERSION.SDK_INT) {
+            Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
+                packageManager, "revokeRuntimePermission", packageName, permissionName, userId
+            )
+//            in Build.VERSION_CODES.R..Build.VERSION_CODES.S
+            else -> XposedHelpers.callMethod(
+                permissionManager, "revokeRuntimePermission", packageName, permissionName, userId,
+                null
+            )
+        }
     }
 
     // FIXME

@@ -60,11 +60,11 @@ object BinderReceiver {
             emptyList()
         }
 
+    fun revokeRuntimePermission(packageName: String, permissionName: String) {
+        service!!.revokeRuntimePermission(packageName, permissionName, Process.myUid() / 100000)
+    }
+
     fun notifyPreferencesChanged() {
-        try {
-            service!!.notifyPreferencesChanged()
-        } catch (e: RemoteException) {
-            e.printStackTrace()
-        }
+        service!!.notifyPreferencesChanged()
     }
 }

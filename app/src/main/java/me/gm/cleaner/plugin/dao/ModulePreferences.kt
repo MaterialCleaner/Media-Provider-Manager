@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.core.content.edit
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
@@ -40,6 +41,12 @@ object ModulePreferences {
 
     fun setOnPreferenceChangeListener(l: PreferencesChangeListener) {
         listeners.add(l)
+        l.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                l.lifecycle.removeObserver(this)
+                listeners.remove(l)
+            }
+        })
     }
 
     private fun notifyListeners(isNotifyService: Boolean) {
@@ -47,20 +54,8 @@ object ModulePreferences {
             return
         }
         broadcasting = true
-        val it = listeners.iterator()
-        while (it.hasNext()) {
-            val l = it.next()
-            val currentLifecycleState = try {
-                l.getLifecycleOwner().lifecycle.currentState
-            } catch (e: IllegalStateException) {
-                it.remove()
-                continue
-            }
-            if (currentLifecycleState == Lifecycle.State.DESTROYED) {
-                it.remove()
-            } else if (currentLifecycleState.isAtLeast(Lifecycle.State.CREATED)) {
-                l.onPreferencesChanged(isNotifyService)
-            }
+        listeners.forEach {
+            it.onPreferencesChanged(isNotifyService)
         }
         broadcasting = false
     }
@@ -123,7 +118,7 @@ object ModulePreferences {
     // MODULE PREFERENCES
 
     interface PreferencesChangeListener {
-        fun getLifecycleOwner(): LifecycleOwner
+        val lifecycle: Lifecycle
         fun onPreferencesChanged(isNotifyService: Boolean)
     }
 }
