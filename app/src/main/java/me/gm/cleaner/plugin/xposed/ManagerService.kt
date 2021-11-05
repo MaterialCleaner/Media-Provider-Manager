@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.IBinder
 import android.os.IInterface
 import de.robv.android.xposed.XposedHelpers
@@ -44,17 +43,6 @@ abstract class ManagerService : IManagerService.Stub() {
             ), "asInterface", binder
         ) as IInterface
     }
-    val permissionManager: IInterface by lazy {
-        val binder = XposedHelpers.callStaticMethod(
-            XposedHelpers.findClass("android.os.ServiceManager", classLoader),
-            "getService", "package"
-        ) as IBinder
-        XposedHelpers.callStaticMethod(
-            XposedHelpers.findClass(
-                "android.permission.IPermissionManager\$Stub", classLoader
-            ), "asInterface", binder
-        ) as IInterface
-    }
 
     override fun getModuleVersion(): Int = BuildConfig.VERSION_CODE
 
@@ -64,19 +52,6 @@ abstract class ManagerService : IManagerService.Stub() {
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
         return ParceledListSlice(list)
-    }
-
-    override fun revokeRuntimePermission(packageName: String, permissionName: String, userId: Int) {
-        when (Build.VERSION.SDK_INT) {
-            Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
-                packageManager, "revokeRuntimePermission", packageName, permissionName, userId
-            )
-//            in Build.VERSION_CODES.R..Build.VERSION_CODES.S
-            else -> XposedHelpers.callMethod(
-                permissionManager, "revokeRuntimePermission", packageName, permissionName, userId,
-                null
-            )
-        }
     }
 
     // FIXME

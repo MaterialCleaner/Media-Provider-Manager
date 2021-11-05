@@ -20,13 +20,11 @@ import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
 import android.os.RemoteException
-import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.MutableStateFlow
 import me.gm.cleaner.plugin.IManagerService
 
 object BinderReceiver {
     private val _moduleVersionFlow = MutableStateFlow(-1)
-    val moduleVersionLiveData = _moduleVersionFlow.asLiveData()
     var moduleVersion: Int
         get() = _moduleVersionFlow.value
         set(value) {
@@ -59,10 +57,6 @@ object BinderReceiver {
             e.printStackTrace()
             emptyList()
         }
-
-    fun revokeRuntimePermission(packageName: String, permissionName: String) {
-        service!!.revokeRuntimePermission(packageName, permissionName, Process.myUid() / 100000)
-    }
 
     fun notifyPreferencesChanged() {
         service!!.notifyPreferencesChanged()

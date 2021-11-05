@@ -31,7 +31,6 @@ import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.module.BinderReceiver
 
 abstract class MediaStoreFragment : BaseFragment() {
     override val requiredPermissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -52,24 +51,16 @@ abstract class MediaStoreFragment : BaseFragment() {
                             PackageManager.PERMISSION_GRANTED
                 }
             ) {
-                if (BinderReceiver.pingBinder()) {
-                    requiredPermissions.forEach {
-                        BinderReceiver.revokeRuntimePermission(BuildConfig.APPLICATION_ID, it)
-                    }
-                } else {
-                    dialog = AlertDialog.Builder(requireContext())
-                        .setMessage(R.string.revoke_self_permission)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            val intent =
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data =
-                                        Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                                }
-                            startActivity(intent)
+                dialog = AlertDialog.Builder(requireContext())
+                    .setMessage(R.string.revoke_self_permission)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
                         }
-                        .show()
-                }
+                        startActivity(intent)
+                    }
+                    .show()
             }
             onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
         }

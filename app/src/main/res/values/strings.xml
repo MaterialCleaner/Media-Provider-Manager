@@ -62,8 +62,8 @@
     <string name="rationale_shouldShowRationale">App needs read external storage permission to visit media files created by other apps.</string>
     <string name="rationale_permanentlyDenied">App needs read external storage permission to visit media files created by other apps.
         Please grant the permission in app info manually.</string>
-    <string name="revoke_self_permission">App needs read external storage permission to be revoked for showing media files only created by itself,
-        which is impossible to achieve automatically when the module is not activated. Please revoke the permission in app info manually.</string>
+    <string name="revoke_self_permission">App needs read external storage permission to be revoked for showing media files only created by itself.
+        Please revoke the permission in app info manually.</string>
 
     <!-- About -->
     <string name="source_code">Source code</string>

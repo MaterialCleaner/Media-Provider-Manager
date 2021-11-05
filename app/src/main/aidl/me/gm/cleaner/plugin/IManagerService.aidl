@@ -24,7 +24,5 @@ interface IManagerService {
 
     ParceledListSlice<PackageInfo> getInstalledPackages(int userId) = 10;
 
-    void revokeRuntimePermission(String packageName, String permissionName, int userId) = 11;
-
     void notifyPreferencesChanged() = 20;
 }
