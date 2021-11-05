@@ -39,8 +39,8 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
-import me.gm.cleaner.plugin.util.initFastScroller
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
@@ -59,7 +59,9 @@ class ImagesFragment : MediaStoreFragment() {
         list.adapter = adapter
         list.layoutManager = layoutManager
         list.setHasFixedSize(true)
-        list.initFastScroller()
+        FastScrollerBuilder(list)
+            .useMd2Style()
+            .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
@@ -150,7 +152,7 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
-                imagesViewModel.loadImages()
+            imagesViewModel.loadImages()
             val navController = findNavController()
             pagerViewModel.setDestinationChangedListener(navController)
             if (pagerViewModel.isFromPager) {

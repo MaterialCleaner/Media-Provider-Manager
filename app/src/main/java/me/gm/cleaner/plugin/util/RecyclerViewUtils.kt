@@ -202,7 +202,7 @@ class PiecewiseRecyclerViewHelper(private val list: RecyclerView) : FastScroller
         // The scrollBy way is accurate, but the recycler view needs to render all the items sliding by.
         // The scrollToPositionWithOffset way, however, is exactly on the contrary.
         // Therefore, I set up a cut-off point to let each way make use of its strengths.
-        private const val CUTOFF = 300
+        private const val CUTOFF = 500
     }
 }
 

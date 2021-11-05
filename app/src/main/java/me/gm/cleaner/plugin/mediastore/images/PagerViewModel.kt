@@ -35,8 +35,11 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
             _currentPositionFlow.value = value
         }
     private val _currentDestinationFlow: MutableStateFlow<NavDestination?> = MutableStateFlow(null)
-    val currentDestination: NavDestination?
+    var currentDestination: NavDestination?
         get() = _currentDestinationFlow.value
+        private set(value) {
+            _currentDestinationFlow.value = value
+        }
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { controller, destination, _ ->
             when {
@@ -52,7 +55,7 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
                     controller.navigate(R.id.images_fragment)
                 }
             }
-            _currentDestinationFlow.value = destination
+            currentDestination = destination
         }
     var isFirstEntrance = false
     var isFromPager = false
