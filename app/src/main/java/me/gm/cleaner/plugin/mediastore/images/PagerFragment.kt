@@ -21,13 +21,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.transition.doOnEnd
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.NavDestination
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -111,9 +111,22 @@ class PagerFragment : BaseFragment() {
                     childFragmentManager.findFragmentByTag("f${pagerViewModel.currentPosition}")
                 val view = currentFragment?.view ?: return
 
-                // Map the first shared element name to the child ImageView.
+                val imageView: ImageView = view.findViewById(R.id.image_view)
+                val ssiv: SubsamplingScaleImageView =
+                    view.findViewById(R.id.subsampling_scale_image_view)
                 if (names.isNotEmpty()) {
-                    sharedElements[names[0]] = view.findViewById(R.id.image_view)
+                    if (pagerViewModel.currentDestination?.id == R.id.images_fragment &&
+                        imageView.visibility == View.INVISIBLE
+                    ) {
+                        // Change the registered shared element for a better exit transition.
+                        // Note that this is not the perfect solution but much better than don't.
+                        ssiv.transitionName = imageView.transitionName
+                        imageView.transitionName = null
+                        sharedElements[names[0]] = ssiv
+                    } else {
+                        // Map the first shared element name to the child ImageView.
+                        sharedElements[names[0]] = imageView
+                    }
                 }
             }
         })
@@ -121,7 +134,7 @@ class PagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val currentDestination = findNavController().currentDestination ?: return
+        val currentDestination = pagerViewModel.currentDestination ?: return
         // Restore AppBar state.
         if (currentDestination.id == R.id.pager_fragment) {
             pagerViewModel.isFirstEntrance = true

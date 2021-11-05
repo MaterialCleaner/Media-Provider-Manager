@@ -23,7 +23,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -78,19 +77,6 @@ class PagerItem : BaseFragment() {
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
                 imageView.visibility = View.INVISIBLE
-                // Change the registered shared element for a better exit transition.
-                // Note that this is not the perfect solution but much better than don't.
-                imageView.transitionName = null
-                ssiv.transitionName = uri.toString()
-                parentFragment?.setEnterSharedElementCallback(object : SharedElementCallback() {
-                    override fun onMapSharedElements(
-                        names: List<String>, sharedElements: MutableMap<String, View>
-                    ) {
-                        if (names.isNotEmpty()) {
-                            sharedElements[names[0]] = ssiv
-                        }
-                    }
-                })
             }
 
             override fun onImageLoadError(e: Exception?) {

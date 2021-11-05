@@ -35,6 +35,8 @@ class PagerViewModel(application: Application) : AndroidViewModel(application) {
             _currentPositionFlow.value = value
         }
     private val _currentDestinationFlow: MutableStateFlow<NavDestination?> = MutableStateFlow(null)
+    val currentDestination: NavDestination?
+        get() = _currentDestinationFlow.value
     private val destinationChangedListener =
         NavController.OnDestinationChangedListener { controller, destination, _ ->
             when {
