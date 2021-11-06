@@ -20,6 +20,7 @@
     android:id="@+id/title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/screen_edge"
+    android:paddingHorizontal="@dimen/screen_edge"
+    android:paddingVertical="@dimen/card_margin"
     android:textAlignment="viewStart"
     android:textAppearance="?attr/textAppearanceSubtitle1" />

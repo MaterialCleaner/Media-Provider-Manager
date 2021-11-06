@@ -17,22 +17,23 @@
 package me.gm.cleaner.plugin.experiment
 
 import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.Context
-import android.net.Uri
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
-import me.gm.cleaner.plugin.util.LogUtils
+import me.gm.cleaner.plugin.experiment.ExperimentMenuItems.findItemById
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
@@ -41,8 +42,7 @@ import rikka.recyclerview.fixEdgeEffect
 @SuppressLint("RestrictedApi")
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()
-    private val width by lazy { resources.displayMetrics.widthPixels }
-    private val downloadManager by lazy { requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager }
+    private val adapter by lazy { ExperimentAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -50,32 +50,51 @@ class ExperimentFragment : BaseFragment() {
         val binding = ExperimentFragmentBinding.inflate(layoutInflater)
 
         val list = binding.list
-        list.adapter = ExperimentAdapter(this)
+        list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+        list.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            private var divider = ColorDrawable(Color.TRANSPARENT)
+            private var dividerHeight = resources.getDimensionPixelSize(R.dimen.card_margin)
 
-        val menu = MenuBuilder(requireContext())
-        requireActivity().menuInflater.inflate(R.menu.experiment_content, menu)
-        LogUtils.e(menu.visibleItems)
-
-        viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) { result ->
-            result.onSuccess { unsplashPhotos ->
-                repeat(15) {
-                    val unsplashPhoto = unsplashPhotos.random()
-                    val request = DownloadManager
-                        .Request(Uri.parse(unsplashPhoto.getPhotoUrl(width)))
-                        .setDestinationInExternalPublicDir(
-                            Environment.DIRECTORY_PICTURES, unsplashPhoto.filename
-                        )
-                    val id = downloadManager.enqueue(request)
+            override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                val childCount = parent.childCount
+                val width = parent.width
+                for (childViewIndex in 0 until childCount) {
+                    val view = parent.getChildAt(childViewIndex)
+                    val top = view.y.toInt() + view.height
+                    divider.setBounds(0, top, width, top + dividerHeight)
+                    divider.draw(c)
                 }
             }
-        }
-//        viewModel.loadPhotos()
+
+            override fun getItemOffsets(
+                outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
+            ) {
+                outRect.bottom = dividerHeight
+            }
+        })
+
+        initContentItems()
 
         return binding.root
+    }
+
+    private fun initContentItems() {
+        val menu = MenuBuilder(requireContext())
+        requireActivity().menuInflater.inflate(R.menu.experiment_content, menu)
+        val items = ExperimentMenuItems.forMenuBuilder(menu)
+        items.findItemById<ExperimentMenuActionItem>(R.id.unsplash_download_manager).apply {
+            summary = getText(R.string.unsplash_download_manager_summary)
+            listener = View.OnClickListener { viewModel.unsplashDownloadManager(requireContext()) }
+        }
+        items.findItemById<ExperimentMenuActionItem>(R.id.unsplash_insert).apply {
+            summary = getText(R.string.unsplash_insert_summary)
+            listener = View.OnClickListener { TODO("Not yet implemented") }
+        }
+        adapter.submitList(items)
     }
 }

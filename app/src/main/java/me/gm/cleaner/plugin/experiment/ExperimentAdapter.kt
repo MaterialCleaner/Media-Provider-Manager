@@ -28,8 +28,7 @@ import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
 
 @SuppressLint("PrivateResource")
-class ExperimentAdapter(private val fragment: ExperimentFragment) :
-    ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolder>(CALLBACK) {
+class ExperimentAdapter : ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolder>(CALLBACK) {
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
         is ExperimentMenuSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
@@ -55,17 +54,38 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (position == 0) {
+            val itemView = holder.itemView
+            holder.itemView.setPaddingRelative(
+                itemView.paddingStart, itemView.paddingTop +
+                        holder.itemView.resources.getDimensionPixelOffset(R.dimen.card_margin),
+                itemView.paddingEnd, itemView.paddingBottom
+            )
+        }
         when (holder) {
             is SeparatorViewHolder -> {
+                holder.itemView.setPaddingRelative(
+                    0, holder.itemView.resources.getDimensionPixelOffset(
+                        com.google.android.material.R.dimen.design_navigation_separator_vertical_padding
+                    ), 0, 0
+                )
             }
             is HeaderCardViewHolder -> {
                 val binding = holder.binding
+                val item = getItem(position) as ExperimentMenuHeaderItem
+                binding.title.text = item.title
             }
             is SubHeaderCardViewHolder -> {
                 val binding = holder.binding
+                val item = getItem(position) as ExperimentMenuSubHeaderItem
+                binding.cardContextText.text = item.content
             }
             is ActionCardViewHolder -> {
                 val binding = holder.binding
+                val item = getItem(position) as ExperimentMenuActionItem
+                binding.title.text = item.title
+                binding.summary.text = item.summary
+                binding.button.setOnClickListener(item.listener)
             }
         }
     }
@@ -93,6 +113,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                     oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
                 ) = oldItem == newItem
 
+                @SuppressLint("DiffUtilEquals")
                 override fun areContentsTheSame(
                     oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
                 ) = oldItem == newItem

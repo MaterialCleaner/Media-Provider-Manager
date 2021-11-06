@@ -17,7 +17,6 @@
   -->
 
 <resources>
-    <dimen name="half_card_margin">4dp</dimen>
     <dimen name="card_margin">8dp</dimen>
     <dimen name="preference_header_bottom">8dp</dimen>
     <dimen name="screen_edge">16dp</dimen>

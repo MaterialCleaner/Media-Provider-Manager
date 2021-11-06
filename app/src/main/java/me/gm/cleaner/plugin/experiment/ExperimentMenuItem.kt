@@ -16,17 +16,76 @@
 
 package me.gm.cleaner.plugin.experiment
 
-/** Unified data model for all sorts of navigation menu items.  */
+import android.annotation.SuppressLint
+import android.view.View
+import androidx.appcompat.view.menu.MenuBuilder
+
+/** Unified data model for all sorts of navigation menu items. */
 interface ExperimentMenuItem
 
 /** Separator items. */
-class ExperimentMenuSeparatorItem : ExperimentMenuItem
+data class ExperimentMenuSeparatorItem(
+    val id: Int = View.generateViewId()
+) : ExperimentMenuItem
 
 /** Normal or header items. */
-class ExperimentMenuHeaderItem : ExperimentMenuItem
+data class ExperimentMenuHeaderItem(
+    val id: Int,
+    var title: CharSequence?
+) : ExperimentMenuItem
 
 /** Normal or subheader items. */
-class ExperimentMenuSubHeaderItem : ExperimentMenuItem
+data class ExperimentMenuSubHeaderItem(
+    val id: Int,
+    var content: CharSequence?,
+    var checked: Boolean
+) : ExperimentMenuItem
 
 /** Action items. */
-class ExperimentMenuActionItem : ExperimentMenuItem
+data class ExperimentMenuActionItem(
+    val id: Int,
+    var title: CharSequence?,
+    var summary: CharSequence?,
+    var listener: View.OnClickListener? = null
+) : ExperimentMenuItem
+
+object ExperimentMenuItems {
+
+    /** Convert MenuItemImpl to ExperimentMenuItem. */
+    @SuppressLint("RestrictedApi")
+    fun forMenuBuilder(menu: MenuBuilder): List<ExperimentMenuItem> {
+        val items = mutableListOf<ExperimentMenuItem>()
+        menu.visibleItems.forEach { menuItemImpl ->
+            if (items.isNotEmpty()) {
+                items.add(ExperimentMenuSeparatorItem())
+            }
+            items.add(ExperimentMenuHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
+            if (menuItemImpl.hasSubMenu()) {
+                (menuItemImpl.subMenu as MenuBuilder).visibleItems.forEach { subMenu ->
+                    when {
+                        subMenu.isCheckable -> items.add(
+                            ExperimentMenuSubHeaderItem(
+                                subMenu.itemId, subMenu.title, subMenu.isChecked
+                            )
+                        )
+                        !subMenu.isCheckable -> items.add(
+                            ExperimentMenuActionItem(subMenu.itemId, subMenu.title, null)
+                        )
+                    }
+                }
+            }
+        }
+        return items
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : ExperimentMenuItem> List<ExperimentMenuItem>.findItemById(id: Int): T = first {
+        id == when (it) {
+            is ExperimentMenuSeparatorItem -> it.id
+            is ExperimentMenuHeaderItem -> it.id
+            is ExperimentMenuSubHeaderItem -> it.id
+            is ExperimentMenuActionItem -> it.id
+            else -> throw IndexOutOfBoundsException()
+        }
+    } as T
+}

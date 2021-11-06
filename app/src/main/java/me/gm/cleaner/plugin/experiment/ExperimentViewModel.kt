@@ -16,6 +16,12 @@
 
 package me.gm.cleaner.plugin.experiment
 
+import android.app.DownloadManager
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.Uri
+import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -25,18 +31,51 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
+import me.gm.cleaner.plugin.util.LogUtils
 import javax.inject.Inject
 
 @HiltViewModel
 class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
-    private val _unsplashPhotosFlow: MutableStateFlow<Result<List<UnsplashPhoto>>> =
-        MutableStateFlow(Result.failure(IllegalStateException()))
-    val unsplashPhotosFlow = _unsplashPhotosFlow.asLiveData()
+    private var width = 0
+    private lateinit var downloadManager: DownloadManager
 
-    fun loadPhotos() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _unsplashPhotosFlow.emit(repository.fetchUnsplashPhotoList())
+    private val _unsplashPhotosFlow: MutableStateFlow<Result<List<UnsplashPhoto>>> =
+        MutableStateFlow(Result.failure(UninitializedPropertyAccessException()))
+    val unsplashPhotosLiveData = _unsplashPhotosFlow.asLiveData()
+
+    fun unsplashDownloadManager(context: Context) {
+        if (!::downloadManager.isInitialized) {
+            width = context.resources.displayMetrics.widthPixels
+            downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
+                .also { _unsplashPhotosFlow.emit(it) }
+            unsplashPhotoListResult.onSuccess { unsplashPhotos ->
+                repeat(10) {
+                    val unsplashPhoto = unsplashPhotos.random()
+                    val request = DownloadManager
+                        .Request(Uri.parse(unsplashPhoto.getPhotoUrl(width)))
+                        .setDestinationInExternalPublicDir(
+                            Environment.DIRECTORY_PICTURES, unsplashPhoto.filename
+                        )
+                    val id = downloadManager.enqueue(request)
+                }
+            }.onFailure { e ->
+                LogUtils.e(e)
+                // TODO
+            }
+        }
+    }
+
+    companion object {
+        val Context.hasWifiTransport: Boolean
+            get() {
+                val connManager =
+                    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
+                return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+            }
     }
 }

@@ -16,64 +16,24 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="@string/module">
+    <item android:title="@string/experiment">
         <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/applist_fragment"
-                    android:icon="@drawable/ic_outline_apps_24"
-                    android:title="@string/app_management" />
-                <item
-                    android:id="@+id/usage_record_fragment"
-                    android:icon="@drawable/ic_outline_history_24"
-                    android:title="@string/usage_record" />
-                <item
-                    android:id="@+id/settings_fragment"
-                    android:icon="@drawable/ic_outline_settings_24"
-                    android:title="@string/settings" />
-            </group>
+            <item
+                android:id="@+id/experiment_header"
+                android:checkable="true"
+                android:title="@string/experiment_header" />
+            <item
+                android:id="@+id/unsplash_download_manager"
+                android:title="@string/unsplash_download_manager_title" />
+            <item
+                android:id="@+id/unsplash_insert"
+                android:title="@string/unsplash_insert_title" />
+<!--            <item-->
+<!--                android:id="@+id/persistently_track"-->
+<!--                android:title="@string/persistently_track_title" />-->
         </menu>
     </item>
 
-    <item android:title="@string/media_store">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/audio_fragment"
-                    android:icon="@drawable/ic_outline_audiotrack_24"
-                    android:title="@string/audio" />
-                <item
-                    android:id="@+id/downloads_fragment"
-                    android:icon="@drawable/ic_outline_save_alt_24"
-                    android:title="@string/downloads" />
-                <item
-                    android:id="@+id/files_fragment"
-                    android:icon="@drawable/ic_outline_insert_drive_file_24"
-                    android:title="@string/files" />
-                <item
-                    android:id="@+id/images_fragment"
-                    android:icon="@drawable/ic_outline_image_24"
-                    android:title="@string/images" />
-                <item
-                    android:id="@+id/video_fragment"
-                    android:icon="@drawable/ic_outline_videocam_24"
-                    android:title="@string/video" />
-            </group>
-        </menu>
-    </item>
-
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/experiment_fragment"
-            android:icon="@drawable/ic_outline_science_24"
-            android:title="@string/experiment" />
-        <item
-            android:id="@+id/about_fragment"
-            android:icon="@drawable/ic_outline_info_24"
-            android:title="@string/about" />
-    </group>
 </menu>

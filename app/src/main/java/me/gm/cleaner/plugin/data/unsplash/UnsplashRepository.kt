@@ -21,6 +21,6 @@ import javax.inject.Inject
 class UnsplashRepository @Inject constructor(private val service: UnsplashService) {
 
     fun fetchUnsplashPhotoList(): Result<List<UnsplashPhoto>> = runCatching {
-        service.feed.execute().body() ?: emptyList()
+        service.feed.execute().body() ?: throw NullPointerException()
     }
 }
