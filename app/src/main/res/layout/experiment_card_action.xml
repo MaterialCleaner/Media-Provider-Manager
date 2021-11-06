@@ -34,26 +34,35 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/title"
                 style="?attr/textAppearanceHeadline5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/download_manager_unsplash_title"
                 android:textAlignment="viewStart" />
 
             <TextView
+                android:id="@+id/summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/card_margin"
-                android:text="@string/download_manager_unsplash_summary"
                 android:textAlignment="viewStart" />
 
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/list_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
                 android:layout_marginTop="@dimen/screen_edge"
-                android:text="@string/start" />
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:text="@string/start" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

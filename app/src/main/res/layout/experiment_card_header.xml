@@ -16,34 +16,10 @@
   ~ limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/title"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/half_card_margin">
-
-    <!--    TODO: move to a new xml file -->
-    <!--    <TextView-->
-    <!--        android:id="@+id/card_header"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_margin="16dp"-->
-    <!--        android:textAlignment="viewStart"-->
-    <!--        android:textAppearance="?attr/textAppearanceSubtitle1" />-->
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_summary"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusable="true"
-        app:contentPadding="@dimen/screen_edge">
-
-        <TextView
-            android:id="@+id/card_context_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/experiment_header"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
-    </com.google.android.material.card.MaterialCardView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    android:padding="@dimen/screen_edge"
+    android:textAlignment="viewStart"
+    android:textAppearance="?attr/textAppearanceSubtitle1" />

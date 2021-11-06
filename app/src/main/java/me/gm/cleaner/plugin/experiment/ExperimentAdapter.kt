@@ -19,27 +19,34 @@ package me.gm.cleaner.plugin.experiment
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
+import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
 
-@SuppressLint("RestrictedApi")
+@SuppressLint("PrivateResource")
 class ExperimentAdapter(private val fragment: ExperimentFragment) :
-    ListAdapter<MenuItemImpl, RecyclerView.ViewHolder>(CALLBACK) {
+    ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolder>(CALLBACK) {
 
-    override fun getItemViewType(position: Int) = when (position) {
-        0 -> R.layout.experiment_card_header
-        1 -> R.layout.experiment_card_action
+    override fun getItemViewType(position: Int) = when (getItem(position)) {
+        is ExperimentMenuSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
+        is ExperimentMenuHeaderItem -> R.layout.experiment_card_header
+        is ExperimentMenuSubHeaderItem -> R.layout.experiment_card_subheader
+        is ExperimentMenuActionItem -> R.layout.experiment_card_action
         else -> throw IndexOutOfBoundsException()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
+        com.google.android.material.R.layout.design_navigation_item_separator ->
+            SeparatorViewHolder(LayoutInflater.from(parent.context), parent)
         R.layout.experiment_card_header -> HeaderCardViewHolder(
             ExperimentCardHeaderBinding.inflate(LayoutInflater.from(parent.context))
+        )
+        R.layout.experiment_card_subheader -> SubHeaderCardViewHolder(
+            ExperimentCardSubheaderBinding.inflate(LayoutInflater.from(parent.context))
         )
         R.layout.experiment_card_action -> ActionCardViewHolder(
             ExperimentCardActionBinding.inflate(LayoutInflater.from(parent.context))
@@ -48,27 +55,47 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
+        when (holder) {
+            is SeparatorViewHolder -> {
+            }
+            is HeaderCardViewHolder -> {
+                val binding = holder.binding
+            }
+            is SubHeaderCardViewHolder -> {
+                val binding = holder.binding
+            }
+            is ActionCardViewHolder -> {
+                val binding = holder.binding
+            }
+        }
     }
 
-    override fun getItemCount(): Int {
-        return 2
-    }
+    class SeparatorViewHolder(inflater: LayoutInflater, parent: ViewGroup?) :
+        RecyclerView.ViewHolder(
+            inflater.inflate(
+                com.google.android.material.R.layout.design_navigation_item_separator, parent, false
+            )
+        )
 
     class HeaderCardViewHolder(val binding: ExperimentCardHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    class SubHeaderCardViewHolder(val binding: ExperimentCardSubheaderBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     class ActionCardViewHolder(val binding: ExperimentCardActionBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<MenuItemImpl> =
-            object : DiffUtil.ItemCallback<MenuItemImpl>() {
-                override fun areItemsTheSame(oldItem: MenuItemImpl, newItem: MenuItemImpl) =
-                    oldItem.itemId == newItem.itemId
+        private val CALLBACK: DiffUtil.ItemCallback<ExperimentMenuItem> =
+            object : DiffUtil.ItemCallback<ExperimentMenuItem>() {
+                override fun areItemsTheSame(
+                    oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
+                ) = oldItem == newItem
 
-                override fun areContentsTheSame(oldItem: MenuItemImpl, newItem: MenuItemImpl) =
-                    oldItem.title == newItem.title
+                override fun areContentsTheSame(
+                    oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
+                ) = oldItem == newItem
             }
     }
 }

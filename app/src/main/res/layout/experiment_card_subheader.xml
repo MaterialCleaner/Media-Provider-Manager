@@ -17,15 +17,22 @@
   -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?actionBarSize">
+    android:layout_height="wrap_content"
+    android:padding="@dimen/half_card_margin">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fitsSystemWindows="true"
-        android:padding="@dimen/half_card_margin" />
+        android:focusable="true"
+        app:contentPadding="@dimen/screen_edge">
+
+        <TextView
+            android:id="@+id/card_context_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1" />
+    </com.google.android.material.card.MaterialCardView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

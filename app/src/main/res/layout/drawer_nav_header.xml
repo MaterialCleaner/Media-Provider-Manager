@@ -17,6 +17,7 @@
   -->
 
 <me.gm.cleaner.plugin.widget.DrawerHeader xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/icon_center_from_screen_edge"
@@ -30,18 +31,28 @@
         android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
-    <TextView
-        android:id="@+id/status"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/not_active"
-        android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textColor="?android:textColorSecondary" />
+        android:minHeight="?attr/listPreferredItemHeightSmall">
+
+        <!-- gravity start takes no effect in TextView -->
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_active"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="?android:textColorSecondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/screen_edge"
+        android:layout_marginTop="@dimen/design_navigation_separator_vertical_padding"
         android:background="?android:attr/listDivider" />
 </me.gm.cleaner.plugin.widget.DrawerHeader>
