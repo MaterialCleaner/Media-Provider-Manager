@@ -175,7 +175,8 @@ class ImagesFragment : MediaStoreFragment() {
             if (viewAtPosition == null ||
                 layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
             ) {
-                if (position >= layoutManager.findLastCompletelyVisibleItemPosition()) {
+                val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                if (position >= lastPosition && lastPosition - layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
                     layoutManager.scrollToPosition(position)
                 } else {
                     layoutManager.scrollToPositionWithOffset(position, list.paddingTop)

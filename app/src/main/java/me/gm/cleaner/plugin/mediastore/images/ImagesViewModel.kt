@@ -49,7 +49,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     val images: List<MediaStoreImage>
         get() = _imagesFlow.value
 
-     var contentObserver: ContentObserver? = null
+    var contentObserver: ContentObserver? = null
 
     private var pendingDeleteImage: Array<out MediaStoreImage>? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()

@@ -79,13 +79,14 @@ object ExperimentMenuItems {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentMenuItem> List<ExperimentMenuItem>.findItemById(id: Int): T = first {
-        id == when (it) {
-            is ExperimentMenuSeparatorItem -> it.id
-            is ExperimentMenuHeaderItem -> it.id
-            is ExperimentMenuSubHeaderItem -> it.id
-            is ExperimentMenuActionItem -> it.id
-            else -> throw IndexOutOfBoundsException()
-        }
-    } as T
+    inline fun <reified T : ExperimentMenuItem> List<ExperimentMenuItem>.findItemById(id: Int): T =
+        first {
+            id == when (it) {
+                is ExperimentMenuSeparatorItem -> it.id
+                is ExperimentMenuHeaderItem -> it.id
+                is ExperimentMenuSubHeaderItem -> it.id
+                is ExperimentMenuActionItem -> it.id
+                else -> throw IndexOutOfBoundsException()
+            }
+        } as T
 }
