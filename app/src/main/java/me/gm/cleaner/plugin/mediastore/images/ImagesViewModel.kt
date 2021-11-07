@@ -21,7 +21,10 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.RecoverableSecurityException
-import android.content.*
+import android.content.ContentProvider
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.IntentSender
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
@@ -29,11 +32,14 @@ import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,9 +55,9 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     val images: List<MediaStoreImage>
         get() = _imagesFlow.value
 
-    var contentObserver: ContentObserver? = null
+    private var contentObserver: ContentObserver? = null
 
-    private var pendingDeleteImage: Array<out MediaStoreImage>? = null
+    private var pendingDeleteImage: MediaStoreImage? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
     val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
@@ -75,25 +81,26 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun deleteImage(image: MediaStoreImage) {
-        viewModelScope.launch {
-            performDeleteImage(image)
-        }
-    }
-
-    fun deleteImages(vararg images: MediaStoreImage) {
-        viewModelScope.launch {
-            performDeleteImages(*images)
+        when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> throw UnsupportedOperationException()
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> viewModelScope.launch {
+                performDeleteImage(image)
+            }
+            else -> deleteImages(arrayOf(image))
         }
     }
 
     fun deletePendingImage() {
         pendingDeleteImage?.let { image ->
             pendingDeleteImage = null
-            if (image.size == 1) {
-                deleteImage(image.single())
-            } else {
-                deleteImages(*image)
-            }
+            deleteImage(image)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun deleteImages(images: Array<out MediaStoreImage>) {
+        viewModelScope.launch {
+            performDeleteImages(*images)
         }
     }
 
@@ -246,7 +253,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
-                    pendingDeleteImage = arrayOf(image)
+                    pendingDeleteImage = image
                     _permissionNeededForDelete.postValue(
                         recoverableSecurityException.userAction.actionIntent.intentSender
                     )
@@ -254,6 +261,16 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
                     throw securityException
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private suspend fun performDeleteImages(vararg images: MediaStoreImage) {
+        withContext(Dispatchers.IO) {
+            val contentResolver = getApplication<Application>().contentResolver
+            val pendingIntent =
+                MediaStore.createDeleteRequest(contentResolver, images.map { it.contentUri })
+            _permissionNeededForDelete.postValue(pendingIntent.intentSender)
         }
     }
 
@@ -282,39 +299,24 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private suspend fun performDeleteImages(vararg images: MediaStoreImage) {
-        withContext(Dispatchers.IO) {
-            val operations = images.map {
-                ContentProviderOperation
-                    .newDelete(it.contentUri)
-                    .withSelection(
-                        "${MediaStore.Images.Media._ID} = ?",
-                        arrayOf(it.id.toString())
-                    )
-                    .build()
-            } as ArrayList
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun validationAsync() = viewModelScope.async(Dispatchers.IO) {
+        val contentResolver = getApplication<Application>().contentResolver
+        val displayMetrics = getApplication<Application>().resources.displayMetrics
+        val size = Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        val invalidImages = images.filter {
             try {
-                getApplication<Application>().contentResolver.applyBatch(
-                    images.first().contentUri.authority!!,
-                    operations
-                )
-            } catch (securityException: SecurityException) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val recoverableSecurityException =
-                        securityException as? RecoverableSecurityException
-                            ?: throw securityException
-
-                    // Signal to the Activity that it needs to request permission and
-                    // try the delete again if it succeeds.
-                    pendingDeleteImage = images
-                    _permissionNeededForDelete.postValue(
-                        recoverableSecurityException.userAction.actionIntent.intentSender
-                    )
-                } else {
-                    throw securityException
-                }
+                contentResolver.loadThumbnail(it.contentUri, size, null)
+                false
+            } catch (e: Throwable) {
+                true
             }
         }
+        if (invalidImages.isNotEmpty()) {
+            deleteImages(invalidImages.toTypedArray())
+            return@async true
+        }
+        false
     }
 }
 

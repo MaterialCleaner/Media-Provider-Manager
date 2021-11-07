@@ -13,6 +13,7 @@ class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : SubsamplingScaleImageView(context, attrs) {
     var uri: Uri? = null
+        private set
 
     fun setImageUri(uri: Uri) {
         setImage(ImageSource.uri(uri))

@@ -53,6 +53,8 @@
     <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>
     <string name="rationale_permanentlyDenied">访问其它应用创建的媒体文件需要读取外部存储空间权限，请在应用信息中手动授予</string>
     <string name="revoke_self_permission">只显示自己的媒体文件需要撤销应用的读取外部存储空间权限，请在应用信息中手动撤销</string>
+    <string name="validation">删除所有无效图片</string>
+    <string name="validation_nop">未发现无效图片</string>
 
     <!-- 实验 -->
     <string name="experiment_header">这里有一些关于媒体存储的实验，您可以通过它们了解媒体存储和测试模块功能。</string>

@@ -66,6 +66,7 @@ class PagerItem : BaseFragment() {
                 } catch (e: FileNotFoundException) {
                 }
             }
+            return binding.root
         }
         val ssiv = binding.subsamplingScaleImageView
         ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {

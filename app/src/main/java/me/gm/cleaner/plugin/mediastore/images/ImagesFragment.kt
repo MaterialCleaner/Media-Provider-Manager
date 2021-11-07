@@ -18,10 +18,9 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.activityViewModels
@@ -32,6 +31,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
@@ -108,7 +108,6 @@ class ImagesFragment : MediaStoreFragment() {
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged(isNotifyService: Boolean) {
-                imagesViewModel.contentObserver = null
                 dispatchRequestPermissions(requiredPermissions, savedInstanceState)
             }
         })
@@ -122,7 +121,9 @@ class ImagesFragment : MediaStoreFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
+        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST &&
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+        ) {
             imagesViewModel.deletePendingImage()
         }
     }
@@ -183,6 +184,31 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            inflater.inflate(R.menu.images_toolbar, menu)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_validation -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                lifecycleScope.launch {
+                    if (!imagesViewModel.validationAsync().await()) {
+                        Snackbar.make(
+                            requireView(), getString(R.string.validation_nop), Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } else {
+                throw UnsupportedOperationException()
+            }
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     companion object {
