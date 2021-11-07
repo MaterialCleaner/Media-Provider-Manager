@@ -20,56 +20,56 @@ import android.annotation.SuppressLint
 import android.view.View
 import androidx.appcompat.view.menu.MenuBuilder
 
-/** Unified data model for all sorts of navigation menu items. */
-interface ExperimentMenuItem
+/** Unified data model for all sorts of experiment content items. */
+interface ExperimentContentItem
 
 /** Separator items. */
-data class ExperimentMenuSeparatorItem(
+data class ExperimentContentSeparatorItem(
     val id: Int = View.generateViewId()
-) : ExperimentMenuItem
+) : ExperimentContentItem
 
 /** Normal or header items. */
-data class ExperimentMenuHeaderItem(
+data class ExperimentContentHeaderItem(
     val id: Int,
     var title: CharSequence?
-) : ExperimentMenuItem
+) : ExperimentContentItem
 
 /** Normal or subheader items. */
-data class ExperimentMenuSubHeaderItem(
+data class ExperimentContentSubHeaderItem(
     val id: Int,
     var content: CharSequence?,
     var checked: Boolean
-) : ExperimentMenuItem
+) : ExperimentContentItem
 
 /** Action items. */
-data class ExperimentMenuActionItem(
+data class ExperimentContentActionItem(
     val id: Int,
     var title: CharSequence?,
     var summary: CharSequence?,
     var listener: View.OnClickListener? = null
-) : ExperimentMenuItem
+) : ExperimentContentItem
 
-object ExperimentMenuItems {
+object ExperimentContentItems {
 
     /** Convert MenuItemImpl to ExperimentMenuItem. */
     @SuppressLint("RestrictedApi")
-    fun forMenuBuilder(menu: MenuBuilder): List<ExperimentMenuItem> {
-        val items = mutableListOf<ExperimentMenuItem>()
+    fun forMenuBuilder(menu: MenuBuilder): List<ExperimentContentItem> {
+        val items = mutableListOf<ExperimentContentItem>()
         menu.visibleItems.forEach { menuItemImpl ->
             if (items.isNotEmpty()) {
-                items.add(ExperimentMenuSeparatorItem())
+                items.add(ExperimentContentSeparatorItem())
             }
-            items.add(ExperimentMenuHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
+            items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
             if (menuItemImpl.hasSubMenu()) {
                 (menuItemImpl.subMenu as MenuBuilder).visibleItems.forEach { subMenu ->
                     when {
                         subMenu.isCheckable -> items.add(
-                            ExperimentMenuSubHeaderItem(
+                            ExperimentContentSubHeaderItem(
                                 subMenu.itemId, subMenu.title, subMenu.isChecked
                             )
                         )
                         !subMenu.isCheckable -> items.add(
-                            ExperimentMenuActionItem(subMenu.itemId, subMenu.title, null)
+                            ExperimentContentActionItem(subMenu.itemId, subMenu.title, null)
                         )
                     }
                 }
@@ -79,13 +79,13 @@ object ExperimentMenuItems {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentMenuItem> List<ExperimentMenuItem>.findItemById(id: Int): T =
+    inline fun <reified T : ExperimentContentItem> List<ExperimentContentItem>.findItemById(id: Int): T =
         first {
             id == when (it) {
-                is ExperimentMenuSeparatorItem -> it.id
-                is ExperimentMenuHeaderItem -> it.id
-                is ExperimentMenuSubHeaderItem -> it.id
-                is ExperimentMenuActionItem -> it.id
+                is ExperimentContentSeparatorItem -> it.id
+                is ExperimentContentHeaderItem -> it.id
+                is ExperimentContentSubHeaderItem -> it.id
+                is ExperimentContentActionItem -> it.id
                 else -> throw IndexOutOfBoundsException()
             }
         } as T

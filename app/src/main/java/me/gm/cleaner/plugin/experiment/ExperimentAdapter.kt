@@ -28,13 +28,13 @@ import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
 
 @SuppressLint("PrivateResource")
-class ExperimentAdapter : ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolder>(CALLBACK) {
+class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is ExperimentMenuSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
-        is ExperimentMenuHeaderItem -> R.layout.experiment_card_header
-        is ExperimentMenuSubHeaderItem -> R.layout.experiment_card_subheader
-        is ExperimentMenuActionItem -> R.layout.experiment_card_action
+        is ExperimentContentSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
+        is ExperimentContentHeaderItem -> R.layout.experiment_card_header
+        is ExperimentContentSubHeaderItem -> R.layout.experiment_card_subheader
+        is ExperimentContentActionItem -> R.layout.experiment_card_action
         else -> throw IndexOutOfBoundsException()
     }
 
@@ -56,9 +56,9 @@ class ExperimentAdapter : ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolde
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (position == 0) {
             val itemView = holder.itemView
-            holder.itemView.setPaddingRelative(
+            itemView.setPaddingRelative(
                 itemView.paddingStart, itemView.paddingTop +
-                        holder.itemView.resources.getDimensionPixelOffset(R.dimen.card_margin),
+                        itemView.resources.getDimensionPixelOffset(R.dimen.card_margin),
                 itemView.paddingEnd, itemView.paddingBottom
             )
         }
@@ -72,17 +72,17 @@ class ExperimentAdapter : ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolde
             }
             is HeaderCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentMenuHeaderItem
+                val item = getItem(position) as ExperimentContentHeaderItem
                 binding.title.text = item.title
             }
             is SubHeaderCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentMenuSubHeaderItem
+                val item = getItem(position) as ExperimentContentSubHeaderItem
                 binding.cardContextText.text = item.content
             }
             is ActionCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentMenuActionItem
+                val item = getItem(position) as ExperimentContentActionItem
                 binding.title.text = item.title
                 binding.summary.text = item.summary
                 binding.button.setOnClickListener(item.listener)
@@ -107,15 +107,15 @@ class ExperimentAdapter : ListAdapter<ExperimentMenuItem, RecyclerView.ViewHolde
         RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<ExperimentMenuItem> =
-            object : DiffUtil.ItemCallback<ExperimentMenuItem>() {
+        private val CALLBACK: DiffUtil.ItemCallback<ExperimentContentItem> =
+            object : DiffUtil.ItemCallback<ExperimentContentItem>() {
                 override fun areItemsTheSame(
-                    oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
+                    oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem
 
                 @SuppressLint("DiffUtilEquals")
                 override fun areContentsTheSame(
-                    oldItem: ExperimentMenuItem, newItem: ExperimentMenuItem
+                    oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem
             }
     }

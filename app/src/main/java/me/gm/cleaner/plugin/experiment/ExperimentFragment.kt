@@ -33,7 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
-import me.gm.cleaner.plugin.experiment.ExperimentMenuItems.findItemById
+import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
@@ -54,7 +54,7 @@ class ExperimentFragment : BaseFragment() {
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
-        list.overScrollIfContentScrollsPersistent()
+        list.overScrollIfContentScrollsPersistent(false)
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             private var divider = ColorDrawable(Color.TRANSPARENT)
@@ -86,12 +86,12 @@ class ExperimentFragment : BaseFragment() {
     private fun initContentItems() {
         val menu = MenuBuilder(requireContext())
         requireActivity().menuInflater.inflate(R.menu.experiment_content, menu)
-        val items = ExperimentMenuItems.forMenuBuilder(menu)
-        items.findItemById<ExperimentMenuActionItem>(R.id.unsplash_download_manager).apply {
+        val items = ExperimentContentItems.forMenuBuilder(menu)
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).apply {
             summary = getText(R.string.unsplash_download_manager_summary)
             listener = View.OnClickListener { viewModel.unsplashDownloadManager(requireContext()) }
         }
-        items.findItemById<ExperimentMenuActionItem>(R.id.unsplash_insert).apply {
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
             summary = getText(R.string.unsplash_insert_summary)
             listener = View.OnClickListener { TODO("Not yet implemented") }
         }
