@@ -197,7 +197,7 @@ class ImagesFragment : MediaStoreFragment() {
         R.id.menu_validation -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 lifecycleScope.launch {
-                    if (!imagesViewModel.validationAsync().await()) {
+                    if (!imagesViewModel.validateAsync().await()) {
                         Snackbar.make(
                             requireView(), getString(R.string.validation_nop), Snackbar.LENGTH_SHORT
                         ).show()

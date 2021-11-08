@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.experiment
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.appcompat.view.menu.MenuBuilder
+import kotlinx.coroutines.CoroutineScope
 
 /** Unified data model for all sorts of experiment content items. */
 interface ExperimentContentItem
@@ -46,7 +47,7 @@ data class ExperimentContentActionItem(
     val id: Int,
     var title: CharSequence?,
     var summary: CharSequence?,
-    var listener: View.OnClickListener? = null
+    var action: (suspend CoroutineScope.() -> Unit)? = null
 ) : ExperimentContentItem
 
 object ExperimentContentItems {

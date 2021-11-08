@@ -24,11 +24,10 @@ import android.net.Uri
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
 import me.gm.cleaner.plugin.util.LogUtils
@@ -44,14 +43,15 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         MutableStateFlow(Result.failure(UninitializedPropertyAccessException()))
     val unsplashPhotosLiveData = _unsplashPhotosFlow.asLiveData()
 
-    fun unsplashDownloadManager(context: Context) {
+    fun unsplashDownloadManager(context: Context): suspend CoroutineScope.() -> Unit {
         if (!::downloadManager.isInitialized) {
             width = context.resources.displayMetrics.widthPixels
             downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         }
-        viewModelScope.launch(Dispatchers.IO) {
+        return {
             val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
                 .also { _unsplashPhotosFlow.emit(it) }
+            ensureActive()
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
                     val unsplashPhoto = unsplashPhotos.random()

@@ -22,10 +22,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
+import me.gm.cleaner.plugin.util.colorBackground
+import me.gm.cleaner.plugin.util.getColorByAttr
 
 @SuppressLint("PrivateResource")
 class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
@@ -85,7 +88,29 @@ class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHo
                 val item = getItem(position) as ExperimentContentActionItem
                 binding.title.text = item.title
                 binding.summary.text = item.summary
-                binding.button.setOnClickListener(item.listener)
+                val button = binding.button
+                button.setOnClickListener {
+                    var deferred = button.getTag(item.id) as? Deferred<Unit>
+                    if (deferred == null || !deferred.isActive) {
+                        deferred =
+                            MainScope().async(Dispatchers.IO, CoroutineStart.LAZY, item.action!!)
+                        button.setTag(item.id, deferred)
+                        MainScope().launch {
+                            button.setText(android.R.string.cancel)
+                            button.setBackgroundColor(button.context.colorBackground)
+
+                            deferred.await()
+
+                            button.setText(R.string.start)
+                            button.setBackgroundColor(button.context.getColorByAttr(com.google.android.material.R.attr.colorSecondaryContainer)!!)
+                        }
+                    } else {
+                        deferred.cancel()
+
+                        button.setText(R.string.start)
+                        button.setBackgroundColor(button.context.getColorByAttr(com.google.android.material.R.attr.colorSecondaryContainer)!!)
+                    }
+                }
             }
         }
     }

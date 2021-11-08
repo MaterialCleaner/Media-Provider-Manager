@@ -54,7 +54,7 @@ class ExperimentFragment : BaseFragment() {
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
-        list.overScrollIfContentScrollsPersistent(false)
+        list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             private var divider = ColorDrawable(Color.TRANSPARENT)
@@ -89,11 +89,11 @@ class ExperimentFragment : BaseFragment() {
         val items = ExperimentContentItems.forMenuBuilder(menu)
         items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).apply {
             summary = getText(R.string.unsplash_download_manager_summary)
-            listener = View.OnClickListener { viewModel.unsplashDownloadManager(requireContext()) }
+            action = viewModel.unsplashDownloadManager(requireContext())
         }
         items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
             summary = getText(R.string.unsplash_insert_summary)
-            listener = View.OnClickListener { TODO("Not yet implemented") }
+//            action =  TODO("Not yet implemented")
         }
         adapter.submitList(items)
     }

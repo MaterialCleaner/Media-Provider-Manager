@@ -300,7 +300,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun validationAsync() = viewModelScope.async(Dispatchers.IO) {
+    fun validateAsync() = viewModelScope.async(Dispatchers.IO) {
         val contentResolver = getApplication<Application>().contentResolver
         val displayMetrics = getApplication<Application>().resources.displayMetrics
         val size = Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
