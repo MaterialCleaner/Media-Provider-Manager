@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <set>
+            <objectAnimator
+                android:propertyName="backgroundColor"
+                android:valueTo="?android:colorBackground"
+                android:valueType="colorType" />
+        </set>
+    </item>
+    <item>
+        <set>
+            <objectAnimator
+                android:propertyName="backgroundColor"
+                android:valueTo="?attr/colorSecondaryContainer"
+                android:valueType="colorType" />
+        </set>
+    </item>
+</selector>

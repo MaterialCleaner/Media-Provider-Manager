@@ -27,8 +27,6 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
-import me.gm.cleaner.plugin.util.colorBackground
-import me.gm.cleaner.plugin.util.getColorByAttr
 
 @SuppressLint("PrivateResource")
 class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
@@ -97,18 +95,18 @@ class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHo
                         button.setTag(item.id, deferred)
                         MainScope().launch {
                             button.setText(android.R.string.cancel)
-                            button.setBackgroundColor(button.context.colorBackground)
+                            button.isChecked = true
 
                             deferred.await()
 
                             button.setText(R.string.start)
-                            button.setBackgroundColor(button.context.getColorByAttr(com.google.android.material.R.attr.colorSecondaryContainer)!!)
+                            button.isChecked = false
                         }
                     } else {
                         deferred.cancel()
 
                         button.setText(R.string.start)
-                        button.setBackgroundColor(button.context.getColorByAttr(com.google.android.material.R.attr.colorSecondaryContainer)!!)
+                        button.isChecked = false
                     }
                 }
             }
