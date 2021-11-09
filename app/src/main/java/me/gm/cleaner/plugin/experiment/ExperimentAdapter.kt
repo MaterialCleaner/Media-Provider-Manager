@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
@@ -86,30 +87,33 @@ class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHo
                 val item = getItem(position) as ExperimentContentActionItem
                 binding.title.text = item.title
                 binding.summary.text = item.summary
-                val button = binding.button
-                button.setOnClickListener {
-                    var deferred = button.getTag(item.id) as? Deferred<Unit>
-                    if (deferred == null || !deferred.isActive) {
-                        deferred =
-                            MainScope().async(Dispatchers.IO, CoroutineStart.LAZY, item.action!!)
-                        button.setTag(item.id, deferred)
-                        MainScope().launch {
-                            button.setText(android.R.string.cancel)
-                            button.isChecked = true
-
-                            deferred.await()
-
-                            button.setText(R.string.start)
-                            button.isChecked = false
-                        }
-                    } else {
-                        deferred.cancel()
-
-                        button.setText(R.string.start)
-                        button.isChecked = false
-                    }
+                binding.button.setOnClickListener {
+                    startAction(binding.button, item)
                 }
             }
+        }
+    }
+
+    private fun startAction(button: MaterialButton, item: ExperimentContentActionItem) {
+        var deferred = button.getTag(item.id) as? Deferred<Unit>
+        if (deferred == null || !deferred.isActive) {
+            deferred =
+                MainScope().async(Dispatchers.IO, CoroutineStart.LAZY, item.action!!)
+            button.setTag(item.id, deferred)
+            MainScope().launch {
+                button.setText(android.R.string.cancel)
+                button.isChecked = true
+
+                deferred.await()
+
+                button.setText(R.string.start)
+                button.isChecked = false
+            }
+        } else {
+            deferred.cancel()
+
+            button.setText(R.string.start)
+            button.isChecked = false
         }
     }
 

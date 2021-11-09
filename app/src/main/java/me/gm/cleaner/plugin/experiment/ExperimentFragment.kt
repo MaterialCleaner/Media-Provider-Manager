@@ -79,7 +79,6 @@ class ExperimentFragment : BaseFragment() {
         })
 
         initContentItems()
-
         return binding.root
     }
 
@@ -93,7 +92,7 @@ class ExperimentFragment : BaseFragment() {
         }
         items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
             summary = getText(R.string.unsplash_insert_summary)
-//            action =  TODO("Not yet implemented")
+            action = viewModel.unsplashInsert(requireContext())
         }
         adapter.submitList(items)
     }
