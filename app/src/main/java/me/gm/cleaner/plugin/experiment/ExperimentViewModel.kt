@@ -24,13 +24,13 @@ import android.os.Environment
 import android.os.FileUtils
 import android.provider.MediaStore
 import android.util.SparseArray
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
 import me.gm.cleaner.plugin.util.LogUtils
@@ -41,13 +41,13 @@ import javax.inject.Inject
 class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
     val actions = SparseArray<Deferred<*>>()
+
+    private val _unsplashPhotosFlow: MutableLiveData<Result<List<UnsplashPhoto>>> =
+        MutableLiveData(Result.failure(UninitializedPropertyAccessException()))
+    val unsplashPhotosFlow: LiveData<Result<List<UnsplashPhoto>>> = _unsplashPhotosFlow
+
     private var width = 0
     private lateinit var downloadManager: DownloadManager
-
-    private val _unsplashPhotosFlow: MutableStateFlow<Result<List<UnsplashPhoto>>> =
-        MutableStateFlow(Result.failure(UninitializedPropertyAccessException()))
-    val unsplashPhotosLiveData = _unsplashPhotosFlow.asLiveData()
-
     fun unsplashDownloadManager(context: Context): suspend CoroutineScope.() -> Unit {
         if (!::downloadManager.isInitialized) {
             width = context.resources.displayMetrics.widthPixels
@@ -55,7 +55,6 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         }
         return {
             val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
-                .also { _unsplashPhotosFlow.emit(it) }
             ensureActive()
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
@@ -71,6 +70,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 LogUtils.e(e)
                 // TODO
             }
+            _unsplashPhotosFlow.postValue(unsplashPhotoListResult)
         }
     }
 
@@ -80,7 +80,6 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         }
         return {
             val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
-                .also { _unsplashPhotosFlow.emit(it) }
             ensureActive()
             val resolver = context.contentResolver
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
@@ -108,6 +107,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 LogUtils.e(e)
                 // TODO
             }
+            _unsplashPhotosFlow.postValue(unsplashPhotoListResult)
         }
     }
 }

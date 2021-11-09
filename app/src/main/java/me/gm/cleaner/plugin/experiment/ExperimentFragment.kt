@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.util.keyIterator
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
+import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
 import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
@@ -79,6 +81,22 @@ class ExperimentFragment : BaseFragment() {
         })
 
         initContentItems()
+        viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) {
+            synchronized(this) {
+                val idsToRemove = mutableListOf<Int>()
+                viewModel.actions.keyIterator().forEach { id ->
+                    if (!viewModel.actions[id].isActive) {
+                        idsToRemove.add(id)
+                        val position =
+                            adapter.currentList.findIndexById<ExperimentContentActionItem>(id)
+                        adapter.notifyItemChanged(position)
+                    }
+                }
+                idsToRemove.forEach { id ->
+                    viewModel.actions.remove(id)
+                }
+            }
+        }
         return binding.root
     }
 

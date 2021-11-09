@@ -28,7 +28,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
@@ -113,16 +112,16 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                         )
                         viewModel.actions.put(item.id, deferred)
                         if (!fragment.requireContext().hasWifiTransport) {
-                            button.isChecked = false
+                            button.toggle()
                             fragment.dialog = AlertDialog.Builder(fragment.requireContext())
                                 .setMessage(R.string.no_wifi)
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                                    startAction(button, deferred)
+                                    startAction(deferred)
                                 }
                                 .show()
                         } else {
-                            startAction(button, deferred)
+                            startAction(deferred)
                         }
                     } else {
                         deferred.cancel()
@@ -132,14 +131,9 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
         }
     }
 
-    private fun startAction(button: MaterialButton, deferred: Deferred<Unit>) =
-        viewModel.viewModelScope.launch {
-            button.isChecked = true
-
-            deferred.await()
-
-            button.isChecked = false
-        }
+    private fun startAction(deferred: Deferred<Unit>) = viewModel.viewModelScope.launch {
+        deferred.await()
+    }
 
     class SeparatorViewHolder(inflater: LayoutInflater, parent: ViewGroup?) :
         RecyclerView.ViewHolder(

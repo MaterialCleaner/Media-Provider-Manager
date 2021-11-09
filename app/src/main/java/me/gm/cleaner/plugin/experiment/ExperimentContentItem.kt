@@ -96,4 +96,16 @@ object ExperimentContentItems {
                 else -> throw IndexOutOfBoundsException()
             }
         } as T
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : ExperimentContentItem> List<ExperimentContentItem>.findIndexById(id: Int) =
+        indexOfFirst {
+            id == when (it) {
+                is ExperimentContentSeparatorItem -> it.id
+                is ExperimentContentHeaderItem -> it.id
+                is ExperimentContentSubHeaderItem -> it.id
+                is ExperimentContentActionItem -> it.id
+                else -> throw IndexOutOfBoundsException()
+            }
+        }
 }
