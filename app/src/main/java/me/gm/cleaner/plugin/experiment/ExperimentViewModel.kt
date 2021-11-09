@@ -23,10 +23,12 @@ import android.net.Uri
 import android.os.Environment
 import android.os.FileUtils
 import android.provider.MediaStore
+import android.util.SparseArray
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
@@ -38,6 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
+    val actions = SparseArray<Deferred<*>>()
     private var width = 0
     private lateinit var downloadManager: DownloadManager
 

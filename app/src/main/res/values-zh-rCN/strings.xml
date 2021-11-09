@@ -57,7 +57,7 @@
     <string name="unsplash">Unsplash</string>
     <string name="experiment_header">这里有一些关于媒体存储的实验，您可以通过它们了解媒体存储和测试模块功能。</string>
     <string name="unsplash_download_manager_title">通过下载管理程序下载 10 张来自 Unsplash 的随机图片</string>
-    <string name="unsplash_download_manager_summary">通过下载管理程序下载文件无需存储权限，且下载的文件归因于发起请求的应用（应用访问这些文件不需要存储权限）。\n您可以撤销应用的存储权限，点击开始，然后切换到图像页面并取消工具栏更多选项中的勾选，观察是否能看到下载的图片。</string>
+    <string name="unsplash_download_manager_summary">通过下载管理程序下载文件无需存储权限，且下载的文件归因于发起请求的应用（应用访问这些文件不需要存储权限）。\n您可以撤销本应用的存储权限，点击开始，然后切换到图像页面并取消工具栏更多选项中的勾选，观察是否能看到下载的图片。</string>
     <string name="unsplash_insert_title">通过媒体存储插入 10 张来自 Unsplash 的随机图片</string>
     <string name="unsplash_insert_summary">效果与使用下载管理程序相似，主要区别在于下载管理程序不会发送通知以及下载管理程序中没有下载记录。</string>
     <string name="start">开始</string>

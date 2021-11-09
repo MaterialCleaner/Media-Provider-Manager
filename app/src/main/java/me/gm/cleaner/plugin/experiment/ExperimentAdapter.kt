@@ -96,13 +96,22 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                 binding.title.text = item.title
                 binding.summary.text = item.summary
                 val button = binding.button
+                button.addOnCheckedChangeListener { _, isChecked ->
+                    button.setText(
+                        if (isChecked) android.R.string.cancel
+                        else R.string.start
+                    )
+                }
+                val deferred = viewModel.actions[item.id]
+                button.isChecked = deferred != null && deferred.isActive
+
                 button.setOnClickListener {
-                    var deferred = button.getTag(item.id) as? Deferred<Unit>
+                    var deferred = viewModel.actions[item.id] as? Deferred<Unit>
                     if (deferred == null || !deferred.isActive) {
                         deferred = viewModel.viewModelScope.async(
                             Dispatchers.IO, CoroutineStart.LAZY, item.action!!
                         )
-                        button.setTag(item.id, deferred)
+                        viewModel.actions.put(item.id, deferred)
                         if (!fragment.requireContext().hasWifiTransport) {
                             button.isChecked = false
                             fragment.dialog = AlertDialog.Builder(fragment.requireContext())
@@ -117,8 +126,6 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                         }
                     } else {
                         deferred.cancel()
-
-                        button.setText(R.string.start)
                     }
                 }
             }
@@ -127,12 +134,10 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
 
     private fun startAction(button: MaterialButton, deferred: Deferred<Unit>) =
         viewModel.viewModelScope.launch {
-            button.setText(android.R.string.cancel)
             button.isChecked = true
 
             deferred.await()
 
-            button.setText(R.string.start)
             button.isChecked = false
         }
 
