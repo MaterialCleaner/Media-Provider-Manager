@@ -17,8 +17,14 @@
 package me.gm.cleaner.plugin.experiment
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +36,9 @@ import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
 
 @SuppressLint("PrivateResource")
-class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
+class ExperimentAdapter(private val fragment: ExperimentFragment) :
+    ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
+    private val viewModel: ExperimentViewModel by fragment.viewModels()
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
         is ExperimentContentSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
@@ -87,35 +95,46 @@ class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHo
                 val item = getItem(position) as ExperimentContentActionItem
                 binding.title.text = item.title
                 binding.summary.text = item.summary
-                binding.button.setOnClickListener {
-                    startAction(binding.button, item)
+                val button = binding.button
+                button.setOnClickListener {
+                    var deferred = button.getTag(item.id) as? Deferred<Unit>
+                    if (deferred == null || !deferred.isActive) {
+                        deferred = viewModel.viewModelScope.async(
+                            Dispatchers.IO, CoroutineStart.LAZY, item.action!!
+                        )
+                        button.setTag(item.id, deferred)
+                        if (!fragment.requireContext().hasWifiTransport) {
+                            button.isChecked = false
+                            fragment.dialog = AlertDialog.Builder(fragment.requireContext())
+                                .setMessage(R.string.no_wifi)
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .setPositiveButton(android.R.string.ok) { _, _ ->
+                                    startAction(button, deferred)
+                                }
+                                .show()
+                        } else {
+                            startAction(button, deferred)
+                        }
+                    } else {
+                        deferred.cancel()
+
+                        button.setText(R.string.start)
+                    }
                 }
             }
         }
     }
 
-    private fun startAction(button: MaterialButton, item: ExperimentContentActionItem) {
-        var deferred = button.getTag(item.id) as? Deferred<Unit>
-        if (deferred == null || !deferred.isActive) {
-            deferred =
-                MainScope().async(Dispatchers.IO, CoroutineStart.LAZY, item.action!!)
-            button.setTag(item.id, deferred)
-            MainScope().launch {
-                button.setText(android.R.string.cancel)
-                button.isChecked = true
+    private fun startAction(button: MaterialButton, deferred: Deferred<Unit>) =
+        viewModel.viewModelScope.launch {
+            button.setText(android.R.string.cancel)
+            button.isChecked = true
 
-                deferred.await()
-
-                button.setText(R.string.start)
-                button.isChecked = false
-            }
-        } else {
-            deferred.cancel()
+            deferred.await()
 
             button.setText(R.string.start)
             button.isChecked = false
         }
-    }
 
     class SeparatorViewHolder(inflater: LayoutInflater, parent: ViewGroup?) :
         RecyclerView.ViewHolder(
@@ -144,6 +163,14 @@ class ExperimentAdapter : ListAdapter<ExperimentContentItem, RecyclerView.ViewHo
                 override fun areContentsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem
+            }
+
+        val Context.hasWifiTransport: Boolean
+            get() {
+                val connManager =
+                    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
+                return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
             }
     }
 }

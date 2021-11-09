@@ -39,7 +39,7 @@ data class ExperimentContentHeaderItem(
 data class ExperimentContentSubHeaderItem(
     val id: Int,
     var content: CharSequence?,
-    var checked: Boolean
+    var dismissed: Boolean
 ) : ExperimentContentItem
 
 /** Action items. */
@@ -47,7 +47,8 @@ data class ExperimentContentActionItem(
     val id: Int,
     var title: CharSequence?,
     var summary: CharSequence?,
-    var action: (suspend CoroutineScope.() -> Unit)? = null
+    var action: (suspend CoroutineScope.() -> Unit)? = null,
+    var needsNetwork: Boolean
 ) : ExperimentContentItem
 
 object ExperimentContentItems {
@@ -64,13 +65,18 @@ object ExperimentContentItems {
             if (menuItemImpl.hasSubMenu()) {
                 (menuItemImpl.subMenu as MenuBuilder).visibleItems.forEach { subMenu ->
                     when {
-                        subMenu.isCheckable -> items.add(
-                            ExperimentContentSubHeaderItem(
-                                subMenu.itemId, subMenu.title, subMenu.isChecked
+                        subMenu.isCheckable -> {
+                            items.add(
+                                ExperimentContentSubHeaderItem(
+                                    subMenu.itemId, subMenu.title, subMenu.isChecked
+                                )
                             )
-                        )
+                        }
                         !subMenu.isCheckable -> items.add(
-                            ExperimentContentActionItem(subMenu.itemId, subMenu.title, null)
+                            ExperimentContentActionItem(
+                                subMenu.itemId, subMenu.title, null,
+                                needsNetwork = subMenu.isChecked
+                            )
                         )
                     }
                 }

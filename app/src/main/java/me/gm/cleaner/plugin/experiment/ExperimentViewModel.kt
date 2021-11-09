@@ -19,8 +19,6 @@ package me.gm.cleaner.plugin.experiment
 import android.app.DownloadManager
 import android.content.ContentValues
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Environment
 import android.os.FileUtils
@@ -81,6 +79,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
                 .also { _unsplashPhotosFlow.emit(it) }
             ensureActive()
+            val resolver = context.contentResolver
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
                     val unsplashPhoto = unsplashPhotos.random()
@@ -92,12 +91,11 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                             "image/${unsplashPhoto.filename.substringAfterLast('.')}"
                         )
                     }
-                    val resolver = context.contentResolver
+                    ensureActive()
                     val imageUri = resolver.insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, newImageDetails
                     ) ?: return@repeat
                     runCatching {
-                        ensureActive()
                         val `is` = URL(unsplashPhoto.getPhotoUrl(width)).openStream()
                         val os = resolver.openOutputStream(imageUri, "w") ?: return@runCatching
                         FileUtils.copy(`is`, os)
@@ -108,15 +106,5 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 // TODO
             }
         }
-    }
-
-    companion object {
-        val Context.hasWifiTransport: Boolean
-            get() {
-                val connManager =
-                    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
-                return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
-            }
     }
 }

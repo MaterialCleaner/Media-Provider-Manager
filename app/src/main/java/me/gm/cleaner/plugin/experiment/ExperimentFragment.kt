@@ -42,7 +42,7 @@ import rikka.recyclerview.fixEdgeEffect
 @SuppressLint("RestrictedApi")
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()
-    private val adapter by lazy { ExperimentAdapter() }
+    private val adapter by lazy { ExperimentAdapter(this) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

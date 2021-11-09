@@ -26,12 +26,15 @@
                 android:title="@string/experiment_header" />
             <item
                 android:id="@+id/unsplash_download_manager"
+                android:checked="true"
                 android:title="@string/unsplash_download_manager_title" />
             <item
                 android:id="@+id/unsplash_insert"
+                android:checked="true"
                 android:title="@string/unsplash_insert_title" />
 <!--            <item-->
 <!--                android:id="@+id/persistently_track"-->
+            <!--            android:checked="false"-->
 <!--                android:title="@string/persistently_track_title" />-->
         </menu>
     </item>

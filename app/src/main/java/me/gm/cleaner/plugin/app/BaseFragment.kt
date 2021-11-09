@@ -131,7 +131,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     // ALERT DIALOG
-    protected lateinit var dialog: AlertDialog
+    lateinit var dialog: AlertDialog
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
