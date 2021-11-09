@@ -26,10 +26,6 @@
     <string name="active">ACTIVATED</string>
     <string name="enabled_app_count">Enabled for %d app(s)</string>
 
-    <!-- TODO: delete -->
-    <string name="query">Query</string>
-    <string name="insert">Insert</string>
-
     <!-- Menu -->
     <string name="search">Search</string>
     <string name="view">View</string>
@@ -72,9 +68,10 @@
     <string name="unsplash">Unsplash</string>
     <string name="experiment_header">Here are some experiments on media storage, through which you can learn about media storage and test module functions.</string>
     <string name="unsplash_download_manager_title">Get 10 random pictures from Unsplash through the download manager</string>
-    <string name="unsplash_download_manager_summary"></string>
-    <string name="unsplash_insert_title"></string>
-    <string name="unsplash_insert_summary"></string>
+    <string name="unsplash_download_manager_summary">Downloading files through the download manager does not require storage permissions, and the downloaded files are attributed to the requesting app, which means the app can access the files without storage permissions.\n
+        You can revoke the storage permission of the app, click Start, then switch to the image page and uncheck the checkbox in the more options to see if you can see the downloaded image.</string>
+    <string name="unsplash_insert_title">Insert 10 random pictures from Unsplash through the media store</string>
+    <string name="unsplash_insert_summary">It is similar to using the download manager. The main distinctions are that the download manager does not send notifications and there are no download records in the download manager.</string>
     <string name="start">START</string>
 
     <!-- About -->

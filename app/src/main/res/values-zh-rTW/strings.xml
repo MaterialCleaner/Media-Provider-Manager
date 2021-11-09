@@ -3,19 +3,27 @@
     <string name="app_name">媒體儲存設備管理</string>
     <string name="description">防止媒體儲存濫用</string>
 
-    <!-- 首頁 -->
-    <string name="not_active">未激活</string>
-    <string name="restart_system">重啟系統以升級模組</string>
-    <string name="active">已啟動</string>
+    <!-- 側欄 -->
+    <string name="module">模組</string>
     <string name="app_management">應用管理</string>
-    <string name="enabled_app_count">對 %d 個應用啟用</string>
-    <string name="usage_record">媒體儲存使用記錄</string>
-    <string name="experiment">測試媒體儲存</string>
+    <string name="usage_record">使用記錄</string>
+    <string name="settings">設置</string>
+
+    <string name="media_store">媒體儲存</string>
+    <string name="audio">音訊</string>
+    <string name="downloads">下載</string>
+    <string name="files">文件</string>
+    <string name="images">圖像</string>
+    <string name="video">錄影</string>
+
+    <string name="experiment">實驗</string>
     <string name="about">關於</string>
 
-    <!-- 測試 -->
-    <string name="query">查詢</string>
-    <string name="insert">插入</string>
+    <!-- 首頁 -->
+    <string name="not_active">未啟動</string>
+    <string name="restart_system">重啟系統以升級模組</string>
+    <string name="active">已啟動</string>
+    <string name="enabled_app_count">對 %d 個應用啟用</string>
 
     <!-- 菜單 -->
     <string name="search">搜索</string>
@@ -26,14 +34,34 @@
     <string name="menu_rule_count">規則數</string>
     <string name="menu_hide_title">隱藏</string>
     <string name="menu_hide_system_app_title">系統應用</string>
-    <string name="menu_hide_no_storage_permission_title">無存儲權限應用</string>
+    <string name="menu_hide_no_storage_permission_title">無儲存權限應用</string>
     <string name="delete">刪除</string>
     <string name="delete_all_rules">刪除所有規則</string>
+    <string name="refresh">刷新</string>
+    <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
 
     <!-- 設置 -->
     <string name="display_name">顯示名</string>
     <string name="relative_path">相對路徑</string>
     <string name="mime_type">MIME 類型</string>
+
+    <!-- 媒體儲存 -->
+    <string name="rationale_shouldShowRationale">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限</string>
+    <string name="rationale_permanentlyDenied">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限，請在應用訊息中手動授予</string>
+    <string name="revoke_self_permission">只顯示自己的媒體檔案需要撤銷應用的讀取外部儲存空間權限，請在應用訊息中手動撤銷</string>
+    <string name="validation">刪除所有無效圖片</string>
+    <string name="validation_nop">未發現無效圖片</string>
+
+    <!-- 實驗 -->
+    <string name="no_wifi">當前沒有連接到 wifi 網路，此實驗將會消耗您的數據流量，是否繼續？</string>
+    <string name="unsplash">Unsplash</string>
+    <string name="experiment_header">這裡有一些關於媒體儲存的實驗，您可以透過它們了解媒體儲存和測試模組功能。</string>
+    <string name="unsplash_download_manager_title">通過下載管理程序下載 10 張來自 Unsplash 的隨機圖片</string>
+    <string name="unsplash_download_manager_summary">透過下載管理程序下載文件無需儲存權限，且下載的文件歸因於發起請求的應用（應用訪問這些文件不需要儲存權限）。\n
+        您可以撤銷應用的儲存權限，點擊開始，然後切換到圖像頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
+    <string name="unsplash_insert_title">透過媒體儲存插入 10 張來自 Unsplash 的隨機圖片</string>
+    <string name="unsplash_insert_summary">效果與使用下載管理程序相似，主要區別在於下載管理程序不會發送通知以及下載管理程序中沒有下載記錄。</string>
+    <string name="start">開始</string>
 
     <!-- 關於 -->
     <string name="source_code">原始碼</string>

@@ -27,7 +27,8 @@ data class MediaProviderRecord(
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "_display_name") val displayName: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
-    @ColumnInfo(name = "relative_path") val relativePath: String
+    @ColumnInfo(name = "relative_path") val relativePath: String,
+    @ColumnInfo(name = "intercepted") val intercepted: Boolean,
 )
 
 @Dao
