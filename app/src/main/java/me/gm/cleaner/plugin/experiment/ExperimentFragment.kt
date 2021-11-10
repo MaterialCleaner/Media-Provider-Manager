@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.experiment
 
-import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -25,7 +24,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.util.keyIterator
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -35,22 +33,20 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
 import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
-import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 @AndroidEntryPoint
-@SuppressLint("RestrictedApi")
 class ExperimentFragment : BaseFragment() {
     private val viewModel: ExperimentViewModel by viewModels()
-    private val adapter by lazy { ExperimentAdapter(this) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ExperimentFragmentBinding.inflate(layoutInflater)
 
+        val adapter = ExperimentAdapter(this)
         val list = binding.list
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
@@ -80,37 +76,22 @@ class ExperimentFragment : BaseFragment() {
             }
         })
 
-        initContentItems()
+        viewModel.prepareContentItems(requireActivity(), adapter)
         viewModel.unsplashPhotosLiveData.observe(viewLifecycleOwner) {
             synchronized(this) {
-                val idsToRemove = mutableListOf<Int>()
+                val changedItems = mutableListOf<Int>()
                 viewModel.actions.keyIterator().forEach { id ->
                     if (!viewModel.actions[id].isActive) {
-                        idsToRemove.add(id)
+                        changedItems.add(id)
                         val position = adapter.currentList.findIndexById(id)
                         adapter.notifyItemChanged(position)
                     }
                 }
-                idsToRemove.forEach { id ->
+                changedItems.forEach { id ->
                     viewModel.actions.remove(id)
                 }
             }
         }
         return binding.root
-    }
-
-    private fun initContentItems() {
-        val menu = MenuBuilder(requireContext())
-        requireActivity().menuInflater.inflate(R.menu.experiment_content, menu)
-        val items = ExperimentContentItems.forMenuBuilder(menu)
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).apply {
-            summary = getText(R.string.unsplash_download_manager_summary)
-            action = viewModel.unsplashDownloadManager(requireContext())
-        }
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
-            summary = getText(R.string.unsplash_insert_summary)
-            action = viewModel.unsplashInsert(requireContext())
-        }
-        adapter.submitList(items)
     }
 }

@@ -43,9 +43,9 @@ class PagerFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LogUtils.e("Useful overriding method.")
         // TODO: enable options menu when PagerFragment decoupled
 //        setHasOptionsMenu(true)
+        LogUtils.e("Useful overriding method.")
     }
 
     override fun onCreateView(

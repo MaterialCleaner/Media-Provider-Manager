@@ -18,12 +18,13 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/experiment_header"
+        android:checkable="true"
+        android:title="@string/experiment_header" />
+
     <item android:title="@string/unsplash">
         <menu>
-            <item
-                android:id="@+id/experiment_header"
-                android:checkable="true"
-                android:title="@string/experiment_header" />
             <item
                 android:id="@+id/unsplash_download_manager"
                 android:checked="true"
@@ -32,11 +33,12 @@
                 android:id="@+id/unsplash_insert"
                 android:checked="true"
                 android:title="@string/unsplash_insert_title" />
-<!--            <item-->
-<!--                android:id="@+id/persistently_track"-->
-            <!--            android:checked="false"-->
-<!--                android:title="@string/persistently_track_title" />-->
         </menu>
     </item>
+
+    <!--            <item-->
+    <!--                android:id="@+id/persistently_track"-->
+    <!--            android:checked="false"-->
+    <!--                android:title="@string/persistently_track_title" />-->
 
 </menu>

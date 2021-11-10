@@ -23,6 +23,7 @@
     android:paddingHorizontal="@dimen/card_margin">
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="true"

@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.experiment
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.ContentValues
 import android.content.Context
@@ -23,6 +25,7 @@ import android.os.Environment
 import android.os.FileUtils
 import android.provider.MediaStore
 import android.util.SparseArray
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,8 +34,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ensureActive
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
+import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
+import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
 import me.gm.cleaner.plugin.util.LogUtils
 import java.net.URL
 import javax.inject.Inject
@@ -40,6 +46,37 @@ import javax.inject.Inject
 @HiltViewModel
 class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
+    val dismissedCard = mutableListOf<Int>()
+
+    @SuppressLint("RestrictedApi")
+    fun prepareContentItems(activity: Activity, adapter: ExperimentAdapter) {
+        val menu = MenuBuilder(activity)
+        activity.menuInflater.inflate(R.menu.experiment_content, menu)
+        val items = ExperimentContentItems.forMenuBuilder(menu)
+        dismissedCard.asSequence()
+            .map { id -> items.findIndexById(id) }
+            .sortedDescending()
+            .forEach { indexOfSubHeader ->
+                if (items[indexOfSubHeader + 1] is ExperimentContentSeparatorItem) {
+                    items.removeAt(indexOfSubHeader + 1)
+                }
+                items.removeAt(indexOfSubHeader)
+                if (indexOfSubHeader - 1 >= 0 && items[indexOfSubHeader - 1] is ExperimentContentSeparatorItem) {
+                    items.removeAt(indexOfSubHeader - 1)
+                }
+            }
+
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).apply {
+            summary = activity.getText(R.string.unsplash_download_manager_summary)
+            action = unsplashDownloadManager(activity)
+        }
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
+            summary = activity.getText(R.string.unsplash_insert_summary)
+            action = unsplashInsert(activity)
+        }
+        adapter.submitList(items)
+    }
+
     val actions = SparseArray<Deferred<*>>()
 
     private val _unsplashPhotosLiveData: MutableLiveData<Result<List<UnsplashPhoto>>> =

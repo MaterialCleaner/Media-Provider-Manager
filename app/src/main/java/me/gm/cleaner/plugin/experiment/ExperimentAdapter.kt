@@ -21,13 +21,18 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.behavior.SwipeDismissBehavior
+import com.google.android.material.divider.MaterialDivider
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
@@ -48,8 +53,9 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        com.google.android.material.R.layout.design_navigation_item_separator ->
-            SeparatorViewHolder(LayoutInflater.from(parent.context), parent)
+        com.google.android.material.R.layout.design_navigation_item_separator -> SeparatorViewHolder(
+            parent.context
+        )
         R.layout.experiment_card_header -> HeaderCardViewHolder(
             ExperimentCardHeaderBinding.inflate(LayoutInflater.from(parent.context))
         )
@@ -72,13 +78,6 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
             )
         }
         when (holder) {
-            is SeparatorViewHolder -> {
-                holder.itemView.setPaddingRelative(
-                    0, holder.itemView.resources.getDimensionPixelOffset(
-                        com.google.android.material.R.dimen.design_navigation_separator_vertical_padding
-                    ), 0, 0
-                )
-            }
             is HeaderCardViewHolder -> {
                 val binding = holder.binding
                 val item = getItem(position) as ExperimentContentHeaderItem
@@ -88,6 +87,28 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                 val binding = holder.binding
                 val item = getItem(position) as ExperimentContentSubHeaderItem
                 binding.cardContextText.text = item.content
+                val card = binding.card
+                val swipeDismissBehavior = SwipeDismissBehavior<View>().apply {
+                    setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY)
+                    setListener(object : SwipeDismissBehavior.OnDismissListener {
+                        override fun onDragStateChanged(state: Int) {
+                            when (state) {
+                                SwipeDismissBehavior.STATE_DRAGGING,
+                                SwipeDismissBehavior.STATE_SETTLING -> card.isDragged = true
+                                SwipeDismissBehavior.STATE_IDLE -> card.isDragged = false
+                            }
+                        }
+
+                        override fun onDismiss(view: View) {
+                            viewModel.dismissedCard.add(item.id)
+                            viewModel.prepareContentItems(
+                                fragment.requireActivity(), this@ExperimentAdapter
+                            )
+                        }
+                    })
+                }
+                val coordinatorParams = card.layoutParams as CoordinatorLayout.LayoutParams
+                coordinatorParams.behavior = swipeDismissBehavior
             }
             is ActionCardViewHolder -> {
                 val binding = holder.binding
@@ -135,12 +156,15 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
         deferred.await()
     }
 
-    class SeparatorViewHolder(inflater: LayoutInflater, parent: ViewGroup?) :
-        RecyclerView.ViewHolder(
-            inflater.inflate(
-                com.google.android.material.R.layout.design_navigation_item_separator, parent, false
-            )
-        )
+    class SeparatorViewHolder(context: Context) :
+        RecyclerView.ViewHolder(FrameLayout(context).apply {
+            val cardMargin = context.resources.getDimensionPixelSize(R.dimen.card_margin)
+            addView(MaterialDivider(context).apply {
+                dividerInsetStart = cardMargin
+                dividerInsetEnd = cardMargin
+            })
+            setPaddingRelative(0, cardMargin, 0, 0)
+        })
 
     class HeaderCardViewHolder(val binding: ExperimentCardHeaderBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -156,9 +180,14 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
             object : DiffUtil.ItemCallback<ExperimentContentItem>() {
                 override fun areItemsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
-                ) = oldItem == newItem
+                ) = when (oldItem) {
+                    is ExperimentContentSeparatorItem -> oldItem.id == (newItem as? ExperimentContentSeparatorItem)?.id
+                    is ExperimentContentHeaderItem -> oldItem.id == (newItem as? ExperimentContentHeaderItem)?.id
+                    is ExperimentContentSubHeaderItem -> oldItem.id == (newItem as? ExperimentContentSubHeaderItem)?.id
+                    is ExperimentContentActionItem -> oldItem.id == (newItem as? ExperimentContentActionItem)?.id
+                    else -> throw IndexOutOfBoundsException()
+                }
 
-                @SuppressLint("DiffUtilEquals")
                 override fun areContentsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem

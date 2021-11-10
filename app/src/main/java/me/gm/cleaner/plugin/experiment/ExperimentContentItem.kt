@@ -54,33 +54,37 @@ data class ExperimentContentActionItem(
 object ExperimentContentItems {
 
     /** Convert MenuItemImpl to ExperimentMenuItem. */
-    @SuppressLint("RestrictedApi")
-    fun forMenuBuilder(menu: MenuBuilder): List<ExperimentContentItem> {
+    fun forMenuBuilder(menu: MenuBuilder): MutableList<ExperimentContentItem> {
         val items = mutableListOf<ExperimentContentItem>()
+        convertTo(items, menu)
+        return items
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun convertTo(items: MutableList<ExperimentContentItem>, menu: MenuBuilder) {
         menu.visibleItems.forEach { menuItemImpl ->
-            if (items.isNotEmpty()) {
-                items.add(ExperimentContentSeparatorItem())
-            }
-            items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
             if (menuItemImpl.hasSubMenu()) {
-                (menuItemImpl.subMenu as MenuBuilder).visibleItems.forEach { subMenu ->
-                    when {
-                        subMenu.isCheckable -> items.add(
-                            ExperimentContentSubHeaderItem(
-                                subMenu.itemId, subMenu.title, subMenu.isChecked
-                            )
+                if (items.isNotEmpty()) {
+                    items.add(ExperimentContentSeparatorItem())
+                }
+                items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
+                convertTo(items, menuItemImpl.subMenu as MenuBuilder)
+            } else {
+                when {
+                    menuItemImpl.isCheckable -> items.add(
+                        ExperimentContentSubHeaderItem(
+                            menuItemImpl.itemId, menuItemImpl.title, menuItemImpl.isChecked
                         )
-                        !subMenu.isCheckable -> items.add(
-                            ExperimentContentActionItem(
-                                subMenu.itemId, subMenu.title, null,
-                                needsNetwork = subMenu.isChecked
-                            )
+                    )
+                    !menuItemImpl.isCheckable -> items.add(
+                        ExperimentContentActionItem(
+                            menuItemImpl.itemId, menuItemImpl.title, null,
+                            needsNetwork = menuItemImpl.isChecked
                         )
-                    }
+                    )
                 }
             }
         }
-        return items
     }
 
     @Suppress("UNCHECKED_CAST")
