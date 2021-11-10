@@ -39,6 +39,7 @@
     <string name="delete_all_rules">删除所有规则</string>
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">显示其他应用的媒体文件</string>
+    <string name="info">信息</string>
 
     <!-- 设置 -->
     <string name="display_name">显示名</string>

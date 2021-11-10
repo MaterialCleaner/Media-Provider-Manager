@@ -94,7 +94,7 @@ class PagerItem : BaseFragment() {
             override fun onPreviewReleased() {}
         })
         ssiv.setOnClickListener {
-            toggleAppBar(!supportActionBar!!.isShowing)
+            toggleAppBar(supportActionBar?.isShowing == false)
         }
         ssiv.setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
             override fun onScaleChanged(newScale: Float, origin: Int) {

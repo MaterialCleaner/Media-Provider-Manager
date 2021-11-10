@@ -87,8 +87,7 @@ class ExperimentFragment : BaseFragment() {
                 viewModel.actions.keyIterator().forEach { id ->
                     if (!viewModel.actions[id].isActive) {
                         idsToRemove.add(id)
-                        val position =
-                            adapter.currentList.findIndexById<ExperimentContentActionItem>(id)
+                        val position = adapter.currentList.findIndexById(id)
                         adapter.notifyItemChanged(position)
                     }
                 }

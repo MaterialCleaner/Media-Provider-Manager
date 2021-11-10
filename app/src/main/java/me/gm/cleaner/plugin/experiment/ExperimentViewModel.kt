@@ -19,11 +19,11 @@ package me.gm.cleaner.plugin.experiment
 import android.app.DownloadManager
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import android.os.Environment
 import android.os.FileUtils
 import android.provider.MediaStore
 import android.util.SparseArray
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -66,7 +66,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 repeat(10) {
                     val unsplashPhoto = unsplashPhotos.random()
                     val request = DownloadManager
-                        .Request(Uri.parse(unsplashPhoto.getPhotoUrl(width)))
+                        .Request(unsplashPhoto.getPhotoUrl(width).toUri())
                         .setDestinationInExternalPublicDir(
                             Environment.DIRECTORY_PICTURES, unsplashPhoto.filename
                         )
@@ -91,6 +91,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             val resolver = context.contentResolver
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
+                    ensureActive()
                     val unsplashPhoto = unsplashPhotos.random()
                     val newImageDetails = ContentValues().apply {
                         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
@@ -100,7 +101,6 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                             "image/${unsplashPhoto.filename.substringAfterLast('.')}"
                         )
                     }
-                    ensureActive()
                     val imageUri = resolver.insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, newImageDetails
                     ) ?: return@repeat

@@ -45,6 +45,7 @@
     <string name="refresh">Refresh</string>
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>
+    <string name="info">Info</string>
 
     <!-- Settings -->
     <string name="display_name_key" translatable="false">_display_name</string>

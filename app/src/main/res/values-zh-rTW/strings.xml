@@ -39,6 +39,7 @@
     <string name="delete_all_rules">刪除所有規則</string>
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
+    <string name="info">訊息</string>
 
     <!-- 設置 -->
     <string name="display_name">顯示名</string>

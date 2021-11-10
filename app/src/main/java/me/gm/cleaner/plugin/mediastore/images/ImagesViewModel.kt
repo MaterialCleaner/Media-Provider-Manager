@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2021 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+// TODO: rename to ImagesLoader, decouple and reuse PagerFragment
 class ImagesViewModel(application: Application) : AndroidViewModel(application) {
     private val _imagesFlow = MutableStateFlow<List<MediaStoreImage>>(emptyList())
     val imagesFlow = _imagesFlow.asStateFlow()
@@ -182,20 +184,19 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
                  * to avoid having to look them up for each row.
                  */
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dateModifiedColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val dateModifiedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
 
                 Log.i(TAG, "Found ${cursor.count} images")
                 while (cursor.moveToNext()) {
 
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
+                    val displayName = cursor.getString(displayNameColumn)
                     val dateModified =
                         Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
-                    val displayName = cursor.getString(displayNameColumn)
-
 
                     /**
                      * This is one of the trickiest parts:
@@ -214,7 +215,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
                         id
                     )
 
-                    val image = MediaStoreImage(id, displayName, dateModified, contentUri)
+                    val image = MediaStoreImage(id, contentUri, displayName, dateModified)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.

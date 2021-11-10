@@ -18,9 +18,7 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
@@ -35,12 +33,20 @@ import com.google.android.material.transition.platform.FitsScaleMaterialContaine
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.PagerFragmentBinding
+import me.gm.cleaner.plugin.util.LogUtils
 import me.gm.cleaner.plugin.util.mediumAnimTime
 
 class PagerFragment : BaseFragment() {
     private val pagerViewModel: PagerViewModel by activityViewModels()
     private val imagesViewModel: ImagesViewModel by activityViewModels()
     private lateinit var viewPager: ViewPager2
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        LogUtils.e("Useful overriding method.")
+        // TODO: enable options menu when PagerFragment decoupled
+//        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -130,6 +136,19 @@ class PagerFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.image_pager_toolbar, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_info -> {
+            val image = imagesViewModel.images[pagerViewModel.currentPosition]
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

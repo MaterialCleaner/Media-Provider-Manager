@@ -65,13 +65,11 @@ object ExperimentContentItems {
             if (menuItemImpl.hasSubMenu()) {
                 (menuItemImpl.subMenu as MenuBuilder).visibleItems.forEach { subMenu ->
                     when {
-                        subMenu.isCheckable -> {
-                            items.add(
-                                ExperimentContentSubHeaderItem(
-                                    subMenu.itemId, subMenu.title, subMenu.isChecked
-                                )
+                        subMenu.isCheckable -> items.add(
+                            ExperimentContentSubHeaderItem(
+                                subMenu.itemId, subMenu.title, subMenu.isChecked
                             )
-                        }
+                        )
                         !subMenu.isCheckable -> items.add(
                             ExperimentContentActionItem(
                                 subMenu.itemId, subMenu.title, null,
@@ -86,7 +84,7 @@ object ExperimentContentItems {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentContentItem> List<ExperimentContentItem>.findItemById(id: Int): T =
+    inline fun <reified T : ExperimentContentItem> Collection<ExperimentContentItem>.findItemById(id: Int): T =
         first {
             id == when (it) {
                 is ExperimentContentSeparatorItem -> it.id
@@ -97,15 +95,13 @@ object ExperimentContentItems {
             }
         } as T
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentContentItem> List<ExperimentContentItem>.findIndexById(id: Int) =
-        indexOfFirst {
-            id == when (it) {
-                is ExperimentContentSeparatorItem -> it.id
-                is ExperimentContentHeaderItem -> it.id
-                is ExperimentContentSubHeaderItem -> it.id
-                is ExperimentContentActionItem -> it.id
-                else -> throw IndexOutOfBoundsException()
-            }
+    fun Collection<ExperimentContentItem>.findIndexById(id: Int) = indexOfFirst {
+        id == when (it) {
+            is ExperimentContentSeparatorItem -> it.id
+            is ExperimentContentHeaderItem -> it.id
+            is ExperimentContentSubHeaderItem -> it.id
+            is ExperimentContentActionItem -> it.id
+            else -> throw IndexOutOfBoundsException()
         }
+    }
 }
