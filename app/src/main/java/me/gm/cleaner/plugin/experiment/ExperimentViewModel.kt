@@ -42,9 +42,14 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
     ViewModel() {
     val actions = SparseArray<Deferred<*>>()
 
-    private val _unsplashPhotosFlow: MutableLiveData<Result<List<UnsplashPhoto>>> =
+    private val _unsplashPhotosLiveData: MutableLiveData<Result<List<UnsplashPhoto>>> =
         MutableLiveData(Result.failure(UninitializedPropertyAccessException()))
-    val unsplashPhotosFlow: LiveData<Result<List<UnsplashPhoto>>> = _unsplashPhotosFlow
+    val unsplashPhotosLiveData: LiveData<Result<List<UnsplashPhoto>>> = _unsplashPhotosLiveData
+    private var unsplashPhotos: Result<List<UnsplashPhoto>>
+        get() = _unsplashPhotosLiveData.value!!
+        set(value) {
+            _unsplashPhotosLiveData.postValue(value)
+        }
 
     private var width = 0
     private lateinit var downloadManager: DownloadManager
@@ -54,7 +59,8 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         }
         return {
-            val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
+            val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
+            else repository.fetchUnsplashPhotoList()
             ensureActive()
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
@@ -70,7 +76,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 LogUtils.e(e)
                 // TODO
             }
-            _unsplashPhotosFlow.postValue(unsplashPhotoListResult)
+            unsplashPhotos = unsplashPhotoListResult
         }
     }
 
@@ -79,7 +85,8 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             width = context.resources.displayMetrics.widthPixels
         }
         return {
-            val unsplashPhotoListResult = repository.fetchUnsplashPhotoList()
+            val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
+            else repository.fetchUnsplashPhotoList()
             ensureActive()
             val resolver = context.contentResolver
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
@@ -107,7 +114,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 LogUtils.e(e)
                 // TODO
             }
-            _unsplashPhotosFlow.postValue(unsplashPhotoListResult)
+            unsplashPhotos = unsplashPhotoListResult
         }
     }
 }

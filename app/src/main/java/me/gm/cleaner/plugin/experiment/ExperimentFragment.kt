@@ -81,7 +81,7 @@ class ExperimentFragment : BaseFragment() {
         })
 
         initContentItems()
-        viewModel.unsplashPhotosFlow.observe(viewLifecycleOwner) {
+        viewModel.unsplashPhotosLiveData.observe(viewLifecycleOwner) {
             synchronized(this) {
                 val idsToRemove = mutableListOf<Int>()
                 viewModel.actions.keyIterator().forEach { id ->
