@@ -35,7 +35,8 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
 
         // "mime_type" = image / png
         XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("_display_name: " + contentValues?.get("_display_name"))
-        XposedBridge.log("relative_path: " + contentValues?.get("relative_path"))
+        XposedBridge.log("contentValues: $contentValues")
+//        XposedBridge.log("_display_name: " + contentValues?.get("_display_name"))
+//        XposedBridge.log("relative_path: " + contentValues?.get("relative_path"))
     }
 }

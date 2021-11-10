@@ -17,29 +17,20 @@
 package me.gm.cleaner.plugin.xposed.hooker
 
 import android.content.Context
-import android.os.Environment
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.FileUtils
 
 class FileHooker(private val context: Context) : XC_MethodHook() {
-    private val niceParents =
-        FileUtils.standardDirs.toMutableList().apply { add(FileUtils.androidDir) }
-    private val redirectDir = context.getExternalFilesDir(null)!!.path
-    private val externalStorageDirectory = Environment.getExternalStorageDirectory().path
+    private val niceParents = FileUtils.standardDirs + FileUtils.androidDir
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         val path = XposedHelpers.getObjectField(param.thisObject, "path") as String
-        // record
-        // TODO
         // reject mkdir
         if (niceParents.none { FileUtils.startsWith(it, path) }) {
-            if (BuildConfig.DEBUG) {
-                XposedBridge.log("rejected mkdir: $path")
-            }
+            XposedBridge.log("rejected mkdir: $path")
             param.result = false
         }
     }

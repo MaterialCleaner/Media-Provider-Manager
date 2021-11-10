@@ -67,8 +67,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
             "com.android.providers.downloads" -> {
                 listOf(
                     "com.android.providers.downloads.DownloadProvider",
-                    // 💩MIUI
-                    "com.android.providers.downloads.provider.DownloadProvider"
+                    "com.android.providers.downloads.provider.DownloadProvider" // MIUI 💩
                 ).forEach {
                     try {
                         XposedHelpers.findAndHookMethod(

@@ -188,6 +188,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                     else -> throw IndexOutOfBoundsException()
                 }
 
+                @SuppressLint("DiffUtilEquals")
                 override fun areContentsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem
