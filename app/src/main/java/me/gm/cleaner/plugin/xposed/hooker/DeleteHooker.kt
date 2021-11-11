@@ -16,25 +16,28 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
-import android.content.Context
-import android.os.Environment
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import me.gm.cleaner.plugin.util.FileUtils
+import me.gm.cleaner.plugin.xposed.ManagerService
 
-class FileHooker(private val context: Context) : XC_MethodHook() {
-    private val niceParents = FileUtils.standardDirs + FileUtils.androidDir
-
+class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
-        val path = XposedHelpers.getObjectField(param.thisObject, "path") as String
-        // reject mkdir
-        if (FileUtils.startsWith(Environment.getExternalStorageDirectory(), path) &&
-            niceParents.none { FileUtils.startsWith(it, path) }
-        ) {
-            XposedBridge.log("rejected mkdir: $path")
-            param.result = false
+        val uri = param.args[0] as Uri
+        when {
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                val userWhere = param.args[1] as? String
+                val userWhereArgs = param.args[2] as? Array<String>
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                val extras = param.args[1] as? Bundle
+            }
         }
+
+        XposedBridge.log("packageName: " + param.callingPackage)
+        XposedBridge.log("delete: $uri")
     }
 }

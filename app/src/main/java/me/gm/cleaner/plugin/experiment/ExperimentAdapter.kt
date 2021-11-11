@@ -138,6 +138,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                                 .setMessage(R.string.no_wifi)
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .setPositiveButton(android.R.string.ok) { _, _ ->
+                                    button.toggle()
                                     startAction(deferred)
                                 }
                                 .show()

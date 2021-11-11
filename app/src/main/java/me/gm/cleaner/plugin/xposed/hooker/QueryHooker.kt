@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
+import android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
@@ -34,7 +35,7 @@ import java.util.function.Function
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
-        val uri = param.args[0] as? Uri
+        val uri = param.args[0] as Uri
         val projection = param.args[1] as? Array<String>
         val queryArgs = param.args[2] as? Bundle ?: Bundle()
         val signal = param.args[3] as? CancellationSignal
@@ -47,8 +48,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val honoredArgs: ArraySet<String> = ArraySet()
         XposedHelpers.callStaticMethod(
             XposedHelpers.findClass(
-                "com.android.providers.media.util.DatabaseUtils",
-                service.classLoader
+                "com.android.providers.media.util.DatabaseUtils", service.classLoader
             ), "resolveQueryArgs", queryArgs, object : Consumer<String> {
                 override fun accept(t: String) {
                     honoredArgs.add(t)
@@ -59,8 +59,15 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             }
         )
 
-        XposedBridge.log("queryArgs: $queryArgs")
-        XposedBridge.log("honoredArgs: $honoredArgs")
+        XposedBridge.log(
+            "queryArgs: ${
+                Arrays.toString(
+                    queryArgs.getStringArray(
+                        QUERY_ARG_SQL_SELECTION_ARGS
+                    )
+                )
+            }"
+        )
     }
 
     // for interaction

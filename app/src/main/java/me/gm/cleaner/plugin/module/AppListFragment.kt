@@ -60,9 +60,7 @@ class AppListFragment : BaseFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(
-                binderViewModel.installedPackages, requireContext().packageManager, null
-            )
+            viewModel.loadApps(binderViewModel, requireContext().packageManager, null)
         }
 
         // Start a coroutine in the lifecycle scope
@@ -86,9 +84,7 @@ class AppListFragment : BaseFragment() {
                 }
             }
         }
-        savedInstanceState ?: viewModel.loadApps(
-            binderViewModel.installedPackages, requireContext().packageManager
-        )
+        savedInstanceState ?: viewModel.loadApps(binderViewModel, requireContext().packageManager)
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {

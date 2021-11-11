@@ -16,15 +16,31 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
+import android.net.Uri
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 
 interface MediaProviderHooker {
     val XC_MethodHook.MethodHookParam.callingPackage: String
         get() {
-            require(method.declaringClass.name == "com.android.providers.media.MediaProvider")
+            ensureMediaProvider()
             val threadLocal =
                 XposedHelpers.getObjectField(thisObject, "mCallingIdentity") as ThreadLocal<*>
             return XposedHelpers.callMethod(threadLocal.get(), "getPackageName") as String
         }
+
+    val XC_MethodHook.MethodHookParam.isCallingPackageAllowedHidden: Boolean
+        get() {
+            ensureMediaProvider()
+            return XposedHelpers.callMethod(thisObject, "isCallingPackageAllowedHidden") as Boolean
+        }
+
+    fun XC_MethodHook.MethodHookParam.matchUri(uri: Uri, allowHidden: Boolean): Int {
+        ensureMediaProvider()
+        return XposedHelpers.callMethod(thisObject, "matchUri", uri, allowHidden) as Int
+    }
+
+    fun XC_MethodHook.MethodHookParam.ensureMediaProvider() {
+        require(method.declaringClass.name == "com.android.providers.media.MediaProvider")
+    }
 }

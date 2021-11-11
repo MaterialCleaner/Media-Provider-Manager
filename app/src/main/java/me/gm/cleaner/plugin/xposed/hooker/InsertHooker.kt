@@ -20,23 +20,42 @@ import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.gm.cleaner.plugin.xposed.ManagerService
+import java.io.File
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
-        val uri = param.args[0] as? Uri
-        val contentValues = param.args[1] as? ContentValues
+        val uri = param.args[0] as Uri
+        val initialValues = param.args[1] as? ContentValues
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val extras = param.args[2] as? Bundle
         }
 
-        // "mime_type" = image / png
+        if (param.matchUri(uri, param.isCallingPackageAllowedHidden) == MEDIA_SCANNER) {
+            return
+        }
+
+        val path = if (initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
+            initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
+        ) {
+            Environment.getExternalStorageDirectory().path + File.separator +
+                    initialValues.getAsString(MediaStore.MediaColumns.RELATIVE_PATH) + File.separator +
+                    initialValues.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+        } else {
+            initialValues?.getAsString(MediaStore.MediaColumns.DATA)
+        }
+
         XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("contentValues: $contentValues")
-//        XposedBridge.log("_display_name: " + contentValues?.get("_display_name"))
-//        XposedBridge.log("relative_path: " + contentValues?.get("relative_path"))
+        XposedBridge.log("path: $path")
+        XposedBridge.log("MIME_TYPE: ${initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)}")
+    }
+
+    companion object {
+        private const val MEDIA_SCANNER = 500
     }
 }

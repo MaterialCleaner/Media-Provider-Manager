@@ -24,6 +24,7 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.util.DevUtils
+import me.gm.cleaner.plugin.xposed.hooker.DeleteHooker
 import me.gm.cleaner.plugin.xposed.hooker.FileHooker
 import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
 import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
@@ -59,6 +60,12 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         XposedHelpers.findClass(
                             "com.android.providers.media.MediaProvider", classLoader
                         ), "insertInternal", InsertHooker(this@XposedInit)
+                    )
+
+                    XposedBridge.hookAllMethods(
+                        XposedHelpers.findClass(
+                            "com.android.providers.media.MediaProvider", classLoader
+                        ), "deleteInternal", DeleteHooker(this@XposedInit)
                     )
                 } catch (e: Throwable) {
                     // Mainly caused by differences between systems.

@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.module
 
 import android.Manifest
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.ViewModel
@@ -98,7 +97,7 @@ class AppListViewModel : ViewModel() {
         }
 
     fun loadApps(
-        installedPackages: List<PackageInfo>, pm: PackageManager,
+        binderViewModel: BinderViewModel, pm: PackageManager,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
                 _appsFlow.value = SourceState.Loading(progress)
@@ -106,7 +105,7 @@ class AppListViewModel : ViewModel() {
         }
     ) {
         viewModelScope.launch {
-            val list = AppListLoader().load(installedPackages, pm, l)
+            val list = AppListLoader().load(binderViewModel, pm, l)
             _appsFlow.value = SourceState.Done(list)
         }
     }

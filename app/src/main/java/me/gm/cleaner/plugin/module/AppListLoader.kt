@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.module
 
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {
     suspend fun load(
-        installedPackages: List<PackageInfo>, pm: PackageManager, l: ProgressListener?
+        binderViewModel: BinderViewModel, pm: PackageManager, l: ProgressListener?
     ) = withContext(defaultDispatcher) {
+        val installedPackages = binderViewModel.installedPackages
         val size = installedPackages.size
         val count = AtomicInteger(0)
         installedPackages.map {
