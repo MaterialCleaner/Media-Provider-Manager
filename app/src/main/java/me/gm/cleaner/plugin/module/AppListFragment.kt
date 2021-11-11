@@ -143,7 +143,9 @@ class AppListFragment : BaseFragment() {
         menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
         menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
             ModulePreferences.isHideNoStoragePermissionApp
-        listOf(menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)).forEach {
+        arrayOf(
+            menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
+        ).forEach {
             it.title = requireContext().buildStyledTitle(it.title)
         }
     }

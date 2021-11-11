@@ -78,16 +78,16 @@ class ExperimentFragment : BaseFragment() {
 
         viewModel.prepareContentItems(requireActivity(), adapter)
         viewModel.unsplashPhotosLiveData.observe(viewLifecycleOwner) {
-            synchronized(this) {
-                val changedItems = mutableListOf<Int>()
+            synchronized(viewModel.actions) {
+                val changedItemIds = mutableListOf<Int>()
                 viewModel.actions.keyIterator().forEach { id ->
                     if (!viewModel.actions[id].isActive) {
-                        changedItems.add(id)
+                        changedItemIds.add(id)
                         val position = adapter.currentList.findIndexById(id)
                         adapter.notifyItemChanged(position)
                     }
                 }
-                changedItems.forEach { id ->
+                changedItemIds.forEach { id ->
                     viewModel.actions.remove(id)
                 }
             }

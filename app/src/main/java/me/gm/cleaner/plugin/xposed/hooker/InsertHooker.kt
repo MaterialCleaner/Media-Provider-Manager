@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.io.File
 
@@ -36,7 +35,8 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             val extras = param.args[2] as? Bundle
         }
 
-        if (param.matchUri(uri, param.isCallingPackageAllowedHidden) == MEDIA_SCANNER) {
+        val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
+        if (match == MEDIA_SCANNER) {
             return
         }
 
@@ -50,12 +50,8 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }
 
-        XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("path: $path")
-        XposedBridge.log("MIME_TYPE: ${initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)}")
-    }
-
-    companion object {
-        private const val MEDIA_SCANNER = 500
+//        XposedBridge.log("packageName: " + param.callingPackage)
+//        XposedBridge.log("path: $path")
+//        XposedBridge.log("MIME_TYPE: ${initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)}")
     }
 }

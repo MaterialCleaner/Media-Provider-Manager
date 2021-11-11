@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
-import android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
@@ -24,13 +23,8 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.ArraySet
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.xposed.ManagerService
-import java.util.*
-import java.util.function.Consumer
-import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
@@ -40,34 +34,34 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val queryArgs = param.args[2] as? Bundle ?: Bundle()
         val signal = param.args[3] as? CancellationSignal
 
-        XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("uri: $uri")
-        XposedBridge.log("projection: ${Arrays.toString(projection)}")
+        if (param.callingPackage in
+            setOf("com.android.providers.media", "com.android.providers.media.module")
+        ) {
+            // Scan files and internal queries.
+            return
+        }
 
         queryArgs.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs: ArraySet<String> = ArraySet()
-        XposedHelpers.callStaticMethod(
-            XposedHelpers.findClass(
-                "com.android.providers.media.util.DatabaseUtils", service.classLoader
-            ), "resolveQueryArgs", queryArgs, object : Consumer<String> {
-                override fun accept(t: String) {
-                    honoredArgs.add(t)
-                }
-            }, object : Function<String, String> {
-                override fun apply(t: String) =
-                    XposedHelpers.callMethod(param.thisObject, "ensureCustomCollator", t) as String
-            }
-        )
+//        XposedHelpers.callStaticMethod(
+//            XposedHelpers.findClass(
+//                "com.android.providers.media.util.DatabaseUtils", service.classLoader
+//            ), "resolveQueryArgs", queryArgs, object : Consumer<String> {
+//                override fun accept(t: String) {
+//                    honoredArgs.add(t)
+//                }
+//            }, object : Function<String, String> {
+//                override fun apply(t: String) =
+//                    XposedHelpers.callMethod(param.thisObject, "ensureCustomCollator", t) as String
+//            }
+//        )
 
-        XposedBridge.log(
-            "queryArgs: ${
-                Arrays.toString(
-                    queryArgs.getStringArray(
-                        QUERY_ARG_SQL_SELECTION_ARGS
-                    )
-                )
-            }"
-        )
+//        XposedBridge.log("packageName: " + param.callingPackage)
+//        XposedBridge.log("uri: $uri")
+//        XposedBridge.log("projection: ${Arrays.toString(projection)}")
+//        XposedBridge.log(
+//            "queryArgs: ${Arrays.toString(queryArgs.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS))}"
+//        )
     }
 
     // for interaction
