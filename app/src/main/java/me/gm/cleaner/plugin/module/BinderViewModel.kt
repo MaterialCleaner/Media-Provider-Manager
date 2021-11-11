@@ -20,35 +20,19 @@ import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
 import android.os.RemoteException
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import me.gm.cleaner.plugin.IManagerService
+import javax.inject.Inject
 
-object BinderReceiver {
-    private val _moduleVersionFlow = MutableStateFlow(-1)
-    var moduleVersion: Int
-        get() = _moduleVersionFlow.value
-        set(value) {
-            _moduleVersionFlow.tryEmit(value)
-        }
+@HiltViewModel
+class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewModel() {
+    private var service: IManagerService? = IManagerService.Stub.asInterface(binder)
 
-    private var binder: IBinder? = null
-    private var service: IManagerService? = null
-    private val DEATH_RECIPIENT = IBinder.DeathRecipient {
-        binder = null
-        service = null
-        moduleVersion = -1
-    }
+    fun pingBinder() = binder != null && binder.pingBinder()
 
-    fun pingBinder() = binder != null && binder!!.pingBinder()
-
-    fun onBinderReceived(newBinder: IBinder) {
-        if (binder == newBinder) return
-        binder?.unlinkToDeath(DEATH_RECIPIENT, 0)
-        binder = newBinder
-        service = IManagerService.Stub.asInterface(newBinder)
-        binder?.linkToDeath(DEATH_RECIPIENT, 0)
-        moduleVersion = service!!.moduleVersion
-    }
+    val moduleVersion: Int
+        get() = service!!.moduleVersion
 
     val installedPackages: List<PackageInfo>
         get() = try {

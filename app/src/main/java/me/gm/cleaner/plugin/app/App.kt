@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.app
 
 import android.app.Application
 import android.content.Context
-import android.provider.MediaStore
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
@@ -27,7 +26,6 @@ import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.module.BinderReceiver
 
 @HiltAndroidApp
 class App : Application() {
@@ -46,16 +44,5 @@ class App : Application() {
         ModulePreferences.init(createDeviceProtectedStorageContext())
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         DynamicColors.applyToActivitiesIfAvailable(this)
-        initBinder()
-    }
-
-    private fun initBinder() {
-        applicationContext.contentResolver.query(
-            MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
-        )?.use {
-            BinderReceiver.onBinderReceived(
-                it.extras.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use
-            )
-        }
     }
 }

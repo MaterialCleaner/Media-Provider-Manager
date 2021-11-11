@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.drawer
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -33,11 +34,12 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
-import me.gm.cleaner.plugin.module.BinderReceiver
+import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class DrawerActivity : BaseActivity() {
+    private val viewModel: BinderViewModel by viewModels()
     private lateinit var drawerLayout: DrawerLayout
     private val navController by lazy { findNavController(R.id.nav_host) }
     private val appBarConfiguration by lazy {
@@ -71,8 +73,8 @@ abstract class DrawerActivity : BaseActivity() {
 
         navView.getHeaderView(0).findViewById<TextView>(R.id.status).setText(
             when {
-                !BinderReceiver.pingBinder() -> R.string.not_active
-                BinderReceiver.moduleVersion != BuildConfig.VERSION_CODE -> R.string.restart_system
+                !viewModel.pingBinder() -> R.string.not_active
+                viewModel.moduleVersion != BuildConfig.VERSION_CODE -> R.string.restart_system
                 else -> R.string.active
             }
         )

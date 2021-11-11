@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.module
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +36,7 @@ import me.gm.cleaner.plugin.util.*
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : BaseFragment() {
+    private val binderViewModel: BinderViewModel by activityViewModels()
     private val viewModel: AppListViewModel by viewModels()
     private val adapter by lazy { AppListAdapter(this) }
     private val navController by lazy { findNavController() }
@@ -58,7 +60,9 @@ class AppListFragment : BaseFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(requireContext().packageManager, null)
+            viewModel.loadApps(
+                binderViewModel.installedPackages, requireContext().packageManager, null
+            )
         }
 
         // Start a coroutine in the lifecycle scope
@@ -82,7 +86,9 @@ class AppListFragment : BaseFragment() {
                 }
             }
         }
-        savedInstanceState ?: viewModel.loadApps(requireContext().packageManager)
+        savedInstanceState ?: viewModel.loadApps(
+            binderViewModel.installedPackages, requireContext().packageManager
+        )
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
@@ -90,7 +96,7 @@ class AppListFragment : BaseFragment() {
             override fun onPreferencesChanged(isNotifyService: Boolean) {
                 viewModel.updateApps()
                 if (isNotifyService) {
-                    BinderReceiver.notifyPreferencesChanged()
+                    binderViewModel.notifyPreferencesChanged()
                 }
             }
         })
