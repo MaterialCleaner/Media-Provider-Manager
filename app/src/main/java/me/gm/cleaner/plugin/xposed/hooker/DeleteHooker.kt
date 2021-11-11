@@ -32,11 +32,11 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         val uri = param.args[0] as Uri
+        val extras = param.args[1] as? Bundle
         var userWhere: String? = null
         var userWhereArgs: Array<String>? = null
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                val extras = param.args[1] as? Bundle
                 userWhere = extras?.getString(QUERY_ARG_SQL_SELECTION)
                 userWhereArgs = extras?.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS)
             }
@@ -50,13 +50,29 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
         var c: Cursor? = null
         val path = when (match) {
             AUDIO_MEDIA_ID, VIDEO_MEDIA_ID, IMAGES_MEDIA_ID -> {
+                try {
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
+                            param.thisObject, "enforceCallingPermission", uri, extras, true
+                        )
+                        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
+                            param.thisObject, "enforceCallingPermission", uri, true
+                        )
+                        else -> throw UnsupportedOperationException()
+                    }
+                } catch (securityException: SecurityException) {
+                    // Give callers interacting with a specific media item a chance to
+                    // escalate access if they don't already have it
+                    return
+                }
+
                 val qb = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
-                        param.thisObject, "getQueryBuilder", 3, match, uri,
-                        param.args[1] as? Bundle ?: Bundle(), null
+                        param.thisObject, "getQueryBuilder", TYPE_DELETE, match, uri,
+                        extras ?: Bundle(), null
                     )
                     Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
-                        param.thisObject, "getQueryBuilder", 2, uri, match, null
+                        param.thisObject, "getQueryBuilder", TYPE_DELETE, uri, match, null
                     )
                     else -> throw UnsupportedOperationException()
                 }
@@ -80,8 +96,8 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     )
                     else -> throw UnsupportedOperationException()
                 } as Cursor
-                c.moveToNext()
-                val data = c.getString(1)
+                val data = if (c.moveToNext()) c.getString(1)
+                else null
                 data
             }
             FILES -> userWhereArgs?.single()
@@ -91,5 +107,11 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
 
         XposedBridge.log("packageName: " + param.callingPackage)
         XposedBridge.log("path: $path")
+    }
+
+    private val TYPE_DELETE: Int = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> 3
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> 2
+        else -> throw UnsupportedOperationException()
     }
 }
