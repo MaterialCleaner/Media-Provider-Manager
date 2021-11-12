@@ -24,28 +24,31 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.xposed.ManagerService
 
 class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
+        /** ARGUMENTS */
         val uri = param.args[0] as Uri
         val extras = param.args[1] as? Bundle
-        var userWhere: String? = null
-        var userWhereArgs: Array<String>? = null
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                userWhere = extras?.getString(QUERY_ARG_SQL_SELECTION)
-                userWhereArgs = extras?.getStringArray(QUERY_ARG_SQL_SELECTION_ARGS)
-            }
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-                userWhere = param.args[1] as? String
-                userWhereArgs = param.args[2] as? Array<String>
-            }
+        val userWhere: String? = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> extras?.getString(
+                QUERY_ARG_SQL_SELECTION
+            )
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> param.args[1] as? String
+            else -> throw UnsupportedOperationException()
+        }
+        val userWhereArgs: Array<String>? = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> extras?.getStringArray(
+                QUERY_ARG_SQL_SELECTION_ARGS
+            )
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> param.args[2] as? Array<String>
+            else -> throw UnsupportedOperationException()
         }
 
+        /** PARSE */
         val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
         var c: Cursor? = null
         val path = when (match) {
@@ -105,8 +108,9 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
         c?.close()
 
-        XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("path: $path")
+        /** RECORD */
+//        XposedBridge.log("packageName: " + param.callingPackage)
+//        XposedBridge.log("path: $path")
     }
 
     private val TYPE_DELETE: Int = when {

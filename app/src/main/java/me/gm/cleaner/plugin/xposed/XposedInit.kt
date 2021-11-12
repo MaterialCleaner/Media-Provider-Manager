@@ -72,7 +72,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                 }
             }
             "com.android.providers.downloads" -> {
-                listOf(
+                arrayOf(
                     "com.android.providers.downloads.DownloadProvider",
                     "com.android.providers.downloads.provider.DownloadProvider" // MIUI 💩
                 ).forEach {

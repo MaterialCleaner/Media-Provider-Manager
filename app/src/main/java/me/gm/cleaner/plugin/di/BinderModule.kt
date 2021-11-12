@@ -36,7 +36,7 @@ class BinderModule {
         context.contentResolver.query(
             MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
         )?.use {
-            return it.extras.getBinder("me.gm.cleaner.plugin.intent.extra.BINDER") ?: return@use
+            return it.extras.getBinder("me.gm.cleaner.plugin.cursor.extra.BINDER") ?: return@use
         }
         return null
     }

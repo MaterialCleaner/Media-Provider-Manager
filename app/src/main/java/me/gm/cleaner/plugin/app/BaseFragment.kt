@@ -69,11 +69,9 @@ abstract class BaseFragment : Fragment() {
                     )
                 }
             }
-        if (savedInstanceState == null) {
-            val currentDestination = findNavController().currentDestination ?: return
-            if (currentDestination.id in topLevelDestinationIds) {
-                ModulePreferences.startDestination = currentDestination.id
-            }
+        val currentDestination = findNavController().currentDestination ?: return
+        if (currentDestination.id in topLevelDestinationIds) {
+            ModulePreferences.startDestination = currentDestination.id
         }
     }
 

@@ -29,17 +29,18 @@ import java.io.File
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
+        /** ARGUMENTS */
         val uri = param.args[0] as Uri
         val initialValues = param.args[1] as? ContentValues
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val extras = param.args[2] as? Bundle
-        }
+        val extras = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] as? Bundle
+        else null
 
         val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
         if (match == MEDIA_SCANNER) {
             return
         }
 
+        /** PARSE */
         val path = if (initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
             initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
         ) {
@@ -50,8 +51,11 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }
 
+        /** RECORD */
 //        XposedBridge.log("packageName: " + param.callingPackage)
 //        XposedBridge.log("path: $path")
 //        XposedBridge.log("MIME_TYPE: ${initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)}")
+
+        /** INTERCEPT */
     }
 }
