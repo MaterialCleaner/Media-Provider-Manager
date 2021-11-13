@@ -60,15 +60,11 @@ object ModulePreferences {
         broadcasting = false
     }
 
-    var isNavInitialized = false
     var startDestination: Int
         get() = defaultSp.getInt(
             resources.getString(R.string.start_destination_key), R.id.about_fragment
         )
         set(value) {
-            if (!isNavInitialized) {
-                return
-            }
             defaultSp.edit {
                 putInt(resources.getString(R.string.start_destination_key), value)
             }

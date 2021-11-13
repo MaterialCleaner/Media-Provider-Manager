@@ -48,9 +48,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             // Scanning files and internal queries.
             return
         }
-        if (param.callingPackage == BuildConfig.APPLICATION_ID &&
-            uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
-        ) {
+        if (isBinderQuery(param.callingPackage, uri)) {
             return
         }
 
@@ -146,16 +144,18 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
     @Throws(Throwable::class)
     override fun afterHookedMethod(param: MethodHookParam) {
         val uri = param.args[0] as Uri
-        if (param.callingPackage == BuildConfig.APPLICATION_ID &&
-            uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
-        ) {
+        if (isBinderQuery(param.callingPackage, uri)) {
             val c = param.result as? Cursor
             c?.extras?.putBinder("me.gm.cleaner.plugin.cursor.extra.BINDER", service)
         }
     }
 
+    private fun isBinderQuery(callingPackage: String, uri: Uri) =
+        callingPackage == BuildConfig.APPLICATION_ID && uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
+
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"
         private const val TYPE_QUERY: Int = 0
+        private const val DIRECTORY_THUMBNAILS = ".thumbnails"
     }
 }

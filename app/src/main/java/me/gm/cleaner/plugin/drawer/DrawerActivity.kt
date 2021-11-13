@@ -60,12 +60,16 @@ abstract class DrawerActivity : BaseActivity() {
             }
             navController.graph = navGraph
         }
-        ModulePreferences.isNavInitialized = true
 
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
         val navView = binding.navView
         navView.setupWithNavController(navController)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id in topLevelDestinationIds) {
+                ModulePreferences.startDestination = destination.id
+            }
+        }
         customizeNavViewStyle(navView)
         if (shouldAlterStartDestination) {
             navView.setCheckedItem(ModulePreferences.startDestination)
@@ -93,10 +97,7 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onBackPressed() {
         when {
             drawerLayout.isOpen -> drawerLayout.close()
-            navController.currentDestination!!.id in topLevelDestinationIds -> {
-                ModulePreferences.isNavInitialized = false
-                super.onSupportNavigateUp()
-            }
+            navController.currentDestination?.id in topLevelDestinationIds -> super.onSupportNavigateUp()
             else -> super.onBackPressed()
         }
     }

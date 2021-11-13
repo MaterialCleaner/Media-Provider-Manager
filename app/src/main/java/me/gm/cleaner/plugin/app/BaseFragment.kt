@@ -31,12 +31,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.compat.isNightModeActivated
-import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.drawer.DrawerActivity.Companion.topLevelDestinationIds
 
 abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?
@@ -69,10 +66,6 @@ abstract class BaseFragment : Fragment() {
                     )
                 }
             }
-        val currentDestination = findNavController().currentDestination ?: return
-        if (currentDestination.id in topLevelDestinationIds) {
-            ModulePreferences.startDestination = currentDestination.id
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
