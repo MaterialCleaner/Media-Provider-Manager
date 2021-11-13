@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
 import de.robv.android.xposed.XC_MethodHook
@@ -45,6 +46,11 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             setOf("com.android.providers.media", "com.android.providers.media.module")
         ) {
             // Scanning files and internal queries.
+            return
+        }
+        if (param.callingPackage == BuildConfig.APPLICATION_ID &&
+            uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        ) {
             return
         }
 
@@ -121,7 +127,9 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
 
         /** RECORD */
         XposedBridge.log("packageName: " + param.callingPackage)
-        XposedBridge.log("table: $table")
+        if (c.isAfterLast) {
+            XposedBridge.log("isAfterLast")
+        }
         while (c.moveToNext()) {
             val data = c.getString(dataColumn)
             val mimeType = when {
@@ -137,7 +145,10 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
 
     @Throws(Throwable::class)
     override fun afterHookedMethod(param: MethodHookParam) {
-        if (param.callingPackage == BuildConfig.APPLICATION_ID) {
+        val uri = param.args[0] as Uri
+        if (param.callingPackage == BuildConfig.APPLICATION_ID &&
+            uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        ) {
             val c = param.result as? Cursor
             c?.extras?.putBinder("me.gm.cleaner.plugin.cursor.extra.BINDER", service)
         }
@@ -146,6 +157,5 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"
         private const val TYPE_QUERY: Int = 0
-        private const val DIRECTORY_THUMBNAILS = ".thumbnails";
     }
 }
