@@ -18,10 +18,14 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,6 +38,7 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
     private val imagesViewModel: ImagesViewModel by fragment.viewModels()
+    lateinit var selectionTracker: SelectionTracker<Long>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -69,7 +74,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .centerCrop()
             .into(binding.image)
         binding.image.transitionName = uri.toString()
-        binding.root.setOnClickListener {
+        binding.card.setOnClickListener {
             fragment.lastPosition = holder.bindingAdapterPosition
             val images = imagesViewModel.images
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
@@ -81,7 +86,34 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
             fragment.findNavController().navigate(direction, extras)
         }
+
+        holder.details = object : ItemDetails<Long>() {
+            override fun getPosition() = position
+            override fun getSelectionKey() = getItemId(position)
+            override fun inSelectionHotspot(e: MotionEvent) = false
+            override fun inDragRegion(e: MotionEvent) = true
+        }
+        if (::selectionTracker.isInitialized) {
+            binding.card.isChecked = selectionTracker.isSelected(getItemId(position))
+        }
     }
 
-    class ViewHolder(val binding: ImagesItemBinding) : RecyclerView.ViewHolder(binding.root)
+    override fun getItemId(position: Int) = getItem(position).hashCode().toLong()
+
+    class ViewHolder(val binding: ImagesItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        lateinit var details: ItemDetails<Long>
+    }
+}
+
+class DetailsLookup(private val list: RecyclerView) : ItemDetailsLookup<Long>() {
+    override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
+        val view = list.findChildViewUnder(e.x, e.y)
+        if (view != null) {
+            val viewHolder = list.getChildViewHolder(view)
+            if (viewHolder is ImagesAdapter.ViewHolder) {
+                return viewHolder.details
+            }
+        }
+        return null
+    }
 }

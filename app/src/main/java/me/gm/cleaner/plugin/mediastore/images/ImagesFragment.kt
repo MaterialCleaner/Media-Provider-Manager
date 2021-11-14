@@ -21,6 +21,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
@@ -28,6 +30,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StableIdKeyProvider
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,11 +60,12 @@ class ImagesFragment : MediaStoreFragment() {
     ): View {
         val binding = ImagesFragmentBinding.inflate(inflater)
 
-        val adapter = ImagesAdapter(this)
-        val layoutManager = GridLayoutManager(requireContext(), 3)
+        val adapter = ImagesAdapter(this).apply {
+            setHasStableIds(true)
+        }
         list = binding.list
         list.adapter = adapter
-        list.layoutManager = layoutManager
+        list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
         FastScrollerBuilder(list)
             .useMd2Style()
@@ -66,25 +73,44 @@ class ImagesFragment : MediaStoreFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-//        var tracker = SelectionTracker.Builder(
-//            "my-selection-id",
-//            recyclerView,
-//            StableIdKeyProvider(recyclerView),
-//            MyDetailsLookup(recyclerView),
-//            StorageStrategy.createLongStorage())
-//            .withOnItemActivatedListener(myItemActivatedListener)
-//            .build()
-//
-//        list.addOnItemTouchListener( object : RecyclerView.OnItemTouchListener {
-//            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-//            }
-//
-//            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-//            }
-//
-//            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-//            }
-//        })
+        val selectionTracker = SelectionTracker.Builder(
+            ImagesFragment::class.java.simpleName, list, StableIdKeyProvider(list),
+            DetailsLookup(list), StorageStrategy.createLongStorage()
+        )
+            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .build()
+        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
+            private var actionMode: ActionMode? = null
+
+            override fun onSelectionChanged() {
+                if (selectionTracker.selection.size() > 0) {
+                    if (actionMode == null) {
+                        actionMode =
+                            (requireActivity() as AppCompatActivity).startSupportActionMode(object :
+                                ActionMode.Callback {
+                                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) =
+                                    true
+
+                                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) =
+                                    false
+
+                                override fun onActionItemClicked(
+                                    mode: ActionMode?, item: MenuItem?
+                                ) = false
+
+                                override fun onDestroyActionMode(mode: ActionMode?) {
+                                    selectionTracker.clearSelection()
+                                    actionMode = null
+                                }
+                            })
+                    }
+                    actionMode?.title = selectionTracker.selection.size().toString()
+                } else if (actionMode != null) {
+                    actionMode?.finish()
+                }
+            }
+        })
+        adapter.selectionTracker = selectionTracker
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
