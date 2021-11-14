@@ -50,7 +50,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-// TODO: rename to ImagesLoader, decouple and reuse PagerFragment
+// TODO: Some of functions in this ViewModel need to be reused.
+//  Create MediaStoreImageOperations class, and put these functions into it.
 class ImagesViewModel(application: Application) : AndroidViewModel(application) {
     private val _imagesFlow = MutableStateFlow<List<MediaStoreImage>>(emptyList())
     val imagesFlow = _imagesFlow.asStateFlow()
@@ -228,6 +229,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
         return images
     }
 
+    // https://developer.android.com/training/data-storage/shared/media#remove-item
     private suspend fun performDeleteImage(image: MediaStoreImage) {
         withContext(Dispatchers.IO) {
             try {

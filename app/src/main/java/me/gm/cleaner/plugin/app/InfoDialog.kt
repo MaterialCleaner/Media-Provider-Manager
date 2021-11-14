@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.core.os.bundleOf
 
 class InfoDialog : AppCompatDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
@@ -14,12 +15,7 @@ class InfoDialog : AppCompatDialogFragment() {
 
     companion object {
         private const val KEY_MESSAGE = "me.gm.cleaner.key.message"
-
-        fun newInstance(message: String): InfoDialog {
-            val argument = Bundle(1).apply {
-                putString(KEY_MESSAGE, message)
-            }
-            return InfoDialog().apply { arguments = argument }
-        }
+        fun newInstance(message: String) =
+            InfoDialog().apply { arguments = bundleOf(KEY_MESSAGE to message) }
     }
 }

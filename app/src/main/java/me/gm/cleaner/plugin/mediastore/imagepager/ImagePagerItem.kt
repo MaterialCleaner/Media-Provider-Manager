@@ -14,66 +14,57 @@
 * limitations under the License.
 */
 
-package me.gm.cleaner.plugin.mediastore.images
+package me.gm.cleaner.plugin.mediastore.imagepager
 
 import android.graphics.PointF
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
+import androidx.core.os.bundleOf
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.PagerItemBinding
-import java.io.FileNotFoundException
+import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
 
 /**
  * A fragment for displaying an image.
  */
-class PagerItem : BaseFragment() {
-    private val pagerViewModel: PagerViewModel by activityViewModels()
-    private val imagesViewModel: ImagesViewModel by activityViewModels()
-    private val position by lazy { requireArguments().getInt(KEY_IMAGE_URI) }
+class ImagePagerItem : BaseFragment() {
+    private val viewModel by lazy { ViewModelProvider(requireParentFragment())[ImagePagerViewModel::class.java] }
+    private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = PagerItemBinding.inflate(inflater)
+        val binding = ImagePagerItemBinding.inflate(inflater)
 
-        val uri = imagesViewModel.images[position].contentUri
         val imageView = binding.imageView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         imageView.transitionName = uri.toString()
         try {
             // Setting thumbnail on an invisible image view to figure out the image's size for a better transition.
-            if (pagerViewModel.isFirstEntrance) {
+            if (viewModel.isFirstEntrance) {
                 imageView.setImageBitmap(
-                    requireContext().contentResolver.loadThumbnail(uri, pagerViewModel.size, null)
+                    requireContext().contentResolver.loadThumbnail(uri, viewModel.size, null)
                 )
             }
         } catch (e: Throwable) {
             Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
-            // https://developer.android.com/training/data-storage/shared/media#update-other-apps-files
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    imagesViewModel.deleteImage(imagesViewModel.images[position])
-                    findNavController().navigateUp()
-                } catch (e: FileNotFoundException) {
-                }
-            }
+            findNavController().navigateUp()
             return binding.root
         }
         val ssiv = binding.subsamplingScaleImageView
         ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
-                if (pagerViewModel.isFirstEntrance) {
-                    pagerViewModel.isFirstEntrance = false
-                    val isOverlay = pagerViewModel.isOverlay(ssiv)
+                if (viewModel.isFirstEntrance) {
+                    viewModel.isFirstEntrance = false
+                    val isOverlay = viewModel.isOverlay(ssiv)
                     appBarLayout.isLifted = isOverlay
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
@@ -81,9 +72,9 @@ class PagerItem : BaseFragment() {
             }
 
             override fun onImageLoadError(e: Exception?) {
-                pagerViewModel.isFirstEntrance = false
+                viewModel.isFirstEntrance = false
                 imageView.visibility = View.VISIBLE
-                Glide.with(this@PagerItem)
+                Glide.with(this@ImagePagerItem)
                     .load(uri)
                     .into(imageView)
             }
@@ -98,11 +89,11 @@ class PagerItem : BaseFragment() {
         }
         ssiv.setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
             override fun onScaleChanged(newScale: Float, origin: Int) {
-                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
             }
 
             override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
             }
         })
         if (savedInstanceState == null) {
@@ -134,12 +125,7 @@ class PagerItem : BaseFragment() {
         private const val SAVED_SUBTITLE = "android:subtitle"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
-
-        fun newInstance(position: Int): PagerItem {
-            val argument = Bundle(1).apply {
-                putInt(KEY_IMAGE_URI, position)
-            }
-            return PagerItem().apply { arguments = argument }
-        }
+        fun newInstance(uri: Uri) =
+            ImagePagerItem().apply { arguments = bundleOf(KEY_IMAGE_URI to uri) }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.mediastore.images
+package me.gm.cleaner.plugin.mediastore.imagepager
 
 import android.graphics.Color
 import android.os.Bundle
@@ -22,23 +22,35 @@ import android.view.*
 import android.widget.ImageView
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
+import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.asLiveData
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.transition.platform.FitsScaleMaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.PagerFragmentBinding
+import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.util.LogUtils
 import me.gm.cleaner.plugin.util.mediumAnimTime
 
-class PagerFragment : BaseFragment() {
-    private val pagerViewModel: PagerViewModel by activityViewModels()
-    private val imagesViewModel: ImagesViewModel by activityViewModels()
+/**
+ * Display a series of images in a [ViewPager2].
+ *
+ * This is implemented with [androidx.navigation.Navigation] and requires 3 [androidx.navigation.NavArgs].
+ * See nav_graph.xml for more details.
+ */
+class ImagePagerFragment : BaseFragment() {
+    private val viewModel: ImagePagerViewModel by viewModels()
+    private val args: ImagePagerFragmentArgs by navArgs()
+    private val navController by lazy { findNavController() }
+    private val lastPosition by lazy { bundleOf(KEY_POSITION to args.initialPosition) }
     private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,38 +63,50 @@ class PagerFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = PagerFragmentBinding.inflate(inflater)
-        val size = imagesViewModel.images.size
+        val binding = ImagePagerFragmentBinding.inflate(inflater)
+        val size = args.uris.size
+        val initialPosition = args.initialPosition
 
         viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun createFragment(position: Int) = PagerItem.newInstance(position)
+            override fun createFragment(position: Int) =
+                ImagePagerItem.newInstance(args.uris[position])
+
             override fun getItemCount() = size
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(pagerViewModel.currentPosition, false)
+        viewPager.setCurrentItem(initialPosition, false)
+        supportActionBar?.apply {
+            title = args.displayNames[initialPosition]
+            subtitle = "${initialPosition + 1} / $size"
+        }
+
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
-                pagerViewModel.currentPosition = position
+                lastPosition.putInt(KEY_POSITION, position)
+                supportActionBar?.apply {
+                    title = args.displayNames[position]
+                    subtitle = "${position + 1} / $size"
+                }
                 val ssiv: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
-                appBarLayout.isLifted = pagerViewModel.isOverlay(ssiv)
+                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
             }
         })
-        pagerViewModel.currentAppBarTitleSourceFlow.asLiveData().observe(viewLifecycleOwner) {
-            val currentPosition = it.first
-            val currentDestination = it.second ?: return@observe
-            when (currentDestination.id) {
-                R.id.images_fragment -> toDefaultAppBarState(currentDestination)
-                R.id.pager_fragment -> supportActionBar?.apply {
-                    title = imagesViewModel.images[currentPosition].displayName
-                    subtitle = "${currentPosition + 1} / ${imagesViewModel.images.size}"
+        navController.addOnDestinationChangedListener(object :
+            NavController.OnDestinationChangedListener {
+            override fun onDestinationChanged(
+                controller: NavController, destination: NavDestination, arguments: Bundle?
+            ) {
+                if (destination.id != R.id.image_pager_fragment) {
+                    navController.removeOnDestinationChangedListener(this)
+                    toDefaultAppBarState(destination)
                 }
             }
-        }
+        })
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
@@ -94,7 +118,17 @@ class PagerFragment : BaseFragment() {
         return binding.root
     }
 
+    private fun toDefaultAppBarState(currentDestination: NavDestination) {
+        supportActionBar?.apply {
+            title = currentDestination.label
+            subtitle = null
+        }
+        toggleAppBar(true)
+    }
+
     private fun prepareSharedElementTransition() {
+        setFragmentResult(ImagePagerFragment::class.java.simpleName, lastPosition)
+
         sharedElementEnterTransition = FitsScaleMaterialContainerTransform().apply {
             scrimColor = Color.TRANSPARENT
             duration = requireContext().mediumAnimTime
@@ -114,14 +148,14 @@ class PagerFragment : BaseFragment() {
                 // not create a new one.
                 // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
-                    childFragmentManager.findFragmentByTag("f${pagerViewModel.currentPosition}")
+                    childFragmentManager.findFragmentByTag("f${lastPosition.getInt(KEY_POSITION)}")
                 val view = currentFragment?.view ?: return
 
                 val imageView: ImageView = view.findViewById(R.id.image_view)
                 val ssiv: SubsamplingScaleImageView =
                     view.findViewById(R.id.subsampling_scale_image_view)
                 if (names.isNotEmpty()) {
-                    if (pagerViewModel.currentDestination?.id == R.id.images_fragment &&
+                    if (navController.currentDestination?.id == R.id.images_fragment &&
                         imageView.visibility == View.INVISIBLE
                     ) {
                         // Change the registered shared element for a better exit transition.
@@ -145,28 +179,20 @@ class PagerFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_info -> {
-            val image = imagesViewModel.images[pagerViewModel.currentPosition]
-            true
+            TODO("Not yet implemented")
         }
         else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val currentDestination = pagerViewModel.currentDestination ?: return
         // Restore AppBar state.
-        if (currentDestination.id == R.id.pager_fragment) {
-            pagerViewModel.isFirstEntrance = true
-        } else {
-            toDefaultAppBarState(currentDestination)
+        if (navController.currentDestination?.id == R.id.image_pager_fragment) {
+            viewModel.isFirstEntrance = true
         }
     }
 
-    private fun toDefaultAppBarState(currentDestination: NavDestination) {
-        supportActionBar?.apply {
-            title = currentDestination.label
-            subtitle = null
-        }
-        toggleAppBar(true)
+    companion object {
+        const val KEY_POSITION = "me.gm.cleaner.plugin.key.position"
     }
 }

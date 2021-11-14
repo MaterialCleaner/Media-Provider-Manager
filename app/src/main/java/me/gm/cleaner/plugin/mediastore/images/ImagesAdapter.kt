@@ -19,7 +19,7 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ListAdapter
@@ -29,12 +29,11 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
-    private val pagerViewModel: PagerViewModel by fragment.activityViewModels()
+    private val imagesViewModel: ImagesViewModel by fragment.viewModels()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -50,7 +49,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (fragment.lastPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
@@ -60,20 +59,26 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
-                    if (pagerViewModel.currentPosition == holder.bindingAdapterPosition) {
+                    if (fragment.lastPosition == holder.bindingAdapterPosition) {
                         fragment.startPostponedEnterTransition()
                     }
                     return false
                 }
             })
-            .thumbnail((1 / 3).toFloat())
+            .thumbnail(1F / 3F)
             .centerCrop()
             .into(binding.image)
         binding.image.transitionName = uri.toString()
         binding.root.setOnClickListener {
-            pagerViewModel.currentPosition = holder.bindingAdapterPosition
+            fragment.lastPosition = holder.bindingAdapterPosition
+            val images = imagesViewModel.images
+            val direction = ImagesFragmentDirections.actionImagesToImagePager(
+                holder.bindingAdapterPosition,
+                images.map { it.contentUri }.toTypedArray(),
+                images.map { it.displayName }.toTypedArray()
+            )
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
-            fragment.findNavController().navigate(R.id.action_images_to_pager, null, null, extras)
+            fragment.findNavController().navigate(direction, extras)
         }
     }
 

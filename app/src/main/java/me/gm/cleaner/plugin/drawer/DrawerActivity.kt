@@ -63,13 +63,13 @@ abstract class DrawerActivity : BaseActivity() {
 
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
-        val navView = binding.navView
-        navView.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id in topLevelDestinationIds) {
                 ModulePreferences.startDestination = destination.id
             }
         }
+        val navView = binding.navView
+        navView.setupWithNavController(navController)
         customizeNavViewStyle(navView)
         if (shouldAlterStartDestination) {
             navView.setCheckedItem(ModulePreferences.startDestination)

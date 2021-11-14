@@ -23,11 +23,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,15 +38,16 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
-    private val pagerViewModel: PagerViewModel by activityViewModels()
-    private val imagesViewModel: ImagesViewModel by activityViewModels()
+    private val imagesViewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
+    var lastPosition = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -111,11 +112,6 @@ class ImagesFragment : MediaStoreFragment() {
                 dispatchRequestPermissions(requiredPermissions, savedInstanceState)
             }
         })
-
-        prepareTransitions()
-        if (pagerViewModel.isFromPager) {
-            postponeEnterTransition()
-        }
         return binding.root
     }
 
@@ -125,6 +121,22 @@ class ImagesFragment : MediaStoreFragment() {
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
         ) {
             imagesViewModel.deletePendingImage()
+        }
+    }
+
+    override fun onRequestPermissionsSuccess(
+        permissions: Set<String>, savedInstanceState: Bundle?
+    ) {
+        super.onRequestPermissionsSuccess(permissions, savedInstanceState)
+        if (savedInstanceState == null) {
+            imagesViewModel.loadImages()
+            setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
+                val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
+                lastPosition = position
+                prepareTransitions()
+                postponeEnterTransition()
+                scrollToPosition(position)
+            }
         }
     }
 
@@ -140,27 +152,12 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 // Locate the ViewHolder for the clicked position.
                 val selectedViewHolder =
-                    list.findViewHolderForAdapterPosition(pagerViewModel.currentPosition) ?: return
+                    list.findViewHolderForAdapterPosition(lastPosition) ?: return
 
                 // Map the first shared element name to the child ImageView.
                 sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image)
             }
         })
-    }
-
-    override fun onRequestPermissionsSuccess(
-        permissions: Set<String>, savedInstanceState: Bundle?
-    ) {
-        super.onRequestPermissionsSuccess(permissions, savedInstanceState)
-        if (savedInstanceState == null) {
-            imagesViewModel.loadImages()
-            val navController = findNavController()
-            pagerViewModel.setDestinationChangedListener(navController)
-            if (pagerViewModel.isFromPager) {
-                pagerViewModel.isFromPager = false
-                scrollToPosition(pagerViewModel.currentPosition)
-            }
-        }
     }
 
     /**
