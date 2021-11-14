@@ -31,7 +31,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources false
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -54,10 +54,13 @@ android {
 
 def optimizeReleaseRes() {
     def aapt2 = Paths.get(project.android.sdkDirectory.path, 'build-tools', project.android.buildToolsVersion, 'aapt2')
-    def zip = Paths.get(project.buildDir.path, 'intermediates', 'processed_res', 'release', 'out', "resources-release.ap_")
+    def zip = Paths.get(project.buildDir.path, 'intermediates', 'optimized_processed_res', 'release', "resources-release-optimize.ap_")
     def optimized = new File("${zip}.opt")
     def cmd = exec {
-        commandLine aapt2, 'optimize', '--collapse-resource-names', '-o', optimized, zip
+        commandLine aapt2, 'optimize',
+                '--collapse-resource-names',
+                '--enable-sparse-encoding',
+                '-o', optimized, zip
         ignoreExitValue false
     }
     if (cmd.exitValue == 0) {
@@ -67,7 +70,7 @@ def optimizeReleaseRes() {
 }
 
 afterEvaluate {
-    processReleaseResources.doLast {
+    optimizeReleaseResources.doLast {
         optimizeReleaseRes()
     }
 }

@@ -155,7 +155,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
 
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"
-        private const val TYPE_QUERY: Int = 0
+        private const val TYPE_QUERY = 0
         private const val DIRECTORY_THUMBNAILS = ".thumbnails"
     }
 }
