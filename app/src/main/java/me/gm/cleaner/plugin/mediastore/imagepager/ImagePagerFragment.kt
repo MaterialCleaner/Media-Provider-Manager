@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
@@ -177,8 +178,13 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_delete -> {
+            Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
+            true
+        }
         R.id.menu_info -> {
-            TODO("Not yet implemented")
+            Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
+            true
         }
         else -> super.onOptionsItemSelected(item)
     }
