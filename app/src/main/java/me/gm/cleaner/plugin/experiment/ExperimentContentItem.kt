@@ -78,7 +78,9 @@ object ExperimentContentItems {
                     )
                     !menuItemImpl.isCheckable -> items.add(
                         ExperimentContentActionItem(
-                            menuItemImpl.itemId, menuItemImpl.title, null,
+                            menuItemImpl.itemId,
+                            menuItemImpl.title,
+                            menuItemImpl.titleCondensed,
                             needsNetwork = menuItemImpl.isChecked
                         )
                     )

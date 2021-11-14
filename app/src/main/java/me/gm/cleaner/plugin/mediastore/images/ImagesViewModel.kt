@@ -51,7 +51,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 // TODO: Some of functions in this ViewModel need to be reused.
-//  Create MediaStoreImageOperations class, and put these functions into it.
+//  Create MediaStoreImageOperations class and put them into it.
 class ImagesViewModel(application: Application) : AndroidViewModel(application) {
     private val _imagesFlow = MutableStateFlow<List<MediaStoreImage>>(emptyList())
     val imagesFlow = _imagesFlow.asStateFlow()

@@ -63,14 +63,10 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 items.removeAt(indexOfSubHeader)
             }
 
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).apply {
-            summary = activity.getText(R.string.unsplash_download_manager_summary)
-            action = unsplashDownloadManager(activity)
-        }
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).apply {
-            summary = activity.getText(R.string.unsplash_insert_summary)
-            action = unsplashInsert(activity)
-        }
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).action =
+            unsplashDownloadManager(activity)
+        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).action =
+            unsplashInsert(activity)
         adapter.submitList(items)
     }
 
@@ -87,7 +83,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
 
     private var width = 0
     private lateinit var downloadManager: DownloadManager
-    fun unsplashDownloadManager(context: Context): suspend CoroutineScope.() -> Unit {
+    private fun unsplashDownloadManager(context: Context): suspend CoroutineScope.() -> Unit {
         if (!::downloadManager.isInitialized) {
             width = context.resources.displayMetrics.widthPixels
             downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -114,7 +110,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         }
     }
 
-    fun unsplashInsert(context: Context): suspend CoroutineScope.() -> Unit {
+    private fun unsplashInsert(context: Context): suspend CoroutineScope.() -> Unit {
         if (!::downloadManager.isInitialized) {
             width = context.resources.displayMetrics.widthPixels
         }

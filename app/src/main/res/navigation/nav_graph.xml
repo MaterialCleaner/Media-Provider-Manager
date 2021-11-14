@@ -53,7 +53,12 @@
         android:name="me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment">
         <argument
             android:name="initialPosition"
+            android:defaultValue="0"
             app:argType="integer" />
+        <argument
+            android:name="hasOptionsMenu"
+            android:defaultValue="false"
+            app:argType="boolean" />
         <argument
             android:name="uris"
             app:argType="android.net.Uri[]" />

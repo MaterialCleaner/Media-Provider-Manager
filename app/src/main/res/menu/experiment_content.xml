@@ -28,11 +28,13 @@
             <item
                 android:id="@+id/unsplash_download_manager"
                 android:checked="true"
-                android:title="@string/unsplash_download_manager_title" />
+                android:title="@string/unsplash_download_manager_title"
+                android:titleCondensed="@string/unsplash_download_manager_summary" />
             <item
                 android:id="@+id/unsplash_insert"
                 android:checked="true"
-                android:title="@string/unsplash_insert_title" />
+                android:title="@string/unsplash_insert_title"
+                android:titleCondensed="@string/unsplash_insert_summary" />
         </menu>
     </item>
 

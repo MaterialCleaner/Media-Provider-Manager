@@ -73,9 +73,10 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             fragment.lastPosition = holder.bindingAdapterPosition
             val images = imagesViewModel.images
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
-                holder.bindingAdapterPosition,
-                images.map { it.contentUri }.toTypedArray(),
-                images.map { it.displayName }.toTypedArray()
+                initialPosition = holder.bindingAdapterPosition,
+                hasOptionsMenu = true,
+                uris = images.map { it.contentUri }.toTypedArray(),
+                displayNames = images.map { it.displayName }.toTypedArray()
             )
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
             fragment.findNavController().navigate(direction, extras)

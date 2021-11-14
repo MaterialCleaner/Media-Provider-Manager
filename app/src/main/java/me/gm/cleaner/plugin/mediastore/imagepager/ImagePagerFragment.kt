@@ -37,13 +37,12 @@ import com.google.android.material.transition.platform.FitsScaleMaterialContaine
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
-import me.gm.cleaner.plugin.util.LogUtils
 import me.gm.cleaner.plugin.util.mediumAnimTime
 
 /**
  * Display a series of images in a [ViewPager2].
  *
- * This is implemented with [androidx.navigation.Navigation] and requires 3 [androidx.navigation.NavArgs].
+ * This is implemented with [androidx.navigation.Navigation] and requires 4 [androidx.navigation.NavArgs].
  * See nav_graph.xml for more details.
  */
 class ImagePagerFragment : BaseFragment() {
@@ -55,9 +54,9 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO: enable options menu when PagerFragment decoupled
-//        setHasOptionsMenu(true)
-        LogUtils.e("Useful overriding method.")
+        if (args.hasOptionsMenu) {
+            setHasOptionsMenu(true)
+        }
     }
 
     override fun onCreateView(
