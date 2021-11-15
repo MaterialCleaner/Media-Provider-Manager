@@ -27,6 +27,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.TextAppearanceSpan
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
@@ -57,7 +58,7 @@ fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
     return bitmap
 }
 
-fun Context.getDimenByAttr(attr: Int): Float {
+fun Context.getDimenByAttr(@AttrRes attr: Int): Float {
     val a = obtainStyledAttributes(intArrayOf(attr))
     val dimen = a.getDimension(0, 0f)
     a.recycle()
@@ -65,14 +66,14 @@ fun Context.getDimenByAttr(attr: Int): Float {
 }
 
 @ColorInt
-fun Context.getColorByAttr(attr: Int): Int? {
+fun Context.getColorByAttr(@AttrRes attr: Int): Int? {
     val a = obtainStyledAttributes(intArrayOf(attr))
     val color = a.getColorStateList(0)?.defaultColor
     a.recycle()
     return color
 }
 
-fun Context.getDrawableByAttr(attr: Int): Drawable? {
+fun Context.getDrawableByAttr(@AttrRes attr: Int): Drawable? {
     val a = obtainStyledAttributes(intArrayOf(attr))
     val drawable = a.getDrawable(0)
     a.recycle()

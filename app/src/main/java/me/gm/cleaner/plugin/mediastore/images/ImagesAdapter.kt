@@ -33,11 +33,13 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
     private val imagesViewModel: ImagesViewModel by fragment.viewModels()
+    private val navController by lazy { fragment.findNavController() }
     lateinit var selectionTracker: SelectionTracker<Long>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -75,6 +77,9 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .into(binding.image)
         binding.image.transitionName = uri.toString()
         binding.card.setOnClickListener {
+            if (navController.currentDestination?.id != R.id.images_fragment || fragment.actionMode != null) {
+                return@setOnClickListener
+            }
             fragment.lastPosition = holder.bindingAdapterPosition
             val images = imagesViewModel.images
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
@@ -84,12 +89,12 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                 displayNames = images.map { it.displayName }.toTypedArray()
             )
             val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
-            fragment.findNavController().navigate(direction, extras)
+            navController.navigate(direction, extras)
         }
 
         holder.details = object : ItemDetails<Long>() {
-            override fun getPosition() = position
-            override fun getSelectionKey() = getItemId(position)
+            override fun getPosition() = holder.bindingAdapterPosition
+            override fun getSelectionKey() = getItemId(holder.bindingAdapterPosition)
             override fun inSelectionHotspot(e: MotionEvent) = false
             override fun inDragRegion(e: MotionEvent) = true
         }

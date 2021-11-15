@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.isInvisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -68,12 +69,12 @@ class ImagePagerItem : BaseFragment() {
                     appBarLayout.isLifted = isOverlay
                     toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
                 }
-                imageView.visibility = View.INVISIBLE
+                imageView.isInvisible = true
             }
 
             override fun onImageLoadError(e: Exception?) {
                 viewModel.isFirstEntrance = false
-                imageView.visibility = View.VISIBLE
+                imageView.isInvisible = false
                 Glide.with(this@ImagePagerItem)
                     .load(uri)
                     .into(imageView)

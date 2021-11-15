@@ -25,6 +25,7 @@ import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
+import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -113,7 +114,7 @@ class ImagePagerFragment : BaseFragment() {
         if (savedInstanceState == null) {
             postponeEnterTransition()
         } else {
-            viewPager.visibility = View.VISIBLE
+            viewPager.isInvisible = false
         }
         return binding.root
     }
@@ -133,7 +134,7 @@ class ImagePagerFragment : BaseFragment() {
             scrimColor = Color.TRANSPARENT
             duration = requireContext().mediumAnimTime
             doOnEnd {
-                viewPager.visibility = View.VISIBLE
+                viewPager.isInvisible = false
             }
         }
 
@@ -155,8 +156,8 @@ class ImagePagerFragment : BaseFragment() {
                 val ssiv: SubsamplingScaleImageView =
                     view.findViewById(R.id.subsampling_scale_image_view)
                 if (names.isNotEmpty()) {
-                    if (navController.currentDestination?.id == R.id.images_fragment &&
-                        imageView.visibility == View.INVISIBLE
+                    if (navController.currentDestination?.id != R.id.image_pager_fragment &&
+                        imageView.isInvisible
                     ) {
                         // Change the registered shared element for a better exit transition.
                         // Note that this is not the perfect solution but much better than don't.

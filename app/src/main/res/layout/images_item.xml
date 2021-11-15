@@ -28,11 +28,13 @@
         android:checkable="true"
         android:clickable="true"
         android:focusable="true"
+        app:cardCornerRadius="0dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="0dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

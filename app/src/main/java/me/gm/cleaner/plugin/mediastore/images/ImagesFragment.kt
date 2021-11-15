@@ -54,6 +54,7 @@ class ImagesFragment : MediaStoreFragment() {
     private val imagesViewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
     var lastPosition = 0
+    var actionMode: ActionMode? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -74,14 +75,12 @@ class ImagesFragment : MediaStoreFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         val selectionTracker = SelectionTracker.Builder(
-            ImagesFragment::class.java.simpleName, list, StableIdKeyProvider(list),
+            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
             DetailsLookup(list), StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
             .build()
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
-            private var actionMode: ActionMode? = null
-
             override fun onSelectionChanged() {
                 if (selectionTracker.selection.size() > 0) {
                     if (actionMode == null) {
@@ -156,13 +155,13 @@ class ImagesFragment : MediaStoreFragment() {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
             imagesViewModel.loadImages()
-            setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
-                val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
-                lastPosition = position
-                prepareTransitions()
-                postponeEnterTransition()
-                scrollToPosition(position)
-            }
+        }
+        setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
+            val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
+            lastPosition = position
+            prepareTransitions()
+            postponeEnterTransition()
+            scrollToPosition(position)
         }
     }
 
