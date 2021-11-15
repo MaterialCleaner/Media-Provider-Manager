@@ -30,10 +30,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.selection.SelectionPredicates
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StableIdKeyProvider
-import androidx.recyclerview.selection.StorageStrategy
+import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +45,7 @@ import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment() {
@@ -79,6 +77,14 @@ class ImagesFragment : MediaStoreFragment() {
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
+            .setViewHelper(
+                SelectionTrackerRecyclerViewHelper(list, {
+                    val provisionalSelection = MutableSelection<Long>()
+                    selectionTracker.copySelection(provisionalSelection)
+                    provisionalSelection.clear()
+                    !provisionalSelection.isEmpty
+                })
+            )
             .build()
         pressableView = fastScroller.javaClass.declaredFields
             .first { it.type == View::class.java }
@@ -89,7 +95,7 @@ class ImagesFragment : MediaStoreFragment() {
         selectionTracker.onRestoreInstanceState(savedInstanceState)
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
-                if (!selectionTracker.selection.isEmpty) {
+                if (selectionTracker.hasSelection()) {
                     if (actionMode == null) {
                         // icon
 //                        val (arrow, animate) = arrowDrawable?.run {
