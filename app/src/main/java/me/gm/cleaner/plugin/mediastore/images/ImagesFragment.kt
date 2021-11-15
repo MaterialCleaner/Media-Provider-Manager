@@ -60,6 +60,7 @@ class ImagesFragment : MediaStoreFragment() {
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
             .build()
     }
+    private var selectionSize = 0
     var lastPosition = 0
     var actionMode: ActionMode? = null
 
@@ -78,11 +79,11 @@ class ImagesFragment : MediaStoreFragment() {
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(
-                SelectionTrackerRecyclerViewHelper(list, {
-                    val provisionalSelection = MutableSelection<Long>()
-                    selectionTracker.copySelection(provisionalSelection)
-                    provisionalSelection.clear()
-                    !provisionalSelection.isEmpty
+                SelectionTrackerRecyclerViewHelper(list, { e ->
+                    (e.action != MotionEvent.ACTION_UP &&
+                            selectionSize != selectionTracker.selection.size()).also {
+                        selectionSize = selectionTracker.selection.size()
+                    }
                 })
             )
             .build()

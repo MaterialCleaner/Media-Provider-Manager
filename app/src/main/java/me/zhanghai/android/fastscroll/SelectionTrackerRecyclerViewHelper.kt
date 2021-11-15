@@ -22,14 +22,14 @@ import androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener
 
 internal class SelectionTrackerRecyclerViewHelper(
     private val list: RecyclerView,
-    private val shouldInterceptTouchEvent: Predicate<MotionEvent?>,
+    private val shouldInterceptTouchEvent: Predicate<MotionEvent>,
     popupTextProvider: PopupTextProvider? = null
 ) : RecyclerViewHelper(list, popupTextProvider) {
 
     override fun addOnTouchEventListener(onTouchEvent: Predicate<MotionEvent?>) {
         list.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(recyclerView: RecyclerView, event: MotionEvent) =
-                if (!shouldInterceptTouchEvent.test(null)) {
+                if (!shouldInterceptTouchEvent.test(event)) {
                     onTouchEvent.test(event)
                 } else {
                     false
