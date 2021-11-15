@@ -52,10 +52,11 @@ class ImagesFragment : MediaStoreFragment() {
     private val imagesViewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
     private lateinit var pressableView: View
+    private val detailsLookup by lazy { DetailsLookup(list, pressableView) } // avoid gc
     private val selectionTracker by lazy {
         SelectionTracker.Builder(
             ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
-            DetailsLookup(list, pressableView), StorageStrategy.createLongStorage()
+            detailsLookup, StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
             .build()
