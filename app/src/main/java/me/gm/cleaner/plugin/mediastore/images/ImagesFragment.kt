@@ -53,6 +53,15 @@ import rikka.recyclerview.fixEdgeEffect
 class ImagesFragment : MediaStoreFragment() {
     private val imagesViewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
+    private lateinit var pressableView: View
+    private val selectionTracker by lazy {
+        SelectionTracker.Builder(
+            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
+            DetailsLookup(list, pressableView), StorageStrategy.createLongStorage()
+        )
+            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .build()
+    }
     var lastPosition = 0
     var actionMode: ActionMode? = null
 
@@ -68,40 +77,55 @@ class ImagesFragment : MediaStoreFragment() {
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
-        FastScrollerBuilder(list)
+        val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .build()
+        pressableView = fastScroller.javaClass.declaredFields
+            .first { it.type == View::class.java }
+            .apply { isAccessible = true }[fastScroller] as View
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        val selectionTracker = SelectionTracker.Builder(
-            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
-            DetailsLookup(list), StorageStrategy.createLongStorage()
-        )
-            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-            .build()
+        selectionTracker.onRestoreInstanceState(savedInstanceState)
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
-                if (selectionTracker.selection.size() > 0) {
+                if (!selectionTracker.selection.isEmpty) {
                     if (actionMode == null) {
-                        actionMode =
-                            (requireActivity() as AppCompatActivity).startSupportActionMode(object :
-                                ActionMode.Callback {
-                                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) =
-                                    true
+                        // icon
+//                        val (arrow, animate) = arrowDrawable?.run {
+//                            this to true
+//                        } ?: DrawerArrowDrawable(context).also { arrowDrawable = it } to false
+//
+//                        setNavigationIcon(
+//                            arrow,
+//                            if (showAsDrawerIndicator) R.string.nav_app_bar_open_drawer_description
+//                            else R.string.nav_app_bar_navigate_up_description
+//                        )
+//
+//                        val endValue = if (showAsDrawerIndicator) 0f else 1f
+//                        if (animate) {
+//                            val startValue = arrow.progress
+//                            animator?.cancel()
+//                            animator = ObjectAnimator.ofFloat(arrow, "progress", startValue, endValue)
+//                            (animator as ObjectAnimator).start()
+//                        } else {
+//                            arrow.progress = endValue
+//                        }
+                        // color
+//                        androidx.appcompat.R.styleable.ActionBar_background
+//                        <item name="background">?attr/actionBarItemBackground</item>
+                        val activity = requireActivity() as AppCompatActivity
+                        actionMode = activity.startSupportActionMode(object : ActionMode.Callback {
+                            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) = true
+                            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) = false
+                            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?) =
+                                false
 
-                                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) =
-                                    false
-
-                                override fun onActionItemClicked(
-                                    mode: ActionMode?, item: MenuItem?
-                                ) = false
-
-                                override fun onDestroyActionMode(mode: ActionMode?) {
-                                    selectionTracker.clearSelection()
-                                    actionMode = null
-                                }
-                            })
+                            override fun onDestroyActionMode(mode: ActionMode?) {
+                                selectionTracker.clearSelection()
+                                actionMode = null
+                            }
+                        })
                     }
                     actionMode?.title = selectionTracker.selection.size().toString()
                 } else if (actionMode != null) {
@@ -231,6 +255,11 @@ class ImagesFragment : MediaStoreFragment() {
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        selectionTracker.onSaveInstanceState(outState)
     }
 
     companion object {

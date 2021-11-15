@@ -88,7 +88,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             object : DiffUtil.ItemCallback<PreferencesPackageInfo>() {
                 override fun areItemsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
-                ) = oldItem.applicationInfo.packageName == newItem.applicationInfo.packageName
+                ) = oldItem.packageName == newItem.packageName
 
                 override fun areContentsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo

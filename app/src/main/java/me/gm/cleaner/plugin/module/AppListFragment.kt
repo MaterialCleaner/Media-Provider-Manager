@@ -32,7 +32,12 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
-import me.gm.cleaner.plugin.util.*
+import me.gm.cleaner.plugin.util.addLiftOnScrollListener
+import me.gm.cleaner.plugin.util.buildStyledTitle
+import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.util.submitListKeepPosition
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : BaseFragment() {
@@ -55,7 +60,10 @@ class AppListFragment : BaseFragment() {
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
-        list.initFastScroller()
+        FastScrollerBuilder(list)
+            .useMd2Style()
+            .setViewHelper(SimpleRecyclerViewHelper(list))
+            .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }

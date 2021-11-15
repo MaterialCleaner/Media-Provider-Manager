@@ -63,20 +63,23 @@ object ExperimentContentItems {
     @SuppressLint("RestrictedApi")
     private fun convertTo(items: MutableList<ExperimentContentItem>, menu: MenuBuilder) {
         menu.visibleItems.forEach { menuItemImpl ->
-            if (menuItemImpl.hasSubMenu()) {
-                if (items.isNotEmpty()) {
-                    items.add(ExperimentContentSeparatorItem())
+            when {
+                menuItemImpl.hasSubMenu() -> {
+                    if (items.isNotEmpty()) {
+                        items.add(ExperimentContentSeparatorItem())
+                    }
+                    items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
+                    convertTo(items, menuItemImpl.subMenu as MenuBuilder)
                 }
-                items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
-                convertTo(items, menuItemImpl.subMenu as MenuBuilder)
-            } else {
-                when {
-                    menuItemImpl.isCheckable -> items.add(
+                menuItemImpl.isCheckable -> {
+                    items.add(
                         ExperimentContentSubHeaderItem(
                             menuItemImpl.itemId, menuItemImpl.title, menuItemImpl.isChecked
                         )
                     )
-                    !menuItemImpl.isCheckable -> items.add(
+                }
+                else -> {
+                    items.add(
                         ExperimentContentActionItem(
                             menuItemImpl.itemId,
                             menuItemImpl.title,

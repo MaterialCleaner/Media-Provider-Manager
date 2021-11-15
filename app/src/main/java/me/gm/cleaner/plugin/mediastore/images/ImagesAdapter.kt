@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -47,10 +48,10 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        val uri = getItem(position).contentUri
+        val item = getItem(position)
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(fragment)
-            .load(uri)
+            .load(item.contentUri)
             .listener(object : RequestListener<Drawable?> {
                 override fun onLoadFailed(
                     e: GlideException?, model: Any?, target: Target<Drawable?>?,
@@ -75,7 +76,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .thumbnail(1F / 3F)
             .centerCrop()
             .into(binding.image)
-        binding.image.transitionName = uri.toString()
+        binding.image.transitionName = item.contentUri.toString()
         binding.card.setOnClickListener {
             if (navController.currentDestination?.id != R.id.images_fragment || fragment.actionMode != null) {
                 return@setOnClickListener
@@ -94,24 +95,30 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
 
         holder.details = object : ItemDetails<Long>() {
             override fun getPosition() = holder.bindingAdapterPosition
-            override fun getSelectionKey() = getItemId(holder.bindingAdapterPosition)
+            override fun getSelectionKey() = item.id
             override fun inSelectionHotspot(e: MotionEvent) = false
             override fun inDragRegion(e: MotionEvent) = true
         }
         if (::selectionTracker.isInitialized) {
-            binding.card.isChecked = selectionTracker.isSelected(getItemId(position))
+            binding.card.isChecked = selectionTracker.isSelected(item.id)
         }
     }
 
-    override fun getItemId(position: Int) = getItem(position).hashCode().toLong()
+    override fun getItemId(position: Int) = getItem(position).id
 
     class ViewHolder(val binding: ImagesItemBinding) : RecyclerView.ViewHolder(binding.root) {
         lateinit var details: ItemDetails<Long>
     }
 }
 
-class DetailsLookup(private val list: RecyclerView) : ItemDetailsLookup<Long>() {
+class DetailsLookup(private val list: RecyclerView, private val pressableView: View) :
+    ItemDetailsLookup<Long>() {
+
     override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
+        if (pressableView.isPressed) {
+            return null
+        }
+
         val view = list.findChildViewUnder(e.x, e.y)
         if (view != null) {
             val viewHolder = list.getChildViewHolder(view)

@@ -60,14 +60,14 @@ abstract class DrawerActivity : BaseActivity() {
             }
             navController.graph = navGraph
         }
-
-        drawerLayout = binding.drawerLayout
-        setupActionBarWithNavController(navController, appBarConfiguration)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id in topLevelDestinationIds) {
                 ModulePreferences.startDestination = destination.id
             }
         }
+
+        drawerLayout = binding.drawerLayout
+        setupActionBarWithNavController(navController, appBarConfiguration)
         val navView = binding.navView
         navView.setupWithNavController(navController)
         customizeNavViewStyle(navView)
