@@ -52,15 +52,7 @@ class ImagesFragment : MediaStoreFragment() {
     private val imagesViewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
     private lateinit var pressableView: View
-    private val detailsLookup by lazy { DetailsLookup(list, pressableView) } // avoid gc
-    private val selectionTracker by lazy {
-        SelectionTracker.Builder(
-            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
-            detailsLookup, StorageStrategy.createLongStorage()
-        )
-            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-            .build()
-    }
+    private lateinit var selectionTracker: SelectionTracker<Long>
     private var selectionSize = 0
     var lastPosition = 0
     var actionMode: ActionMode? = null
@@ -94,6 +86,12 @@ class ImagesFragment : MediaStoreFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+        selectionTracker = SelectionTracker.Builder(
+            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
+            DetailsLookup(list, pressableView), StorageStrategy.createLongStorage()
+        )
+            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .build()
         selectionTracker.onRestoreInstanceState(savedInstanceState)
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
