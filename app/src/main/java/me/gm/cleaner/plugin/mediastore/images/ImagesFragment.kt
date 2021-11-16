@@ -21,7 +21,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
@@ -42,6 +41,7 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
+import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
@@ -99,41 +99,23 @@ class ImagesFragment : MediaStoreFragment() {
             override fun onSelectionChanged() {
                 if (selectionTracker.hasSelection()) {
                     if (actionMode == null) {
-                        // icon
-//                        val (arrow, animate) = arrowDrawable?.run {
-//                            this to true
-//                        } ?: DrawerArrowDrawable(context).also { arrowDrawable = it } to false
-//
-//                        setNavigationIcon(
-//                            arrow,
-//                            if (showAsDrawerIndicator) R.string.nav_app_bar_open_drawer_description
-//                            else R.string.nav_app_bar_navigate_up_description
-//                        )
-//
-//                        val endValue = if (showAsDrawerIndicator) 0f else 1f
-//                        if (animate) {
-//                            val startValue = arrow.progress
-//                            animator?.cancel()
-//                            animator = ObjectAnimator.ofFloat(arrow, "progress", startValue, endValue)
-//                            (animator as ObjectAnimator).start()
-//                        } else {
-//                            arrow.progress = endValue
-//                        }
-                        // color
-//                        androidx.appcompat.R.styleable.ActionBar_background
-//                        <item name="background">?attr/actionBarItemBackground</item>
-                        val activity = requireActivity() as AppCompatActivity
-                        actionMode = activity.startSupportActionMode(object : ActionMode.Callback {
-                            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) = true
-                            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) = false
-                            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?) =
-                                false
+                        actionMode = startToolbarActionMode(R.menu.mediastore_actionmode,
+                            object : ActionMode.Callback {
+                                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) =
+                                    true
 
-                            override fun onDestroyActionMode(mode: ActionMode?) {
-                                selectionTracker.clearSelection()
-                                actionMode = null
-                            }
-                        })
+                                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) =
+                                    false
+
+                                override fun onActionItemClicked(
+                                    mode: ActionMode?, item: MenuItem?
+                                ) = false
+
+                                override fun onDestroyActionMode(mode: ActionMode?) {
+                                    selectionTracker.clearSelection()
+                                    actionMode = null
+                                }
+                            })
                     }
                     actionMode?.title = selectionTracker.selection.size().toString()
                 } else if (actionMode != null) {

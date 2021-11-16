@@ -41,6 +41,7 @@ class AppListViewModel : ViewModel() {
         set(value) {
             _queryTextFlow.value = value
         }
+    private val collator = Collator.getInstance()
     private val _appsFlow = MutableStateFlow<SourceState>(SourceState.Loading(0))
     val appsFlow =
         combine(_appsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
@@ -67,7 +68,7 @@ class AppListViewModel : ViewModel() {
                         when (ModulePreferences.sortBy) {
                             ModulePreferences.SORT_BY_NAME ->
                                 sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
-                                    Collator.getInstance().compare(o1?.label, o2?.label)
+                                    collator.compare(o1?.label, o2?.label)
                                 }
                             ModulePreferences.SORT_BY_UPDATE_TIME ->
                                 sortWith(Comparator.comparingLong {
