@@ -78,7 +78,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             .into(binding.image)
         binding.image.transitionName = item.contentUri.toString()
         binding.card.setOnClickListener {
-            if (navController.currentDestination?.id != R.id.images_fragment || fragment.actionMode != null) {
+            if (navController.currentDestination?.id != R.id.images_fragment || fragment.isInActionMode()) {
                 return@setOnClickListener
             }
             fragment.lastPosition = holder.bindingAdapterPosition
@@ -104,6 +104,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         }
     }
 
+    // Id is unique in media store, hence we can use it as stable id directly.
     override fun getItemId(position: Int) = getItem(position).id
 
     class ViewHolder(val binding: ImagesItemBinding) : RecyclerView.ViewHolder(binding.root) {

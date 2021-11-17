@@ -24,14 +24,15 @@
     android:layout_height="match_parent"
     tools:openDrawer="start">
 
-    <com.drakeet.drawer.FullDraggableContainer
+    <me.gm.cleaner.plugin.widget.FullyDraggableContainer
+        android:id="@+id/fully_draggable_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <include layout="@layout/drawer_content" />
 
         <include layout="@layout/appbar" />
-    </com.drakeet.drawer.FullDraggableContainer>
+    </me.gm.cleaner.plugin.widget.FullyDraggableContainer>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

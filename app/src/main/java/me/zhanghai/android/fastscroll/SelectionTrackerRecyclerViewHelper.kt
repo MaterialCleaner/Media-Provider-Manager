@@ -29,10 +29,10 @@ internal class SelectionTrackerRecyclerViewHelper(
     override fun addOnTouchEventListener(onTouchEvent: Predicate<MotionEvent?>) {
         list.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
             override fun onInterceptTouchEvent(recyclerView: RecyclerView, event: MotionEvent) =
-                if (!shouldInterceptTouchEvent.test(event)) {
-                    onTouchEvent.test(event)
-                } else {
+                if (shouldInterceptTouchEvent.test(event)) {
                     false
+                } else {
+                    onTouchEvent.test(event)
                 }
 
             override fun onTouchEvent(recyclerView: RecyclerView, event: MotionEvent) {

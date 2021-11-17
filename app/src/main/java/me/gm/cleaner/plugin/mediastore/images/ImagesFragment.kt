@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -35,6 +36,7 @@ import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -51,17 +53,16 @@ import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
 import me.gm.cleaner.plugin.mediastore.ToolbarActionModeIndicator
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
+import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
-
 
 class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private val viewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
     private val keyProvider by lazy { StableIdKeyProvider(list) }
     private lateinit var selectionTracker: SelectionTracker<Long>
-    private var selectionSize = 0
     var lastPosition = 0
     var actionMode: ActionMode? = null
 
@@ -80,11 +81,9 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(
-                SelectionTrackerRecyclerViewHelper(list, { e ->
-                    (e.action != MotionEvent.ACTION_UP &&
-                            selectionSize != selectionTracker.selection.size()).also {
-                        selectionSize = selectionTracker.selection.size()
-                    }
+                SelectionTrackerRecyclerViewHelper(list, { ev ->
+                    // TODO: has provisional selection
+                    ev.action != MotionEvent.ACTION_UP && selectionTracker.hasSelection()
                 })
             )
             .build()
@@ -144,6 +143,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         return binding.root
     }
 
+    // TODO: move this fun to MediaStoreFragment, make MediaStoreFragment implement ActionMode.Callback,
+    //  override onActionItemClicked in this fragment
     private fun startActionMode() {
         if (!isInActionMode()) {
             val activity = requireActivity() as AppCompatActivity
@@ -264,6 +265,29 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
                 lifecycleScope.launch {
                     if (!viewModel.validateAsync().await()) {
                         Snackbar.make(requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT)
+                            .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                                private lateinit var fullyDraggableContainer: FullyDraggableContainer
+                                private lateinit var v: View
+                                private val r = Rect()
+                                private val l = View.OnGenericMotionListener { _, ev ->
+                                    ev.action == MotionEvent.ACTION_DOWN &&
+                                            v.getGlobalVisibleRect(r) &&
+                                            r.contains(ev.x.toInt(), ev.y.toInt())
+                                }
+
+                                override fun onShown(transientBottomBar: Snackbar) {
+                                    super.onShown(transientBottomBar)
+                                    v = transientBottomBar.view
+                                    fullyDraggableContainer =
+                                        requireActivity().findViewById(R.id.fully_draggable_container)
+                                    fullyDraggableContainer.addInterceptTouchEventListener(l)
+                                }
+
+                                override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+                                    super.onDismissed(transientBottomBar, event)
+                                    fullyDraggableContainer.removeInterceptTouchEventListener(l)
+                                }
+                            })
                             .show()
                     }
                 }
@@ -280,6 +304,11 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         if (selectionTracker.hasSelection()) {
             startActionMode()
         }
+        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
+            .addInterceptTouchEventListener { _, ev ->
+                // TODO: has provisional selection
+                ev.action != MotionEvent.ACTION_UP && selectionTracker.hasSelection()
+            }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
