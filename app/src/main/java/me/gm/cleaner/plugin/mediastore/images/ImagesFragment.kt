@@ -48,11 +48,9 @@ import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.getObjectField
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
-import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.*
 import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
-import me.gm.cleaner.plugin.mediastore.ToolbarActionModeIndicator
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
-import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
@@ -63,6 +61,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private lateinit var list: RecyclerView
     private val keyProvider by lazy { StableIdKeyProvider(list) }
     private lateinit var selectionTracker: SelectionTracker<Long>
+    private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
     var lastPosition = 0
     var actionMode: ActionMode? = null
 
@@ -82,8 +81,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             .useMd2Style()
             .setViewHelper(
                 SelectionTrackerRecyclerViewHelper(list, { ev ->
-                    // TODO: has provisional selection
-                    ev.action != MotionEvent.ACTION_UP && selectionTracker.hasSelection()
+                    detector.onTouchEvent(ev)
+                    detector.isSelecting
                 })
             )
             .build()
@@ -305,9 +304,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             startActionMode()
         }
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener { _, ev ->
-                // TODO: has provisional selection
-                ev.action != MotionEvent.ACTION_UP && selectionTracker.hasSelection()
+            .addInterceptTouchEventListener { _, _ ->
+                detector.isSelecting
             }
     }
 
