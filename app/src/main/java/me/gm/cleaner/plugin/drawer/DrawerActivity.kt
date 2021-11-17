@@ -35,6 +35,7 @@ import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
 import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.util.getObjectField
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
@@ -86,9 +87,7 @@ abstract class DrawerActivity : BaseActivity() {
 
     @SuppressLint("RestrictedApi")
     private fun customizeNavViewStyle(navView: NavigationView) {
-        val presenter = navView.javaClass.declaredFields
-            .first { it.type == NavigationMenuPresenter::class.java }
-            .apply { isAccessible = true }[navView] as NavigationMenuPresenter
+        val presenter = navView.getObjectField<NavigationMenuPresenter>()
         val menuView = presenter.getMenuView(navView) as NavigationMenuView
         menuView.fixEdgeEffect(false)
         menuView.overScrollIfContentScrollsPersistent()
@@ -97,6 +96,7 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onBackPressed() {
         when {
             drawerLayout.isOpen -> drawerLayout.close()
+            onBackPressedDispatcher.hasEnabledCallbacks() -> super.onBackPressed()
             navController.currentDestination?.id in topLevelDestinationIds -> super.onSupportNavigateUp()
             else -> super.onBackPressed()
         }

@@ -52,6 +52,7 @@
     <string name="revoke_self_permission">只顯示自己的媒體檔案需要撤銷應用的讀取外部儲存空間權限，請在應用訊息中手動撤銷</string>
     <string name="validation">刪除所有無效圖片</string>
     <string name="validation_nop">未發現無效圖片</string>
+    <string name="unsupported_delete_in_bulk">安卓 Q 的媒體儲存不支持批次刪除</string>
 
     <!-- 實驗 -->
     <string name="experiment_header">這裡有一些關於媒體儲存的實驗，您可以透過它們了解媒體儲存和測試模組功能。</string>

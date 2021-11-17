@@ -19,71 +19,86 @@ package me.gm.cleaner.plugin.mediastore
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.view.Window
 import android.view.accessibility.AccessibilityEvent
 import android.widget.TextView
-import androidx.annotation.MenuRes
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.view.ActionMode
-import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentController
-import androidx.fragment.app.FragmentHostCallback
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 
-// TODO: Finish ActionMod on back pressed and on navigation click
 @SuppressLint("RestrictedApi")
-class ToolbarActionMode(fragment: Fragment, private val toolbar: Toolbar) {
+class ToolbarActionMode(private val activity: AppCompatActivity, private val toolbar: Toolbar) {
     private val menu: MenuBuilder
         get() = toolbar.menu as MenuBuilder
-
-    // FIXME: ClassCastException
-    private val fragmentController by lazy { FragmentController.createController(fragment.requireHost() as FragmentHostCallback<*>) }
-    private val arrowDrawable = DrawerArrowDrawable(fragment.requireContext())
+    private val arrowDrawable = DrawerArrowDrawable(activity)
     private var animator: ValueAnimator? = null
 
+    private val originalToolbarTitle = toolbar.title to toolbar.subtitle
     private var actionMode: ToolbarActionModeImpl? = null
     private var mCallback: ActionMode.Callback? = null
-    fun startActionMode(@MenuRes menuRes: Int, callback: ActionMode.Callback): ActionMode? {
+    private var cancellable: OnBackPressedCallback? = null
+
+    fun startActionMode(callback: ActionMode.Callback): ActionMode? {
         actionMode?.finish()
 
         val mode = object : ToolbarActionModeImpl(toolbar, callback) {
             override fun finish() {
                 super.finish()
                 mCallback = null
-                restore()
+                closeMode()
             }
         }
+        initForMode(mode)
         if (mode.dispatchOnCreate()) {
             // This needs to be set before invalidate() so that it calls
             // onPrepareActionMode()
             mCallback = callback
             mode.invalidate()
-            menu.close()
-            menu.clear()
-            toolbar.inflateMenu(menuRes)
-            toolbar.setNavigationOnClickListener {
-                // TODO
-            }
-            toolbar.setOnMenuItemClickListener { item ->
-                mode.onMenuItemSelected(menu, item)
-            }
             animateToMode(true)
             toolbar.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
             return mode
         }
+        closeMode()
         return null
     }
 
-    fun restore() {
+    private fun initForMode(mode: ToolbarActionModeImpl) {
         menu.close()
         menu.clear()
-        fragmentController.dispatchCreateOptionsMenu(menu, SupportMenuInflater(toolbar.context))
-        toolbar.setOnMenuItemClickListener { item ->
-            fragmentController.dispatchOptionsItemSelected(item)
+        toolbar.setNavigationOnClickListener {
+            mode.finish()
         }
+        toolbar.setOnMenuItemClickListener { item ->
+            mode.onMenuItemSelected(menu, item)
+        }
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mode.finish()
+            }
+        }
+        activity.onBackPressedDispatcher.addCallback(activity, onBackPressedCallback)
+        cancellable = onBackPressedCallback
+    }
+
+    private fun closeMode() {
+        toolbar.title = originalToolbarTitle.first
+        toolbar.subtitle = originalToolbarTitle.second
+        menu.close()
+        menu.clear()
+        activity.onCreatePanelMenu(Window.FEATURE_OPTIONS_PANEL, menu)
+        toolbar.setNavigationOnClickListener {
+            activity.onSupportNavigateUp()
+        }
+        toolbar.setOnMenuItemClickListener { item ->
+            activity.onMenuItemSelected(Window.FEATURE_OPTIONS_PANEL, item)
+        }
+        cancellable?.remove()
+        cancellable = null
         animateToMode(false)
     }
 
@@ -118,6 +133,5 @@ class ToolbarActionMode(fragment: Fragment, private val toolbar: Toolbar) {
     }
 }
 
-fun Fragment.startToolbarActionMode(@MenuRes menuRes: Int, callback: ActionMode.Callback) =
-    ToolbarActionMode(this, requireActivity().findViewById(R.id.toolbar))
-        .startActionMode(menuRes, callback)
+fun AppCompatActivity.startToolbarActionMode(callback: ActionMode.Callback) =
+    ToolbarActionMode(this, findViewById(R.id.toolbar)).startActionMode(callback)

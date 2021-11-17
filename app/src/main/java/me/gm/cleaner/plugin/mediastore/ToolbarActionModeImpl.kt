@@ -21,6 +21,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import androidx.annotation.StringRes
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.view.menu.MenuBuilder
@@ -36,7 +37,7 @@ open class ToolbarActionModeImpl(private val toolbar: Toolbar, private val callb
         toolbar.title = title
     }
 
-    override fun setTitle(resId: Int) {
+    override fun setTitle(@StringRes resId: Int) {
         toolbar.setTitle(resId)
     }
 
@@ -44,7 +45,7 @@ open class ToolbarActionModeImpl(private val toolbar: Toolbar, private val callb
         toolbar.subtitle = subtitle
     }
 
-    override fun setSubtitle(resId: Int) {
+    override fun setSubtitle(@StringRes resId: Int) {
         toolbar.setSubtitle(resId)
     }
 

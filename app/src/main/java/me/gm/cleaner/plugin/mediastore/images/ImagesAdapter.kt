@@ -39,7 +39,7 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
     ListAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(MediaStoreImage.DiffCallback) {
-    private val imagesViewModel: ImagesViewModel by fragment.viewModels()
+    private val viewModel: ImagesViewModel by fragment.viewModels()
     private val navController by lazy { fragment.findNavController() }
     lateinit var selectionTracker: SelectionTracker<Long>
 
@@ -82,7 +82,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                 return@setOnClickListener
             }
             fragment.lastPosition = holder.bindingAdapterPosition
-            val images = imagesViewModel.images
+            val images = viewModel.images
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
                 initialPosition = holder.bindingAdapterPosition,
                 hasOptionsMenu = true,

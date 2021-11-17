@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
@@ -37,21 +38,23 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
+import me.gm.cleaner.plugin.util.getObjectField
 import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
+
 class ImagesFragment : MediaStoreFragment() {
-    private val imagesViewModel: ImagesViewModel by viewModels()
+    private val viewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
-    private lateinit var pressableView: View
     private lateinit var selectionTracker: SelectionTracker<Long>
     private var selectionSize = 0
     var lastPosition = 0
@@ -80,14 +83,22 @@ class ImagesFragment : MediaStoreFragment() {
                 })
             )
             .build()
-        pressableView = fastScroller.javaClass.declaredFields
-            .first { it.type == View::class.java }
-            .apply { isAccessible = true }[fastScroller] as View
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+
+        // StableIdKeyProvider 💩
+        // https://stackoverflow.com/questions/53523318/renew-stableidkeyprovider-cache-and-recyclerview-selectiontracker-crash-on-new-s
+        val keyProvider = object : ItemKeyProvider<Long>(SCOPE_MAPPED) {
+            override fun getKey(position: Int) = adapter.getItemId(position)
+            override fun getPosition(key: Long): Int {
+                val viewHolder = list.findViewHolderForItemId(key)
+                return viewHolder?.layoutPosition ?: RecyclerView.NO_POSITION
+            }
+        }
+        val pressableView = fastScroller.getObjectField<View>()
         selectionTracker = SelectionTracker.Builder(
-            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
+            ImagesAdapter::class.java.simpleName, list, keyProvider,
             DetailsLookup(list, pressableView), StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -97,23 +108,39 @@ class ImagesFragment : MediaStoreFragment() {
             override fun onSelectionChanged() {
                 if (selectionTracker.hasSelection()) {
                     if (actionMode == null) {
-                        actionMode = startToolbarActionMode(R.menu.mediastore_actionmode,
-                            object : ActionMode.Callback {
-                                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?) =
-                                    true
+                        val activity = requireActivity() as AppCompatActivity
+                        actionMode = activity.startToolbarActionMode(object : ActionMode.Callback {
+                            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                                mode.menuInflater.inflate(R.menu.mediastore_actionmode, menu)
+                                return true
+                            }
 
-                                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?) =
-                                    false
-
-                                override fun onActionItemClicked(
-                                    mode: ActionMode?, item: MenuItem?
-                                ) = false
-
-                                override fun onDestroyActionMode(mode: ActionMode?) {
-                                    selectionTracker.clearSelection()
-                                    actionMode = null
+                            override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
+                            override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
+                                when (item.itemId) {
+                                    R.id.menu_delete -> {
+                                        val images = selectionTracker.selection.map {
+                                            viewModel.images[keyProvider.getPosition(it)]
+                                        }
+                                        selectionTracker.clearSelection()
+                                        when {
+                                            images.size == 1 -> viewModel.deleteImage(images.single())
+                                            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
+                                                // see: https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
+                                                getString(R.string.unsupported_delete_in_bulk)
+                                            )
+                                            else -> viewModel.deleteImages(images.toTypedArray())
+                                        }
+                                        true
+                                    }
+                                    else -> false
                                 }
-                            })
+
+                            override fun onDestroyActionMode(mode: ActionMode) {
+                                selectionTracker.clearSelection()
+                                actionMode = null
+                            }
+                        })
                     }
                     actionMode?.title = selectionTracker.selection.size().toString()
                 } else if (actionMode != null) {
@@ -125,12 +152,12 @@ class ImagesFragment : MediaStoreFragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                imagesViewModel.imagesFlow.collect { images ->
+                viewModel.imagesFlow.collect { images ->
                     adapter.submitList(images)
                 }
             }
         }
-        imagesViewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
+        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
             intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
@@ -157,7 +184,7 @@ class ImagesFragment : MediaStoreFragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST &&
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
         ) {
-            imagesViewModel.deletePendingImage()
+            viewModel.deletePendingImage()
         }
     }
 
@@ -166,7 +193,7 @@ class ImagesFragment : MediaStoreFragment() {
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         if (savedInstanceState == null) {
-            imagesViewModel.loadImages()
+            viewModel.loadImages()
         }
         setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
             val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
@@ -231,7 +258,7 @@ class ImagesFragment : MediaStoreFragment() {
         R.id.menu_validation -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 lifecycleScope.launch {
-                    if (!imagesViewModel.validateAsync().await()) {
+                    if (!viewModel.validateAsync().await()) {
                         Snackbar.make(
                             requireView(), getString(R.string.validation_nop), Snackbar.LENGTH_SHORT
                         ).show()
