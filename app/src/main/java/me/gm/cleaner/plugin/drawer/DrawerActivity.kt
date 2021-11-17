@@ -34,9 +34,10 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
+import me.gm.cleaner.plugin.ktx.getObjectField
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.mediastore.ToolbarActionModeIndicator
 import me.gm.cleaner.plugin.module.BinderViewModel
-import me.gm.cleaner.plugin.util.getObjectField
-import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class DrawerActivity : BaseActivity() {
@@ -96,8 +97,11 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onBackPressed() {
         when {
             drawerLayout.isOpen -> drawerLayout.close()
-            onBackPressedDispatcher.hasEnabledCallbacks() -> super.onBackPressed()
-            navController.currentDestination?.id in topLevelDestinationIds -> super.onSupportNavigateUp()
+            navController.currentDestination?.id in topLevelDestinationIds &&
+                    supportFragmentManager.findFragmentById(R.id.nav_host)
+                        ?.childFragmentManager?.fragments?.get(0)?.let {
+                            it !is ToolbarActionModeIndicator || !it.isInActionMode()
+                        } == true -> super.onSupportNavigateUp()
             else -> super.onBackPressed()
         }
     }

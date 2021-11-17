@@ -30,6 +30,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,21 +42,24 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
+import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.getObjectField
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
+import me.gm.cleaner.plugin.mediastore.ToolbarActionModeIndicator
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
-import me.gm.cleaner.plugin.util.addLiftOnScrollListener
-import me.gm.cleaner.plugin.util.getObjectField
-import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 
-class ImagesFragment : MediaStoreFragment() {
+class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private val viewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
+    private val keyProvider by lazy { StableIdKeyProvider(list) }
     private lateinit var selectionTracker: SelectionTracker<Long>
     private var selectionSize = 0
     var lastPosition = 0
@@ -88,7 +92,6 @@ class ImagesFragment : MediaStoreFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
-        val keyProvider = StableIdKeyProvider(list)
         val pressableView = fastScroller.getObjectField<View>()
         selectionTracker = SelectionTracker.Builder(
             ImagesAdapter::class.java.simpleName, list, keyProvider,
@@ -100,48 +103,17 @@ class ImagesFragment : MediaStoreFragment() {
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
             override fun onSelectionChanged() {
                 if (selectionTracker.hasSelection()) {
-                    if (actionMode == null) {
-                        val activity = requireActivity() as AppCompatActivity
-                        actionMode = activity.startToolbarActionMode(object : ActionMode.Callback {
-                            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                                mode.menuInflater.inflate(R.menu.mediastore_actionmode, menu)
-                                return true
-                            }
-
-                            override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-                            override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
-                                when (item.itemId) {
-                                    R.id.menu_delete -> {
-                                        val images = selectionTracker.selection.map {
-                                            viewModel.images[keyProvider.getPosition(it)]
-                                        }
-                                        selectionTracker.clearSelection()
-                                        when {
-                                            images.size == 1 -> viewModel.deleteImage(images.single())
-                                            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
-                                                // see: https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
-                                                getString(R.string.unsupported_delete_in_bulk)
-                                            )
-                                            else -> viewModel.deleteImages(images.toTypedArray())
-                                        }
-                                        true
-                                    }
-                                    else -> false
-                                }
-
-                            override fun onDestroyActionMode(mode: ActionMode) {
-                                selectionTracker.clearSelection()
-                                actionMode = null
-                            }
-                        })
-                    }
-                    actionMode?.title = selectionTracker.selection.size().toString()
-                } else if (actionMode != null) {
+                    startActionMode()
+                } else {
                     actionMode?.finish()
                 }
             }
         })
         adapter.selectionTracker = selectionTracker
+        findNavController().addOnExitListener { _, destination, _ ->
+            actionMode?.finish()
+            supportActionBar?.title = destination.label
+        }
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -170,6 +142,45 @@ class ImagesFragment : MediaStoreFragment() {
             }
         })
         return binding.root
+    }
+
+    private fun startActionMode() {
+        if (!isInActionMode()) {
+            val activity = requireActivity() as AppCompatActivity
+            actionMode = activity.startToolbarActionMode(object : ActionMode.Callback {
+                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                    mode.menuInflater.inflate(R.menu.mediastore_actionmode, menu)
+                    return true
+                }
+
+                override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
+                override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
+                    when (item.itemId) {
+                        R.id.menu_delete -> {
+                            val images = selectionTracker.selection.map {
+                                viewModel.images[keyProvider.getPosition(it)]
+                            }
+                            selectionTracker.clearSelection()
+                            when {
+                                images.size == 1 -> viewModel.deleteImage(images.single())
+                                Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
+                                    // see: https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
+                                    getString(R.string.unsupported_delete_in_bulk)
+                                )
+                                else -> viewModel.deleteImages(images.toTypedArray())
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+
+                override fun onDestroyActionMode(mode: ActionMode) {
+                    selectionTracker.clearSelection()
+                    actionMode = null
+                }
+            })
+        }
+        actionMode?.title = selectionTracker.selection.size().toString()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -252,9 +263,8 @@ class ImagesFragment : MediaStoreFragment() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 lifecycleScope.launch {
                     if (!viewModel.validateAsync().await()) {
-                        Snackbar.make(
-                            requireView(), getString(R.string.validation_nop), Snackbar.LENGTH_SHORT
-                        ).show()
+                        Snackbar.make(requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                 }
             } else {
@@ -265,10 +275,19 @@ class ImagesFragment : MediaStoreFragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (selectionTracker.hasSelection()) {
+            startActionMode()
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         selectionTracker.onSaveInstanceState(outState)
     }
+
+    override fun isInActionMode() = actionMode != null
 
     companion object {
         /**

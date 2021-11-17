@@ -33,7 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.compat.isNightModeActivated
+import me.gm.cleaner.plugin.ktx.isNightModeActivated
 
 abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?

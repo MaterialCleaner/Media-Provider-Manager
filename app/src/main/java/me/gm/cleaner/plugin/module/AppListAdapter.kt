@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.drawer.DrawerActivity
-import me.gm.cleaner.plugin.util.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {

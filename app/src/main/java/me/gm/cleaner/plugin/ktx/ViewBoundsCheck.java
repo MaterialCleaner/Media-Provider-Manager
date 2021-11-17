@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util;
+package me.gm.cleaner.plugin.ktx;
 
 import android.view.View;
 
@@ -182,13 +182,11 @@ class ViewBoundsCheck {
             }
 
             if ((mBoundFlags & (MASK << CVE_PVE_POS)) != 0) {
-                if ((mBoundFlags & (compare(mChildEnd, mRvEnd) << CVE_PVE_POS)) == 0) {
-                    return false;
-                }
+                return (mBoundFlags & (compare(mChildEnd, mRvEnd) << CVE_PVE_POS)) != 0;
             }
             return true;
         }
-    };
+    }
 
     /**
      * Returns the first view starting from fromIndex to toIndex in views whose bounds lie within

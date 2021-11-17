@@ -2,7 +2,7 @@ package androidx.swiperefreshlayout.widget
 
 import android.content.Context
 import android.util.AttributeSet
-import me.gm.cleaner.plugin.util.colorAccent
+import me.gm.cleaner.plugin.ktx.colorAccent
 
 class ThemedSwipeRefreshLayout(context: Context, attrs: AttributeSet?) :
     SwipeRefreshLayout(context, attrs) {

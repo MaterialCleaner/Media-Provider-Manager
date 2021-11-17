@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util
+package me.gm.cleaner.plugin.ktx
 
 import android.annotation.SuppressLint
 import android.content.Context

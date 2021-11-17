@@ -133,5 +133,9 @@ class ToolbarActionMode(private val activity: AppCompatActivity, private val too
     }
 }
 
+interface ToolbarActionModeIndicator {
+    fun isInActionMode(): Boolean
+}
+
 fun AppCompatActivity.startToolbarActionMode(callback: ActionMode.Callback) =
     ToolbarActionMode(this, findViewById(R.id.toolbar)).startActionMode(callback)

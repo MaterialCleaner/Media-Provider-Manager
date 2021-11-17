@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.compat
+package me.gm.cleaner.plugin.ktx
 
 import android.content.res.Configuration
 import android.os.Build

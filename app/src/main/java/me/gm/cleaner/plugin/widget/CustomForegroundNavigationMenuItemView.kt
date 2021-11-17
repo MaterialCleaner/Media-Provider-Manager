@@ -12,8 +12,8 @@ import com.google.android.material.R
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
-import me.gm.cleaner.plugin.util.colorControlHighlight
-import me.gm.cleaner.plugin.util.dipToPx
+import me.gm.cleaner.plugin.ktx.colorControlHighlight
+import me.gm.cleaner.plugin.ktx.dipToPx
 
 @SuppressLint("RestrictedApi", "PrivateResource")
 class CustomForegroundNavigationMenuItemView @JvmOverloads constructor(

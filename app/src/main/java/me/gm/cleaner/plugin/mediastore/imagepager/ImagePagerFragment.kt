@@ -28,7 +28,6 @@ import androidx.core.transition.doOnEnd
 import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -39,7 +38,8 @@ import com.google.android.material.transition.platform.FitsScaleMaterialContaine
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
-import me.gm.cleaner.plugin.util.mediumAnimTime
+import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 /**
  * Display a series of images in a [ViewPager2].
@@ -97,17 +97,9 @@ class ImagePagerFragment : BaseFragment() {
                 appBarLayout.isLifted = viewModel.isOverlay(ssiv)
             }
         })
-        navController.addOnDestinationChangedListener(object :
-            NavController.OnDestinationChangedListener {
-            override fun onDestinationChanged(
-                controller: NavController, destination: NavDestination, arguments: Bundle?
-            ) {
-                if (destination.id != R.id.image_pager_fragment) {
-                    navController.removeOnDestinationChangedListener(this)
-                    toDefaultAppBarState(destination)
-                }
-            }
-        })
+        navController.addOnExitListener { _, destination, _ ->
+            toDefaultAppBarState(destination)
+        }
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
@@ -192,8 +184,8 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Restore AppBar state.
         if (navController.currentDestination?.id == R.id.image_pager_fragment) {
+            // Restore AppBar state.
             viewModel.isFirstEntrance = true
         }
     }

@@ -32,10 +32,10 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
-import me.gm.cleaner.plugin.util.addLiftOnScrollListener
-import me.gm.cleaner.plugin.util.buildStyledTitle
-import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
-import me.gm.cleaner.plugin.util.submitListKeepPosition
+import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.submitListKeepPosition
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect

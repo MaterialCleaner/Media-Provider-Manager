@@ -33,8 +33,8 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
 import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
-import me.gm.cleaner.plugin.util.addLiftOnScrollListener
-import me.gm.cleaner.plugin.util.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 @AndroidEntryPoint

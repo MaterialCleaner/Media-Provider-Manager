@@ -8,8 +8,8 @@ import androidx.appcompat.R
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
-import me.gm.cleaner.plugin.util.dipToPx
-import me.gm.cleaner.plugin.util.getDrawableByAttr
+import me.gm.cleaner.plugin.ktx.dipToPx
+import me.gm.cleaner.plugin.ktx.getDrawableByAttr
 
 open class FixLayoutSearchView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
