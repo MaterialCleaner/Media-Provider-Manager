@@ -42,6 +42,7 @@ import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.mediastore.startToolbarActionMode
 import me.gm.cleaner.plugin.util.addLiftOnScrollListener
@@ -87,15 +88,7 @@ class ImagesFragment : MediaStoreFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
-        // StableIdKeyProvider 💩
-        // https://stackoverflow.com/questions/53523318/renew-stableidkeyprovider-cache-and-recyclerview-selectiontracker-crash-on-new-s
-        val keyProvider = object : ItemKeyProvider<Long>(SCOPE_MAPPED) {
-            override fun getKey(position: Int) = adapter.getItemId(position)
-            override fun getPosition(key: Long): Int {
-                val viewHolder = list.findViewHolderForItemId(key)
-                return viewHolder?.layoutPosition ?: RecyclerView.NO_POSITION
-            }
-        }
+        val keyProvider = StableIdKeyProvider(list)
         val pressableView = fastScroller.getObjectField<View>()
         selectionTracker = SelectionTracker.Builder(
             ImagesAdapter::class.java.simpleName, list, keyProvider,
