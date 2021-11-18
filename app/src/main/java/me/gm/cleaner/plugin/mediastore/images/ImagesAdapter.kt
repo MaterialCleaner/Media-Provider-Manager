@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.mediastore.images
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -112,14 +111,9 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
     }
 }
 
-class DetailsLookup(private val list: RecyclerView, private val pressableView: View) :
-    ItemDetailsLookup<Long>() {
+class DetailsLookup(private val list: RecyclerView) : ItemDetailsLookup<Long>() {
 
     override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
-        if (pressableView.isPressed) {
-            return null
-        }
-
         val view = list.findChildViewUnder(e.x, e.y)
         if (view != null) {
             val viewHolder = list.getChildViewHolder(view)

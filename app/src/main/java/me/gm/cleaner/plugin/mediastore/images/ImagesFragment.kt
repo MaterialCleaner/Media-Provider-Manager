@@ -46,14 +46,12 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.getObjectField
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.mediastore.*
 import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.SelectionTrackerRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
@@ -62,8 +60,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private val keyProvider by lazy { StableIdKeyProvider(list) }
     private lateinit var selectionTracker: SelectionTracker<Long>
     private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
+    private var actionMode: ActionMode? = null
     var lastPosition = 0
-    var actionMode: ActionMode? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -77,20 +75,13 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 3)
         list.setHasFixedSize(true)
-        val fastScroller = FastScrollerBuilder(list)
-            .useMd2Style()
-            .setViewHelper(
-                SelectionTrackerRecyclerViewHelper(list, { detector.isSelecting })
-            )
-            .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
-        val pressableView = fastScroller.getObjectField<View>()
         selectionTracker = SelectionTracker.Builder(
             ImagesAdapter::class.java.simpleName, list, keyProvider,
-            DetailsLookup(list, pressableView), StorageStrategy.createLongStorage()
+            DetailsLookup(list), StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
             .build()
@@ -105,6 +96,11 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             }
         })
         adapter.selectionTracker = selectionTracker
+        // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
+        FastScrollerBuilder(list)
+            .useMd2Style()
+            .build()
+
         findNavController().addOnExitListener { _, destination, _ ->
             actionMode?.finish()
             supportActionBar?.title = destination.label
@@ -302,15 +298,16 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         }
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
             .addInterceptTouchEventListener { _, ev ->
-                // RecyclerView's OnItemTouchListener can be intercepted by SelectionTracker's OnItemTouchListener.
                 detector.onTouchEvent(ev)
-                detector.isSelecting
+                selectionTracker.hasSelection() && detector.isSelecting
             }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        selectionTracker.onSaveInstanceState(outState)
+        if (::selectionTracker.isInitialized) {
+            selectionTracker.onSaveInstanceState(outState)
+        }
     }
 
     override fun isInActionMode() = actionMode != null

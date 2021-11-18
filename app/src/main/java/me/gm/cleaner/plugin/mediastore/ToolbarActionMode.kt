@@ -40,7 +40,6 @@ class ToolbarActionMode(private val activity: AppCompatActivity, private val too
 
     private val originalToolbarTitle = toolbar.title to toolbar.subtitle
     private var actionMode: ToolbarActionModeImpl? = null
-    private var mCallback: ActionMode.Callback? = null
     private var cancellable: OnBackPressedCallback? = null
 
     fun startActionMode(callback: ActionMode.Callback): ActionMode? {
@@ -49,7 +48,7 @@ class ToolbarActionMode(private val activity: AppCompatActivity, private val too
         val mode = object : ToolbarActionModeImpl(toolbar, callback) {
             override fun finish() {
                 super.finish()
-                mCallback = null
+                actionMode = null
                 closeMode()
             }
         }
@@ -57,7 +56,7 @@ class ToolbarActionMode(private val activity: AppCompatActivity, private val too
         if (mode.dispatchOnCreate()) {
             // This needs to be set before invalidate() so that it calls
             // onPrepareActionMode()
-            mCallback = callback
+            actionMode = mode
             mode.invalidate()
             animateToMode(true)
             toolbar.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
