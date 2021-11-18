@@ -39,7 +39,7 @@ import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
 import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
 import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
-import me.gm.cleaner.plugin.util.LogUtils
+import me.gm.cleaner.plugin.xposed.util.LogUtils
 import java.net.URL
 import javax.inject.Inject
 

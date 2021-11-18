@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util;
+package me.gm.cleaner.plugin.xposed.util;
 
 import android.content.ClipDescription;
 import android.mtp.MtpConstants;

@@ -17,17 +17,16 @@
 package me.gm.cleaner.plugin.module
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import androidx.preference.SwitchPreference
+import me.gm.cleaner.plugin.R
 
-class SettingsFragment : BaseFragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
-        return binding.root
+class SettingsFragment : AbsSettingsFragment() {
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
+        setPreferencesFromResource(R.xml.root_preferences, rootKey)
+
+        findPreference<SwitchPreference>(getString(R.string.reject_nonstandard_dir_key))?.isChecked =
+            true
     }
 }

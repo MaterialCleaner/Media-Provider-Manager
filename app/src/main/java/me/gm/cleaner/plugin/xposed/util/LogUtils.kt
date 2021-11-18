@@ -1,4 +1,4 @@
-package me.gm.cleaner.plugin.util
+package me.gm.cleaner.plugin.xposed.util
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting

@@ -61,7 +61,6 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                             param.thisObject, "enforceCallingPermission", uri, true
                         )
-                        else -> throw UnsupportedOperationException()
                     }
                 } catch (securityException: SecurityException) {
                     // Give callers interacting with a specific media item a chance to

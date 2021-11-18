@@ -18,7 +18,7 @@ package me.gm.cleaner.plugin.module
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import me.gm.cleaner.plugin.util.LogUtils
+import me.gm.cleaner.plugin.xposed.util.LogUtils
 import java.lang.reflect.Field
 
 class PreferencesPackageInfo private constructor() : PackageInfo() {

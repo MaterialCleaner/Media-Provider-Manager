@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.os.Process
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
@@ -56,10 +57,16 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val query = Bundle(queryArgs)
         query.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs = ArraySet<String>()
-        XposedHelpers.callStaticMethod(
+        val databaseUtils = try {
             XposedHelpers.findClass(
                 "com.android.providers.media.util.DatabaseUtils", service.classLoader
-            ), "resolveQueryArgs", query, object : Consumer<String> {
+            )
+        } catch (e: XposedHelpers.ClassNotFoundError) {
+            XposedBridge.log(Process.myPid().toString())
+            return
+        }
+        XposedHelpers.callStaticMethod(
+            databaseUtils, "resolveQueryArgs", query, object : Consumer<String> {
                 override fun accept(t: String) {
                     honoredArgs.add(t)
                 }
@@ -98,13 +105,14 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                 val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
                 val selectionArgs =
                     query.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
-                var sortOrder = query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER)
-                if (sortOrder == null
-                    && query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)
-                ) {
-                    sortOrder = XposedHelpers.callStaticMethod(
-                        ContentResolver::class.java, "createSqlSortClause", query
-                    ) as String?
+                val sortOrder = query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER) ?: let {
+                    if (query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)) {
+                        XposedHelpers.callStaticMethod(
+                            ContentResolver::class.java, "createSqlSortClause", query
+                        ) as String?
+                    } else {
+                        null
+                    }
                 }
                 val groupBy = if (table == AUDIO_ARTISTS_ID_ALBUMS) "audio.album_id"
                 else null

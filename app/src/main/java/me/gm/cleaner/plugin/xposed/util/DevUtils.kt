@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util
+package me.gm.cleaner.plugin.xposed.util
 
 import androidx.annotation.VisibleForTesting
 import de.robv.android.xposed.XC_MethodHook

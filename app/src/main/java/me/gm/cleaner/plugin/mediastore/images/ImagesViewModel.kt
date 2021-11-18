@@ -315,11 +315,12 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
                 true
             }
         }
-        if (invalidImages.isNotEmpty()) {
+        return@async if (invalidImages.isNotEmpty()) {
             deleteImages(invalidImages.toTypedArray())
-            return@async true
+            true
+        } else {
+            false
         }
-        false
     }
 }
 

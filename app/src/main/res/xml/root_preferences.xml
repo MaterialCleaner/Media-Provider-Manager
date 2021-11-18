@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/behavior_header">
+
+        <SwitchPreferenceCompat
+            app:enabled="false"
+            app:iconSpaceReserved="false"
+            app:key="@string/reject_nonstandard_dir_key"
+            app:summary="@string/reject_nonstandard_dir_summary"
+            app:title="@string/reject_nonstandard_dir_title" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="false"
+            app:key="disable_download_manager_auto_delete"
+            app:summary="disable_download_manager_auto_delete"
+            app:title="disable_download_manager_auto_delete" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

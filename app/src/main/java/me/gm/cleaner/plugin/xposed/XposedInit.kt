@@ -23,11 +23,11 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.BuildConfig
-import me.gm.cleaner.plugin.util.DevUtils
 import me.gm.cleaner.plugin.xposed.hooker.DeleteHooker
 import me.gm.cleaner.plugin.xposed.hooker.FileHooker
 import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
 import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
+import me.gm.cleaner.plugin.xposed.util.DevUtils
 import java.io.File
 
 class XposedInit : ManagerService(), IXposedHookLoadPackage {
@@ -67,30 +67,12 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                             "com.android.providers.media.MediaProvider", classLoader
                         ), "deleteInternal", DeleteHooker(this@XposedInit)
                     )
-                } catch (e: Throwable) {
+                } catch (e: XposedHelpers.ClassNotFoundError) {
                     // Mainly caused by differences between systems.
                 }
             }
             "com.android.providers.downloads" -> {
-                arrayOf(
-                    "com.android.providers.downloads.DownloadProvider",
-                    "com.android.providers.downloads.provider.DownloadProvider" // MIUI 💩
-                ).forEach {
-                    try {
-                        XposedHelpers.findAndHookMethod(
-                            it, classLoader, "onCreate", object : XC_MethodHook() {
-                                @Throws(Throwable::class)
-                                override fun beforeHookedMethod(param: MethodHookParam) {
-                                    val context = (param.thisObject as ContentProvider).context!!
-                                    XposedHelpers.findAndHookMethod(
-                                        File::class.java, "mkdir", FileHooker(context)
-                                    )
-                                }
-                            }
-                        )
-                    } catch (e: XposedHelpers.ClassNotFoundError) {
-                    }
-                }
+                XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())
             }
         }
     }

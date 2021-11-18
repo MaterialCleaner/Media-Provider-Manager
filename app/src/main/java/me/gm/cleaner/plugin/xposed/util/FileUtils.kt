@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.util
+package me.gm.cleaner.plugin.xposed.util
 
 import android.annotation.SuppressLint
 import android.os.Environment
+import de.robv.android.xposed.XposedHelpers
 import java.io.File
 
 object FileUtils {
-    fun startsWith(parent: File, child: String): Boolean {
-        return startsWith(parent.path, child)
-    }
-
+    fun startsWith(parent: File, child: File) = startsWith(parent.path, child.path)
+    fun startsWith(parent: String, child: File) = startsWith(parent, child.path)
+    fun startsWith(parent: File, child: String) = startsWith(parent.path, child)
     fun startsWith(parent: String, child: String): Boolean {
         val lowerParent = parent.lowercase()
         val lowerChild = child.lowercase()
@@ -36,9 +36,9 @@ object FileUtils {
     val standardDirs: List<File>
         @SuppressLint("SoonBlockedPrivateApi")
         get() {
-            val paths = Class.forName("android.os.Environment")
-                .getDeclaredField("STANDARD_DIRECTORIES")
-                .apply { isAccessible = true }[null] as Array<String>
+            val paths = XposedHelpers.getStaticObjectField(
+                Class.forName("android.os.Environment"), "STANDARD_DIRECTORIES"
+            ) as Array<String>
             return paths.map { Environment.getExternalStoragePublicDirectory(it) }
         }
 }
