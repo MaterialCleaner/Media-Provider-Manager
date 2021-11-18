@@ -80,10 +80,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(
-                SelectionTrackerRecyclerViewHelper(list, { ev ->
-                    detector.onTouchEvent(ev)
-                    detector.isSelecting
-                })
+                SelectionTrackerRecyclerViewHelper(list, { detector.isSelecting })
             )
             .build()
         list.fixEdgeEffect(false)
@@ -304,7 +301,9 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             startActionMode()
         }
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener { _, _ ->
+            .addInterceptTouchEventListener { _, ev ->
+                // RecyclerView's OnItemTouchListener can be intercepted by SelectionTracker's OnItemTouchListener.
+                detector.onTouchEvent(ev)
                 detector.isSelecting
             }
     }

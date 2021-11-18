@@ -21,7 +21,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 
 class LongPressingListener : GestureDetector.SimpleOnGestureListener() {
-
     @Volatile
     var isSelecting = false
 
