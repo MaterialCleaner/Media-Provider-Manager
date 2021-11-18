@@ -44,7 +44,7 @@ open class AbsSettingsFragment : PreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setObjectField(onCreatePreferenceManager())
+        setObjectField(onCreatePreferenceManager(), PreferenceFragmentCompat::class.java)
     }
 
     override fun onCreateRecyclerView(

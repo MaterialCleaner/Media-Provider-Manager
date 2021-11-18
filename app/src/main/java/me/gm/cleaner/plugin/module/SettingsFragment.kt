@@ -17,7 +17,7 @@
 package me.gm.cleaner.plugin.module
 
 import android.os.Bundle
-import androidx.preference.SwitchPreference
+import androidx.preference.SwitchPreferenceCompat
 import me.gm.cleaner.plugin.R
 
 class SettingsFragment : AbsSettingsFragment() {
@@ -26,7 +26,7 @@ class SettingsFragment : AbsSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        findPreference<SwitchPreference>(getString(R.string.reject_nonstandard_dir_key))?.isChecked =
+        findPreference<SwitchPreferenceCompat>(getString(R.string.reject_nonstandard_dir_key))?.isChecked =
             true
     }
 }
