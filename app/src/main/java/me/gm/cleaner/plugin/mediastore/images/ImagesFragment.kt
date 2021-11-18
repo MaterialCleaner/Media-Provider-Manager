@@ -299,7 +299,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
             .addInterceptTouchEventListener { _, ev ->
                 detector.onTouchEvent(ev)
-                selectionTracker.hasSelection() && detector.isSelecting
+                detector.isSelecting && selectionTracker.hasSelection()
             }
     }
 

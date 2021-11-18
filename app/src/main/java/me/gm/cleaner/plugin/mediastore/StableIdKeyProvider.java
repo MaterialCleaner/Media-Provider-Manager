@@ -59,7 +59,6 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
      * @param recyclerView the owner RecyclerView
      */
     public StableIdKeyProvider(@NonNull RecyclerView recyclerView) {
-
         // Since this provide is based on stable ids based on whats laid out in the window
         // we can only satisfy "window" scope key access.
         super(SCOPE_CACHED);

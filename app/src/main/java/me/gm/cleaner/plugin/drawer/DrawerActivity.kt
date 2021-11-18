@@ -99,7 +99,7 @@ abstract class DrawerActivity : BaseActivity() {
             drawerLayout.isOpen -> drawerLayout.close()
             navController.currentDestination?.id in topLevelDestinationIds &&
                     supportFragmentManager.findFragmentById(R.id.nav_host)
-                        ?.childFragmentManager?.fragments?.get(0)?.let {
+                        ?.childFragmentManager?.fragments?.first()?.let {
                             it !is ToolbarActionModeIndicator || !it.isInActionMode()
                         } == true -> super.onSupportNavigateUp()
             else -> super.onBackPressed()

@@ -33,6 +33,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.transition.platform.MaterialFadeOutIn
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 
@@ -81,6 +82,8 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                 return@setOnClickListener
             }
             fragment.lastPosition = holder.bindingAdapterPosition
+            fragment.exitTransition = MaterialFadeOutIn()
+
             val images = viewModel.images
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
                 initialPosition = holder.bindingAdapterPosition,
