@@ -50,6 +50,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         } else {
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }
+        val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** RECORD */
 //        XposedBridge.log("packageName: " + param.callingPackage)

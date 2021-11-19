@@ -1,4 +1,3 @@
--repackageclasses "me.gm.cleaner.plugin"
 -allowaccessmodification
 -overloadaggressively
 

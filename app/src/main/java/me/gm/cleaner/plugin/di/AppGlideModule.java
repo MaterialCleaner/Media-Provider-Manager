@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module;
+package me.gm.cleaner.plugin.di;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -39,7 +39,7 @@ public class AppGlideModule extends com.bumptech.glide.module.AppGlideModule {
     @Override
     public void registerComponents(@NonNull Context context, @NonNull Glide glide,
                                    @NonNull Registry registry) {
-        int iconSize = context.getResources().getDimensionPixelSize(R.dimen.icon_size);
+        int iconSize = context.getResources().getDimensionPixelSize(R.dimen.badge_size);
         registry.prepend(PackageInfo.class, Bitmap.class, new AppIconModelLoader.Factory(iconSize,
                 false, context));
     }

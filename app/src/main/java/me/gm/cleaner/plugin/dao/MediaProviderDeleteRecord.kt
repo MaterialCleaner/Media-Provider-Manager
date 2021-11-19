@@ -20,33 +20,32 @@ import android.database.Cursor
 import androidx.room.*
 
 @Entity
-data class MediaProviderRecord(
+data class MediaProviderDeleteRecord(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "time_millis") val timeMillis: Int,
-    @ColumnInfo(name = "op") val op: Int,
     @ColumnInfo(name = "package_name") val packageName: String,
-    @ColumnInfo(name = "_display_name") val displayName: String,
+    @ColumnInfo(name = "match") val match: Int,
+    @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
-    @ColumnInfo(name = "relative_path") val relativePath: String,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
 )
 
 @Dao
-interface MediaProviderRecordDao {
-    @Query("SELECT * FROM MediaProviderRecord")
+interface MediaProviderDeleteRecordDao {
+    @Query("SELECT * FROM MediaProviderDeleteRecord")
     fun getAll(): Cursor
 
-    @Query("SELECT * FROM MediaProviderRecord WHERE package_name IN (:packageNames)")
+    @Query("SELECT * FROM MediaProviderDeleteRecord WHERE package_name IN (:packageNames)")
     fun loadForPackageName(vararg packageNames: String): Cursor
 
     @Insert
-    fun insertAll(vararg records: MediaProviderRecord)
+    fun insertAll(vararg records: MediaProviderDeleteRecord)
 
     @Delete
-    fun delete(record: MediaProviderRecord)
+    fun delete(record: MediaProviderDeleteRecord)
 }
 
-@Database(entities = [MediaProviderRecord::class], version = 1, exportSchema = false)
-abstract class MediaProviderRecordDatabase : RoomDatabase() {
-    abstract fun mediaProviderRecordDao(): MediaProviderRecordDao
+@Database(entities = [MediaProviderDeleteRecord::class], version = 1, exportSchema = false)
+abstract class MediaProviderDeleteRecordDatabase : RoomDatabase() {
+    abstract fun MediaProviderDeleteRecordDao(): MediaProviderDeleteRecordDao
 }
