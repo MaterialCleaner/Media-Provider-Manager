@@ -57,7 +57,7 @@ import rikka.recyclerview.fixEdgeEffect
 class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private val viewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
-    private val keyProvider by lazy { StableIdKeyProvider(list) }
+    private lateinit var keyProvider: StableIdKeyProvider
     private lateinit var selectionTracker: SelectionTracker<Long>
     private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
     private var actionMode: ActionMode? = null
@@ -79,6 +79,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
+        keyProvider = StableIdKeyProvider(list)
         selectionTracker = SelectionTracker.Builder(
             ImagesAdapter::class.java.simpleName, list, keyProvider,
             DetailsLookup(list), StorageStrategy.createLongStorage()

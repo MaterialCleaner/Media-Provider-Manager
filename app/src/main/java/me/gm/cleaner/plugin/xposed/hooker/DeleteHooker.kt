@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.xposed.ManagerService
 
@@ -32,7 +33,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
     override fun beforeHookedMethod(param: MethodHookParam) {
         /** ARGUMENTS */
         val uri = param.args[0] as Uri
-        val extras = param.args[1] as? Bundle
+        val extras = param.args[1] as? Bundle ?: Bundle.EMPTY
         val userWhere: String? = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> extras?.getString(
                 QUERY_ARG_SQL_SELECTION
@@ -50,8 +51,9 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
 
         /** PARSE */
         val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
-        var c: Cursor? = null
-        val path = when (match) {
+        val data = mutableListOf<String>()
+        val mimeType = mutableListOf<String>()
+        when (match) {
             AUDIO_MEDIA_ID, VIDEO_MEDIA_ID, IMAGES_MEDIA_ID -> {
                 try {
                     when {
@@ -71,7 +73,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 val qb = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
                         param.thisObject, "getQueryBuilder", TYPE_DELETE, match, uri,
-                        extras ?: Bundle(), null
+                        extras, null
                     )
                     Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                         param.thisObject, "getQueryBuilder", TYPE_DELETE, uri, match, null
@@ -87,7 +89,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     FileColumns.MIME_TYPE,
                 )
 
-                c = when {
+                val c = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
                         qb, "query", helper, projection, userWhere, userWhereArgs,
                         null, null, null, null, null
@@ -98,18 +100,29 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     )
                     else -> throw UnsupportedOperationException()
                 } as Cursor
-                val data = if (c.moveToNext()) c.getString(1)
-                else null
-                data
+                if (c.isAfterLast) {
+                    // deleting nothing.
+                    c.close()
+                    return
+                }
+                while (c.moveToNext()) {
+                    data += c.getString(1)
+                    mimeType += c.getString(0)
+                }
+                c.close()
             }
-            FILES -> userWhereArgs?.single()
+            FILES -> if (userWhereArgs != null) {
+                data += userWhereArgs
+            }
             else -> return // We don't care about these data, just ignore.
         }
-        c?.close()
 
         /** RECORD */
-//        XposedBridge.log("packageName: " + param.callingPackage)
-//        XposedBridge.log("path: $path")
+        XposedBridge.log("delete: ${param.callingPackage}")
+        XposedBridge.log("data: $data")
+        XposedBridge.log("mimeType: $mimeType")
+
+        // There is a system confirm dialog before deletion, thus we don't need to intercept delete.
     }
 
     private val TYPE_DELETE: Int = when {

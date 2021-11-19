@@ -127,24 +127,26 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             }
             else -> throw UnsupportedOperationException()
         } as Cursor
-
+        if (c.isAfterLast) {
+            // querying nothing.
+            c.close()
+            return
+        }
         val dataColumn = c.getColumnIndexOrThrow(FileColumns.DATA)
         val mimeTypeColumn = c.getColumnIndex(FileColumns.MIME_TYPE)
 
-        /** RECORD */
-        XposedBridge.log("packageName: " + param.callingPackage)
-        if (c.isAfterLast) {
-            XposedBridge.log("isAfterLast")
-        }
+        val data = mutableListOf<String>()
+        val mimeType = mutableListOf<String>()
         while (c.moveToNext()) {
-            val data = c.getString(dataColumn)
-            val mimeType = when {
-                mimeTypeColumn != -1 -> c.getString(mimeTypeColumn)
-                else -> DIRECTORY_THUMBNAILS
-            }
-            XposedBridge.log("path: $data")
-            XposedBridge.log("mimeType: $mimeType")
+            data += c.getString(dataColumn)
+            mimeType += c.getString(mimeTypeColumn)
         }
+        c.close()
+
+        /** RECORD */
+        XposedBridge.log("query: ${param.callingPackage}")
+        XposedBridge.log("data: $data")
+        XposedBridge.log("mimeType: $mimeType")
 
         /** INTERCEPT */
     }

@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.io.File
 
@@ -41,7 +42,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
 
         /** PARSE */
-        val path = if (initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
+        val data = if (initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
             initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
         ) {
             Environment.getExternalStorageDirectory().path + File.separator +
@@ -53,9 +54,9 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** RECORD */
-//        XposedBridge.log("packageName: " + param.callingPackage)
-//        XposedBridge.log("path: $path")
-//        XposedBridge.log("MIME_TYPE: ${initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)}")
+        XposedBridge.log("insert: ${param.callingPackage}")
+        XposedBridge.log("data: $data")
+        XposedBridge.log("mimeType: $mimeType")
 
         /** INTERCEPT */
     }
