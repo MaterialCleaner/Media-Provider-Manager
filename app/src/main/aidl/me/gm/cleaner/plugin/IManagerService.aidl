@@ -25,4 +25,6 @@ interface IManagerService {
     ParceledListSlice<PackageInfo> getInstalledPackages(int userId) = 10;
 
     void notifyPreferencesChanged() = 20;
+
+    void clearAllTables() = 30;
 }

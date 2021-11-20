@@ -45,4 +45,8 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     fun notifyPreferencesChanged() {
         service!!.notifyPreferencesChanged()
     }
+
+    fun clearAllTables() {
+        service!!.clearAllTables()
+    }
 }

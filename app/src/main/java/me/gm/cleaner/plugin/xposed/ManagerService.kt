@@ -81,6 +81,10 @@ abstract class ManagerService : IManagerService.Stub() {
         }
     }
 
+    override fun clearAllTables() {
+        database.clearAllTables()
+    }
+
     companion object {
         const val MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME = "media_provider.db"
     }

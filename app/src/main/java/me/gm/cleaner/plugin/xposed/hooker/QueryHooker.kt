@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.xposed.hooker
 
 import android.content.ContentResolver
 import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +26,7 @@ import android.os.CancellationSignal
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
+import androidx.core.os.bundleOf
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
@@ -53,9 +55,6 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             // Scanning files and internal queries.
             return
         }
-        if (isBinderQuery(param.callingPackage, uri)) {
-            return
-        }
 
         /** PARSE */
         val query = Bundle(queryArgs)
@@ -71,6 +70,10 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                     XposedHelpers.callMethod(param.thisObject, "ensureCustomCollator", t) as String
             }
         )
+        if (isClientQuery(param.callingPackage, uri)) {
+            param.result = handleClientQuery(projection, query)
+            return
+        }
         val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
         val dataProjection = when {
             projection == null -> null
@@ -154,17 +157,15 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         /** INTERCEPT */
     }
 
-    @Throws(Throwable::class)
-    override fun afterHookedMethod(param: MethodHookParam) {
-        val uri = param.args[0] as Uri
-        if (isBinderQuery(param.callingPackage, uri)) {
-            val c = param.result as? Cursor
-            c?.extras?.putBinder("me.gm.cleaner.plugin.cursor.extra.BINDER", service)
-        }
-    }
-
-    private fun isBinderQuery(callingPackage: String, uri: Uri) =
+    private fun isClientQuery(callingPackage: String, uri: Uri) =
         callingPackage == BuildConfig.APPLICATION_ID && uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
+
+    private fun handleClientQuery(projection: Array<String>?, queryArgs: Bundle): Cursor = when {
+        queryArgs.isEmpty -> MatrixCursor(arrayOf("binder")).apply {
+            extras = bundleOf("me.gm.cleaner.plugin.cursor.extra.BINDER" to service)
+        }
+        else -> throw UnsupportedOperationException()
+    }
 
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"

@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.module
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import me.gm.cleaner.plugin.xposed.util.LogUtils
 import java.lang.reflect.Field
 
 class PreferencesPackageInfo private constructor() : PackageInfo() {
@@ -30,14 +29,14 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
 
         private fun PreferencesPackageInfo.copyFieldsFrom(old: PackageInfo) {
             try {
-                old.javaClass.fields.forEach {
+                (old.javaClass.fields + old.javaClass.declaredFields).forEach {
                     it.isAccessible = true
                     val newFieldFromCache = fieldCache[it]
                     if (newFieldFromCache != null) {
                         newFieldFromCache.isAccessible = true
                         newFieldFromCache[this] = it[old]
                     } else {
-                        for (newField in javaClass.fields) {
+                        for (newField in (javaClass.fields + javaClass.declaredFields)) {
                             newField.isAccessible = true
                             if (it == newField) {
                                 fieldCache[it] = newField
@@ -47,8 +46,8 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
                         }
                     }
                 }
-            } catch (th: Throwable) {
-                LogUtils.handleThrowable(th)
+            } catch (tr: Throwable) {
+                tr.printStackTrace()
             }
         }
 

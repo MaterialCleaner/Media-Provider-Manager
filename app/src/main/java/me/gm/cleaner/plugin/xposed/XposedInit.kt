@@ -22,21 +22,16 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.xposed.hooker.DeleteHooker
 import me.gm.cleaner.plugin.xposed.hooker.FileHooker
 import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
 import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
-import me.gm.cleaner.plugin.xposed.util.DevUtils
 import java.io.File
 
 class XposedInit : ManagerService(), IXposedHookLoadPackage {
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         classLoader = lpparam.classLoader
-        if (BuildConfig.DEBUG) {
-            DevUtils.init(classLoader)
-        }
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
                 val mediaProvider = try {

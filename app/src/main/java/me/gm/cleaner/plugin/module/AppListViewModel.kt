@@ -50,8 +50,9 @@ class AppListViewModel : ViewModel() {
                 is SourceState.Done -> {
                     var sequence = source.list.asSequence()
                     if (ModulePreferences.isHideSystemApp) {
-                        sequence =
-                            sequence.filter { it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0 }
+                        sequence = sequence.filter {
+                            it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0
+                        }
                     }
                     if (ModulePreferences.isHideNoStoragePermissionApp) {
                         sequence = sequence.filter {
@@ -64,18 +65,16 @@ class AppListViewModel : ViewModel() {
                         }
                     }
                     sequence = when (ModulePreferences.sortBy) {
-                        ModulePreferences.SORT_BY_NAME ->
-                            sequence.sortedWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
-                                collator.compare(o1?.label, o2?.label)
-                            }
-                        ModulePreferences.SORT_BY_UPDATE_TIME ->
-                            sequence.sortedWith(Comparator.comparingLong {
-                                -it.lastUpdateTime
-                            })
+                        ModulePreferences.SORT_BY_NAME -> sequence.sortedWith { o1, o2 ->
+                            collator.compare(o1?.label, o2?.label)
+                        }
+                        ModulePreferences.SORT_BY_UPDATE_TIME -> sequence.sortedWith(Comparator.comparingLong {
+                            -it.lastUpdateTime
+                        })
                         else -> throw IllegalArgumentException()
                     }
                     if (ModulePreferences.ruleCount) {
-//                    sequence = sortWith { o1: PreferencesPackageInfo?, o2: PreferencesPackageInfo? ->
+//                    sequence = sortWith { o1, o2 ->
 //                        when (mTitle) {
 //                            R.string.storage_redirect_title -> return@sortWith o2!!.srCount - o1!!.srCount
 //                            R.string.foreground_activity_observer_title -> return@sortWith o2!!.faInfo.size - o1!!.faInfo.size
