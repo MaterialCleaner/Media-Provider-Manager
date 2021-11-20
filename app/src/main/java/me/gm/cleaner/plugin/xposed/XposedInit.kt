@@ -39,37 +39,34 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
         }
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
-                try {
-                    XposedHelpers.findAndHookMethod(
-                        "com.android.providers.media.MediaProvider", classLoader,
-                        "onCreate", object : XC_MethodHook() {
-                            @Throws(Throwable::class)
-                            override fun beforeHookedMethod(param: MethodHookParam) {
-                                onCreate((param.thisObject as ContentProvider).context!!)
-                            }
-                        }
-                    )
-
-                    XposedBridge.hookAllMethods(
-                        XposedHelpers.findClass(
-                            "com.android.providers.media.MediaProvider", classLoader
-                        ), "queryInternal", QueryHooker(this@XposedInit)
-                    )
-
-                    XposedBridge.hookAllMethods(
-                        XposedHelpers.findClass(
-                            "com.android.providers.media.MediaProvider", classLoader
-                        ), "insertInternal", InsertHooker(this@XposedInit)
-                    )
-
-                    XposedBridge.hookAllMethods(
-                        XposedHelpers.findClass(
-                            "com.android.providers.media.MediaProvider", classLoader
-                        ), "deleteInternal", DeleteHooker(this@XposedInit)
+                val mediaProvider = try {
+                    XposedHelpers.findClass(
+                        "com.android.providers.media.MediaProvider", classLoader
                     )
                 } catch (e: XposedHelpers.ClassNotFoundError) {
-                    // Mainly caused by differences between systems.
+                    return
                 }
+
+                XposedHelpers.findAndHookMethod(
+                    mediaProvider, "onCreate", object : XC_MethodHook() {
+                        @Throws(Throwable::class)
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            onCreate((param.thisObject as ContentProvider).context!!)
+
+                            XposedBridge.hookAllMethods(
+                                mediaProvider, "queryInternal", QueryHooker(this@XposedInit)
+                            )
+
+                            XposedBridge.hookAllMethods(
+                                mediaProvider, "insertInternal", InsertHooker(this@XposedInit)
+                            )
+
+                            XposedBridge.hookAllMethods(
+                                mediaProvider, "deleteInternal", DeleteHooker(this@XposedInit)
+                            )
+                        }
+                    }
+                )
             }
             "com.android.providers.downloads" -> {
                 XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())

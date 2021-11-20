@@ -26,6 +26,7 @@ import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
 import kotlin.system.exitProcess
 
@@ -34,9 +35,17 @@ abstract class ManagerService : IManagerService.Stub() {
         protected set
     lateinit var context: Context
         private set
+    lateinit var database: MediaProviderRecordDatabase
+        private set
 
     protected fun onCreate(context: Context) {
         this.context = context
+        database = Room.databaseBuilder(
+            context.applicationContext, MediaProviderRecordDatabase::class.java,
+            MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
+        ).enableMultiInstanceInvalidation().build()
+
+        // TODO: maybe init MMKV
     }
 
     val packageManager: IInterface by lazy {
@@ -70,5 +79,9 @@ abstract class ManagerService : IManagerService.Stub() {
             tr.printStackTrace()
             exitProcess(1)
         }
+    }
+
+    companion object {
+        const val MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME = "media_provider.db"
     }
 }

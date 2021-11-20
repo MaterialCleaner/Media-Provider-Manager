@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.dao
+package me.gm.cleaner.plugin.dao.mediaprovider
 
 import android.database.Cursor
 import androidx.room.*
 
 @Entity
 data class MediaProviderInsertRecord(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "time_millis") val timeMillis: Int,
+    @ColumnInfo(name = "time_millis") val timeMillis: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
 )
 
 @Dao
 interface MediaProviderInsertRecordDao {
-    @Query("SELECT * FROM MediaProviderInsertRecord")
-    fun getAll(): Cursor
+    @Query("SELECT count(*) FROM MediaProviderInsertRecord")
+    fun size(): Int
 
-    @Query("SELECT * FROM MediaProviderInsertRecord WHERE package_name IN (:packageNames)")
-    fun loadForPackageName(vararg packageNames: String): Cursor
+    @Query("SELECT * FROM MediaProviderInsertRecord WHERE time_millis BETWEEN (:start) AND (:end)")
+    fun loadForTimeMillis(start: Long, end: Long): Cursor
+
+    @Query("SELECT * FROM MediaProviderInsertRecord WHERE time_millis BETWEEN (:start) AND (:end) AND package_name IN (:packageNames)")
+    fun loadForPackageName(start: Long, end: Long, vararg packageNames: String): Cursor
 
     @Insert
-    fun insertAll(vararg records: MediaProviderInsertRecord)
+    fun insert(vararg records: MediaProviderInsertRecord)
 
     @Delete
     fun delete(record: MediaProviderInsertRecord)
-}
-
-@Database(entities = [MediaProviderInsertRecord::class], version = 1, exportSchema = false)
-abstract class MediaProviderInsertRecordDatabase : RoomDatabase() {
-    abstract fun MediaProviderInsertRecordDao(): MediaProviderInsertRecordDao
 }

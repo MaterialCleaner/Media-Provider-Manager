@@ -26,14 +26,15 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.util.function.Consumer
 import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+    private val dao = service.database.MediaProviderQueryRecordDao()
     private val databaseUtils: Class<*> = XposedHelpers.findClass(
         "com.android.providers.media.util.DatabaseUtils", service.classLoader
     )
@@ -139,9 +140,16 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         c.close()
 
         /** RECORD */
-        XposedBridge.log("query: ${param.callingPackage}")
-        XposedBridge.log("data: $data")
-        XposedBridge.log("mimeType: $mimeType")
+        dao.insert(
+            MediaProviderQueryRecord(
+                System.currentTimeMillis(),
+                param.callingPackage,
+                table,
+                data,
+                mimeType,
+                false
+            )
+        )
 
         /** INTERCEPT */
     }

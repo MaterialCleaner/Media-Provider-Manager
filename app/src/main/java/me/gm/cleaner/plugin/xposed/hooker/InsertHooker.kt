@@ -23,11 +23,13 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.io.File
 
-class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+class InsertHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+    private val dao = service.database.MediaProviderInsertRecordDao()
+
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         /** ARGUMENTS */
@@ -54,9 +56,16 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** RECORD */
-        XposedBridge.log("insert: ${param.callingPackage}")
-        XposedBridge.log("data: $data")
-        XposedBridge.log("mimeType: $mimeType")
+        dao.insert(
+            MediaProviderInsertRecord(
+                System.currentTimeMillis(),
+                param.callingPackage,
+                match,
+                data ?: "",
+                mimeType ?: "",
+                false
+            )
+        )
 
         /** INTERCEPT */
     }
