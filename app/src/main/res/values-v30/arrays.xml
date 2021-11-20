@@ -18,7 +18,7 @@
 
 <resources>
     <array name="recommend_package">
-        <item>com.android.providers.media</item>
+        <item>com.android.providers.media.module</item>
         <item>com.android.providers.downloads</item>
     </array>
 </resources>

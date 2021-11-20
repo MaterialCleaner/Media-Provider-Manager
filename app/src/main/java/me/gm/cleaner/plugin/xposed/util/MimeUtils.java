@@ -30,7 +30,7 @@ import java.util.Objects;
 
 public class MimeUtils {
     /**
-     * Variant of {@link Objects#equal(Object, Object)} but which tests with
+     * Variant of {@link Objects#equals(Object, Object)} but which tests with
      * case-insensitivity.
      */
     public static boolean equalIgnoreCase(@Nullable String a, @Nullable String b) {

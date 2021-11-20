@@ -27,6 +27,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.xposed.ManagerService
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
+import java.io.File
 
 class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
@@ -107,12 +109,13 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 }
                 while (c.moveToNext()) {
                     data += c.getString(1)
-                    mimeType += c.getString(0)
+                    mimeType += c.getString(4)
                 }
                 c.close()
             }
             FILES -> if (userWhereArgs != null) {
                 data += userWhereArgs
+                data.mapTo(mimeType) { MimeUtils.resolveMimeType(File(it)) }
             }
             else -> return // We don't care about these data, just ignore.
         }

@@ -22,7 +22,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
-import android.os.Process
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
@@ -35,6 +34,10 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+    private val databaseUtils: Class<*> = XposedHelpers.findClass(
+        "com.android.providers.media.util.DatabaseUtils", service.classLoader
+    )
+
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         /** ARGUMENTS */
@@ -57,14 +60,6 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val query = Bundle(queryArgs)
         query.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs = ArraySet<String>()
-        val databaseUtils = try {
-            XposedHelpers.findClass(
-                "com.android.providers.media.util.DatabaseUtils", service.classLoader
-            )
-        } catch (e: XposedHelpers.ClassNotFoundError) {
-            XposedBridge.log(Process.myPid().toString())
-            return
-        }
         XposedHelpers.callStaticMethod(
             databaseUtils, "resolveQueryArgs", query, object : Consumer<String> {
                 override fun accept(t: String) {
@@ -166,6 +161,5 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"
         private const val TYPE_QUERY = 0
-        private const val DIRECTORY_THUMBNAILS = ".thumbnails"
     }
 }
