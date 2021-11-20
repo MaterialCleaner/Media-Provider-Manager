@@ -54,6 +54,7 @@ abstract class DrawerActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // NavController's backend
         val shouldAlterStartDestination =
             savedInstanceState == null && ModulePreferences.startDestination in topLevelDestinationIds
         if (shouldAlterStartDestination) {
@@ -68,6 +69,7 @@ abstract class DrawerActivity : BaseActivity() {
             }
         }
 
+        // NavController's frontend
         drawerLayout = binding.drawerLayout
         setupActionBarWithNavController(navController, appBarConfiguration)
         val navView = binding.navView

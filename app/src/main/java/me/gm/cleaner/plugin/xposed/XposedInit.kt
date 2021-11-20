@@ -45,7 +45,7 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                         "onCreate", object : XC_MethodHook() {
                             @Throws(Throwable::class)
                             override fun beforeHookedMethod(param: MethodHookParam) {
-                                context = (param.thisObject as ContentProvider).context!!
+                                onCreate((param.thisObject as ContentProvider).context!!)
                             }
                         }
                     )

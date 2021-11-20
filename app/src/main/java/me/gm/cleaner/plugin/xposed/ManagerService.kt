@@ -22,6 +22,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.IBinder
 import android.os.IInterface
+import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
@@ -30,7 +31,13 @@ import kotlin.system.exitProcess
 
 abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
+        protected set
     lateinit var context: Context
+        private set
+
+    protected fun onCreate(context: Context) {
+        this.context = context
+    }
 
     val packageManager: IInterface by lazy {
         val binder = XposedHelpers.callStaticMethod(
@@ -44,7 +51,7 @@ abstract class ManagerService : IManagerService.Stub() {
         ) as IInterface
     }
 
-    override fun getModuleVersion(): Int = BuildConfig.VERSION_CODE
+    override fun getModuleVersion() = BuildConfig.VERSION_CODE
 
     override fun getInstalledPackages(userId: Int): ParceledListSlice<PackageInfo> {
         val parceledListSlice = XposedHelpers.callMethod(
