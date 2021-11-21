@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.experiment
+package me.gm.cleaner.plugin.drawer.experiment
 
 import android.annotation.SuppressLint
 import android.view.View

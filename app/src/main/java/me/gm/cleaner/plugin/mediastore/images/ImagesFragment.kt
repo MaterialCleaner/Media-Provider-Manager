@@ -160,7 +160,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
                                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
                                     // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
                                     getString(R.string.unsupported_delete_in_bulk)
-                                )
+                                ).show(childFragmentManager, null)
                                 else -> viewModel.deleteImages(images.toTypedArray())
                             }
                             true

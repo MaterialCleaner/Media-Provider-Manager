@@ -99,11 +99,11 @@
     <!-- Experiment & About -->
     <fragment
         android:id="@+id/experiment_fragment"
-        android:name="me.gm.cleaner.plugin.experiment.ExperimentFragment"
+        android:name="me.gm.cleaner.plugin.drawer.experiment.ExperimentFragment"
         android:label="@string/experiment" />
 
     <fragment
         android:id="@+id/about_fragment"
-        android:name="me.gm.cleaner.plugin.drawer.AboutFragment"
+        android:name="me.gm.cleaner.plugin.drawer.about.AboutFragment"
         android:label="@string/about" />
 </navigation>

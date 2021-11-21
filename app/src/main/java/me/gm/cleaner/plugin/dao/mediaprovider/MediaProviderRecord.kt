@@ -17,18 +17,18 @@
 package me.gm.cleaner.plugin.dao.mediaprovider
 
 import android.database.Cursor
-import androidx.annotation.Keep
 import androidx.room.Database
+import androidx.room.Ignore
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import me.gm.cleaner.plugin.dao.ListConverter
 
 abstract class MediaProviderRecord(
-    open val timeMillis: Long
+    open val timeMillis: Long,
+    open val packageName: String,
+    @Ignore val dataList: List<String>,
+    @Ignore open var label: String? = null,
 ) {
-    @Keep
-    constructor() : this(0L)
-
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
 }
 

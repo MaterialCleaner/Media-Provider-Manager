@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.xposed
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.IBinder
@@ -68,6 +69,13 @@ abstract class ManagerService : IManagerService.Stub() {
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
         return ParceledListSlice(list)
+    }
+
+    override fun getLabel(packageName: String, userId: Int): String {
+        val ai = XposedHelpers.callMethod(
+            packageManager, "getApplicationInfo", packageName, 0, userId
+        ) as ApplicationInfo
+        return context.packageManager.getApplicationLabel(ai).toString()
     }
 
     // FIXME

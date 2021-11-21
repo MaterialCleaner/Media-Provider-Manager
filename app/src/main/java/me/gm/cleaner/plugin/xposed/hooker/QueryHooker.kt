@@ -74,7 +74,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             }
         )
         if (isClientQuery(param.callingPackage, uri)) {
-            param.result = handleClientQuery(projection!!, query)
+            param.result = handleClientQuery(projection, query)
             return
         }
         val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
@@ -175,8 +175,8 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
      * @throws [NullPointerException] or [UnsupportedOperationException] when we don't know how to
      * handle the query.
      */
-    private fun handleClientQuery(table: Array<String>, queryArgs: Bundle): Cursor {
-        if (queryArgs.isEmpty) {
+    private fun handleClientQuery(table: Array<String>?, queryArgs: Bundle): Cursor {
+        if (table == null || queryArgs.isEmpty) {
             return MatrixCursor(arrayOf("binder")).apply {
                 extras = bundleOf("me.gm.cleaner.plugin.cursor.extra.BINDER" to service)
             }

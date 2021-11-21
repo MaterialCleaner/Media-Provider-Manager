@@ -34,8 +34,8 @@
         app:showAsAction="always">
         <menu>
             <item
-                android:id="@+id/menu_date"
-                android:title="@string/date_title"
+                android:id="@+id/menu_pick_date"
+                android:title="@string/pick_date_title"
                 app:showAsAction="never" />
             <item
                 android:id="@+id/menu_header_hide"

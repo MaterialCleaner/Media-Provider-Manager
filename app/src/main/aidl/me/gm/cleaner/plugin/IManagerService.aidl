@@ -24,6 +24,8 @@ interface IManagerService {
 
     ParceledListSlice<PackageInfo> getInstalledPackages(int userId) = 10;
 
+    String getLabel(String packageName, int userId) = 11;
+
     void notifyPreferencesChanged() = 20;
 
     void clearAllTables() = 30;

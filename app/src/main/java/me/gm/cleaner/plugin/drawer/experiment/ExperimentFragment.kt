@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.experiment
+package me.gm.cleaner.plugin.drawer.experiment
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -32,7 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
-import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
+import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect

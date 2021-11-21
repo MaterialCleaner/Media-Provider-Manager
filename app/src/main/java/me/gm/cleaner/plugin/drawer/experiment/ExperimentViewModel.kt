@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.experiment
+package me.gm.cleaner.plugin.drawer.experiment
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -37,8 +37,8 @@ import kotlinx.coroutines.ensureActive
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
-import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findIndexById
-import me.gm.cleaner.plugin.experiment.ExperimentContentItems.findItemById
+import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
+import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findItemById
 import java.net.URL
 import javax.inject.Inject
 

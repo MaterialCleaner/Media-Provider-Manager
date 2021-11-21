@@ -22,13 +22,13 @@ import androidx.room.*
 @Entity
 data class MediaProviderInsertRecord(
     @ColumnInfo(name = "time_millis") override val timeMillis: Long,
-    @ColumnInfo(name = "package_name") val packageName: String,
+    @ColumnInfo(name = "package_name") override val packageName: String,
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-) : MediaProviderRecord(timeMillis) {
+) : MediaProviderRecord(timeMillis, packageName, listOf(data)) {
     override fun convert(cursor: Cursor): List<MediaProviderInsertRecord> {
         val timeMillisColumn = cursor.getColumnIndex("time_millis")
         val packageNameColumn = cursor.getColumnIndex("package_name")

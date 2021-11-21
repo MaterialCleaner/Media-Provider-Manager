@@ -42,7 +42,7 @@
     <string name="menu_hide_no_storage_permission_title">No storage permission apps</string>
     <string name="delete">Delete</string>
     <string name="delete_all_rules">Delete All Rules</string>
-    <string name="date_title">Date</string>
+    <string name="pick_date_title">Pick a date</string>
     <string name="menu_hide_query_key" translatable="false">hide_query</string>
     <string name="menu_hide_query_title">Query records</string>
     <string name="menu_hide_insert_key" translatable="false">hide_insert</string>

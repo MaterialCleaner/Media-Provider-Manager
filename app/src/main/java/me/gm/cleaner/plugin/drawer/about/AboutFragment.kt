@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.drawer
+package me.gm.cleaner.plugin.drawer.about
 
 import android.os.Bundle
 import android.view.LayoutInflater
