@@ -22,13 +22,12 @@ import me.gm.cleaner.plugin.dao.ListConverter
 
 @Entity
 data class MediaProviderQueryRecord(
-    @ColumnInfo(name = "time_millis") override val timeMillis: Long,
+    @PrimaryKey @ColumnInfo(name = "time_millis") override val timeMillis: Long,
     @ColumnInfo(name = "package_name") override val packageName: String,
     @ColumnInfo(name = "table") val table: Int,
     @ColumnInfo(name = "data") val data: List<String>,
     @ColumnInfo(name = "mime_type") val mimeType: List<String>,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
 ) : MediaProviderRecord(timeMillis, packageName, data) {
     override fun convert(cursor: Cursor): List<MediaProviderQueryRecord> {
         val timeMillisColumn = cursor.getColumnIndex("time_millis")
