@@ -139,7 +139,7 @@ class ImagePagerFragment : BaseFragment() {
                 // visible). To locate the fragment, call instantiateItem with the selection position.
                 // At this stage, the method will simply return the fragment at the position and will
                 // not create a new one.
-                // https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
+                // @see https://stackoverflow.com/questions/55728719/get-current-fragment-with-viewpager2
                 val currentFragment =
                     childFragmentManager.findFragmentByTag("f${lastPosition.getInt(KEY_POSITION)}")
                 val view = currentFragment?.view ?: return

@@ -31,6 +31,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
@@ -229,7 +230,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
         return images
     }
 
-    // https://developer.android.com/training/data-storage/shared/media#remove-item
+    // @see https://developer.android.com/training/data-storage/shared/media#remove-item
     private suspend fun performDeleteImage(image: MediaStoreImage) {
         withContext(Dispatchers.IO) {
             try {
@@ -331,7 +332,7 @@ private fun ContentResolver.registerObserver(
     uri: Uri,
     observer: (selfChange: Boolean) -> Unit
 ): ContentObserver {
-    val contentObserver = object : ContentObserver(Handler()) {
+    val contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
             observer(selfChange)
         }
@@ -340,4 +341,4 @@ private fun ContentResolver.registerObserver(
     return contentObserver
 }
 
-private const val TAG = "MainActivityVM"
+private const val TAG = "MediaStoreVM"

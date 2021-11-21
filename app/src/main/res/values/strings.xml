@@ -42,6 +42,13 @@
     <string name="menu_hide_no_storage_permission_title">No storage permission apps</string>
     <string name="delete">Delete</string>
     <string name="delete_all_rules">Delete All Rules</string>
+    <string name="date_title">Date</string>
+    <string name="menu_hide_query_key" translatable="false">hide_query</string>
+    <string name="menu_hide_query_title">Query records</string>
+    <string name="menu_hide_insert_key" translatable="false">hide_insert</string>
+    <string name="menu_hide_insert_title">Insert records</string>
+    <string name="menu_hide_delete_key" translatable="false">hide_delete</string>
+    <string name="menu_hide_delete_title">Delete records</string>
     <string name="refresh">Refresh</string>
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>

@@ -22,34 +22,36 @@ import androidx.appcompat.view.menu.MenuBuilder
 import kotlinx.coroutines.CoroutineScope
 
 /** Unified data model for all sorts of experiment content items. */
-interface ExperimentContentItem
+abstract class ExperimentContentItem(
+    open val id: Int
+)
 
 /** Separator items. */
 data class ExperimentContentSeparatorItem(
-    val id: Int = View.generateViewId()
-) : ExperimentContentItem
+    override val id: Int = View.generateViewId()
+) : ExperimentContentItem(id)
 
 /** Normal or header items. */
 data class ExperimentContentHeaderItem(
-    val id: Int,
+    override val id: Int,
     var title: CharSequence?
-) : ExperimentContentItem
+) : ExperimentContentItem(id)
 
 /** Normal or subheader items. */
 data class ExperimentContentSubHeaderItem(
-    val id: Int,
+    override val id: Int,
     var content: CharSequence?,
     var dismissed: Boolean
-) : ExperimentContentItem
+) : ExperimentContentItem(id)
 
 /** Action items. */
 data class ExperimentContentActionItem(
-    val id: Int,
+    override val id: Int,
     var title: CharSequence?,
     var summary: CharSequence?,
     var action: (suspend CoroutineScope.() -> Unit)? = null,
     var needsNetwork: Boolean
-) : ExperimentContentItem
+) : ExperimentContentItem(id)
 
 object ExperimentContentItems {
 
@@ -93,24 +95,8 @@ object ExperimentContentItems {
     }
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentContentItem> Collection<ExperimentContentItem>.findItemById(id: Int): T =
-        first {
-            id == when (it) {
-                is ExperimentContentSeparatorItem -> it.id
-                is ExperimentContentHeaderItem -> it.id
-                is ExperimentContentSubHeaderItem -> it.id
-                is ExperimentContentActionItem -> it.id
-                else -> throw IndexOutOfBoundsException()
-            }
-        } as T
+    inline fun <reified T : ExperimentContentItem> Collection<ExperimentContentItem>.findItemById(id: Int) =
+        first { id == it.id } as T
 
-    fun Collection<ExperimentContentItem>.findIndexById(id: Int) = indexOfFirst {
-        id == when (it) {
-            is ExperimentContentSeparatorItem -> it.id
-            is ExperimentContentHeaderItem -> it.id
-            is ExperimentContentSubHeaderItem -> it.id
-            is ExperimentContentActionItem -> it.id
-            else -> throw IndexOutOfBoundsException()
-        }
-    }
+    fun Collection<ExperimentContentItem>.findIndexById(id: Int) = indexOfFirst { id == it.id }
 }

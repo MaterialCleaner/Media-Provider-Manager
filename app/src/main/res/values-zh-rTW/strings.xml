@@ -37,6 +37,10 @@
     <string name="menu_hide_no_storage_permission_title">無儲存權限應用</string>
     <string name="delete">刪除</string>
     <string name="delete_all_rules">刪除所有規則</string>
+    <string name="date_title">日期</string>
+    <string name="menu_hide_query_title">查詢記錄</string>
+    <string name="menu_hide_insert_title">插入記錄</string>
+    <string name="menu_hide_delete_title">刪除記錄</string>
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
     <string name="info">訊息</string>

@@ -181,13 +181,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
             object : DiffUtil.ItemCallback<ExperimentContentItem>() {
                 override fun areItemsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
-                ) = when (oldItem) {
-                    is ExperimentContentSeparatorItem -> oldItem.id == (newItem as? ExperimentContentSeparatorItem)?.id
-                    is ExperimentContentHeaderItem -> oldItem.id == (newItem as? ExperimentContentHeaderItem)?.id
-                    is ExperimentContentSubHeaderItem -> oldItem.id == (newItem as? ExperimentContentSubHeaderItem)?.id
-                    is ExperimentContentActionItem -> oldItem.id == (newItem as? ExperimentContentActionItem)?.id
-                    else -> throw IndexOutOfBoundsException()
-                }
+                ) = oldItem.id == newItem.id
 
                 @SuppressLint("DiffUtilEquals")
                 override fun areContentsTheSame(

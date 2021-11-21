@@ -22,14 +22,36 @@ import me.gm.cleaner.plugin.dao.ListConverter
 
 @Entity
 data class MediaProviderQueryRecord(
-    @ColumnInfo(name = "time_millis") val timeMillis: Long,
+    @ColumnInfo(name = "time_millis") override val timeMillis: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "table") val table: Int,
     @ColumnInfo(name = "data") val data: List<String>,
     @ColumnInfo(name = "mime_type") val mimeType: List<String>,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-)
+) : MediaProviderRecord(timeMillis) {
+    override fun convert(cursor: Cursor): List<MediaProviderQueryRecord> {
+        val timeMillisColumn = cursor.getColumnIndex("time_millis")
+        val packageNameColumn = cursor.getColumnIndex("package_name")
+        val tableColumn = cursor.getColumnIndex("table")
+        val dataColumn = cursor.getColumnIndex("data")
+        val mimeTypeColumn = cursor.getColumnIndex("mime_type")
+        val interceptedColumn = cursor.getColumnIndex("intercepted")
+
+        val records = mutableListOf<MediaProviderQueryRecord>()
+        while (cursor.moveToNext()) {
+            records += MediaProviderQueryRecord(
+                cursor.getLong(timeMillisColumn),
+                cursor.getString(packageNameColumn),
+                cursor.getInt(tableColumn),
+                ListConverter.fromString(cursor.getString(dataColumn))!!,
+                ListConverter.fromString(cursor.getString(mimeTypeColumn))!!,
+                cursor.getLong(interceptedColumn) != 0L,
+            )
+        }
+        return records
+    }
+}
 
 @Dao
 interface MediaProviderQueryRecordDao {

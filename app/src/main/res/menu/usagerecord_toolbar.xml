@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2021 Green Mushroom
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/ic_outline_search_24"
+        android:title="@string/search"
+        app:actionViewClass="me.gm.cleaner.plugin.widget.FixLayoutSearchView"
+        app:showAsAction="always|collapseActionView"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/menu_view"
+        android:icon="@drawable/ic_outline_tune_24"
+        android:title="@string/view"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_date"
+                android:title="@string/date_title"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_header_hide"
+                android:enabled="false"
+                android:title="@string/menu_hide_title"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_hide_query"
+                android:checkable="true"
+                android:title="@string/menu_hide_query_title"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_hide_insert"
+                android:checkable="true"
+                android:title="@string/menu_hide_insert_title"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_hide_delete"
+                android:checkable="true"
+                android:title="@string/menu_hide_delete_title"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+</menu>

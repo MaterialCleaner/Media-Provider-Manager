@@ -39,7 +39,7 @@
 
     <fragment
         android:id="@+id/usage_record_fragment"
-        android:name="me.gm.cleaner.plugin.usage.UsageRecordFragment"
+        android:name="me.gm.cleaner.plugin.module.usagerecord.UsageRecordFragment"
         android:label="@string/usage_record" />
 
     <fragment

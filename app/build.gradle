@@ -18,7 +18,7 @@ android {
         minSdk 29
         targetSdk sdk
         versionCode gitCommitCount
-        versionName "alpha"
+        versionName 'alpha'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
         resConfigs 'en', 'zh-rCN', 'zh-rTW'
@@ -92,7 +92,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx_lifecycle_version"
-    def room_version = "2.4.0-beta02"
+    def room_version = '2.4.0-beta02'
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -103,7 +103,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
     implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
-    implementation "com.google.code.gson:gson:2.8.9"
+    implementation 'com.google.code.gson:gson:2.8.9'
     def retrofitVersion = '2.9.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"

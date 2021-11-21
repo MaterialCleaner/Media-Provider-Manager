@@ -16,10 +16,21 @@
 
 package me.gm.cleaner.plugin.dao.mediaprovider
 
+import android.database.Cursor
+import androidx.annotation.Keep
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import me.gm.cleaner.plugin.dao.ListConverter
+
+abstract class MediaProviderRecord(
+    open val timeMillis: Long
+) {
+    @Keep
+    constructor() : this(0L)
+
+    abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
+}
 
 @Database(
     entities = [

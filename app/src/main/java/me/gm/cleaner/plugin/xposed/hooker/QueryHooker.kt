@@ -30,7 +30,10 @@ import androidx.core.os.bundleOf
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.util.function.Consumer
 import java.util.function.Function
@@ -71,7 +74,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             }
         )
         if (isClientQuery(param.callingPackage, uri)) {
-            param.result = handleClientQuery(projection, query)
+            param.result = handleClientQuery(projection!!, query)
             return
         }
         val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
@@ -160,11 +163,47 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
     private fun isClientQuery(callingPackage: String, uri: Uri) =
         callingPackage == BuildConfig.APPLICATION_ID && uri == MediaStore.Images.Media.INTERNAL_CONTENT_URI
 
-    private fun handleClientQuery(projection: Array<String>?, queryArgs: Bundle): Cursor = when {
-        queryArgs.isEmpty -> MatrixCursor(arrayOf("binder")).apply {
-            extras = bundleOf("me.gm.cleaner.plugin.cursor.extra.BINDER" to service)
+    /**
+     * This function handles queries from the client. It takes effect when calling package is
+     * [BuildConfig.APPLICATION_ID] and query Uri is [MediaStore.Images.Media.INTERNAL_CONTENT_URI].
+     * @param table We regard projection as table name.
+     * @param queryArgs We regard selection as start time millis, sort order as end time millis,
+     * selection args as package names.
+     * @return Returns an empty [Cursor] with [ManagerService]'s [android.os.IBinder] in its extras
+     * when queryArgs is empty. Returns a [Cursor] queried from the [MediaProviderRecordDatabase]
+     * when at least table name, start time millis and end time millis are declared.
+     * @throws [NullPointerException] or [UnsupportedOperationException] when we don't know how to
+     * handle the query.
+     */
+    private fun handleClientQuery(table: Array<String>, queryArgs: Bundle): Cursor {
+        if (queryArgs.isEmpty) {
+            return MatrixCursor(arrayOf("binder")).apply {
+                extras = bundleOf("me.gm.cleaner.plugin.cursor.extra.BINDER" to service)
+            }
         }
-        else -> throw UnsupportedOperationException()
+        val start = queryArgs.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)!!.toLong()
+        val end = queryArgs.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER)!!.toLong()
+        val packageNames = queryArgs.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
+        return when {
+            table.contains(MediaProviderQueryRecord::class.simpleName) -> if (packageNames == null) {
+                dao.loadForTimeMillis(start, end)
+            } else {
+                dao.loadForPackageName(start, end, *packageNames)
+            }
+            table.contains(MediaProviderInsertRecord::class.simpleName) -> if (packageNames == null) {
+                service.database.MediaProviderInsertRecordDao().loadForTimeMillis(start, end)
+            } else {
+                service.database.MediaProviderInsertRecordDao()
+                    .loadForPackageName(start, end, *packageNames)
+            }
+            table.contains(MediaProviderDeleteRecord::class.simpleName) -> if (packageNames == null) {
+                service.database.MediaProviderDeleteRecordDao().loadForTimeMillis(start, end)
+            } else {
+                service.database.MediaProviderDeleteRecordDao()
+                    .loadForPackageName(start, end, *packageNames)
+            }
+            else -> throw UnsupportedOperationException()
+        }
     }
 
     companion object {

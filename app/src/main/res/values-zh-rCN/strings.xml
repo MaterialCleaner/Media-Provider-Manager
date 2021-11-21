@@ -37,6 +37,10 @@
     <string name="menu_hide_no_storage_permission_title">无存储权限应用</string>
     <string name="delete">删除</string>
     <string name="delete_all_rules">删除所有规则</string>
+    <string name="date_title">日期</string>
+    <string name="menu_hide_query_title">查询记录</string>
+    <string name="menu_hide_insert_title">插入记录</string>
+    <string name="menu_hide_delete_title">删除记录</string>
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">显示其他应用的媒体文件</string>
     <string name="info">信息</string>

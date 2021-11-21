@@ -21,14 +21,36 @@ import androidx.room.*
 
 @Entity
 data class MediaProviderInsertRecord(
-    @ColumnInfo(name = "time_millis") val timeMillis: Long,
+    @ColumnInfo(name = "time_millis") override val timeMillis: Long,
     @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
     @ColumnInfo(name = "intercepted") val intercepted: Boolean,
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-)
+) : MediaProviderRecord(timeMillis) {
+    override fun convert(cursor: Cursor): List<MediaProviderInsertRecord> {
+        val timeMillisColumn = cursor.getColumnIndex("time_millis")
+        val packageNameColumn = cursor.getColumnIndex("package_name")
+        val matchColumn = cursor.getColumnIndex("match")
+        val dataColumn = cursor.getColumnIndex("data")
+        val mimeTypeColumn = cursor.getColumnIndex("mime_type")
+        val interceptedColumn = cursor.getColumnIndex("intercepted")
+
+        val records = mutableListOf<MediaProviderInsertRecord>()
+        while (cursor.moveToNext()) {
+            records += MediaProviderInsertRecord(
+                cursor.getLong(timeMillisColumn),
+                cursor.getString(packageNameColumn),
+                cursor.getInt(matchColumn),
+                cursor.getString(dataColumn),
+                cursor.getString(mimeTypeColumn),
+                cursor.getLong(interceptedColumn) != 0L,
+            )
+        }
+        return records
+    }
+}
 
 @Dao
 interface MediaProviderInsertRecordDao {
