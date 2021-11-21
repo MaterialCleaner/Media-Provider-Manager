@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.settings
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences

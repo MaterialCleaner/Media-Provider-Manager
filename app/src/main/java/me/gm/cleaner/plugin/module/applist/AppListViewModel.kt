@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.applist
 
 import android.Manifest
 import android.content.pm.ApplicationInfo
@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {

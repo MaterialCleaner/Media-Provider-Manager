@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.applist
 
 import android.os.Bundle
 import android.view.*
@@ -36,6 +36,7 @@ import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ktx.submitListKeepPosition
+import me.gm.cleaner.plugin.module.BinderViewModel
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect

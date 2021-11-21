@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.applist
 
 import android.view.*
 import android.view.ContextMenu.ContextMenuInfo
@@ -28,6 +28,7 @@ import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {

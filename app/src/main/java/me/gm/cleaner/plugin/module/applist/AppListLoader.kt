@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.applist
 
 import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
 import java.util.concurrent.atomic.AtomicInteger
 

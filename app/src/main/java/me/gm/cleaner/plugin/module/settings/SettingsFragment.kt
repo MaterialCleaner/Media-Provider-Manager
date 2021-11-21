@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module
+package me.gm.cleaner.plugin.module.settings
 
 import android.os.Bundle
 import androidx.preference.SwitchPreferenceCompat
