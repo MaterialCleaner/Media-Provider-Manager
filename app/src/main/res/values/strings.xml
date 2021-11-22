@@ -49,6 +49,7 @@
     <string name="menu_hide_insert_title">Insert records</string>
     <string name="menu_hide_delete_key" translatable="false">hide_delete</string>
     <string name="menu_hide_delete_title">Delete records</string>
+    <string name="menu_clear">Clear all records</string>
     <string name="refresh">Refresh</string>
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>

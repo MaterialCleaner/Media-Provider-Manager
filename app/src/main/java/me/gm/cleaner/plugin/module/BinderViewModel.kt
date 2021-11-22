@@ -42,7 +42,8 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
             emptyList()
         }
 
-    fun getLabel(packageName: String) = service!!.getLabel(packageName, Process.myUid() / 100000)
+    fun getPackageInfo(packageName: String): PackageInfo =
+        service!!.getPackageInfo(packageName, 0, Process.myUid() / 100000)
 
     fun notifyPreferencesChanged() {
         service!!.notifyPreferencesChanged()

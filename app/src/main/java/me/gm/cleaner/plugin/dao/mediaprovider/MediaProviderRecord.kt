@@ -22,12 +22,13 @@ import androidx.room.Ignore
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import me.gm.cleaner.plugin.dao.ListConverter
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 abstract class MediaProviderRecord(
     open val timeMillis: Long,
     open val packageName: String,
     @Ignore val dataList: List<String>,
-    @Ignore open var label: String? = null,
+    @Ignore open var packageInfo: PreferencesPackageInfo? = null,
 ) {
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
 }

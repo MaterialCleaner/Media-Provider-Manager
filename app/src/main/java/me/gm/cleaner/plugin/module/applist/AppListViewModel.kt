@@ -66,6 +66,13 @@ class AppListViewModel : ViewModel() {
                             } == true
                         }
                     }
+                    if (isSearching) {
+                        val lowerQuery = queryText.lowercase()
+                        sequence = sequence.filter {
+                            it.label.lowercase().contains(lowerQuery) ||
+                                    it.applicationInfo.packageName.lowercase().contains(lowerQuery)
+                        }
+                    }
                     sequence = when (ModulePreferences.sortBy) {
                         ModulePreferences.SORT_BY_NAME -> sequence.sortedWith { o1, o2 ->
                             collator.compare(o1?.label, o2?.label)
@@ -83,13 +90,6 @@ class AppListViewModel : ViewModel() {
 //                            else -> return@sortWith 0
 //                        }
 //                    }
-                    }
-                    if (isSearching) {
-                        val lowerQuery = queryText.lowercase()
-                        sequence = sequence.filter {
-                            it.label.lowercase().contains(lowerQuery) ||
-                                    it.applicationInfo.packageName.lowercase().contains(lowerQuery)
-                        }
                     }
                     SourceState.Done(sequence.toList())
                 }

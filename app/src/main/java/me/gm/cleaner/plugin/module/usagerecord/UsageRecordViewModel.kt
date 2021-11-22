@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.module.usagerecord
 
 import android.app.Application
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
@@ -32,6 +33,7 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
 import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.util.*
 
 class UsageRecordViewModel(application: Application) : AndroidViewModel(application) {
@@ -48,22 +50,22 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             _queryTextFlow.value = value
         }
     private val calendar = Calendar.getInstance()
-    private val packageNameToLabel = mutableMapOf<String, String>()
+    private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<List<MediaProviderRecord>>(emptyList())
     val recordsFlow =
         combine(_recordsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
             var sequence = source.asSequence()
-            sequence = sequence.sortedWith { o1, o2 ->
-                (o2.timeMillis - o1.timeMillis).toInt()
-            }
             if (isSearching) {
                 val lowerQuery = queryText.lowercase()
                 sequence = sequence.filter {
                     it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
-                            it.label!!.lowercase().contains(lowerQuery) ||
+                            it.packageInfo!!.label.lowercase().contains(lowerQuery) ||
                             it.packageName.lowercase().contains(lowerQuery)
                 }
+            }
+            sequence = sequence.sortedWith { o1, o2 ->
+                (o2.timeMillis - o1.timeMillis).toInt()
             }
             sequence.toList()
         }
@@ -76,7 +78,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
      */
-    fun loadRecords(binderViewModel: BinderViewModel, timeMillis: Long) {
+    fun loadRecords(binderViewModel: BinderViewModel, pm: PackageManager, timeMillis: Long) {
         calendar.run {
             timeInMillis = timeMillis
             set(Calendar.HOUR_OF_DAY, 0)
@@ -90,7 +92,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             set(Calendar.MILLISECOND, 999)
             val end = timeInMillis
             loadRecords(
-                binderViewModel, start, end,
+                binderViewModel, pm, start, end,
                 ModulePreferences.isHideQuery,
                 ModulePreferences.isHideInsert,
                 ModulePreferences.isHideDelete
@@ -98,12 +100,12 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun reloadRecords(binderViewModel: BinderViewModel) {
-        loadRecords(binderViewModel, calendar.timeInMillis)
+    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) {
+        loadRecords(binderViewModel, pm, calendar.timeInMillis)
     }
 
     fun loadRecords(
-        binderViewModel: BinderViewModel, start: Long, end: Long,
+        binderViewModel: BinderViewModel, pm: PackageManager, start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
     ) {
         viewModelScope.launch {
@@ -119,10 +121,11 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 }
             }
             records.forEach {
-                it.label = packageNameToLabel[it.packageName]
-                if (it.label == null) {
-                    it.label = binderViewModel.getLabel(it.packageName)
-                    packageNameToLabel[it.packageName] = it.label!!
+                it.packageInfo = packageNameToPackageInfo[it.packageName]
+                if (it.packageInfo == null) {
+                    val pi = binderViewModel.getPackageInfo(it.packageName)
+                    it.packageInfo = PreferencesPackageInfo.newInstance(pi, pm)
+                    packageNameToPackageInfo[it.packageName] = it.packageInfo!!
                 }
             }
             _recordsFlow.value = records

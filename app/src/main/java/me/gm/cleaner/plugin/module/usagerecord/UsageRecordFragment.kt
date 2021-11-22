@@ -57,13 +57,15 @@ class UsageRecordFragment : BaseFragment() {
                 }
             }
         }
-        viewModel.loadRecords(binderViewModel, System.currentTimeMillis())
+        viewModel.loadRecords(
+            binderViewModel, requireContext().packageManager, System.currentTimeMillis()
+        )
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged(isNotifyService: Boolean) {
-                viewModel.reloadRecords(binderViewModel)
+                viewModel.reloadRecords(binderViewModel, requireContext().packageManager)
             }
         })
         return binding.root
@@ -111,17 +113,17 @@ class UsageRecordFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_pick_date -> {
-                MaterialDatePicker.Builder
-                    .datePicker()
-                    .build()
-                    .apply {
-                        addOnPositiveButtonClickListener { selection ->
-                            viewModel.loadRecords(binderViewModel, selection)
-                        }
+            R.id.menu_pick_date -> MaterialDatePicker.Builder
+                .datePicker()
+                .build()
+                .apply {
+                    addOnPositiveButtonClickListener { selection ->
+                        viewModel.loadRecords(
+                            binderViewModel, requireContext().packageManager, selection
+                        )
                     }
-                    .show(childFragmentManager, null)
-            }
+                }
+                .show(childFragmentManager, null)
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
@@ -137,6 +139,7 @@ class UsageRecordFragment : BaseFragment() {
                 item.isChecked = isHideDelete
                 ModulePreferences.isHideDelete = isHideDelete
             }
+            R.id.menu_clear -> binderViewModel.clearAllTables()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
