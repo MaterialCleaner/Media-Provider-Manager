@@ -27,8 +27,8 @@ data class MediaProviderDeleteRecord(
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: List<String>,
     @ColumnInfo(name = "mime_type") val mimeType: List<String>,
-    @ColumnInfo(name = "intercepted") val intercepted: Boolean,
-) : MediaProviderRecord(timeMillis, packageName, data) {
+    @ColumnInfo(name = "intercepted") override val intercepted: Boolean,
+) : MediaProviderRecord(timeMillis, packageName, data, intercepted) {
     override fun convert(cursor: Cursor): List<MediaProviderDeleteRecord> {
         val timeMillisColumn = cursor.getColumnIndex("time_millis")
         val packageNameColumn = cursor.getColumnIndex("package_name")
@@ -43,8 +43,8 @@ data class MediaProviderDeleteRecord(
                 cursor.getLong(timeMillisColumn),
                 cursor.getString(packageNameColumn),
                 cursor.getInt(matchColumn),
-                ListConverter.fromString(cursor.getString(dataColumn))!!,
-                ListConverter.fromString(cursor.getString(mimeTypeColumn))!!,
+                ListConverter.fromString(cursor.getString(dataColumn)) ?: continue,
+                ListConverter.fromString(cursor.getString(mimeTypeColumn)) ?: continue,
                 cursor.getLong(interceptedColumn) != 0L,
             )
         }

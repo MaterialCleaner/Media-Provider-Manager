@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -36,7 +35,6 @@ import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -51,6 +49,7 @@ import me.gm.cleaner.plugin.mediastore.*
 import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
+import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 
@@ -257,31 +256,10 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 lifecycleScope.launch {
                     if (!viewModel.validateAsync().await()) {
-                        Snackbar.make(requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT)
-                            .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                                private lateinit var fullyDraggableContainer: FullyDraggableContainer
-                                private lateinit var v: View
-                                private val r = Rect()
-                                private val l = View.OnGenericMotionListener { _, ev ->
-                                    ev.action == MotionEvent.ACTION_DOWN &&
-                                            v.getGlobalVisibleRect(r) &&
-                                            r.contains(ev.x.toInt(), ev.y.toInt())
-                                }
-
-                                override fun onShown(transientBottomBar: Snackbar) {
-                                    super.onShown(transientBottomBar)
-                                    v = transientBottomBar.view
-                                    fullyDraggableContainer =
-                                        requireActivity().findViewById(R.id.fully_draggable_container)
-                                    fullyDraggableContainer.addInterceptTouchEventListener(l)
-                                }
-
-                                override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
-                                    super.onDismissed(transientBottomBar, event)
-                                    fullyDraggableContainer.removeInterceptTouchEventListener(l)
-                                }
-                            })
-                            .show()
+                        makeSnackbarWithFullyDraggableContainer(
+                            { requireActivity().findViewById(R.id.fully_draggable_container) },
+                            requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } else {

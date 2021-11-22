@@ -9,14 +9,12 @@
     <string name="app_management">App Management</string>
     <string name="usage_record">Usage Record</string>
     <string name="settings">Settings</string>
-
     <string name="media_store">Media Store</string>
     <string name="audio">Audio</string>
     <string name="downloads">Downloads</string>
     <string name="files">Files</string>
     <string name="images">Images</string>
     <string name="video">Video</string>
-
     <string name="experiment">Experiment</string>
     <string name="about">About</string>
 
@@ -25,6 +23,12 @@
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
     <string name="enabled_app_count">Enabled for %d app(s)</string>
+    <string name="queried_at">Queried at\ </string>
+    <string name="inserted_at">Inserted at\ </string>
+    <string name="deleted_at">Deleted at\ </string>
+    <string name="intercepted">(intercepted)</string>
+    <string name="and_more"> and %d more</string>
+    <string name="copied">Copied: %s</string>
 
     <!-- Menu -->
     <string name="search">Search</string>

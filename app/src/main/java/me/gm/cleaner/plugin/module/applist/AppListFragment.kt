@@ -44,8 +44,6 @@ import rikka.recyclerview.fixEdgeEffect
 class AppListFragment : BaseFragment() {
     private val binderViewModel: BinderViewModel by activityViewModels()
     private val viewModel: AppListViewModel by viewModels()
-    private val adapter by lazy { AppListAdapter(this) }
-    private val navController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +55,7 @@ class AppListFragment : BaseFragment() {
     ): View {
         val binding = ApplistFragmentBinding.inflate(layoutInflater)
 
+        val adapter = AppListAdapter(this)
         val list = binding.list
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
@@ -93,7 +92,9 @@ class AppListFragment : BaseFragment() {
                 }
             }
         }
-        savedInstanceState ?: viewModel.loadApps(binderViewModel, requireContext().packageManager)
+        if (savedInstanceState == null && viewModel.isLoading) {
+            viewModel.loadApps(binderViewModel, requireContext().packageManager)
+        }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
@@ -129,6 +130,8 @@ class AppListFragment : BaseFragment() {
         val searchView = searchItem.actionView as SearchView
         searchView.setQuery(viewModel.queryText, false)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            private val navController = findNavController()
+
             override fun onQueryTextSubmit(query: String): Boolean {
                 viewModel.queryText = query
                 return true

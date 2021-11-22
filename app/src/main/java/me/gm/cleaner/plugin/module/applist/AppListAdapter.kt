@@ -28,6 +28,7 @@ import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.checkCurrentDestination
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 class AppListAdapter(private val fragment: AppListFragment) :
@@ -45,17 +46,15 @@ class AppListAdapter(private val fragment: AppListFragment) :
             .load(pi)
             .into(binding.icon)
         binding.title.text = pi.label
-        binding.summary.text = if (pi.srCount > 0) {
-            activity.buildStyledTitle(pi.srCount.toString())
+        binding.summary.text = if (pi.ruleCount > 0) {
+            activity.buildStyledTitle(pi.ruleCount.toString())
         } else {
             pi.packageName
         }
         binding.root.setOnClickListener {
-            val navController = fragment.findNavController()
-            if (navController.currentDestination?.id == R.id.applist_fragment) {
-                val direction = AppListFragmentDirections.actionApplistToApp(pi)
-                navController.navigate(direction)
-            }
+            val direction = AppListFragmentDirections.actionApplistToApp(pi)
+            fragment.findNavController().checkCurrentDestination(R.id.applist_fragment)
+                ?.navigate(direction)
         }
         binding.root.setOnLongClickListener {
             selectedHolder = holder
@@ -64,7 +63,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
         binding.root.setOnCreateContextMenuListener { menu: ContextMenu, _: View?, _: ContextMenuInfo? ->
             activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
             menu.setHeaderTitle(pi.label)
-            if (pi.srCount == 0) {
+            if (pi.ruleCount == 0) {
                 menu.removeItem(R.id.menu_delete_all_rules)
             } else {
                 menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
@@ -94,8 +93,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
 
                 override fun areContentsTheSame(
                     oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
-                ) = oldItem.srCount == newItem.srCount
-                // TODO: oldItem == newItem
+                ) = oldItem == newItem
             }
     }
 }

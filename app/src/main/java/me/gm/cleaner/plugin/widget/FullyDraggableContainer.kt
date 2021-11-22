@@ -17,9 +17,15 @@
 package me.gm.cleaner.plugin.widget
 
 import android.content.Context
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.View
+import androidx.annotation.StringRes
 import com.drakeet.drawer.FullDraggableContainer
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
+import java.util.function.Supplier
 
 class FullyDraggableContainer @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -39,5 +45,42 @@ class FullyDraggableContainer @JvmOverloads constructor(
 
     fun removeInterceptTouchEventListener(l: OnGenericMotionListener) {
         interceptTouchEventListeners.remove(l)
+    }
+}
+
+fun makeSnackbarWithFullyDraggableContainer(
+    fullyDraggableContainerProvider: Supplier<FullyDraggableContainer>,
+    view: View, @StringRes resId: Int, @BaseTransientBottomBar.Duration duration: Int
+) = Snackbar.make(view, resId, duration)
+    .addCallback(InterceptFullyDraggableContainerTouchEventCallback(fullyDraggableContainerProvider))
+
+fun makeSnackbarWithFullyDraggableContainer(
+    fullyDraggableContainerProvider: Supplier<FullyDraggableContainer>,
+    view: View, text: CharSequence, @BaseTransientBottomBar.Duration duration: Int
+) = Snackbar.make(view, text, duration)
+    .addCallback(InterceptFullyDraggableContainerTouchEventCallback(fullyDraggableContainerProvider))
+
+class InterceptFullyDraggableContainerTouchEventCallback(
+    private val fullyDraggableContainerProvider: Supplier<FullyDraggableContainer>
+) : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+    private lateinit var fullyDraggableContainer: FullyDraggableContainer
+    private lateinit var v: View
+    private val r = Rect()
+    private val l = View.OnGenericMotionListener { _, ev ->
+        ev.action == MotionEvent.ACTION_DOWN &&
+                v.getGlobalVisibleRect(r) &&
+                r.contains(ev.x.toInt(), ev.y.toInt())
+    }
+
+    override fun onShown(transientBottomBar: Snackbar) {
+        super.onShown(transientBottomBar)
+        v = transientBottomBar.view
+        fullyDraggableContainer = fullyDraggableContainerProvider.get()
+        fullyDraggableContainer.addInterceptTouchEventListener(l)
+    }
+
+    override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+        super.onDismissed(transientBottomBar, event)
+        fullyDraggableContainer.removeInterceptTouchEventListener(l)
     }
 }

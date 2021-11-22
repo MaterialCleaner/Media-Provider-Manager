@@ -21,6 +21,8 @@ import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,7 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
 import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.util.*
+import kotlin.collections.set
 
 class UsageRecordViewModel(application: Application) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
@@ -50,6 +53,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             _queryTextFlow.value = value
         }
     private val calendar = Calendar.getInstance()
+    private val _calendarTimeMillisLiveData = MutableLiveData(calendar)
+    val calendarTimeMillisLiveData: LiveData<Calendar>
+        get() = _calendarTimeMillisLiveData
     private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<List<MediaProviderRecord>>(emptyList())
@@ -97,11 +103,8 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 ModulePreferences.isHideInsert,
                 ModulePreferences.isHideDelete
             )
+            _calendarTimeMillisLiveData.postValue(calendar)
         }
-    }
-
-    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) {
-        loadRecords(binderViewModel, pm, calendar.timeInMillis)
     }
 
     fun loadRecords(
@@ -141,6 +144,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) {
+        loadRecords(binderViewModel, pm, calendar.timeInMillis)
+    }
+
     private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
             : List<MediaProviderRecord> = withContext(Dispatchers.IO) {
         val projection = arrayOf(E::class.simpleName)
@@ -161,7 +168,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                     String::class.java -> ""
                     Long::class.java -> 0L
                     List::class.java -> emptyList<String>()
-                    Boolean::class.java -> true
+                    Boolean::class.java -> false
                     else -> throw IllegalArgumentException()
                 }
             }.toTypedArray()

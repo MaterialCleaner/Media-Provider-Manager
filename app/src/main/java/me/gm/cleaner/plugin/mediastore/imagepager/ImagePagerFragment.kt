@@ -42,7 +42,7 @@ import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 /**
- * Display a series of images in a [ViewPager2].
+ * A fragment for displaying a series of images in a [ViewPager2].
  *
  * This is implemented with [androidx.navigation.Navigation] and requires 4 [androidx.navigation.NavArgs].
  * See nav_graph.xml for more details.

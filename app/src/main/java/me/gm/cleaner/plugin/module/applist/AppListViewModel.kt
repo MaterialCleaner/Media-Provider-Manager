@@ -43,6 +43,8 @@ class AppListViewModel : ViewModel() {
         set(value) {
             _queryTextFlow.value = value
         }
+    val isLoading: Boolean
+        get() = _appsFlow.value is SourceState.Loading
     private val collator = Collator.getInstance()
     private val _appsFlow = MutableStateFlow<SourceState>(SourceState.Loading(0))
     val appsFlow =
@@ -112,7 +114,7 @@ class AppListViewModel : ViewModel() {
 
     fun updateApps() {
         viewModelScope.launch {
-            if (_appsFlow.value is SourceState.Done) {
+            if (!isLoading) {
                 val list = AppListLoader().update((_appsFlow.value as SourceState.Done).list)
                 _appsFlow.value = SourceState.Done(list)
             }

@@ -22,7 +22,31 @@ import java.lang.reflect.Field
 
 class PreferencesPackageInfo private constructor() : PackageInfo() {
     lateinit var label: String
-    var srCount = 0
+        private set
+    var ruleCount = 0
+        private set
+
+    override fun hashCode(): Int {
+        var result = label.hashCode()
+        result = 31 * result + ruleCount
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PreferencesPackageInfo
+
+        if (label != other.label) return false
+        if (ruleCount != other.ruleCount) return false
+
+        return true
+    }
+
+    override fun toString() = "PackageInfo{" +
+            Integer.toHexString(System.identityHashCode(this)) +
+            " " + packageName + " " + label + " " + ruleCount + "}"
 
     companion object {
         private val fieldCache by lazy { mutableMapOf<Field, Field>() }
@@ -51,17 +75,15 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
             }
         }
 
-        fun newInstance(old: PackageInfo, pm: PackageManager): PreferencesPackageInfo =
-            PreferencesPackageInfo().apply {
-                copyFieldsFrom(old)
-                label = pm.getApplicationLabel(old.applicationInfo).toString()
-//                srCount = ModulePreferences.getPackageSRCount(old.packageName)
-            }
+        fun newInstance(old: PackageInfo, pm: PackageManager) = PreferencesPackageInfo().apply {
+            copyFieldsFrom(old)
+            label = pm.getApplicationLabel(old.applicationInfo).toString()
+//                ruleCount = ModulePreferences.getPackageSRCount(old.packageName)
+        }
 
-        fun PreferencesPackageInfo.copy(): PreferencesPackageInfo =
-            PreferencesPackageInfo().also {
-                it.copyFieldsFrom(this)
-//                it.srCount = ModulePreferences.getPackageSRCount(packageName)
-            }
+        fun PreferencesPackageInfo.copy() = PreferencesPackageInfo().also {
+            it.copyFieldsFrom(this)
+//                it.ruleCount = ModulePreferences.getPackageSRCount(packageName)
+        }
     }
 }

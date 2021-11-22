@@ -28,9 +28,30 @@ abstract class MediaProviderRecord(
     open val timeMillis: Long,
     open val packageName: String,
     @Ignore val dataList: List<String>,
+    open val intercepted: Boolean,
     @Ignore open var packageInfo: PreferencesPackageInfo? = null,
 ) {
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
+
+    override fun hashCode(): Int {
+        var result = timeMillis.hashCode()
+        result = 31 * result + packageName.hashCode()
+        result = 31 * result + dataList.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MediaProviderRecord
+
+        if (timeMillis != other.timeMillis) return false
+        if (packageName != other.packageName) return false
+        if (dataList != other.dataList) return false
+
+        return true
+    }
 }
 
 @Database(

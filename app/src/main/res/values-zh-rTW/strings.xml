@@ -8,22 +8,26 @@
     <string name="app_management">應用管理</string>
     <string name="usage_record">使用記錄</string>
     <string name="settings">設置</string>
-
     <string name="media_store">媒體儲存</string>
     <string name="audio">音訊</string>
     <string name="downloads">下載</string>
     <string name="files">文件</string>
     <string name="images">圖像</string>
     <string name="video">錄影</string>
-
     <string name="experiment">實驗</string>
     <string name="about">關於</string>
 
-    <!-- 首頁 -->
+    <!-- 模組 -->
     <string name="not_active">未啟動</string>
     <string name="restart_system">重啟系統以升級模組</string>
     <string name="active">已啟動</string>
     <string name="enabled_app_count">對 %d 個應用啟用</string>
+    <string name="queried_at">查詢於\ </string>
+    <string name="inserted_at">插入於\ </string>
+    <string name="deleted_at">刪除於\ </string>
+    <string name="intercepted">（已攔截）</string>
+    <string name="and_more">更多 %d 項</string>
+    <string name="copied">已複製：%s</string>
 
     <!-- 菜單 -->
     <string name="search">搜索</string>

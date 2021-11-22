@@ -26,8 +26,8 @@ data class MediaProviderInsertRecord(
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "mime_type") val mimeType: String,
-    @ColumnInfo(name = "intercepted") val intercepted: Boolean,
-) : MediaProviderRecord(timeMillis, packageName, listOf(data)) {
+    @ColumnInfo(name = "intercepted") override val intercepted: Boolean,
+) : MediaProviderRecord(timeMillis, packageName, listOf(data), intercepted) {
     override fun convert(cursor: Cursor): List<MediaProviderInsertRecord> {
         val timeMillisColumn = cursor.getColumnIndex("time_millis")
         val packageNameColumn = cursor.getColumnIndex("package_name")

@@ -16,8 +16,9 @@
 
 package me.gm.cleaner.plugin.module.usagerecord
 
+import android.icu.text.DateFormat
+import android.icu.util.TimeZone
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
@@ -25,16 +26,23 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
+import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.module.BinderViewModel
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import rikka.recyclerview.fixEdgeEffect
+import java.util.*
 
 class UsageRecordFragment : BaseFragment() {
     private val binderViewModel: BinderViewModel by activityViewModels()
@@ -48,18 +56,48 @@ class UsageRecordFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+        val binding = UsagerecordFragmentBinding.inflate(layoutInflater)
+
+        val adapter = UsageRecordAdapter(this)
+        val list = binding.list
+        list.adapter = adapter
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.setHasFixedSize(true)
+        FastScrollerBuilder(list)
+            .useMd2Style()
+            .build()
+        list.fixEdgeEffect(false)
+        list.overScrollIfContentScrollsPersistent()
+        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+        binding.listContainer.setOnRefreshListener {
+            lifecycleScope.launch {
+                viewModel.reloadRecords(binderViewModel, requireContext().packageManager)
+                binding.listContainer.isRefreshing = false
+            }
+        }
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.recordsFlow.collect { records ->
-                    Log.e(BuildConfig.APPLICATION_ID, records.toString())
+                    adapter.submitList(records)
                 }
             }
         }
-        viewModel.loadRecords(
-            binderViewModel, requireContext().packageManager, System.currentTimeMillis()
-        )
+        if (savedInstanceState == null && viewModel.records.isEmpty()) {
+            viewModel.loadRecords(
+                binderViewModel, requireContext().packageManager, System.currentTimeMillis()
+            )
+        }
+        viewModel.calendarTimeMillisLiveData.observe(viewLifecycleOwner) {
+            supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
+                DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
+            ).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.format(Date(it.timeInMillis))
+        }
+        findNavController().addOnExitListener { _, _, _ ->
+            supportActionBar?.subtitle = null
+        }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
