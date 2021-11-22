@@ -8,6 +8,8 @@
 	public static void throw*(...);
 }
 
+-keepnames class * extends me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
+
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.
 -keepattributes Signature, InnerClasses, EnclosingMethod
