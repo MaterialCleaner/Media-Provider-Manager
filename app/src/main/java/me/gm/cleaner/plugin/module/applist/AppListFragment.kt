@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.module.applist
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,20 +28,18 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ktx.submitListKeepPosition
-import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.module.ModuleFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
-class AppListFragment : BaseFragment() {
-    private val binderViewModel: BinderViewModel by activityViewModels()
+class AppListFragment : ModuleFragment() {
     private val viewModel: AppListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +50,9 @@ class AppListFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        if (!binderViewModel.pingBinder()) {
+            return super.onCreateView(inflater, container, savedInstanceState)
+        }
         val binding = ApplistFragmentBinding.inflate(layoutInflater)
 
         val adapter = AppListAdapter(this)
@@ -111,6 +111,9 @@ class AppListFragment : BaseFragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        if (!binderViewModel.pingBinder()) {
+            return
+        }
         inflater.inflate(R.menu.applist_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)
         if (viewModel.isSearching) {

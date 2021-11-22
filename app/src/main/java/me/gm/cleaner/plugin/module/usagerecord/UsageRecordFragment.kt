@@ -21,7 +21,6 @@ import android.icu.util.TimeZone
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,20 +31,18 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
-import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.module.ModuleFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 import java.util.*
 
-class UsageRecordFragment : BaseFragment() {
-    private val binderViewModel: BinderViewModel by activityViewModels()
+class UsageRecordFragment : ModuleFragment() {
     private val viewModel: UsageRecordViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +53,9 @@ class UsageRecordFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        if (!binderViewModel.pingBinder()) {
+            return super.onCreateView(inflater, container, savedInstanceState)
+        }
         val binding = UsagerecordFragmentBinding.inflate(layoutInflater)
 
         val adapter = UsageRecordAdapter(this)
@@ -110,6 +110,9 @@ class UsageRecordFragment : BaseFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        if (!binderViewModel.pingBinder()) {
+            return
+        }
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.usagerecord_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)

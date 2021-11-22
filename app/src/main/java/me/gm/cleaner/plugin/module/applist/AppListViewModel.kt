@@ -107,6 +107,7 @@ class AppListViewModel : ViewModel() {
         }
     ) {
         viewModelScope.launch {
+            _appsFlow.value = SourceState.Loading(0)
             val list = AppListLoader().load(binderViewModel, pm, l)
             _appsFlow.value = SourceState.Done(list)
         }
@@ -116,6 +117,7 @@ class AppListViewModel : ViewModel() {
         viewModelScope.launch {
             if (!isLoading) {
                 val list = AppListLoader().update((_appsFlow.value as SourceState.Done).list)
+                _appsFlow.value = SourceState.Loading(0)
                 _appsFlow.value = SourceState.Done(list)
             }
         }

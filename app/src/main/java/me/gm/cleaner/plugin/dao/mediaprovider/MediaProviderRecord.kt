@@ -37,6 +37,7 @@ abstract class MediaProviderRecord(
         var result = timeMillis.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + dataList.hashCode()
+        result = 31 * result + intercepted.hashCode()
         return result
     }
 
@@ -49,6 +50,7 @@ abstract class MediaProviderRecord(
         if (timeMillis != other.timeMillis) return false
         if (packageName != other.packageName) return false
         if (dataList != other.dataList) return false
+        if (intercepted != other.intercepted) return false
 
         return true
     }

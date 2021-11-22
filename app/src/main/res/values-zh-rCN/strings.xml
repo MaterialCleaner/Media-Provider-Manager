@@ -18,6 +18,7 @@
     <string name="about">关于</string>
 
     <!-- 模块 -->
+    <string name="guide_active">在 Xposed 框架中激活模块并重启系统才能使用此功能</string>
     <string name="not_active">未激活</string>
     <string name="restart_system">重启系统以升级模块</string>
     <string name="active">已激活</string>

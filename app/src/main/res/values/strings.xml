@@ -19,6 +19,7 @@
     <string name="about">About</string>
 
     <!-- Module -->
+    <string name="guide_active">Activate the module in the Xposed framework and restart the system to use this feature.</string>
     <string name="not_active">NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
