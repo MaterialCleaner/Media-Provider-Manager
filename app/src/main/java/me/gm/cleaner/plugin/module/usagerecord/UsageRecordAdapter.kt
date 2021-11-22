@@ -38,9 +38,6 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
-import java.util.*
-import java.util.Calendar.DAY_OF_YEAR
-import java.util.Calendar.YEAR
 
 class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
     ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK) {
@@ -64,14 +61,8 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
         } + run {
-            val then = Calendar.getInstance().apply { timeInMillis = record.timeMillis }
-            val now = Calendar.getInstance()
             val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                    DateUtils.FORMAT_ABBREV_ALL or when {
-                then[YEAR] != now[YEAR] -> DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_DATE
-                then[DAY_OF_YEAR] != now[DAY_OF_YEAR] -> DateUtils.FORMAT_SHOW_DATE
-                else -> DateUtils.FORMAT_SHOW_TIME
-            }
+                    DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_TIME
             DateUtils.formatDateTime(context, record.timeMillis, flags)
         } + if (record.intercepted) {
             fragment.getString(R.string.intercepted)
