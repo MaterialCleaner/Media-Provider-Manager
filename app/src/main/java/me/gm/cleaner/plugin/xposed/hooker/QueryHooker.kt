@@ -34,6 +34,7 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
+import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import java.util.function.Consumer
 import java.util.function.Function
@@ -146,16 +147,18 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         c.close()
 
         /** RECORD */
-        dao.insert(
-            MediaProviderQueryRecord(
-                System.currentTimeMillis(),
-                param.callingPackage,
-                table,
-                data,
-                mimeType,
-                false
+        retry(10) {
+            dao.insert(
+                MediaProviderQueryRecord(
+                    System.currentTimeMillis() + it,
+                    param.callingPackage,
+                    table,
+                    data,
+                    mimeType,
+                    false
+                )
             )
-        )
+        }
 
         /** INTERCEPT */
     }

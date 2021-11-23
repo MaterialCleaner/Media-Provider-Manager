@@ -25,6 +25,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import me.gm.cleaner.plugin.xposed.util.FileUtils.externalStorageDirPath
@@ -62,16 +63,18 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** RECORD */
-        dao.insert(
-            MediaProviderInsertRecord(
-                System.currentTimeMillis(),
-                param.callingPackage,
-                match,
-                data ?: "",
-                mimeType ?: "",
-                false
+        retry(10) {
+            dao.insert(
+                MediaProviderInsertRecord(
+                    System.currentTimeMillis() + it,
+                    param.callingPackage,
+                    match,
+                    data ?: "",
+                    mimeType ?: "",
+                    false
+                )
             )
-        )
+        }
 
         /** INTERCEPT */
         if (!modern && data != null /* TODO: check settings */) {
