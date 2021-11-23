@@ -71,7 +71,7 @@ class UsageRecordFragment : ModuleFragment() {
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
-                viewModel.reloadRecords(binderViewModel, requireContext().packageManager)
+                viewModel.reloadRecords(binderViewModel, requireContext().packageManager).await()
                 binding.listContainer.isRefreshing = false
             }
         }

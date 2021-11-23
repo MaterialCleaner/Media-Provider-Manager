@@ -23,9 +23,9 @@ import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
@@ -79,7 +79,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
      */
-    fun loadRecords(binderViewModel: BinderViewModel, pm: PackageManager, timeMillis: Long) {
+    fun loadRecords(binderViewModel: BinderViewModel, pm: PackageManager, timeMillis: Long) =
         calendar.run {
             timeInMillis = timeMillis
             set(Calendar.HOUR_OF_DAY, 0)
@@ -99,33 +99,31 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 ModulePreferences.isHideDelete
             )
         }
-    }
 
     fun loadRecords(
         binderViewModel: BinderViewModel, pm: PackageManager, start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
-    ) {
-        viewModelScope.launch {
-            val records = mutableListOf<MediaProviderRecord>().also {
-                if (!isHideQuery) {
-                    it += queryRecord<MediaProviderQueryRecord>(start, end)
-                }
-                if (!isHideInsert) {
-                    it += queryRecord<MediaProviderInsertRecord>(start, end)
-                }
-                if (!isHideDelete) {
-                    it += queryRecord<MediaProviderDeleteRecord>(start, end)
-                }
+    ) = viewModelScope.async {
+        val records = mutableListOf<MediaProviderRecord>().also {
+            if (!isHideQuery) {
+                it += queryRecord<MediaProviderQueryRecord>(start, end)
             }
-            records.forEach {
-                it.packageInfo = packageNameToPackageInfo[it.packageName]
-                if (it.packageInfo == null) {
-                    val pi = binderViewModel.getPackageInfo(it.packageName)
-                    it.packageInfo = PreferencesPackageInfo.newInstance(pi, pm)
-                    packageNameToPackageInfo[it.packageName] = it.packageInfo!!
-                }
+            if (!isHideInsert) {
+                it += queryRecord<MediaProviderInsertRecord>(start, end)
             }
-            _recordsFlow.value = records
+            if (!isHideDelete) {
+                it += queryRecord<MediaProviderDeleteRecord>(start, end)
+            }
+        }
+        records.forEach {
+            it.packageInfo = packageNameToPackageInfo[it.packageName]
+            if (it.packageInfo == null) {
+                val pi = binderViewModel.getPackageInfo(it.packageName)
+                it.packageInfo = PreferencesPackageInfo.newInstance(pi, pm)
+                packageNameToPackageInfo[it.packageName] = it.packageInfo!!
+            }
+        }
+        _recordsFlow.value = records
 
 //           TODO: register support
 //            if (contentObserver == null) {
@@ -135,12 +133,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
 //                    loadImages()
 //                }
 //            }
-        }
     }
 
-    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) {
+    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) =
         loadRecords(binderViewModel, pm, calendar.timeInMillis)
-    }
 
     private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
             : List<MediaProviderRecord> = withContext(Dispatchers.IO) {
