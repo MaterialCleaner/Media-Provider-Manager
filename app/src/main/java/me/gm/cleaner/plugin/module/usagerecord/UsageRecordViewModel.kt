@@ -21,8 +21,6 @@ import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,10 +50,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         set(value) {
             _queryTextFlow.value = value
         }
-    private val calendar = Calendar.getInstance()
-    private val _calendarTimeMillisLiveData = MutableLiveData(calendar)
-    val calendarTimeMillisLiveData: LiveData<Calendar>
-        get() = _calendarTimeMillisLiveData
+    val calendar: Calendar = Calendar.getInstance()
     private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<List<MediaProviderRecord>>(emptyList())
@@ -103,7 +98,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 ModulePreferences.isHideInsert,
                 ModulePreferences.isHideDelete
             )
-            _calendarTimeMillisLiveData.postValue(calendar)
         }
     }
 

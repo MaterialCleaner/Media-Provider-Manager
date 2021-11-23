@@ -79,7 +79,13 @@ class UsageRecordFragment : ModuleFragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.recordsFlow.collect { records ->
-                    adapter.submitList(records)
+                    adapter.submitList(records) {
+                        supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
+                            DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
+                        ).apply {
+                            timeZone = TimeZone.getTimeZone("UTC")
+                        }.format(Date(viewModel.calendar.timeInMillis))
+                    }
                 }
             }
         }
@@ -87,13 +93,6 @@ class UsageRecordFragment : ModuleFragment() {
             viewModel.loadRecords(
                 binderViewModel, requireContext().packageManager, System.currentTimeMillis()
             )
-        }
-        viewModel.calendarTimeMillisLiveData.observe(viewLifecycleOwner) {
-            supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
-                DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
-            ).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }.format(Date(it.timeInMillis))
         }
         findNavController().addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
