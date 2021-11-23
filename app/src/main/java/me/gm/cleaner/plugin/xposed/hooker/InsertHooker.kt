@@ -20,15 +20,21 @@ import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
+import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
+import me.gm.cleaner.plugin.xposed.util.FileUtils.externalStorageDirPath
 import java.io.File
+import java.util.*
 
-class InsertHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val dao = service.database.MediaProviderInsertRecordDao()
+    private val pendingScan =
+        Collections.synchronizedMap(mutableMapOf<String, FileCreationObserver>())
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
@@ -44,12 +50,12 @@ class InsertHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHook
         }
 
         /** PARSE */
-        val data = if (initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
-            initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
-        ) {
-            Environment.getExternalStorageDirectory().path + File.separator +
-                    initialValues.getAsString(MediaStore.MediaColumns.RELATIVE_PATH) + File.separator +
-                    initialValues.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+        val modern = initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
+                initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
+        val data = if (modern) {
+            externalStorageDirPath + File.separator +
+                    initialValues?.getAsString(MediaStore.MediaColumns.RELATIVE_PATH) + File.separator +
+                    initialValues?.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
         } else {
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }
@@ -68,5 +74,46 @@ class InsertHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHook
         )
 
         /** INTERCEPT */
+        if (!modern && data != null /* TODO: check settings */) {
+            val file = File(data)
+            if (!file.exists()) {
+                XposedBridge.log("scan for obsolete insert: $data")
+                val ob = FileCreationObserver(file).setOnMaybeFileCreatedListener {
+                    val firstResult = scanFile(param.thisObject, file)
+                    XposedBridge.log("scan result: $firstResult")
+                    return@setOnMaybeFileCreatedListener if (firstResult != null) {
+                        pendingScan.remove(data)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                if (pendingScan.putIfAbsent(data, ob) == null) {
+                    ob.startWatching()
+                }
+            }
+        }
+    }
+
+    private fun scanFile(thisObject: Any, file: File): Uri? = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+            val mediaScanner = XposedHelpers.getObjectField(thisObject, "mMediaScanner")
+            XposedHelpers.callMethod(
+                mediaScanner, "scanFile", file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
+            )
+        }
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+            val mediaScanner = XposedHelpers.findClass(
+                "com.android.providers.media.scan.MediaScanner", service.classLoader
+            )
+            val instance =
+                XposedHelpers.callStaticMethod(mediaScanner, "instance", service.context)
+            XposedHelpers.callMethod(instance, "scanFile", file)
+        }
+        else -> throw UnsupportedOperationException()
+    } as Uri?
+
+    companion object {
+        const val MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND = 2
     }
 }

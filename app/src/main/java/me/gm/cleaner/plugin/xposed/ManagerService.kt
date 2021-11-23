@@ -26,6 +26,9 @@ import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
 import kotlin.system.exitProcess
@@ -88,6 +91,16 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun clearAllTables() {
         database.clearAllTables()
+    }
+
+    override fun packageUsageTimes(table: String, packageNames: List<String>) = when (table) {
+        MediaProviderQueryRecord::class.simpleName ->
+            database.MediaProviderQueryRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+        MediaProviderInsertRecord::class.simpleName ->
+            database.MediaProviderInsertRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+        MediaProviderDeleteRecord::class.simpleName ->
+            database.MediaProviderDeleteRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+        else -> throw IllegalArgumentException()
     }
 
     companion object {

@@ -52,4 +52,7 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     fun clearAllTables() {
         service!!.clearAllTables()
     }
+
+    fun packageUsageTimes(table: String, packageNames: List<String>) =
+        service!!.packageUsageTimes(table, packageNames)
 }

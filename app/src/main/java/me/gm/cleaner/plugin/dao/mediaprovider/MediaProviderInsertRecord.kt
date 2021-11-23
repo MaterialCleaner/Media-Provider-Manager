@@ -53,14 +53,11 @@ data class MediaProviderInsertRecord(
 
 @Dao
 interface MediaProviderInsertRecordDao {
-    @Query("SELECT count(*) FROM MediaProviderInsertRecord")
-    fun size(): Int
-
     @Query("SELECT * FROM MediaProviderInsertRecord WHERE time_millis BETWEEN (:start) AND (:end)")
     fun loadForTimeMillis(start: Long, end: Long): Cursor
 
-    @Query("SELECT * FROM MediaProviderInsertRecord WHERE time_millis BETWEEN (:start) AND (:end) AND package_name IN (:packageNames)")
-    fun loadForPackageName(start: Long, end: Long, vararg packageNames: String): Cursor
+    @Query("SELECT count(*) FROM MediaProviderInsertRecord WHERE package_name IN (:packageNames)")
+    fun packageUsageTimes(vararg packageNames: String): Int
 
     @Insert
     fun insert(vararg records: MediaProviderInsertRecord)

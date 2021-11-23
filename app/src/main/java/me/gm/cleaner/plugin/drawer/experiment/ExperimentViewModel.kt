@@ -117,8 +117,8 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
             else repository.fetchUnsplashPhotoList()
             ensureActive()
-            val resolver = context.contentResolver
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
+                val resolver = context.contentResolver
                 repeat(10) {
                     ensureActive()
                     val unsplashPhoto = unsplashPhotos.random()

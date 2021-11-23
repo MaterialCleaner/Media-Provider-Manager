@@ -172,7 +172,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
      * @return Returns an empty [Cursor] with [ManagerService]'s [android.os.IBinder] in its extras
      * when queryArgs is empty. Returns a [Cursor] queried from the [MediaProviderRecordDatabase]
      * when at least table name, start time millis and end time millis are declared.
-     * @throws [NullPointerException] or [UnsupportedOperationException] when we don't know how to
+     * @throws [NullPointerException] or [IllegalArgumentException] when we don't know how to
      * handle the query.
      */
     private fun handleClientQuery(table: Array<String>?, queryArgs: Bundle): Cursor {
@@ -185,24 +185,13 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val end = queryArgs.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER)!!.toLong()
         val packageNames = queryArgs.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
         return when {
-            table.contains(MediaProviderQueryRecord::class.simpleName) -> if (packageNames == null) {
+            table.contains(MediaProviderQueryRecord::class.simpleName) && packageNames == null ->
                 dao.loadForTimeMillis(start, end)
-            } else {
-                dao.loadForPackageName(start, end, *packageNames)
-            }
-            table.contains(MediaProviderInsertRecord::class.simpleName) -> if (packageNames == null) {
+            table.contains(MediaProviderInsertRecord::class.simpleName) && packageNames == null ->
                 service.database.MediaProviderInsertRecordDao().loadForTimeMillis(start, end)
-            } else {
-                service.database.MediaProviderInsertRecordDao()
-                    .loadForPackageName(start, end, *packageNames)
-            }
-            table.contains(MediaProviderDeleteRecord::class.simpleName) -> if (packageNames == null) {
+            table.contains(MediaProviderDeleteRecord::class.simpleName) && packageNames == null ->
                 service.database.MediaProviderDeleteRecordDao().loadForTimeMillis(start, end)
-            } else {
-                service.database.MediaProviderDeleteRecordDao()
-                    .loadForPackageName(start, end, *packageNames)
-            }
-            else -> throw UnsupportedOperationException()
+            else -> throw IllegalArgumentException()
         }
     }
 

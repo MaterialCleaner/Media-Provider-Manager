@@ -31,8 +31,8 @@ object FileUtils {
         return lowerChild == lowerParent || lowerChild.startsWith(lowerParent + File.separator)
     }
 
-    val androidDir: File = File(Environment.getExternalStorageDirectory(), "Android")
-
+    val externalStorageDirPath = Environment.getExternalStorageDirectory().path
+    val androidDir = File(externalStorageDirPath, "Android")
     val standardDirs: List<File>
         @SuppressLint("SoonBlockedPrivateApi")
         get() {

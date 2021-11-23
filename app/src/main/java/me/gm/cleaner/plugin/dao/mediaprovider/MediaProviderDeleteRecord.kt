@@ -54,14 +54,11 @@ data class MediaProviderDeleteRecord(
 
 @Dao
 interface MediaProviderDeleteRecordDao {
-    @Query("SELECT count(*) FROM MediaProviderDeleteRecord")
-    fun size(): Int
-
     @Query("SELECT * FROM MediaProviderDeleteRecord WHERE time_millis BETWEEN (:start) AND (:end)")
     fun loadForTimeMillis(start: Long, end: Long): Cursor
 
-    @Query("SELECT * FROM MediaProviderDeleteRecord WHERE time_millis BETWEEN (:start) AND (:end) AND package_name IN (:packageNames)")
-    fun loadForPackageName(start: Long, end: Long, vararg packageNames: String): Cursor
+    @Query("SELECT count(*) FROM MediaProviderDeleteRecord WHERE package_name IN (:packageNames)")
+    fun packageUsageTimes(vararg packageNames: String): Int
 
     @Insert
     fun insert(records: MediaProviderDeleteRecord)

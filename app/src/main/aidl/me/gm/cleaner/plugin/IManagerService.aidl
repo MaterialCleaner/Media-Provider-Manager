@@ -29,4 +29,6 @@ interface IManagerService {
     void notifyPreferencesChanged() = 20;
 
     void clearAllTables() = 30;
+
+    int packageUsageTimes(String table, in List<String> packageNames) = 31;
 }
