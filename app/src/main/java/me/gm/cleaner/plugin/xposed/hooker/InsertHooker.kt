@@ -78,18 +78,18 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             val file = File(data)
             if (!file.exists()) {
                 XposedBridge.log("scan for obsolete insert: $data")
-                val ob = FileCreationObserver(file).setOnMaybeFileCreatedListener {
-                    val firstResult = scanFile(param.thisObject, file)
-                    XposedBridge.log("scan result: $firstResult")
-                    return@setOnMaybeFileCreatedListener if (firstResult != null) {
-                        pendingScan.remove(data)
-                        true
-                    } else {
-                        false
-                    }
-                }
+                val ob = FileCreationObserver(file)
                 if (pendingScan.putIfAbsent(data, ob) == null) {
-                    ob.startWatching()
+                    ob.setOnMaybeFileCreatedListener {
+                        val firstResult = scanFile(param.thisObject, file)
+                        XposedBridge.log("scan result: $firstResult")
+                        return@setOnMaybeFileCreatedListener if (firstResult != null) {
+                            pendingScan.remove(data)
+                            true
+                        } else {
+                            false
+                        }
+                    }.startWatching()
                 }
             }
         }

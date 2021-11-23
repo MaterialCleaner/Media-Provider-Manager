@@ -55,6 +55,7 @@
     <string name="behavior_header">行为</string>
     <string name="reject_nonstandard_dir_title">禁止创建不规范文件夹</string>
     <string name="reject_nonstandard_dir_summary">在 AOSP 中系统应用不会创建非标准文件夹，但是一些设备生产商修改了这一行为。</string>
+    <string name="scan_for_obsolete_insert_title">使用过时 API 插入文件时执行扫描</string>
 
     <!-- 媒体存储 -->
     <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>

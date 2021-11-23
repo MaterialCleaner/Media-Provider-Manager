@@ -65,6 +65,8 @@
     <string name="reject_nonstandard_dir_key" translatable="false">reject_nonstandard_dir</string>
     <string name="reject_nonstandard_dir_title">Reject creating non-standard directory</string>
     <string name="reject_nonstandard_dir_summary">System apps in AOSP never create non-standard directories, but some manufacturers changed this behavior.</string>
+    <string name="scan_for_obsolete_insert_key" translatable="false">scan_for_obsolete_insert</string>
+    <string name="scan_for_obsolete_insert_title">Scan file when it\'s inserted using obsolete API</string>
 
     <!-- Media Store -->
     <string name="rationale_shouldShowRationale">App needs read external storage permission to visit media files created by other apps.</string>

@@ -5,18 +5,19 @@
         app:title="@string/behavior_header">
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            app:key="inotify"
-            app:summary="inotify"
-            app:title="inotify" />
-
-        <SwitchPreferenceCompat
+            app:defaultValue="true"
             app:enabled="false"
             app:iconSpaceReserved="false"
             app:key="@string/reject_nonstandard_dir_key"
             app:summary="@string/reject_nonstandard_dir_summary"
             app:title="@string/reject_nonstandard_dir_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:enabled="false"
+            app:iconSpaceReserved="false"
+            app:key="@string/scan_for_obsolete_insert_key"
+            app:title="@string/scan_for_obsolete_insert_title" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
