@@ -40,10 +40,10 @@ open class MeasureOrderReversedHorizontalLinearLayout @JvmOverloads constructor(
             if (!child.isVisible) {
                 continue
             }
-            val widthSpec = MeasureSpec.makeMeasureSpec(
+            val freeWidthSpec = MeasureSpec.makeMeasureSpec(
                 MeasureSpec.getSize(widthMeasureSpec) - totalWidth, MeasureSpec.AT_MOST
             )
-            child.measure(widthSpec, heightMeasureSpec)
+            child.measure(freeWidthSpec, heightMeasureSpec)
             val lp = child.layoutParams as MarginLayoutParams
             maxHeight = max(maxHeight, child.measuredHeight + lp.topMargin + lp.bottomMargin)
             totalWidth += child.measuredWidth + lp.leftMargin + lp.rightMargin
