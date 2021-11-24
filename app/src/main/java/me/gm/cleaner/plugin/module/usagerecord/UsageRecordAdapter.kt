@@ -69,13 +69,14 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
         } else {
             ""
         }
-        binding.record.text = record.dataList.first()
         val more = record.dataList.size - 1
-        if (more == 0) {
-            binding.more.isVisible = false
-        } else {
+        val hasMore = more > 0
+        binding.record.text = record.dataList.first() + if (hasMore) "... " else ""
+        if (hasMore) {
             binding.more.isVisible = true
             binding.more.text = fragment.getString(R.string.and_more, more)
+        } else {
+            binding.more.isVisible = false
         }
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter<CharSequence>(

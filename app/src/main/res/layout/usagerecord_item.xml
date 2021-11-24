@@ -56,7 +56,7 @@
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 
-    <LinearLayout
+    <me.gm.cleaner.plugin.module.usagerecord.MeasureOrderReversedHorizontalLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/card_margin"
@@ -65,9 +65,8 @@
 
         <TextView
             android:id="@+id/record"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAlignment="viewStart"
@@ -82,5 +81,5 @@
             android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textColor="?android:textColorSecondary" />
-    </LinearLayout>
+    </me.gm.cleaner.plugin.module.usagerecord.MeasureOrderReversedHorizontalLinearLayout>
 </LinearLayout>
