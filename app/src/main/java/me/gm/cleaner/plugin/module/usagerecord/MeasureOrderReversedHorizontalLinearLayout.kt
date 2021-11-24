@@ -31,6 +31,7 @@ open class MeasureOrderReversedHorizontalLinearLayout @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         check(orientation == HORIZONTAL)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         var maxHeight = 0
         var totalWidth = 0
         var childState = 0
@@ -40,26 +41,11 @@ open class MeasureOrderReversedHorizontalLinearLayout @JvmOverloads constructor(
             if (!child.isVisible) {
                 continue
             }
-            val freeWidthSpec = MeasureSpec.makeMeasureSpec(
-                MeasureSpec.getSize(widthMeasureSpec) - totalWidth, MeasureSpec.AT_MOST
-            )
-            child.measure(freeWidthSpec, heightMeasureSpec)
             val lp = child.layoutParams as MarginLayoutParams
+            measureChildWithMargins(child, widthMeasureSpec, totalWidth, heightMeasureSpec, 0)
             maxHeight = max(maxHeight, child.measuredHeight + lp.topMargin + lp.bottomMargin)
             totalWidth += child.measuredWidth + lp.leftMargin + lp.rightMargin
             childState = combineMeasuredStates(childState, child.measuredState)
         }
-        // Add in our padding
-        totalWidth += paddingLeft + paddingRight
-        // Check against our minimum width
-        val widthSize = max(totalWidth, suggestedMinimumWidth)
-        // Reconcile our calculated size with the widthMeasureSpec
-        val widthSizeAndState = resolveSizeAndState(widthSize, widthMeasureSpec, 0)
-        setMeasuredDimension(
-            widthSizeAndState or (childState and MEASURED_STATE_MASK),
-            resolveSizeAndState(
-                maxHeight, heightMeasureSpec, childState shl MEASURED_HEIGHT_STATE_SHIFT
-            )
-        )
     }
 }

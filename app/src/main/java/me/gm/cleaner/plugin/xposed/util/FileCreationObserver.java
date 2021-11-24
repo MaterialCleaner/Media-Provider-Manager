@@ -32,7 +32,9 @@ public class FileCreationObserver extends FileObserver {
             mQueueSize.incrementAndGet();
             mExecutor.scheduleWithFixedDelay(() -> {
                 // Less than 0 when predicate returns false.
-                if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget)) {
+                if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget) ||
+                        // Don't retry after failed 3 times.
+                        mQueueSize.get() <= -3) {
                     stopWatching();
                     mExecutor.shutdownNow();
                 }
