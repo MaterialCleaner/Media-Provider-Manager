@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?actionBarSize">
@@ -30,4 +30,4 @@
         android:fitsSystemWindows="true"
         android:scrollbarStyle="insideOverlay"
         android:scrollbars="vertical" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout>
