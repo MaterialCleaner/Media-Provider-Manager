@@ -23,6 +23,11 @@
     <string name="restart_system">重启系统以升级模块</string>
     <string name="active">已激活</string>
     <string name="enabled_app_count">对 %d 个应用启用</string>
+    <string name="query_times">查询 %d 次</string>
+    <string name="insert_times">插入 %d 次</string>
+    <string name="delete_times">删除 %d 次</string>
+    <string name="delimiter">、</string>
+    <string name="app_info">应用信息</string>
     <string name="queried_at">查询于\ </string>
     <string name="inserted_at">插入于\ </string>
     <string name="deleted_at">删除于\ </string>

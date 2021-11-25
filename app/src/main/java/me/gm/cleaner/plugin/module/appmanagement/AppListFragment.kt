@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module.applist
+package me.gm.cleaner.plugin.module.appmanagement
 
 import android.os.Bundle
 import android.view.*
@@ -106,6 +106,8 @@ class AppListFragment : ModuleFragment() {
                 }
             }
         })
+
+        savedInstanceState ?: postponeEnterTransition()
         return binding.root
     }
 

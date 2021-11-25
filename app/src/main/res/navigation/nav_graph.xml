@@ -23,7 +23,7 @@
     <!-- Module -->
     <fragment
         android:id="@+id/applist_fragment"
-        android:name="me.gm.cleaner.plugin.module.applist.AppListFragment"
+        android:name="me.gm.cleaner.plugin.module.appmanagement.AppListFragment"
         android:label="@string/app_management">
         <action
             android:id="@+id/action_applist_to_app"
@@ -31,10 +31,15 @@
     </fragment>
     <fragment
         android:id="@+id/app_fragment"
-        android:name="me.gm.cleaner.plugin.module.applist.AppFragment">
+        android:name="me.gm.cleaner.plugin.module.appmanagement.AppFragment"
+        android:label="@string/app_management">
         <argument
             android:name="pi"
             app:argType="android.content.pm.PackageInfo" />
+        <argument
+            android:name="label"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
     <fragment

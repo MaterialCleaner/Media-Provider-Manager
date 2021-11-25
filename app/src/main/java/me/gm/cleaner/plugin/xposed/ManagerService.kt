@@ -76,7 +76,7 @@ abstract class ManagerService : IManagerService.Stub() {
     override fun getPackageInfo(packageName: String, flags: Int, userId: Int) =
         XposedHelpers.callMethod(
             packageManager, "getPackageInfo", packageName, 0, userId
-        ) as PackageInfo
+        ) as? PackageInfo
 
     // FIXME
     @SuppressLint("SoonBlockedPrivateApi")

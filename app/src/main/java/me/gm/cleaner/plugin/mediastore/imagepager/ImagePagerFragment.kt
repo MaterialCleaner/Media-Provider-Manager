@@ -34,11 +34,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.google.android.material.transition.platform.FitsScaleMaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.colorBackground
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 /**
@@ -122,7 +123,8 @@ class ImagePagerFragment : BaseFragment() {
     private fun prepareSharedElementTransition() {
         setFragmentResult(ImagePagerFragment::class.java.simpleName, lastPosition)
 
-        sharedElementEnterTransition = FitsScaleMaterialContainerTransform().apply {
+        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
+            setAllContainerColors(requireContext().colorBackground)
             scrimColor = Color.TRANSPARENT
             duration = requireContext().mediumAnimTime
             doOnEnd {

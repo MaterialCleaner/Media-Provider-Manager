@@ -24,6 +24,11 @@
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
     <string name="enabled_app_count">Enabled for %d app(s)</string>
+    <string name="query_times">Queried %d times</string>
+    <string name="insert_times">Inserted %d times</string>
+    <string name="delete_times">Deleted %d times</string>
+    <string name="delimiter">,\ </string>
+    <string name="app_info">App info</string>
     <string name="queried_at">Queried at\ </string>
     <string name="inserted_at">Inserted at\ </string>
     <string name="deleted_at">Deleted at\ </string>

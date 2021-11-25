@@ -176,3 +176,9 @@ fun RecyclerView.isItemCompletelyVisible(position: Int): Boolean {
     vh ?: return false
     return layoutManager?.isViewPartiallyVisible(vh.itemView, true, true) == true
 }
+
+fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
+    val vh = findViewHolderForAdapterPosition(position)
+    vh ?: return true
+    return layoutManager?.isViewPartiallyVisible(vh.itemView, false, false) == false
+}

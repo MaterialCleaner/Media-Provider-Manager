@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module.applist
+package me.gm.cleaner.plugin.module.appmanagement
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import androidx.lifecycle.ViewModel
 
-class AppFragment : BaseFragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
-        return binding.root
-    }
-}
+class AppViewModel : ViewModel()

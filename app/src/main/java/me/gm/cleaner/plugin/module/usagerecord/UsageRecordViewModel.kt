@@ -115,13 +115,15 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 it += queryRecord<MediaProviderDeleteRecord>(start, end)
             }
         }
-        records.forEach {
+        records.onEach {
             it.packageInfo = packageNameToPackageInfo[it.packageName]
             if (it.packageInfo == null) {
-                val pi = binderViewModel.getPackageInfo(it.packageName)
+                val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
                 it.packageInfo = PreferencesPackageInfo.newInstance(pi, pm)
                 packageNameToPackageInfo[it.packageName] = it.packageInfo!!
             }
+        }.takeWhile {
+            it.packageInfo != null
         }
         _recordsFlow.value = records
 

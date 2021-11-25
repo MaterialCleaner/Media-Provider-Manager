@@ -25,7 +25,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ModuleFragmentBinding
 
 abstract class ModuleFragment : BaseFragment() {
-    protected val binderViewModel: BinderViewModel by activityViewModels()
+    val binderViewModel: BinderViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

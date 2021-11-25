@@ -23,6 +23,11 @@
     <string name="restart_system">重啟系統以升級模組</string>
     <string name="active">已啟動</string>
     <string name="enabled_app_count">對 %d 個應用啟用</string>
+    <string name="query_times">查詢 %d 次</string>
+    <string name="insert_times">插入 %d 次</string>
+    <string name="delete_times">刪除 %d 次</string>
+    <string name="delimiter">、</string>
+    <string name="app_info">應用訊息</string>
     <string name="queried_at">查詢於\ </string>
     <string name="inserted_at">插入於\ </string>
     <string name="deleted_at">刪除於\ </string>

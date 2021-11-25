@@ -39,6 +39,3 @@ class OneShotDestinationChangedListener(
         }
     }
 }
-
-fun NavController.checkCurrentDestination(expectedCurrentDestinationId: Int): NavController? =
-    if (currentDestination?.id == expectedCurrentDestinationId) this else null

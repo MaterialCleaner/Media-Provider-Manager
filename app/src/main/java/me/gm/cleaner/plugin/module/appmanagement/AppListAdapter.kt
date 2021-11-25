@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.module.applist
+package me.gm.cleaner.plugin.module.appmanagement
 
-import android.view.*
-import android.view.ContextMenu.ContextMenuInfo
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.ViewGroup
 import androidx.core.view.forEach
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
-import me.gm.cleaner.plugin.ktx.checkCurrentDestination
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
+    private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as DrawerActivity
     private lateinit var selectedHolder: ViewHolder
+    private var enterPosition = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ApplistItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -51,16 +56,25 @@ class AppListAdapter(private val fragment: AppListFragment) :
         } else {
             pi.packageName
         }
+        binding.root.transitionName = pi.packageName
         binding.root.setOnClickListener {
-            val direction = AppListFragmentDirections.actionApplistToApp(pi)
-            fragment.findNavController().checkCurrentDestination(R.id.applist_fragment)
-                ?.navigate(direction)
+            if (navController.currentDestination?.id != R.id.applist_fragment) {
+                return@setOnClickListener
+            }
+            enterPosition = holder.bindingAdapterPosition
+            fragment.exitTransition = Hold().apply {
+                duration = fragment.requireContext().mediumAnimTime
+            }
+
+            val direction = AppListFragmentDirections.actionApplistToApp(pi, pi.label)
+            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction, extras)
         }
         binding.root.setOnLongClickListener {
             selectedHolder = holder
             false
         }
-        binding.root.setOnCreateContextMenuListener { menu: ContextMenu, _: View?, _: ContextMenuInfo? ->
+        binding.root.setOnCreateContextMenuListener { menu, _, _ ->
             activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
             menu.setHeaderTitle(pi.label)
             if (pi.ruleCount == 0) {
@@ -68,6 +82,10 @@ class AppListAdapter(private val fragment: AppListFragment) :
             } else {
                 menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
             }
+        }
+
+        if (position == enterPosition) {
+            fragment.startPostponedEnterTransition()
         }
     }
 
