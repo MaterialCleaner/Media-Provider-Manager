@@ -21,8 +21,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.navigation.fragment.findNavController
@@ -80,6 +80,10 @@ class AppFragment : ModuleFragment() {
     }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
+        setFragmentResult(
+            AppFragment::class.java.simpleName, bundleOf(KEY_PACKAGENAME to args.pi.packageName)
+        )
+
         list.transitionName = args.pi.packageName
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
@@ -106,5 +110,9 @@ class AppFragment : ModuleFragment() {
                 }
             }
         })
+    }
+
+    companion object {
+        const val KEY_PACKAGENAME = "me.gm.cleaner.plugin.key.position"
     }
 }

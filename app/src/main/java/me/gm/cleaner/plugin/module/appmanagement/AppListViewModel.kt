@@ -31,8 +31,6 @@ import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.text.Collator
 
 class AppListViewModel : ViewModel() {
-    var enterPosition = 0
-
     private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearchingFlow.value

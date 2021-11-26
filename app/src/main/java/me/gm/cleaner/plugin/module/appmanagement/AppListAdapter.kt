@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.core.view.forEach
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -37,7 +36,6 @@ import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
-    private val viewModel: AppListViewModel by fragment.viewModels()
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as DrawerActivity
     private lateinit var selectedHolder: ViewHolder
@@ -62,7 +60,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             if (navController.currentDestination?.id != R.id.applist_fragment) {
                 return@setOnClickListener
             }
-            viewModel.enterPosition = holder.bindingAdapterPosition
+            fragment.enterPackageName = pi.packageName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
@@ -85,7 +83,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             }
         }
 
-        if (position == viewModel.enterPosition) {
+        if (fragment.enterPackageName == pi.packageName) {
             fragment.startPostponedEnterTransition()
         }
     }

@@ -19,8 +19,7 @@ package me.gm.cleaner.plugin.module.appmanagement
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +42,7 @@ import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : ModuleFragment() {
     private val viewModel: AppListViewModel by viewModels()
+    var enterPackageName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,8 +107,10 @@ class AppListFragment : ModuleFragment() {
         }
         if (savedInstanceState == null && viewModel.isLoading) {
             viewModel.loadApps(binderViewModel, requireContext().packageManager)
-        } else {
-            postponeEnterTransition()
+        }
+        setFragmentResultListener(AppFragment::class.java.simpleName) { _, bundle ->
+            enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
+            savedInstanceState ?: postponeEnterTransition()
         }
 
         ModulePreferences.setOnPreferenceChangeListener(object :
