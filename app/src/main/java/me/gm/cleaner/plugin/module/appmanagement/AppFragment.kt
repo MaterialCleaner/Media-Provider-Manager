@@ -24,11 +24,13 @@ import androidx.core.app.SharedElementCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.AppFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
@@ -82,7 +84,17 @@ class AppFragment : ModuleFragment() {
         list.transitionName = args.pi.packageName
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
+            endViewId = R.id.root
+            drawingViewId = R.id.root
             setAllContainerColors(requireContext().colorBackground)
+            interpolator = FastOutSlowInInterpolator()
+            duration = requireContext().mediumAnimTime
+        }
+
+        sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
+            drawingViewId = R.id.list_container
+            setAllContainerColors(requireContext().colorBackground)
+            interpolator = FastOutSlowInInterpolator()
             duration = requireContext().mediumAnimTime
         }
 

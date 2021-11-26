@@ -35,6 +35,7 @@ class FitsTopInsertsCoordinatorLayout @JvmOverloads constructor(
         val localInsets = Rect()
         val result = computeSystemWindowInsets(insets, localInsets)
         applyInsets(localInsets)
+        // Return "result" will consume the insets.
         return insets
     }
 
