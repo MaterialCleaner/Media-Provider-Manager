@@ -21,6 +21,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -60,6 +62,17 @@ class AppFragment : ModuleFragment() {
                 }
             }
         })
+        val paddingStart = list.paddingStart
+        val paddingTop = list.paddingTop
+        val paddingEnd = list.paddingEnd
+        val paddingBottom = list.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
+            val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            view.setPaddingRelative(
+                paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
+            )
+            insets
+        }
 
         prepareSharedElementTransition(list)
         return binding.root

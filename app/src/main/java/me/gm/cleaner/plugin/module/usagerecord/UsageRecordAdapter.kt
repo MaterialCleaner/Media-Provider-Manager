@@ -38,9 +38,10 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
-    ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK) {
+    ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK), PopupTextProvider {
     private val context = fragment.requireContext()
     private val clipboardManager by lazy { context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
 
@@ -60,11 +61,7 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             is MediaProviderInsertRecord -> fragment.getString(R.string.inserted_at)
             is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
-        } + run {
-            val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                    DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_TIME
-            DateUtils.formatDateTime(context, record.timeMillis, flags)
-        } + if (record.intercepted) {
+        } + formatDateTime(record.timeMillis) + if (record.intercepted) {
             fragment.getString(R.string.intercepted)
         } else {
             ""
@@ -98,6 +95,14 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             listPopupWindow.show()
         }
     }
+
+    private fun formatDateTime(timeMillis: Long): String {
+        val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
+                DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_TIME
+        return DateUtils.formatDateTime(context, timeMillis, flags)
+    }
+
+    override fun getPopupText(position: Int) = formatDateTime(getItem(position).timeMillis)
 
     class ViewHolder(val binding: UsagerecordItemBinding) : RecyclerView.ViewHolder(binding.root)
 

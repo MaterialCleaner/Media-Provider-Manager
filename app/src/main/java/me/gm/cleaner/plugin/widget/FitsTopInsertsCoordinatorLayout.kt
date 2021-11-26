@@ -31,11 +31,11 @@ class FitsTopInsertsCoordinatorLayout @JvmOverloads constructor(
     private val mPaddingEnd = paddingEnd
     private val mPaddingBottom = paddingBottom
 
-    override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
+    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val localInsets = Rect()
         val result = computeSystemWindowInsets(insets, localInsets)
         applyInsets(localInsets)
-        return result
+        return insets
     }
 
     private fun applyInsets(insets: Rect) {
