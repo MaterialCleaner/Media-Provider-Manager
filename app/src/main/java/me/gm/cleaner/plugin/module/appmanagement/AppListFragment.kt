@@ -73,12 +73,11 @@ class AppListFragment : ModuleFragment() {
         val paddingTop = list.paddingTop
         val paddingEnd = list.paddingEnd
         val paddingBottom = list.paddingBottom
-        ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
-            val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+        list.setOnApplyWindowInsetsListener { view, insets ->
             view.setPaddingRelative(
-                paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
+                paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
             )
-            fastScroller.setPadding(0, 0, 0, systemBarsBottom)
+            fastScroller.setPadding(0, 0, 0, insets.systemWindowInsetBottom)
             insets
         }
         binding.listContainer.setOnRefreshListener {

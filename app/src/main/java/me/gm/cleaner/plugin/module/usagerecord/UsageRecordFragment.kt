@@ -21,8 +21,6 @@ import android.icu.util.TimeZone
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -75,14 +73,22 @@ class UsageRecordFragment : ModuleFragment() {
         val paddingTop = list.paddingTop
         val paddingEnd = list.paddingEnd
         val paddingBottom = list.paddingBottom
-        ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
-            val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+        list.setOnApplyWindowInsetsListener { view, insets ->
             view.setPaddingRelative(
-                paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
+                paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
             )
-            fastScroller.setPadding(0, 0, 0, systemBarsBottom)
+            fastScroller.setPadding(0, 0, 0, insets.systemWindowInsetBottom)
             insets
         }
+//        ViewCompat's ApplyWindowInsetsListener has issue of the search view.
+//        ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
+//            val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+//            view.setPaddingRelative(
+//                paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
+//            )
+//            fastScroller.setPadding(0, 0, 0, systemBarsBottom)
+//            insets
+//        }
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
                 viewModel.reloadRecords(binderViewModel, requireContext().packageManager).await()
