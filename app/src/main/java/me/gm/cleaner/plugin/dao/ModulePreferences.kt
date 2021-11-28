@@ -49,13 +49,13 @@ object ModulePreferences {
         })
     }
 
-    private fun notifyListeners(isNotifyService: Boolean) {
+    private fun notifyListeners() {
         if (broadcasting) {
             return
         }
         broadcasting = true
         listeners.forEach {
-            it.onPreferencesChanged(isNotifyService)
+            it.onPreferencesChanged()
         }
         broadcasting = false
     }
@@ -77,7 +77,7 @@ object ModulePreferences {
             defaultSp.edit {
                 putInt(resources.getString(R.string.sort_key), value)
             }
-            notifyListeners(false)
+            notifyListeners()
         }
     var ruleCount: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_rule_count_key), true)
@@ -113,11 +113,11 @@ object ModulePreferences {
         defaultSp.edit {
             putBoolean(key, value)
         }
-        notifyListeners(false)
+        notifyListeners()
     }
 
     interface PreferencesChangeListener {
         val lifecycle: Lifecycle
-        fun onPreferencesChanged(isNotifyService: Boolean)
+        fun onPreferencesChanged()
     }
 }

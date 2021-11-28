@@ -116,11 +116,8 @@ class AppListFragment : ModuleFragment() {
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged(isNotifyService: Boolean) {
+            override fun onPreferencesChanged() {
                 viewModel.updateApps()
-                if (isNotifyService) {
-                    binderViewModel.notifyPreferencesChanged()
-                }
             }
         })
         return binding.root

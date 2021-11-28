@@ -16,12 +16,14 @@
 
 package me.gm.cleaner.plugin.xposed
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.IBinder
 import android.os.IInterface
+import androidx.preference.PreferenceManager
 import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
@@ -31,15 +33,18 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
-import kotlin.system.exitProcess
 
 abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
+        protected set
+    lateinit var resources: Resources
         protected set
     lateinit var context: Context
         private set
     lateinit var database: MediaProviderRecordDatabase
         private set
+    lateinit var defaultSp: SharedPreferences
+        protected set
 
     protected fun onCreate(context: Context) {
         this.context = context
@@ -47,8 +52,7 @@ abstract class ManagerService : IManagerService.Stub() {
             context.applicationContext, MediaProviderRecordDatabase::class.java,
             MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
         ).enableMultiInstanceInvalidation().build()
-
-        // TODO: maybe init MMKV
+        defaultSp = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     val packageManager: IInterface by lazy {
@@ -78,15 +82,8 @@ abstract class ManagerService : IManagerService.Stub() {
             packageManager, "getPackageInfo", packageName, 0, userId
         ) as? PackageInfo
 
-    // FIXME
-    @SuppressLint("SoonBlockedPrivateApi")
     override fun notifyPreferencesChanged() {
-        try {
-            context.javaClass.getDeclaredMethod("reloadSharedPreferences").invoke(context)
-        } catch (tr: Throwable) {
-            tr.printStackTrace()
-            exitProcess(1)
-        }
+
     }
 
     override fun clearAllTables() {

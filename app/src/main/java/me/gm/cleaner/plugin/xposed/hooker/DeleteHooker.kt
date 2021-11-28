@@ -25,13 +25,14 @@ import android.os.Bundle
 import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
 
-class DeleteHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
+class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val dao = service.database.MediaProviderDeleteRecordDao()
 
     @Throws(Throwable::class)
@@ -124,17 +125,22 @@ class DeleteHooker(service: ManagerService) : XC_MethodHook(), MediaProviderHook
         }
 
         /** RECORD */
-        retry(10) {
-            dao.insert(
-                MediaProviderDeleteRecord(
-                    System.currentTimeMillis() + it,
-                    param.callingPackage,
-                    match,
-                    data,
-                    mimeType,
-                    false
-                )
+        if (service.defaultSp.getBoolean(
+                service.resources.getString(R.string.usage_record_key), true
             )
+        ) {
+            retry(10) {
+                dao.insert(
+                    MediaProviderDeleteRecord(
+                        System.currentTimeMillis() + it,
+                        param.callingPackage,
+                        match,
+                        data,
+                        mimeType,
+                        false
+                    )
+                )
+            }
         }
 
         // There is a system confirm dialog before deletion, thus we don't need to intercept delete.

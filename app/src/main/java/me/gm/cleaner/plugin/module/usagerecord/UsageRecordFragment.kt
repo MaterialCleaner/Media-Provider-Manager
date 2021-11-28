@@ -121,7 +121,7 @@ class UsageRecordFragment : ModuleFragment() {
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged(isNotifyService: Boolean) {
+            override fun onPreferencesChanged() {
                 viewModel.reloadRecords(binderViewModel, requireContext().packageManager)
             }
         })

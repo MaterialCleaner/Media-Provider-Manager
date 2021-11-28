@@ -14,10 +14,16 @@
 
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:enabled="false"
             app:iconSpaceReserved="false"
             app:key="@string/scan_for_obsolete_insert_key"
             app:title="@string/scan_for_obsolete_insert_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:iconSpaceReserved="false"
+            app:key="@string/usage_record_key"
+            app:summary="@string/usage_record_summary"
+            app:title="@string/usage_record_title" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"

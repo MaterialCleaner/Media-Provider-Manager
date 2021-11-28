@@ -61,6 +61,7 @@
     <string name="reject_nonstandard_dir_title">禁止創建不規範文件夾</string>
     <string name="reject_nonstandard_dir_summary">在 AOSP 中系統應用不會創建非標準文件夾，但是一些設備生產商修改了這一行為。</string>
     <string name="scan_for_obsolete_insert_title">使用過時 API 插入文件時執行掃描</string>
+    <string name="usage_record_summary">將使用記錄保存到資料庫。關閉後使用記錄頁面將不會再出現新的數據。</string>
 
     <!-- 媒體儲存 -->
     <string name="rationale_shouldShowRationale">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限</string>

@@ -128,7 +128,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         ModulePreferences.setOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged(isNotifyService: Boolean) {
+            override fun onPreferencesChanged() {
                 dispatchRequestPermissions(requiredPermissions, savedInstanceState)
             }
         })

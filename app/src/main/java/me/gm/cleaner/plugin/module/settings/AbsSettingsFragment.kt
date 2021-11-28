@@ -19,32 +19,32 @@ package me.gm.cleaner.plugin.module.settings
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.databinding.ModuleFragmentBinding
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ktx.setObjectField
+import me.gm.cleaner.plugin.module.BinderViewModel
 import rikka.recyclerview.fixEdgeEffect
 
-open class AbsSettingsFragment : PreferenceFragmentCompat() {
-    @SuppressLint("RestrictedApi")
-    open fun onCreatePreferenceManager() = object : PreferenceManager(context) {
-        override fun getSharedPreferences(): SharedPreferences {
-            // TODO: MMKV
-            if (false) {
-                return super.getSharedPreferences()
-            }
-            return super.getSharedPreferences()
-        }
-    }
+abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
+    protected val binderViewModel: BinderViewModel by activityViewModels()
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setObjectField(onCreatePreferenceManager(), PreferenceFragmentCompat::class.java)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ) = if (!binderViewModel.pingBinder()) {
+        ModuleFragmentBinding.inflate(layoutInflater).root
+    } else {
+        super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onCreateRecyclerView(

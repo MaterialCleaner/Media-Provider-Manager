@@ -30,15 +30,15 @@ public class FileCreationObserver extends FileObserver {
         }
         if (mTarget.getName().equals(path)) {
             mQueueSize.incrementAndGet();
-            mExecutor.scheduleWithFixedDelay(() -> {
+            mExecutor.schedule(() -> {
                 // Less than 0 when predicate returns false.
                 if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget) ||
                         // Don't retry after failed 3 times.
-                        mQueueSize.get() <= -3) {
+                        mQueueSize.get() < -1) {
                     stopWatching();
                     mExecutor.shutdownNow();
                 }
-            }, 1, 1, TimeUnit.SECONDS);
+            }, 1, TimeUnit.SECONDS);
         }
     }
 

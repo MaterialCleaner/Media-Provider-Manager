@@ -24,6 +24,7 @@ import android.provider.MediaStore
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
@@ -63,21 +64,29 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** RECORD */
-        retry(10) {
-            dao.insert(
-                MediaProviderInsertRecord(
-                    System.currentTimeMillis() + it,
-                    param.callingPackage,
-                    match,
-                    data ?: "",
-                    mimeType ?: "",
-                    false
-                )
+        if (service.defaultSp.getBoolean(
+                service.resources.getString(R.string.usage_record_key), true
             )
+        ) {
+            retry(10) {
+                dao.insert(
+                    MediaProviderInsertRecord(
+                        System.currentTimeMillis() + it,
+                        param.callingPackage,
+                        match,
+                        data ?: "",
+                        mimeType ?: "",
+                        false
+                    )
+                )
+            }
         }
 
         /** INTERCEPT */
-        if (!modern && data != null /* TODO: check settings */) {
+        if (!modern && data != null && service.defaultSp.getBoolean(
+                service.resources.getString(R.string.scan_for_obsolete_insert_key), true
+            )
+        ) {
             val file = File(data)
             if (!file.exists()) {
                 XposedBridge.log("scan for obsolete insert: $data")

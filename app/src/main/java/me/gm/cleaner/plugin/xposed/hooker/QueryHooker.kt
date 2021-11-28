@@ -30,6 +30,7 @@ import androidx.core.os.bundleOf
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
@@ -147,17 +148,22 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         c.close()
 
         /** RECORD */
-        retry(10) {
-            dao.insert(
-                MediaProviderQueryRecord(
-                    System.currentTimeMillis() + it,
-                    param.callingPackage,
-                    table,
-                    data,
-                    mimeType,
-                    false
-                )
+        if (service.defaultSp.getBoolean(
+                service.resources.getString(R.string.usage_record_key), true
             )
+        ) {
+            retry(10) {
+                dao.insert(
+                    MediaProviderQueryRecord(
+                        System.currentTimeMillis() + it,
+                        param.callingPackage,
+                        table,
+                        data,
+                        mimeType,
+                        false
+                    )
+                )
+            }
         }
 
         /** INTERCEPT */

@@ -17,18 +17,21 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.os.Bundle
+import androidx.preference.SwitchPreferenceCompat
 import me.gm.cleaner.plugin.R
 
 class SettingsFragment : AbsSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        val sharedPreferences = preferenceManager.sharedPreferences
 
-//        findPreference<SwitchPreferenceCompat>(getString(R.string.reject_nonstandard_dir_key))?.isChecked =
-//            true
-//
-//        findPreference<SwitchPreferenceCompat>(getString(R.string.scan_for_obsolete_insert_key))?.isChecked =
-//            true
+        val scanForObsoleteInsert = getString(R.string.scan_for_obsolete_insert_key)
+        findPreference<SwitchPreferenceCompat>(scanForObsoleteInsert)?.isChecked =
+            sharedPreferences.getBoolean(scanForObsoleteInsert, true)
+
+        val usageRecord = getString(R.string.usage_record_key)
+        findPreference<SwitchPreferenceCompat>(usageRecord)?.isChecked =
+            sharedPreferences.getBoolean(usageRecord, true)
     }
 }

@@ -17,10 +17,9 @@
 package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import android.content.res.AssetManager
+import android.content.res.Resources
+import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.xposed.hooker.DeleteHooker
 import me.gm.cleaner.plugin.xposed.hooker.FileHooker
@@ -28,7 +27,7 @@ import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
 import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
 import java.io.File
 
-class XposedInit : ManagerService(), IXposedHookLoadPackage {
+class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteInit {
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         classLoader = lpparam.classLoader
@@ -67,5 +66,12 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage {
                 XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())
             }
         }
+    }
+
+    @Throws(Throwable::class)
+    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
+        val assetManager = AssetManager::class.java.newInstance()
+        XposedHelpers.callMethod(assetManager, "addAssetPath", startupParam.modulePath)
+        resources = Resources(assetManager, null, null)
     }
 }
