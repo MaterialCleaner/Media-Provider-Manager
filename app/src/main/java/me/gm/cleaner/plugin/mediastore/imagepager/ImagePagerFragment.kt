@@ -126,6 +126,7 @@ class ImagePagerFragment : BaseFragment() {
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
             setAllContainerColors(requireContext().colorBackground)
             scrimColor = Color.TRANSPARENT
+            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime
             doOnEnd {
                 viewPager.isInvisible = false

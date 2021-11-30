@@ -61,7 +61,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 val lowerQuery = queryText.lowercase()
                 sequence = sequence.filter {
                     it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
-                            it.packageInfo!!.label.lowercase().contains(lowerQuery) ||
+                            it.packageInfo?.label?.lowercase()?.contains(lowerQuery) == true ||
                             it.packageName.lowercase().contains(lowerQuery)
                 }
             }

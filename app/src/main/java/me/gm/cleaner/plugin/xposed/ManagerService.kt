@@ -17,13 +17,11 @@
 package me.gm.cleaner.plugin.xposed
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.IBinder
 import android.os.IInterface
-import androidx.preference.PreferenceManager
 import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
@@ -33,6 +31,7 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
+import java.io.File
 
 abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
@@ -43,8 +42,7 @@ abstract class ManagerService : IManagerService.Stub() {
         private set
     lateinit var database: MediaProviderRecordDatabase
         private set
-    lateinit var defaultSp: SharedPreferences
-        protected set
+    val defaultSp by lazy { JsonFileSpImpl(File(context.filesDir, "default")) }
 
     protected fun onCreate(context: Context) {
         this.context = context
@@ -52,10 +50,9 @@ abstract class ManagerService : IManagerService.Stub() {
             context.applicationContext, MediaProviderRecordDatabase::class.java,
             MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
         ).enableMultiInstanceInvalidation().build()
-        defaultSp = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    val packageManager: IInterface by lazy {
+    private val packageManagerService: IInterface by lazy {
         val binder = XposedHelpers.callStaticMethod(
             XposedHelpers.findClass("android.os.ServiceManager", classLoader),
             "getService", "package"
@@ -71,7 +68,7 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getInstalledPackages(userId: Int): ParceledListSlice<PackageInfo> {
         val parceledListSlice = XposedHelpers.callMethod(
-            packageManager, "getInstalledPackages", PackageManager.GET_PERMISSIONS, userId
+            packageManagerService, "getInstalledPackages", PackageManager.GET_PERMISSIONS, userId
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
         return ParceledListSlice(list)
@@ -79,11 +76,18 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getPackageInfo(packageName: String, flags: Int, userId: Int) =
         XposedHelpers.callMethod(
-            packageManager, "getPackageInfo", packageName, 0, userId
+            packageManagerService, "getPackageInfo", packageName, 0, userId
         ) as? PackageInfo
 
-    override fun notifyPreferencesChanged() {
+    override fun readSp(who: Int) = when (who) {
+        JsonFileSpImpl.WHO -> defaultSp.read()
+        else -> throw IllegalArgumentException()
+    }
 
+    override fun writeSp(who: Int, what: String) {
+        when (who) {
+            JsonFileSpImpl.WHO -> defaultSp.write(what)
+        }
     }
 
     override fun clearAllTables() {

@@ -26,7 +26,9 @@ interface IManagerService {
 
     PackageInfo getPackageInfo(String packageName, int flags, int userId) = 11;
 
-    void notifyPreferencesChanged() = 20;
+    String readSp(int who) = 20;
+
+    void writeSp(int who, String what) = 21;
 
     void clearAllTables() = 30;
 

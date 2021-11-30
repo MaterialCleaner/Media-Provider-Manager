@@ -45,14 +45,16 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     fun getPackageInfo(packageName: String): PackageInfo? =
         service!!.getPackageInfo(packageName, 0, Process.myUid() / 100000)
 
-    fun notifyPreferencesChanged() {
-        service!!.notifyPreferencesChanged()
+    fun readSp(who: Int): String? = service!!.readSp(who)
+
+    fun writeSp(who: Int, what: String) {
+        service!!.writeSp(who, what)
     }
 
     fun clearAllTables() {
         service!!.clearAllTables()
     }
 
-    fun packageUsageTimes(table: String, packageNames: List<String>) =
+    fun packageUsageTimes(table: String, packageNames: List<String>): Int =
         service!!.packageUsageTimes(table, packageNames)
 }

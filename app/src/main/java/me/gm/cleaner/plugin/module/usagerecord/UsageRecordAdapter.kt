@@ -55,7 +55,7 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
         GlideApp.with(fragment)
             .load(record.packageInfo)
             .into(binding.icon)
-        binding.title.text = record.packageInfo?.label
+        binding.title.text = record.packageInfo?.label ?: record.packageName
         binding.operation.text = when (record) {
             is MediaProviderQueryRecord -> fragment.getString(R.string.queried_at)
             is MediaProviderInsertRecord -> fragment.getString(R.string.inserted_at)

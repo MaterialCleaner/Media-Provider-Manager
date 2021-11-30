@@ -23,6 +23,7 @@ import me.gm.cleaner.plugin.R
 class SettingsFragment : AbsSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         val sharedPreferences = preferenceManager.sharedPreferences
 

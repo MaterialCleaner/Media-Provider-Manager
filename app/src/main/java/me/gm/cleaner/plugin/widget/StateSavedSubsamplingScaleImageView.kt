@@ -75,7 +75,6 @@ class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
 
         companion object CREATOR : Parcelable.Creator<SavedState> {
             override fun createFromParcel(source: Parcel) = SavedState(source)
-
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
         }
     }

@@ -91,6 +91,7 @@ class AppFragment : ModuleFragment() {
             drawingViewId = R.id.root
             setAllContainerColors(requireContext().colorBackground)
             interpolator = FastOutSlowInInterpolator()
+            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime
         }
 
@@ -98,6 +99,7 @@ class AppFragment : ModuleFragment() {
             drawingViewId = R.id.list_container
             setAllContainerColors(requireContext().colorBackground)
             interpolator = FastOutSlowInInterpolator()
+            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime
         }
 
