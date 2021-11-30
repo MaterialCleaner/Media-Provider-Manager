@@ -31,6 +31,7 @@ import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
+import me.gm.cleaner.plugin.module.settings.BinderSpImpl
 import java.io.File
 
 abstract class ManagerService : IManagerService.Stub() {
@@ -80,13 +81,13 @@ abstract class ManagerService : IManagerService.Stub() {
         ) as? PackageInfo
 
     override fun readSp(who: Int) = when (who) {
-        JsonFileSpImpl.WHO -> defaultSp.read()
+        BinderSpImpl.WHO -> defaultSp.read()
         else -> throw IllegalArgumentException()
     }
 
     override fun writeSp(who: Int, what: String) {
         when (who) {
-            JsonFileSpImpl.WHO -> defaultSp.write(what)
+            BinderSpImpl.WHO -> defaultSp.write(what)
         }
     }
 

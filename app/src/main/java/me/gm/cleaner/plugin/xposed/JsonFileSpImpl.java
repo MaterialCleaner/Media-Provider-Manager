@@ -32,7 +32,6 @@ import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.dao.SharedPreferencesWrapper;
 
 public final class JsonFileSpImpl extends SharedPreferencesWrapper {
-    public static final int WHO = 0;
     public final File file;
 
     public JsonFileSpImpl(File src) {

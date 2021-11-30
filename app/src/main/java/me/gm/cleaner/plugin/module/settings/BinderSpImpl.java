@@ -16,8 +16,6 @@
 
 package me.gm.cleaner.plugin.module.settings;
 
-import static me.gm.cleaner.plugin.xposed.JsonFileSpImpl.WHO;
-
 import android.text.TextUtils;
 
 import org.json.JSONException;
@@ -27,6 +25,7 @@ import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.module.BinderViewModel;
 
 public final class BinderSpImpl extends JsonSharedPreferencesImpl {
+    public static final int WHO = 0;
     private final BinderViewModel mBinderViewModel;
 
     private BinderSpImpl(JSONObject jo, BinderViewModel binderViewModel) {
