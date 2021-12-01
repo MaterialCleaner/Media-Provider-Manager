@@ -39,7 +39,7 @@
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/m3_compound_button_preferred_margin_start"
+            android:layout_marginStart="@dimen/m3_compound_button_preferred_margin"
             android:layout_marginEnd="?listPreferredItemPaddingEnd"
             android:layout_weight="1"
             android:ellipsize="end"

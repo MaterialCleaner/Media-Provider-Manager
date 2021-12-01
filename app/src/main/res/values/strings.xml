@@ -66,7 +66,7 @@
     <string name="info">Info</string>
 
     <!-- Settings -->
-    <string name="behavior_header">BEHAVIOR</string>
+    <string name="global_header">GLOBAL</string>
     <string name="reject_nonstandard_dir_key" translatable="false">reject_nonstandard_dir</string>
     <string name="reject_nonstandard_dir_title">Reject creating non-standard directory</string>
     <string name="reject_nonstandard_dir_summary">System apps in AOSP never create non-standard directories, but some manufacturers changed this behavior.</string>
@@ -75,6 +75,20 @@
     <string name="usage_record_key" translatable="false">usage_record</string>
     <string name="usage_record_title" translatable="false">@string/usage_record</string>
     <string name="usage_record_summary">Save usage records to the database. No new data will appear in the usage record page if you turned off.</string>
+    <string name="rule_header">RULE</string>
+    <string name="template_management_key" translatable="false">template_management</string>
+    <string name="template_management_title">Template management</string>
+    <string name="create_template_title">Create template</string>
+    <string name="template_name_key" translatable="false">template_name</string>
+    <string name="template_name_title">Template name</string>
+    <string name="hook_operation_key" translatable="false">hook_operation</string>
+    <string name="hook_operation_title">Hook operation</string>
+    <string name="apply_to_app_key" translatable="false">apply_to_app</string>
+    <string name="apply_to_app_title">Apply to app</string>
+    <string name="permitted_mime_types_key" translatable="false">permitted_mime_types</string>
+    <string name="permitted_mime_types_title">Permitted mime types</string>
+    <string name="filter_path_key" translatable="false">filter_path</string>
+    <string name="filter_path_title">Filter path</string>
 
     <!-- Media Store -->
     <string name="rationale_shouldShowRationale">App needs read external storage permission to visit media files created by other apps.</string>

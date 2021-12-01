@@ -17,13 +17,21 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.databinding.ModuleFragmentBinding
 
 class SettingsFragment : AbsSettingsFragment() {
+    override val who: Int
+        get() = R.xml.root_preferences
+
+    private val navController by lazy { findNavController() }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         val sharedPreferences = preferenceManager.sharedPreferences
 
@@ -34,5 +42,29 @@ class SettingsFragment : AbsSettingsFragment() {
         val usageRecord = getString(R.string.usage_record_key)
         findPreference<SwitchPreferenceCompat>(usageRecord)?.isChecked =
             sharedPreferences.getBoolean(usageRecord, true)
+
+        val template = getString(R.string.template_management_key)
+        findPreference<Preference>(template)?.setOnPreferenceClickListener {
+            if (navController.currentDestination?.id != R.id.settings_fragment) {
+                return@setOnPreferenceClickListener false
+            }
+//            fragment.enterPackageName = pi.packageName
+//            fragment.exitTransition = Hold().apply {
+//                duration = fragment.requireContext().mediumAnimTime
+//            }
+
+            val direction = SettingsFragmentDirections.actionSettingsToTemplates()
+//            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction)
+            true
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ) = if (!binderViewModel.pingBinder()) {
+        ModuleFragmentBinding.inflate(layoutInflater).root
+    } else {
+        super.onCreateView(inflater, container, savedInstanceState)
     }
 }

@@ -25,18 +25,19 @@ import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.module.BinderViewModel;
 
 public final class BinderSpImpl extends JsonSharedPreferencesImpl {
-    public static final int WHO = 0;
+    public final int who;
     private final BinderViewModel mBinderViewModel;
 
-    private BinderSpImpl(JSONObject jo, BinderViewModel binderViewModel) {
+    private BinderSpImpl(JSONObject jo, BinderViewModel binderViewModel, int who) {
         super(jo);
         mBinderViewModel = binderViewModel;
+        this.who = who;
     }
 
-    public static BinderSpImpl create(BinderViewModel binderViewModel) {
+    public static BinderSpImpl create(BinderViewModel binderViewModel, int who) {
         JSONObject json;
         try {
-            var str = binderViewModel.readSp(WHO);
+            var str = binderViewModel.readSp(who);
             if (TextUtils.isEmpty(str)) {
                 // don't throw an exception in this case.
                 json = new JSONObject();
@@ -47,13 +48,13 @@ public final class BinderSpImpl extends JsonSharedPreferencesImpl {
             e.printStackTrace();
             json = new JSONObject();
         }
-        return new BinderSpImpl(json, binderViewModel);
+        return new BinderSpImpl(json, binderViewModel, who);
     }
 
     @Override
     public Editor edit() {
         return new JsonEditorImpl(jsonObject -> {
-            mBinderViewModel.writeSp(WHO, jsonObject.toString());
+            mBinderViewModel.writeSp(who, jsonObject.toString());
             return true;
         });
     }

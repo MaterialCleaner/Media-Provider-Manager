@@ -125,7 +125,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
 
         /** RECORD */
-        if (service.defaultSp.getBoolean(
+        if (service.rootSp.getBoolean(
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {

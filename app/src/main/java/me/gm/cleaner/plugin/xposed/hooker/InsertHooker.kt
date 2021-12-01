@@ -56,34 +56,22 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
         val data = if (modern) {
             externalStorageDirPath + File.separator +
-                    initialValues?.getAsString(MediaStore.MediaColumns.RELATIVE_PATH) + File.separator +
+                    initialValues?.getAsString(MediaStore.MediaColumns.RELATIVE_PATH)
+                        ?.trimEnd(File.separatorChar) + File.separator +
                     initialValues?.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
         } else {
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
-        /** RECORD */
-        if (service.defaultSp.getBoolean(
-                service.resources.getString(R.string.usage_record_key), true
-            )
-        ) {
-            retry(10) {
-                dao.insert(
-                    MediaProviderInsertRecord(
-                        System.currentTimeMillis() + it,
-                        param.callingPackage,
-                        match,
-                        data ?: "",
-                        mimeType ?: "",
-                        false
-                    )
-                )
-            }
+        /** INTERCEPT */
+        val shouldIntercept = false
+        if (shouldIntercept) {
+            param.result = null
         }
 
-        /** INTERCEPT */
-        if (!modern && data != null && service.defaultSp.getBoolean(
+        /** SCAN */
+        if (!shouldIntercept && !modern && data != null && service.rootSp.getBoolean(
                 service.resources.getString(R.string.scan_for_obsolete_insert_key), true
             )
         ) {
@@ -103,6 +91,25 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         }
                     }.startWatching()
                 }
+            }
+        }
+
+        /** RECORD */
+        if (service.rootSp.getBoolean(
+                service.resources.getString(R.string.usage_record_key), true
+            )
+        ) {
+            retry(10) {
+                dao.insert(
+                    MediaProviderInsertRecord(
+                        System.currentTimeMillis() + it,
+                        param.callingPackage,
+                        match,
+                        data ?: "",
+                        mimeType ?: "",
+                        shouldIntercept
+                    )
+                )
             }
         }
     }

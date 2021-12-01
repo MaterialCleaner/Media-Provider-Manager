@@ -57,11 +57,19 @@
     <string name="info">信息</string>
 
     <!-- 设置 -->
-    <string name="behavior_header">行为</string>
+    <string name="global_header">全局</string>
     <string name="reject_nonstandard_dir_title">禁止创建不规范文件夹</string>
     <string name="reject_nonstandard_dir_summary">在 AOSP 中系统应用不会创建非标准文件夹，但是一些设备生产商修改了这一行为。</string>
     <string name="scan_for_obsolete_insert_title">使用过时 API 插入文件时执行扫描</string>
     <string name="usage_record_summary">将使用记录保存到数据库。关闭后使用记录页面将不会再出现新的数据。</string>
+    <string name="rule_header">规则</string>
+    <string name="template_management_title">模板管理</string>
+    <string name="create_template_title">创建模板</string>
+    <string name="template_name_title">模板名</string>
+    <string name="hook_operation_title">挂钩操作</string>
+    <string name="apply_to_app_title">应用到应用</string>
+    <string name="permitted_mime_types_title">允许的 Mime 类型</string>
+    <string name="filter_path_title">过滤路径</string>
 
     <!-- 媒体存储 -->
     <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>

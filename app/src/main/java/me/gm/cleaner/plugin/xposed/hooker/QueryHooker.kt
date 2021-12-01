@@ -147,8 +147,14 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         }
         c.close()
 
+        /** INTERCEPT */
+        val shouldIntercept = false
+        if (shouldIntercept) {
+            param.result = MatrixCursor(projection)
+        }
+
         /** RECORD */
-        if (service.defaultSp.getBoolean(
+        if (service.rootSp.getBoolean(
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
@@ -160,13 +166,11 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                         table,
                         data,
                         mimeType,
-                        false
+                        shouldIntercept
                     )
                 )
             }
         }
-
-        /** INTERCEPT */
     }
 
     private fun isClientQuery(callingPackage: String, uri: Uri) =

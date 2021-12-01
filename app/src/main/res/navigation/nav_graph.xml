@@ -33,6 +33,9 @@
         android:id="@+id/app_fragment"
         android:name="me.gm.cleaner.plugin.module.appmanagement.AppFragment"
         android:label="@string/app_management">
+        <action
+            android:id="@+id/action_app_to_create_template"
+            app:destination="@id/create_template_fragment" />
         <argument
             android:name="pi"
             app:argType="android.content.pm.PackageInfo" />
@@ -50,7 +53,30 @@
     <fragment
         android:id="@+id/settings_fragment"
         android:name="me.gm.cleaner.plugin.module.settings.SettingsFragment"
-        android:label="@string/settings" />
+        android:label="@string/settings">
+        <action
+            android:id="@+id/action_settings_to_templates"
+            app:destination="@id/templates_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/templates_fragment"
+        android:name="me.gm.cleaner.plugin.module.settings.TemplatesFragment"
+        android:label="@string/template_management_title">
+        <action
+            android:id="@+id/action_templates_to_create_template"
+            app:destination="@id/create_template_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/create_template_fragment"
+        android:name="me.gm.cleaner.plugin.module.settings.CreateTemplateFragment"
+        android:label="@string/create_template_title">
+        <argument
+            android:name="label"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
     <!-- Media Store -->
     <fragment

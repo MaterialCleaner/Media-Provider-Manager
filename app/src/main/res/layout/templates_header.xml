@@ -27,29 +27,16 @@
     <ImageView
         android:id="@+id/icon"
         android:layout_width="@dimen/badge_size"
-        android:layout_height="@dimen/badge_size" />
+        android:layout_height="@dimen/badge_size"
+        android:src="@drawable/ic_outline_add_24" />
 
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/create_template_title"
         android:layout_marginStart="@dimen/m3_compound_button_preferred_margin"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?android:textColorPrimary" />
-
-        <TextView
-            android:id="@+id/summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-            android:textColor="?android:textColorSecondary" />
-    </LinearLayout>
+        android:textAlignment="viewStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="?android:textColorPrimary" />
 </LinearLayout>

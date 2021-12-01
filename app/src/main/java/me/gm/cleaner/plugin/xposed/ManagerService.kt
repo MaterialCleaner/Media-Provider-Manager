@@ -26,12 +26,12 @@ import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
-import me.gm.cleaner.plugin.module.settings.BinderSpImpl
 import java.io.File
 
 abstract class ManagerService : IManagerService.Stub() {
@@ -43,7 +43,8 @@ abstract class ManagerService : IManagerService.Stub() {
         private set
     lateinit var database: MediaProviderRecordDatabase
         private set
-    val defaultSp by lazy { JsonFileSpImpl(File(context.filesDir, "default")) }
+    val rootSp by lazy { JsonFileSpImpl(File(context.filesDir, "root")) }
+    val ruleSp by lazy { JsonFileSpImpl(File(context.filesDir, "rule")) }
 
     protected fun onCreate(context: Context) {
         this.context = context
@@ -81,13 +82,15 @@ abstract class ManagerService : IManagerService.Stub() {
         ) as? PackageInfo
 
     override fun readSp(who: Int) = when (who) {
-        BinderSpImpl.WHO -> defaultSp.read()
+        R.xml.root_preferences -> rootSp.read()
+        R.xml.template_preferences -> ruleSp.read()
         else -> throw IllegalArgumentException()
     }
 
     override fun writeSp(who: Int, what: String) {
         when (who) {
-            BinderSpImpl.WHO -> defaultSp.write(what)
+            R.xml.root_preferences -> rootSp.write(what)
+            R.xml.template_preferences -> ruleSp.write(what)
         }
     }
 
