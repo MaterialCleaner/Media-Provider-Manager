@@ -32,6 +32,7 @@ class SettingsFragment : AbsSettingsFragment() {
     private val navController by lazy { findNavController() }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
         val sharedPreferences = preferenceManager.sharedPreferences
 

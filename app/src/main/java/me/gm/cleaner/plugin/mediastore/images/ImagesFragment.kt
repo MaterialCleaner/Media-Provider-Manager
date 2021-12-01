@@ -196,7 +196,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             lastPosition = position
             prepareTransitions()
-            savedInstanceState ?: postponeEnterTransition()
+            postponeEnterTransition()
             scrollToPosition(position)
         }
     }

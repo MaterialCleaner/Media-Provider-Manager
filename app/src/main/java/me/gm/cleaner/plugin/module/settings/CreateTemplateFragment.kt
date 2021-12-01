@@ -28,6 +28,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     private val args: CreateTemplateFragmentArgs by navArgs()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
         val sharedPreferences = preferenceManager.sharedPreferences
 
