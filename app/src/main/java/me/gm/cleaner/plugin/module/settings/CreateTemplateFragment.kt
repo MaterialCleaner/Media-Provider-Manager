@@ -115,8 +115,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if (args.label != null) {
-            (requireActivity() as AppCompatActivity).supportActionBar?.title =
-                getString(R.string.edit_template_title)
+            (requireActivity() as AppCompatActivity).supportActionBar?.setTitle(R.string.edit_template_title)
         }
     }
 
