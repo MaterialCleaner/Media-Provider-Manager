@@ -66,6 +66,7 @@
     <string name="save">保存</string>
     <string name="template_management_title">模板管理</string>
     <string name="create_template_title">創建模板</string>
+    <string name="edit_template_title">編輯模板</string>
     <string name="template_name_title">模板名</string>
     <string name="hook_operation_title">掛鉤操作</string>
     <string name="apply_to_app_title">應用到應用</string>

@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.module.settings
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
@@ -109,6 +110,14 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                 }
             }
         })
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (args.label != null) {
+            (requireActivity() as AppCompatActivity).supportActionBar?.title =
+                getString(R.string.edit_template_title)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

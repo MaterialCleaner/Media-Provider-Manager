@@ -19,6 +19,7 @@ package me.gm.cleaner.plugin.module.appmanagement
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -29,7 +30,6 @@ import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
-import me.gm.cleaner.plugin.drawer.DrawerActivity
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
@@ -37,7 +37,7 @@ import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
-    private val activity = fragment.requireActivity() as DrawerActivity
+    private val activity = fragment.requireActivity() as AppCompatActivity
     private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
