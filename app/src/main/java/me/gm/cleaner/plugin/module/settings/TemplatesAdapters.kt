@@ -51,3 +51,5 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
 
     class ViewHolder(val binding: TemplatesHeaderBinding) : RecyclerView.ViewHolder(binding.root)
 }
+
+//private val binderSp by lazy { BinderSpImpl.create(binderViewModel, R.xml.template_preferences) }

@@ -16,16 +16,42 @@
 
 package me.gm.cleaner.plugin.module.settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.core.content.edit
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.EditTextPreference
+import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
+import org.json.JSONException
 
 class CreateTemplateFragment : AbsSettingsFragment() {
     override val who: Int
         get() = R.xml.template_preferences
 
     private val args: CreateTemplateFragmentArgs by navArgs()
+    private val tempSp by lazy {
+        try {
+            JsonSharedPreferencesImpl(binderSp.getString(args.label, null))
+        } catch (e: JSONException) {
+            JsonSharedPreferencesImpl()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onCreatePreferenceManager() = object : PreferenceManager(context) {
+        override fun getSharedPreferences() = tempSp
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
@@ -35,5 +61,30 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         val templateName = getString(R.string.template_name_key)
         findPreference<EditTextPreference>(templateName)?.setDefaultValue(args.label)
         // TODO: unique templateName
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.toolbar_save, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_save -> {
+            val templateName = getString(R.string.template_name_key)
+            val label = tempSp.getString(templateName, null)
+            if (!label.isNullOrEmpty()) {
+                tempSp.edit(true) {
+                    remove(templateName)
+                }
+                binderSp.edit {
+                    putString(label, tempSp.toString())
+                }
+                findNavController().navigateUp()
+                true
+            } else {
+                false
+            }
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

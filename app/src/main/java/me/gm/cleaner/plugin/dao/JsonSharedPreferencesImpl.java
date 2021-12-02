@@ -19,7 +19,9 @@ package me.gm.cleaner.plugin.dao;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.json.JSONException;
@@ -39,8 +41,21 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
     private final JSONObject mStore;
     private final WeakHashMap<OnSharedPreferenceChangeListener, Object> mListeners = new WeakHashMap<>();
 
+    public JsonSharedPreferencesImpl() {
+        mStore = new JSONObject();
+    }
+
     public JsonSharedPreferencesImpl(JSONObject jsonObject) {
         mStore = jsonObject;
+    }
+
+    public JsonSharedPreferencesImpl(@Nullable String json) throws JSONException {
+        if (TextUtils.isEmpty(json)) {
+            mStore = new JSONObject();
+        } else {
+            assert json != null;
+            mStore = new JSONObject(json);
+        }
     }
 
     @Override
@@ -122,6 +137,14 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
         synchronized (mLock) {
             mListeners.remove(listener);
+        }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        synchronized (mLock) {
+            return mStore.toString();
         }
     }
 

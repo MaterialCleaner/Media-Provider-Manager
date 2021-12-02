@@ -63,6 +63,7 @@
     <string name="scan_for_obsolete_insert_title">使用过时 API 插入文件时执行扫描</string>
     <string name="usage_record_summary">将使用记录保存到数据库。关闭后使用记录页面将不会再出现新的数据。</string>
     <string name="rule_header">规则</string>
+    <string name="save">保存</string>
     <string name="template_management_title">模板管理</string>
     <string name="create_template_title">创建模板</string>
     <string name="template_name_title">模板名</string>

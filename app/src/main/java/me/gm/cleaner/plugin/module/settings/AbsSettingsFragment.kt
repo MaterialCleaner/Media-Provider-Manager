@@ -17,7 +17,6 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -35,14 +34,12 @@ import rikka.recyclerview.fixEdgeEffect
 
 abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     protected val binderViewModel: BinderViewModel by activityViewModels()
-    private var mSharedPreferences: SharedPreferences? = null
     abstract val who: Int
+    protected val binderSp: BinderSpImpl by lazy { BinderSpImpl.create(binderViewModel, who) }
 
     @SuppressLint("RestrictedApi")
     open fun onCreatePreferenceManager() = object : PreferenceManager(context) {
-        override fun getSharedPreferences() =
-            mSharedPreferences ?: BinderSpImpl.create(binderViewModel, who)
-                .also { mSharedPreferences = it }
+        override fun getSharedPreferences() = binderSp
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

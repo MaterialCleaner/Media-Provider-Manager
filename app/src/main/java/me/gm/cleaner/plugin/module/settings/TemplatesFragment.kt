@@ -26,16 +26,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.AppFragmentBinding
 import me.gm.cleaner.plugin.databinding.TemplatesFragmentBinding
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.colorBackground
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.module.ModuleFragment
 import rikka.recyclerview.fixEdgeEffect
 
-class TemplatesFragment : BaseFragment() {
+class TemplatesFragment : ModuleFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {

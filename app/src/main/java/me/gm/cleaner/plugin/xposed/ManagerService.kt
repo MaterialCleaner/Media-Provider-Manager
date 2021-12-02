@@ -81,7 +81,7 @@ abstract class ManagerService : IManagerService.Stub() {
             packageManagerService, "getPackageInfo", packageName, 0, userId
         ) as? PackageInfo
 
-    override fun readSp(who: Int) = when (who) {
+    override fun readSp(who: Int): String? = when (who) {
         R.xml.root_preferences -> rootSp.read()
         R.xml.template_preferences -> ruleSp.read()
         else -> throw IllegalArgumentException()
