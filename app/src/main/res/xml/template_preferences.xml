@@ -39,9 +39,10 @@
 
     <MultiSelectListPreference
         app:dependency="@string/hook_operation_key"
+        app:entries="@array/media_types_title"
         app:iconSpaceReserved="false"
-        app:key="@string/permitted_mime_types_key"
-        app:title="@string/permitted_mime_types_title"
+        app:key="@string/permitted_media_types_key"
+        app:title="@string/permitted_media_types_title"
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference

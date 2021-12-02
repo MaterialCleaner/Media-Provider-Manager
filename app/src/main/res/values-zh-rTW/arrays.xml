@@ -17,17 +17,13 @@
   -->
 
 <resources>
-    <array name="recommend_package">
-        <item>com.android.providers.media</item>
-        <item>com.android.providers.downloads</item>
-    </array>
     <array name="media_types_title">
-        <item>Playlist</item>
-        <item>Subtitle</item>
+        <item>播放列表</item>
+        <item>字幕</item>
         <item>@string/audio</item>
         <item>@string/video</item>
-        <item>Image</item>
-        <item>Document</item>
-        <item>None</item>
+        <item>圖片</item>
+        <item>文件</item>
+        <item>無</item>
     </array>
 </resources>

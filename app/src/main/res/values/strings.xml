@@ -85,10 +85,19 @@
     <string name="template_name_title">Template name</string>
     <string name="hook_operation_key" translatable="false">hook_operation</string>
     <string name="hook_operation_title">Hook operation</string>
+    <string name="query">Query</string>
+    <string name="insert">Insert</string>
     <string name="apply_to_app_key" translatable="false">apply_to_app</string>
     <string name="apply_to_app_title">Apply to app</string>
-    <string name="permitted_mime_types_key" translatable="false">permitted_mime_types</string>
-    <string name="permitted_mime_types_title">Permitted mime types</string>
+    <string name="permitted_media_types_key" translatable="false">permitted_media_types</string>
+    <string name="permitted_media_types_title">Permitted media types</string>
+    <string name="media_type_playlist" translatable="false">4</string>
+    <string name="media_type_subtitle" translatable="false">5</string>
+    <string name="media_type_audio" translatable="false">2</string>
+    <string name="media_type_video" translatable="false">3</string>
+    <string name="media_type_image" translatable="false">1</string>
+    <string name="media_type_document" translatable="false">6</string>
+    <string name="media_type_none" translatable="false">0</string>
     <string name="filter_path_key" translatable="false">filter_path</string>
     <string name="filter_path_title">Filter path</string>
 
