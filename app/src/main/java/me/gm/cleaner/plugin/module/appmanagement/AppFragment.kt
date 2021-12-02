@@ -83,7 +83,6 @@ class AppFragment : ModuleFragment() {
         setFragmentResult(
             AppFragment::class.java.simpleName, bundleOf(KEY_PACKAGENAME to args.pi.packageName)
         )
-
         list.transitionName = args.pi.packageName
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
@@ -115,6 +114,6 @@ class AppFragment : ModuleFragment() {
     }
 
     companion object {
-        const val KEY_PACKAGENAME = "me.gm.cleaner.plugin.key.position"
+        const val KEY_PACKAGENAME = "me.gm.cleaner.plugin.key.packageName"
     }
 }

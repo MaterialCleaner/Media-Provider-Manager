@@ -16,11 +16,6 @@
 
 package me.gm.cleaner.plugin.module.settings;
 
-import android.text.TextUtils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.module.BinderViewModel;
 
@@ -28,27 +23,10 @@ public final class BinderSpImpl extends JsonSharedPreferencesImpl {
     public final int who;
     private final BinderViewModel mBinderViewModel;
 
-    private BinderSpImpl(JSONObject jo, BinderViewModel binderViewModel, int who) {
-        super(jo);
+    public BinderSpImpl(BinderViewModel binderViewModel, int who) {
+        super(binderViewModel.readSpAsJson(who));
         mBinderViewModel = binderViewModel;
         this.who = who;
-    }
-
-    public static BinderSpImpl create(BinderViewModel binderViewModel, int who) {
-        JSONObject json;
-        try {
-            var str = binderViewModel.readSp(who);
-            if (TextUtils.isEmpty(str)) {
-                // don't throw an exception in this case.
-                json = new JSONObject();
-            } else {
-                json = new JSONObject(str);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            json = new JSONObject();
-        }
-        return new BinderSpImpl(json, binderViewModel, who);
     }
 
     @Override

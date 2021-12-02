@@ -125,7 +125,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             }
         }
 
-        ModulePreferences.setOnPreferenceChangeListener(object :
+        ModulePreferences.addOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {

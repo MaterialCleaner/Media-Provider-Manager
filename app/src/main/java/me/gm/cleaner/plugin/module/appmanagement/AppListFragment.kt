@@ -110,10 +110,10 @@ class AppListFragment : ModuleFragment() {
         }
         setFragmentResultListener(AppFragment::class.java.simpleName) { _, bundle ->
             enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
-            savedInstanceState ?: postponeEnterTransition()
+            postponeEnterTransition()
         }
 
-        ModulePreferences.setOnPreferenceChangeListener(object :
+        ModulePreferences.addOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {

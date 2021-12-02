@@ -39,7 +39,7 @@ object ModulePreferences {
         defaultSp = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    fun setOnPreferenceChangeListener(l: PreferencesChangeListener) {
+    fun addOnPreferenceChangeListener(l: PreferencesChangeListener) {
         listeners.add(l)
         l.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {

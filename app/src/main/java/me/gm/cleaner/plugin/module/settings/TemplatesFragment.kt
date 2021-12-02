@@ -16,33 +16,41 @@
 
 package me.gm.cleaner.plugin.module.settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
+import androidx.core.os.bundleOf
+import androidx.core.util.containsKey
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesFragmentBinding
-import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
-import me.gm.cleaner.plugin.ktx.colorBackground
-import me.gm.cleaner.plugin.ktx.mediumAnimTime
-import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
 import rikka.recyclerview.fixEdgeEffect
+import kotlin.collections.set
 
 class TemplatesFragment : ModuleFragment() {
+    var enterRuleLabel: String? = null
+
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = TemplatesFragmentBinding.inflate(layoutInflater)
 
-        val adapter = TemplatesHeaderAdapter(this)
+        val templatesAdapter = TemplatesAdapter(this, binderViewModel)
+        val adapters = ConcatAdapter(TemplatesHeaderAdapter(this), templatesAdapter)
         val list = binding.list
-        list.adapter = adapter
+        list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
@@ -58,13 +66,31 @@ class TemplatesFragment : ModuleFragment() {
             )
             insets
         }
+        list.addItemDecoration(DividerDecoration(list).apply {
+            setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
+            setAllowDividerAfterLastItem(false)
+        })
 
+        binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
+            val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
+            templatesAdapter.submitList(json.keys().asSequence().map { it to 0 }.toList())
+        }
+        if (!binderViewModel.remoteSpCache.containsKey(R.xml.template_preferences)) {
+            val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
+            templatesAdapter.submitList(json.keys().asSequence().map { it to 0 }.toList())
+        }
+        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
+            enterRuleLabel = bundle.getString(CreateTemplateFragment.KEY_LABEL)
+            postponeEnterTransition()
+        }
         prepareSharedElementTransition(list)
         return binding.root
     }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
-//        list.transitionName = args.pi.packageName
+        val key = getString(R.string.template_management_key) /* hardcoded */
+        setFragmentResult(TemplatesFragment::class.java.simpleName, bundleOf(KEY to key))
+        list.transitionName = key
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
             endViewId = R.id.root
@@ -76,7 +102,7 @@ class TemplatesFragment : ModuleFragment() {
         }
 
         sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
-            drawingViewId = android.R.id.content
+            drawingViewId = android.R.id.list_container
             setAllContainerColors(requireContext().colorBackground)
             interpolator = FastOutSlowInInterpolator()
             fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
@@ -95,6 +121,6 @@ class TemplatesFragment : ModuleFragment() {
     }
 
     companion object {
-        const val KEY_PACKAGENAME = "me.gm.cleaner.plugin.key.position"
+        const val KEY = "me.gm.cleaner.plugin.key"
     }
 }

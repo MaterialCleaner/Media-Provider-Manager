@@ -22,7 +22,6 @@ import android.widget.LinearLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.core.view.isVisible
-import kotlin.math.max
 
 open class MeasureOrderReversedHorizontalLinearLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0,
@@ -43,7 +42,7 @@ open class MeasureOrderReversedHorizontalLinearLayout @JvmOverloads constructor(
             }
             val lp = child.layoutParams as MarginLayoutParams
             measureChildWithMargins(child, widthMeasureSpec, totalWidth, heightMeasureSpec, 0)
-            maxHeight = max(maxHeight, child.measuredHeight + lp.topMargin + lp.bottomMargin)
+            maxHeight = maxOf(maxHeight, child.measuredHeight + lp.topMargin + lp.bottomMargin)
             totalWidth += child.measuredWidth + lp.leftMargin + lp.rightMargin
             childState = combineMeasuredStates(childState, child.measuredState)
         }

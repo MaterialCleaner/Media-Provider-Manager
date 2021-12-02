@@ -20,4 +20,4 @@
     android:id="@android:id/list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?actionBarSize" />
+    android:layout_marginTop="?actionBarSize" />

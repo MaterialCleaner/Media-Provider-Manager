@@ -18,16 +18,22 @@ package me.gm.cleaner.plugin.module.settings
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.*
+import androidx.core.app.SharedElementCallback
 import androidx.core.content.edit
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
+import me.gm.cleaner.plugin.ktx.colorBackground
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import org.json.JSONException
 
 class CreateTemplateFragment : AbsSettingsFragment() {
@@ -37,15 +43,14 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     private val args: CreateTemplateFragmentArgs by navArgs()
     private val tempSp by lazy {
         try {
-            JsonSharedPreferencesImpl(binderSp.getString(args.label, null))
+            JsonSharedPreferencesImpl(remoteSp.getString(args.label, null))
         } catch (e: JSONException) {
             JsonSharedPreferencesImpl()
+        }.apply {
+            edit(true) {
+                putString(getString(R.string.template_name_key), args.label)
+            }
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     @SuppressLint("RestrictedApi")
@@ -55,12 +60,55 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
+        setHasOptionsMenu(true)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
         val sharedPreferences = preferenceManager.sharedPreferences
 
         val templateName = getString(R.string.template_name_key)
-        findPreference<EditTextPreference>(templateName)?.setDefaultValue(args.label)
-        // TODO: unique templateName
+        findPreference<EditTextPreference>(templateName)?.setOnPreferenceChangeListener { preference, newValue ->
+            // TODO: ensure templateName unique
+            true
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? = super.onCreateView(inflater, container, savedInstanceState)
+        ?.apply { prepareSharedElementTransition(findViewById(R.id.recycler_view)) }
+
+    private fun prepareSharedElementTransition(list: RecyclerView) {
+        val label = args.label ?: "null"
+        setFragmentResult(
+            CreateTemplateFragment::class.java.simpleName, bundleOf(KEY_LABEL to label)
+        )
+        list.transitionName = label
+
+        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
+            endViewId = android.R.id.list_container
+            drawingViewId = android.R.id.list_container
+            setAllContainerColors(requireContext().colorBackground)
+            interpolator = FastOutSlowInInterpolator()
+            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
+            duration = requireContext().mediumAnimTime
+        }
+
+        sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
+            drawingViewId = R.id.root
+            setAllContainerColors(requireContext().colorBackground)
+            interpolator = FastOutSlowInInterpolator()
+            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
+            duration = requireContext().mediumAnimTime
+        }
+
+        setEnterSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: List<String>, sharedElements: MutableMap<String, View>
+            ) {
+                if (names.isNotEmpty()) {
+                    sharedElements[names[0]] = list
+                }
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -76,7 +124,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                 tempSp.edit(true) {
                     remove(templateName)
                 }
-                binderSp.edit {
+                remoteSp.edit {
                     putString(label, tempSp.toString())
                 }
                 findNavController().navigateUp()
@@ -86,5 +134,9 @@ class CreateTemplateFragment : AbsSettingsFragment() {
             }
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    companion object {
+        const val KEY_LABEL = "me.gm.cleaner.plugin.key.label"
     }
 }

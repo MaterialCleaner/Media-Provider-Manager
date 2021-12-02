@@ -20,14 +20,28 @@ import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
 import android.os.RemoteException
+import android.util.SparseArray
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.gm.cleaner.plugin.IManagerService
+import org.json.JSONException
+import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
 class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewModel() {
     private var service: IManagerService? = IManagerService.Stub.asInterface(binder)
+    private val _remoteSpCacheLiveData = MutableLiveData(SparseArray<String>())
+    val remoteSpCacheLiveData: LiveData<SparseArray<String>>
+        get() = _remoteSpCacheLiveData
+    val remoteSpCache: SparseArray<String>
+        get() = _remoteSpCacheLiveData.value!!
+
+    fun notifyRemoteSpChanged() {
+        _remoteSpCacheLiveData.postValue(remoteSpCache)
+    }
 
     fun pingBinder() = binder != null && binder.pingBinder()
 
@@ -36,19 +50,37 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
 
     val installedPackages: List<PackageInfo>
         get() = try {
-            service!!.getInstalledPackages(Process.myUid() / 100000).list
+            service!!.getInstalledPackages(Process.myUid() / AID_USER_OFFSET).list
         } catch (e: RemoteException) {
             e.printStackTrace()
             emptyList()
         }
 
     fun getPackageInfo(packageName: String): PackageInfo? =
-        service!!.getPackageInfo(packageName, 0, Process.myUid() / 100000)
+        service!!.getPackageInfo(packageName, 0, Process.myUid() / AID_USER_OFFSET)
 
-    fun readSp(who: Int): String? = service!!.readSp(who)
+    fun readSp(who: Int): String? =
+        remoteSpCache[who, service!!.readSp(who).also { remoteSpCache.put(who, it) }]
+
+    fun readSpAsJson(who: Int): JSONObject {
+        val str = readSp(who)
+        return if (str.isNullOrEmpty()) {
+            JSONObject()
+        } else {
+            try {
+                JSONObject(str)
+            } catch (e: JSONException) {
+                JSONObject()
+            }
+        }
+    }
 
     fun writeSp(who: Int, what: String) {
         service!!.writeSp(who, what)
+        if (remoteSpCache[who] != what) {
+            remoteSpCache.put(who, what)
+            notifyRemoteSpChanged()
+        }
     }
 
     fun clearAllTables() {
@@ -57,4 +89,8 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
 
     fun packageUsageTimes(table: String, packageNames: List<String>): Int =
         service!!.packageUsageTimes(table, packageNames)
+
+    companion object {
+        const val AID_USER_OFFSET = 100000
+    }
 }

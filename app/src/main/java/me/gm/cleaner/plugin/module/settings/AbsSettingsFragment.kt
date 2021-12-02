@@ -21,8 +21,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
+import androidx.preference.*
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
@@ -32,14 +31,14 @@ import me.gm.cleaner.plugin.ktx.setObjectField
 import me.gm.cleaner.plugin.module.BinderViewModel
 import rikka.recyclerview.fixEdgeEffect
 
+@SuppressLint("RestrictedApi")
 abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     protected val binderViewModel: BinderViewModel by activityViewModels()
     abstract val who: Int
-    protected val binderSp: BinderSpImpl by lazy { BinderSpImpl.create(binderViewModel, who) }
+    protected val remoteSp: BinderSpImpl by lazy { BinderSpImpl(binderViewModel, who) }
 
-    @SuppressLint("RestrictedApi")
     open fun onCreatePreferenceManager() = object : PreferenceManager(context) {
-        override fun getSharedPreferences() = binderSp
+        override fun getSharedPreferences() = remoteSp
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -60,4 +59,16 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
         }
         return list
     }
+
+    override fun onCreateAdapter(preferenceScreen: PreferenceScreen?): RecyclerView.Adapter<*> {
+        return object : PreferenceGroupAdapter(preferenceScreen) {
+            override fun onBindViewHolder(holder: PreferenceViewHolder, position: Int) {
+                val preference = getItem(position)
+                preference.onBindViewHolder(holder)
+                onBindPreferencesViewHolder(holder, preference)
+            }
+        }
+    }
+
+    open fun onBindPreferencesViewHolder(holder: PreferenceViewHolder, preference: Preference) {}
 }

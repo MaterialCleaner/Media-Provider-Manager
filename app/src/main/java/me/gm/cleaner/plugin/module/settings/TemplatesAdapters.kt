@@ -17,11 +17,22 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.core.view.forEach
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
+import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
+import me.gm.cleaner.plugin.drawer.DrawerActivity
+import me.gm.cleaner.plugin.ktx.DividerViewHolder
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import me.gm.cleaner.plugin.module.BinderViewModel
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     RecyclerView.Adapter<TemplatesHeaderAdapter.ViewHolder>() {
@@ -32,24 +43,101 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
+        binding.root.transitionName = "null"
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
-//            fragment.enterPackageName = pi.packageName
-//            fragment.exitTransition = Hold().apply {
-//                duration = fragment.requireContext().mediumAnimTime
-//            }
+            fragment.enterRuleLabel = "null"
+            fragment.exitTransition = Hold().apply {
+                duration = fragment.requireContext().mediumAnimTime
+            }
 
             val direction = TemplatesFragmentDirections.actionTemplatesToCreateTemplate()
-//            val extras = FragmentNavigatorExtras(it to it.transitionName)
-            navController.navigate(direction)
+            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction, extras)
+        }
+
+        if (fragment.enterRuleLabel == "null") {
+            fragment.startPostponedEnterTransition()
         }
     }
 
     override fun getItemCount() = 1
 
-    class ViewHolder(val binding: TemplatesHeaderBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: TemplatesHeaderBinding) : DividerViewHolder(binding.root) {
+        init {
+            isDividerAllowedBelow = true
+        }
+    }
 }
 
-//private val binderSp by lazy { BinderSpImpl.create(binderViewModel, R.xml.template_preferences) }
+class TemplatesAdapter(private val fragment: TemplatesFragment, binderViewModel: BinderViewModel) :
+    ListAdapter<Pair<String, Int>, TemplatesAdapter.ViewHolder>(CALLBACK) {
+    private val navController by lazy { fragment.findNavController() }
+    private val activity = fragment.requireActivity() as DrawerActivity
+    private lateinit var selectedHolder: ViewHolder
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(TemplatesItemBinding.inflate(LayoutInflater.from(parent.context)))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        val item = getItem(position)
+        binding.title.text = item.first
+        binding.summary.text = item.second.toString()
+        binding.root.transitionName = item.first
+        binding.root.setOnClickListener {
+            if (navController.currentDestination?.id != R.id.templates_fragment) {
+                return@setOnClickListener
+            }
+            fragment.enterRuleLabel = item.first
+            fragment.exitTransition = Hold().apply {
+                duration = fragment.requireContext().mediumAnimTime
+            }
+
+            val direction = TemplatesFragmentDirections.actionTemplatesToCreateTemplate(item.first)
+            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction, extras)
+        }
+        binding.root.setOnLongClickListener {
+            selectedHolder = holder
+            false
+        }
+        binding.root.setOnCreateContextMenuListener { menu, _, _ ->
+            activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
+            menu.setHeaderTitle(item.first)
+            menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
+        }
+
+        if (fragment.enterRuleLabel == item.first) {
+            fragment.startPostponedEnterTransition()
+        }
+    }
+
+    private fun onContextItemSelected(item: MenuItem): Boolean {
+        if (!::selectedHolder.isInitialized) return false
+        val position = selectedHolder.bindingAdapterPosition
+        val pi = getItem(position)!!
+        if (item.itemId == R.id.menu_delete_all_rules) {
+//            ModulePreferences.removePackage(pi.packageName)
+            return true
+        }
+        return false
+    }
+
+    class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)
+
+    companion object {
+        private val CALLBACK: DiffUtil.ItemCallback<Pair<String, Int>> =
+            object : DiffUtil.ItemCallback<Pair<String, Int>>() {
+                override fun areItemsTheSame(
+                    oldItem: Pair<String, Int>, newItem: Pair<String, Int>
+                ) = oldItem.first == newItem.first
+
+                override fun areContentsTheSame(
+                    oldItem: Pair<String, Int>, newItem: Pair<String, Int>
+                ) = oldItem == newItem
+            }
+    }
+}
