@@ -17,7 +17,11 @@
   -->
 
 <resources>
-    <array name="media_types_title">
+    <array name="hook_operation_entries">
+        <item>查詢</item>
+        <item>插入</item>
+    </array>
+    <array name="media_types_entries">
         <item>播放列表</item>
         <item>字幕</item>
         <item>@string/audio</item>

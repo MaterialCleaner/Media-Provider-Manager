@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +92,26 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
     @Nullable
     @Override
     public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
-        return get(key, defValues);
+        synchronized (mLock) {
+            var result = new HashSet<String>();
+            var jsonArray = mStore.optJSONArray(key);
+            if (jsonArray == null) {
+                if (defValues != null) {
+                    return defValues;
+                } else {
+                    return result;
+                }
+            }
+            try {
+                for (int i = 0, length = jsonArray.length(); i < length; i++) {
+                    result.add((String) jsonArray.get(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            return result;
+        }
     }
 
     @Override

@@ -25,21 +25,24 @@
         app:useSimpleSummaryProvider="true" />
 
     <MultiSelectListPreference
+        app:defaultValue="@array/hook_operation_entryValues"
+        app:entries="@array/hook_operation_entries"
+        app:entryValues="@array/hook_operation_entryValues"
         app:iconSpaceReserved="false"
         app:key="@string/hook_operation_key"
         app:title="@string/hook_operation_title"
         app:useSimpleSummaryProvider="true" />
 
     <MultiSelectListPreference
-        app:dependency="@string/hook_operation_key"
         app:iconSpaceReserved="false"
         app:key="@string/apply_to_app_key"
         app:title="@string/apply_to_app_title"
         app:useSimpleSummaryProvider="true" />
 
     <MultiSelectListPreference
-        app:dependency="@string/hook_operation_key"
-        app:entries="@array/media_types_title"
+        app:defaultValue="@array/media_types_entryValues"
+        app:entries="@array/media_types_entries"
+        app:entryValues="@array/media_types_entryValues"
         app:iconSpaceReserved="false"
         app:key="@string/permitted_media_types_key"
         app:title="@string/permitted_media_types_title"

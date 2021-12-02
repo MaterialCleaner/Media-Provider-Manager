@@ -72,32 +72,10 @@ class CreateTemplateFragment : AbsSettingsFragment() {
             true
         }
 
-        val hookOperation = getString(R.string.hook_operation_key)
-        findPreference<MultiSelectListPreference>(hookOperation)?.apply {
-            entries = arrayOf(getString(R.string.query), getString(R.string.insert))
-            entryValues = arrayOf(
-                getString(R.string.menu_hide_query_key),
-                getString(R.string.menu_hide_insert_key)
-            )
-        }
-
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<MultiSelectListPreference>(applyToApp)?.apply {
             entries = arrayOf(/* label */)
             entryValues = arrayOf(/* packageName */)
-        }
-
-        val permittedMimeTypes = getString(R.string.permitted_media_types_key)
-        findPreference<MultiSelectListPreference>(permittedMimeTypes)?.apply {
-            entryValues = arrayOf(
-                getString(R.string.media_type_playlist),
-                getString(R.string.media_type_subtitle),
-                getString(R.string.media_type_audio),
-                getString(R.string.media_type_video),
-                getString(R.string.media_type_image),
-                getString(R.string.media_type_document),
-                getString(R.string.media_type_none),
-            )
         }
     }
 

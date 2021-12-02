@@ -85,8 +85,8 @@
     <string name="template_name_title">Template name</string>
     <string name="hook_operation_key" translatable="false">hook_operation</string>
     <string name="hook_operation_title">Hook operation</string>
-    <string name="query">Query</string>
-    <string name="insert">Insert</string>
+    <string name="hook_operation_query" translatable="false">query</string>
+    <string name="hook_operation_insert" translatable="false">insert</string>
     <string name="apply_to_app_key" translatable="false">apply_to_app</string>
     <string name="apply_to_app_title">Apply to app</string>
     <string name="permitted_media_types_key" translatable="false">permitted_media_types</string>

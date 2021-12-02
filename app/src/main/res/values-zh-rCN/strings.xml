@@ -69,8 +69,6 @@
     <string name="edit_template_title">编辑模板</string>
     <string name="template_name_title">模板名</string>
     <string name="hook_operation_title">挂钩操作</string>
-    <string name="query">查询</string>
-    <string name="insert">插入</string>
     <string name="apply_to_app_title">应用到应用</string>
     <string name="permitted_media_types_title">允许的媒体类型</string>
     <string name="filter_path_title">过滤路径</string>

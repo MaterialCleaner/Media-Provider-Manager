@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.module.settings
 
+import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -27,6 +29,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.Hold
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
@@ -118,9 +121,12 @@ class TemplatesAdapter(private val fragment: TemplatesFragment, binderViewModel:
     private fun onContextItemSelected(item: MenuItem): Boolean {
         if (!::selectedHolder.isInitialized) return false
         val position = selectedHolder.bindingAdapterPosition
-        val pi = getItem(position)!!
+        val label = getItem(position)?.first
         if (item.itemId == R.id.menu_delete_all_rules) {
-//            ModulePreferences.removePackage(pi.packageName)
+            Log.e(BuildConfig.APPLICATION_ID,label!!)
+            val modified =
+                fragment.binderViewModel.readSpAsJson(R.xml.template_preferences).remove(label)
+            fragment.binderViewModel.writeSp(R.xml.template_preferences, modified.toString())
             return true
         }
         return false

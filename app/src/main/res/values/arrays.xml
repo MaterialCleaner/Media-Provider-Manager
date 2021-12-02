@@ -21,7 +21,16 @@
         <item>com.android.providers.media</item>
         <item>com.android.providers.downloads</item>
     </array>
-    <array name="media_types_title">
+
+    <array name="hook_operation_entries">
+        <item>Query</item>
+        <item>Insert</item>
+    </array>
+    <array name="hook_operation_entryValues" translatable="false">
+        <item>@string/hook_operation_query</item>
+        <item>@string/hook_operation_insert</item>
+    </array>
+    <array name="media_types_entries">
         <item>Playlist</item>
         <item>Subtitle</item>
         <item>@string/audio</item>
@@ -29,5 +38,14 @@
         <item>Image</item>
         <item>Document</item>
         <item>None</item>
+    </array>
+    <array name="media_types_entryValues" translatable="false">
+        <item>@string/media_type_playlist</item>
+        <item>@string/media_type_subtitle</item>
+        <item>@string/media_type_audio</item>
+        <item>@string/media_type_video</item>
+        <item>@string/media_type_image</item>
+        <item>@string/media_type_document</item>
+        <item>@string/media_type_none</item>
     </array>
 </resources>
