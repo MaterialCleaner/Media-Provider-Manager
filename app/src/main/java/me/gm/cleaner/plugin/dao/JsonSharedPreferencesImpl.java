@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,11 +97,7 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
             var result = new HashSet<String>();
             var jsonArray = mStore.optJSONArray(key);
             if (jsonArray == null) {
-                if (defValues != null) {
-                    return defValues;
-                } else {
-                    return result;
-                }
+                return defValues;
             }
             try {
                 for (int i = 0, length = jsonArray.length(); i < length; i++) {
@@ -189,7 +186,7 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
         @Override
         public Editor putStringSet(String key, @Nullable Set<String> values) {
             synchronized (mEditorLock) {
-                mModified.put(key, values);
+                mModified.put(key, new JSONArray(values));
                 return this;
             }
         }
