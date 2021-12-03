@@ -39,7 +39,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.colorBackground
+import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 /**
@@ -124,7 +124,7 @@ class ImagePagerFragment : BaseFragment() {
         setFragmentResult(ImagePagerFragment::class.java.simpleName, lastPosition)
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
-            setAllContainerColors(requireContext().colorBackground)
+            setAllContainerColors(requireContext().colorSurface)
             scrimColor = Color.TRANSPARENT
             fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime

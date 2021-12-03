@@ -47,7 +47,7 @@ class TemplatesFragment : ModuleFragment() {
     ): View {
         val binding = TemplatesFragmentBinding.inflate(layoutInflater)
 
-        val templatesAdapter = TemplatesAdapter(this, binderViewModel)
+        val templatesAdapter = TemplatesAdapter(this)
         val adapters = ConcatAdapter(TemplatesHeaderAdapter(this), templatesAdapter)
         val list = binding.list
         list.adapter = adapters
@@ -90,18 +90,9 @@ class TemplatesFragment : ModuleFragment() {
         setFragmentResult(TemplatesFragment::class.java.simpleName, bundleOf(KEY to key))
         list.transitionName = key
 
-        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
-            endViewId = R.id.root
-            drawingViewId = R.id.root
-            setAllContainerColors(requireContext().colorBackground)
-            interpolator = FastOutSlowInInterpolator()
-            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
-            duration = requireContext().mediumAnimTime
-        }
-
-        sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
-            drawingViewId = android.R.id.list_container
-            setAllContainerColors(requireContext().colorBackground)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host
+            setAllContainerColors(requireContext().colorSurface)
             interpolator = FastOutSlowInInterpolator()
             fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime

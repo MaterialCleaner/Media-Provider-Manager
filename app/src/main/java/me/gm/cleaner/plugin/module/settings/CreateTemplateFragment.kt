@@ -34,7 +34,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
-import me.gm.cleaner.plugin.ktx.colorBackground
+import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import org.json.JSONException
 
@@ -91,18 +91,9 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         )
         list.transitionName = label
 
-        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
-            endViewId = android.R.id.list_container
-            drawingViewId = android.R.id.list_container
-            setAllContainerColors(requireContext().colorBackground)
-            interpolator = FastOutSlowInInterpolator()
-            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
-            duration = requireContext().mediumAnimTime
-        }
-
-        sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
-            drawingViewId = R.id.root
-            setAllContainerColors(requireContext().colorBackground)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host
+            setAllContainerColors(requireContext().colorSurface)
             interpolator = FastOutSlowInInterpolator()
             fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime

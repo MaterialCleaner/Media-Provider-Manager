@@ -85,18 +85,9 @@ class AppFragment : ModuleFragment() {
         )
         list.transitionName = args.pi.packageName
 
-        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
-            endViewId = R.id.root
-            drawingViewId = R.id.root
-            setAllContainerColors(requireContext().colorBackground)
-            interpolator = FastOutSlowInInterpolator()
-            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
-            duration = requireContext().mediumAnimTime
-        }
-
-        sharedElementReturnTransition = MaterialContainerTransform(requireContext(), false).apply {
-            drawingViewId = R.id.list_container
-            setAllContainerColors(requireContext().colorBackground)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host
+            setAllContainerColors(requireContext().colorSurface)
             interpolator = FastOutSlowInInterpolator()
             fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
             duration = requireContext().mediumAnimTime

@@ -27,9 +27,9 @@ val Context.colorAccent: Int
     @ColorInt
     get() = getColorByAttr(android.R.attr.colorAccent)!!
 
-val Context.colorBackground: Int
+val Context.colorSurface: Int
     @ColorInt
-    get() = getColorByAttr(android.R.attr.colorBackground)!!
+    get() = getColorByAttr(com.google.android.material.R.attr.colorSurface)!!
 
 val Context.colorControlHighlight: Int
     @ColorInt

@@ -32,7 +32,6 @@ import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
-import me.gm.cleaner.plugin.module.BinderViewModel
 import org.json.JSONObject
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
@@ -73,7 +72,7 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     }
 }
 
-class TemplatesAdapter(private val fragment: TemplatesFragment, binderViewModel: BinderViewModel) :
+class TemplatesAdapter(private val fragment: TemplatesFragment) :
     ListAdapter<Pair<String, Int>, TemplatesAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
