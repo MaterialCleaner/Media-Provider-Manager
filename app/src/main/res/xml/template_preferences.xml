@@ -24,29 +24,26 @@
         app:title="@string/template_name_title"
         app:useSimpleSummaryProvider="true" />
 
-    <MultiSelectListPreference
+    <me.gm.cleaner.plugin.module.settings.preference.SummaryProvidedMultiSelectListPreference
         app:defaultValue="@array/hook_operation_entryValues"
         app:entries="@array/hook_operation_entries"
         app:entryValues="@array/hook_operation_entryValues"
         app:iconSpaceReserved="false"
         app:key="@string/hook_operation_key"
-        app:title="@string/hook_operation_title"
-        app:useSimpleSummaryProvider="true" />
+        app:title="@string/hook_operation_title" />
 
-    <MultiSelectListPreference
+    <me.gm.cleaner.plugin.module.settings.preference.SummaryProvidedMultiSelectListPreference
         app:iconSpaceReserved="false"
         app:key="@string/apply_to_app_key"
-        app:title="@string/apply_to_app_title"
-        app:useSimpleSummaryProvider="true" />
+        app:title="@string/apply_to_app_title" />
 
-    <MultiSelectListPreference
+    <me.gm.cleaner.plugin.module.settings.preference.SummaryProvidedMultiSelectListPreference
         app:defaultValue="@array/media_types_entryValues"
         app:entries="@array/media_types_entries"
         app:entryValues="@array/media_types_entryValues"
         app:iconSpaceReserved="false"
         app:key="@string/permitted_media_types_key"
-        app:title="@string/permitted_media_types_title"
-        app:useSimpleSummaryProvider="true" />
+        app:title="@string/permitted_media_types_title" />
 
     <EditTextPreference
         app:dependency="@string/hook_operation_key"
