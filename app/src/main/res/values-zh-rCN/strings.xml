@@ -22,7 +22,6 @@
     <string name="not_active">未激活</string>
     <string name="restart_system">重启系统以升级模块</string>
     <string name="active">已激活</string>
-    <string name="enabled_app_count">对 %d 个应用启用</string>
     <string name="query_times">查询 %d 次</string>
     <string name="insert_times">插入 %d 次</string>
     <string name="delete_times">删除 %d 次</string>
@@ -65,6 +64,7 @@
     <string name="rule_header">规则</string>
     <string name="save">保存</string>
     <string name="template_management_title">模板管理</string>
+    <string name="applied_app_count">应用到 %d 个应用</string>
     <string name="create_template_title">创建模板</string>
     <string name="edit_template_title">编辑模板</string>
     <string name="template_name_title">模板名</string>

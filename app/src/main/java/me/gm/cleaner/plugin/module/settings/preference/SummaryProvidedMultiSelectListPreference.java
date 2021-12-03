@@ -29,13 +29,15 @@ import java.util.Arrays;
 
 @SuppressLint({"RestrictedApi", "PrivateResource"})
 public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPreference {
-    public SummaryProvidedMultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SummaryProvidedMultiSelectListPreference(
+            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         setSummaryProvider(SimpleSummaryProvider.getInstance());
     }
 
-    public SummaryProvidedMultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SummaryProvidedMultiSelectListPreference(
+            Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
@@ -53,7 +55,8 @@ public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPre
      * {@link MultiSelectListPreference}. If no value has been set, the summary displayed will be 'Not set',
      * otherwise the summary displayed will be the entry set for this preference.
      */
-    public static final class SimpleSummaryProvider implements SummaryProvider<SummaryProvidedMultiSelectListPreference> {
+    public static final class SimpleSummaryProvider
+            implements SummaryProvider<SummaryProvidedMultiSelectListPreference> {
 
         private static SimpleSummaryProvider sSimpleSummaryProvider;
 
@@ -77,7 +80,7 @@ public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPre
         @Override
         public CharSequence provideSummary(SummaryProvidedMultiSelectListPreference preference) {
             if (preference.getValues().isEmpty()) {
-                return (preference.getContext().getString(R.string.not_set));
+                return preference.getContext().getString(R.string.not_set);
             } else {
                 var entryValues = Arrays.asList(preference.getEntryValues());
                 var values = Arrays.stream(preference.getEntryValues())

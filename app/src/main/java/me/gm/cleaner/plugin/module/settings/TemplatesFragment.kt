@@ -72,12 +72,10 @@ class TemplatesFragment : ModuleFragment() {
         })
 
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
-            val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
-            templatesAdapter.submitList(json.keys().asSequence().map { it to 0 }.toList())
+            templatesAdapter.submitJson(binderViewModel.readSpAsJson(R.xml.template_preferences))
         }
         if (!binderViewModel.remoteSpCache.containsKey(R.xml.template_preferences)) {
-            val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
-            templatesAdapter.submitList(json.keys().asSequence().map { it to 0 }.toList())
+            templatesAdapter.submitJson(binderViewModel.readSpAsJson(R.xml.template_preferences))
         }
         setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
             enterRuleLabel = bundle.getString(CreateTemplateFragment.KEY_LABEL)

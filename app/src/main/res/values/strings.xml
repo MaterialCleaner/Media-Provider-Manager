@@ -23,7 +23,6 @@
     <string name="not_active">NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
-    <string name="enabled_app_count">Enabled for %d app(s)</string>
     <string name="query_times">Queried %d times</string>
     <string name="insert_times">Inserted %d times</string>
     <string name="delete_times">Deleted %d times</string>
@@ -79,6 +78,7 @@
     <string name="save">Save</string>
     <string name="template_management_key" translatable="false">template_management</string>
     <string name="template_management_title">Template management</string>
+    <string name="applied_app_count">Applied to %d app(s)</string>
     <string name="create_template_title">Create template</string>
     <string name="edit_template_title">Edit template</string>
     <string name="template_name_key" translatable="false">template_name</string>

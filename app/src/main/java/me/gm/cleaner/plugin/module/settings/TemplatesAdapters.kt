@@ -33,6 +33,7 @@ import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.module.BinderViewModel
+import org.json.JSONObject
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     RecyclerView.Adapter<TemplatesHeaderAdapter.ViewHolder>() {
@@ -78,6 +79,17 @@ class TemplatesAdapter(private val fragment: TemplatesFragment, binderViewModel:
     private val activity = fragment.requireActivity() as AppCompatActivity
     private lateinit var selectedHolder: ViewHolder
 
+    fun submitJson(json: JSONObject, commitCallback: Runnable? = null) {
+        submitList(
+            json.keys().asSequence()
+                .map {
+                    it to (JSONObject(json.getString(it))
+                        .optJSONArray(fragment.getString(R.string.apply_to_app_key))?.length() ?: 0)
+                }
+                .toList(), commitCallback
+        )
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(TemplatesItemBinding.inflate(LayoutInflater.from(parent.context)))
 
@@ -85,7 +97,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment, binderViewModel:
         val binding = holder.binding
         val item = getItem(position)
         binding.title.text = item.first
-        binding.summary.text = item.second.toString()
+        binding.summary.text = fragment.getString(R.string.applied_app_count, item.second)
         binding.root.transitionName = item.first
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.templates_fragment) {
