@@ -25,10 +25,12 @@ import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.EditTextPreference
 import androidx.preference.MultiSelectListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -37,6 +39,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
 import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import me.gm.cleaner.plugin.module.settings.preference.AppListMultiSelectListPreference
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import org.json.JSONException
 
@@ -66,26 +69,24 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setHasOptionsMenu(true)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
-        val sharedPreferences = preferenceManager.sharedPreferences
 
         val templateName = getString(R.string.template_name_key)
-        findPreference<EditTextPreference>(templateName)?.setOnPreferenceChangeListener { preference, newValue ->
-            if (remoteSp.contains(newValue as String)) {
-                makeSnackbarWithFullyDraggableContainer(
-                    { requireActivity().findViewById(R.id.fully_draggable_container) },
-                    requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
-                ).show()
-                false
-            } else {
-                true
+        findPreference<EditTextPreference>(templateName)?.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                if (remoteSp.contains(newValue as String)) {
+                    makeSnackbarWithFullyDraggableContainer(
+                        { requireActivity().findViewById(R.id.fully_draggable_container) },
+                        requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
+                    ).show()
+                    false
+                } else {
+                    true
+                }
             }
-        }
 
         val applyToApp = getString(R.string.apply_to_app_key)
-        findPreference<MultiSelectListPreference>(applyToApp)?.apply {
-            entries = arrayOf(/* label */)
-            entryValues = arrayOf(/* packageName */)
-        }
+        findPreference<AppListMultiSelectListPreference>(applyToApp)
+            ?.loadApps(lifecycleScope) { binderViewModel.installedPackages }
     }
 
     override fun onCreateView(
@@ -135,9 +136,9 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         R.id.menu_save -> {
             val templateName = getString(R.string.template_name_key)
             val label = tempSp.getString(templateName, null)
-            val hookOperation =
+            val hookOperationValues =
                 findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
-            if (!label.isNullOrEmpty() && hookOperation?.isNotEmpty() == true) {
+            if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
                 tempSp.edit(true) {
                     remove(templateName)
                 }
