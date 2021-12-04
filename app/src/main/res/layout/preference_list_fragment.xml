@@ -16,8 +16,9 @@
   ~ limitations under the License.
   -->
 
-<me.gm.cleaner.plugin.widget.FitsPreferencesTopInsertsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:paddingTop="?actionBarSize" />
