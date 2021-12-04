@@ -40,6 +40,8 @@ import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
 import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.module.settings.preference.AppListMultiSelectListPreference
+import me.gm.cleaner.plugin.module.settings.preference.PathListPreference
+import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import org.json.JSONException
 
@@ -154,7 +156,20 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onDisplayPreferenceDialog(preference: Preference?) {
+        val f = when (preference) {
+            is PathListPreference -> PathListPreferenceFragmentCompat.newInstance(preference.key)
+            else -> {
+                super.onDisplayPreferenceDialog(preference)
+                return
+            }
+        }
+        f.setTargetFragment(this, 0)
+        f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+    }
+
     companion object {
         const val KEY_LABEL = "me.gm.cleaner.plugin.key.label"
+        private const val DIALOG_FRAGMENT_TAG = "androidx.preference.PreferenceFragment.DIALOG"
     }
 }

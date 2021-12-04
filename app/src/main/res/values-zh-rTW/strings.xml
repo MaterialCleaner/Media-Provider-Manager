@@ -73,6 +73,8 @@
     <string name="apply_to_app_title">應用到應用</string>
     <string name="permitted_media_types_title">允許的媒體類型</string>
     <string name="filter_path_title">過濾路徑</string>
+    <string name="add_path">添加路徑</string>
+    <string name="quit_without_save">更改未保存，您確定要退出嗎？</string>
 
     <!-- 媒體儲存 -->
     <string name="rationale_shouldShowRationale">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限</string>

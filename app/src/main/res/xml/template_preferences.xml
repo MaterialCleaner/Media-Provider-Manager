@@ -47,11 +47,10 @@
         app:key="@string/permitted_media_types_key"
         app:title="@string/permitted_media_types_title" />
 
-    <EditTextPreference
+    <me.gm.cleaner.plugin.module.settings.preference.PathListPreference
         app:dependency="@string/hook_operation_key"
         app:iconSpaceReserved="false"
         app:key="@string/filter_path_key"
-        app:title="@string/filter_path_title"
-        app:useSimpleSummaryProvider="true" />
+        app:title="@string/filter_path_title" />
 
 </PreferenceScreen>
