@@ -29,25 +29,24 @@ import java.util.Arrays;
 import java.util.Set;
 
 @SuppressLint({"RestrictedApi", "PrivateResource"})
-public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPreference {
-    public SummaryProvidedMultiSelectListPreference(
+public class RefinedMultiSelectListPreference extends MultiSelectListPreference {
+    public RefinedMultiSelectListPreference(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         setSummaryProvider(SimpleSummaryProvider.getInstance());
     }
 
-    public SummaryProvidedMultiSelectListPreference(
-            Context context, AttributeSet attrs, int defStyleAttr) {
+    public RefinedMultiSelectListPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public SummaryProvidedMultiSelectListPreference(Context context, AttributeSet attrs) {
+    public RefinedMultiSelectListPreference(Context context, AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.dialogPreferenceStyle,
                 android.R.attr.dialogPreferenceStyle));
     }
 
-    public SummaryProvidedMultiSelectListPreference(Context context) {
+    public RefinedMultiSelectListPreference(Context context) {
         this(context, null);
     }
 
@@ -68,7 +67,7 @@ public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPre
      * otherwise the summary displayed will be the entry set for this preference.
      */
     public static final class SimpleSummaryProvider
-            implements SummaryProvider<SummaryProvidedMultiSelectListPreference> {
+            implements SummaryProvider<RefinedMultiSelectListPreference> {
 
         private static SimpleSummaryProvider sSimpleSummaryProvider;
 
@@ -90,7 +89,7 @@ public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPre
         }
 
         @Override
-        public CharSequence provideSummary(SummaryProvidedMultiSelectListPreference preference) {
+        public CharSequence provideSummary(RefinedMultiSelectListPreference preference) {
             if (preference.getValues().isEmpty()) {
                 return preference.getContext().getString(R.string.not_set);
             } else {
