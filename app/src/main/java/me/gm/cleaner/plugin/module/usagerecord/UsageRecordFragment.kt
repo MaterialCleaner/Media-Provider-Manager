@@ -27,6 +27,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -173,17 +175,21 @@ class UsageRecordFragment : ModuleFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_pick_date -> MaterialDatePicker.Builder
-                .datePicker()
-                .build()
-                .apply {
-                    addOnPositiveButtonClickListener { selection ->
-                        viewModel.loadRecords(
-                            binderViewModel, requireContext().packageManager, selection
-                        )
-                    }
+            R.id.menu_pick_date -> {
+                val calendarConstraints = CalendarConstraints.Builder()
+                    .setValidator(DateValidatorPointBackward.now())
+                    .build()
+                val datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setCalendarConstraints(calendarConstraints)
+                    .setSelection(viewModel.calendar.timeInMillis)
+                    .build()
+                datePicker.addOnPositiveButtonClickListener { selection ->
+                    viewModel.loadRecords(
+                        binderViewModel, requireContext().packageManager, selection
+                    )
                 }
-                .show(childFragmentManager, null)
+                datePicker.show(childFragmentManager, null)
+            }
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
