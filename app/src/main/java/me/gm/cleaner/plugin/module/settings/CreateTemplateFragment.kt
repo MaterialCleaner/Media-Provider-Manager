@@ -18,7 +18,9 @@ package me.gm.cleaner.plugin.module.settings
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.edit
@@ -26,7 +28,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.EditTextPreference
 import androidx.preference.MultiSelectListPreference
@@ -44,6 +45,7 @@ import me.gm.cleaner.plugin.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import org.json.JSONException
+import kotlin.collections.set
 
 class CreateTemplateFragment : AbsSettingsFragment() {
     override val who: Int
@@ -69,7 +71,6 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
-        setHasOptionsMenu(true)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
 
         val templateName = getString(R.string.template_name_key)
@@ -129,33 +130,6 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.toolbar_save, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_save -> {
-            val templateName = getString(R.string.template_name_key)
-            val label = tempSp.getString(templateName, null)
-            val hookOperationValues =
-                findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
-            if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
-                tempSp.edit(true) {
-                    remove(templateName)
-                }
-                remoteSp.edit {
-                    putString(label, tempSp.toString())
-                }
-                findNavController().navigateUp()
-                true
-            } else {
-                false
-            }
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
     override fun onDisplayPreferenceDialog(preference: Preference?) {
         val f = when (preference) {
             is PathListPreference -> PathListPreferenceFragmentCompat.newInstance(preference.key)
@@ -166,6 +140,30 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         }
         f.setTargetFragment(this, 0)
         f.show(parentFragmentManager, DIALOG_FRAGMENT_TAG)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        save()
+    }
+
+    private fun save(): Boolean {
+        val templateName = getString(R.string.template_name_key)
+        val label = tempSp.getString(templateName, null)
+        val hookOperationValues =
+            findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
+        if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
+            tempSp.edit(true) {
+                remove(templateName)
+            }
+            remoteSp.edit {
+                putString(label, tempSp.toString())
+            }
+            tempSp.edit {
+                putString(templateName, label)
+            }
+        }
+        return true
     }
 
     companion object {

@@ -62,7 +62,6 @@
     <string name="scan_for_obsolete_insert_title">使用過時 API 插入文件時執行掃描</string>
     <string name="usage_record_summary">將使用記錄保存到資料庫。關閉後使用記錄頁面將不會再出現新的數據。</string>
     <string name="rule_header">規則</string>
-    <string name="save">保存</string>
     <string name="template_management_title">模板管理</string>
     <string name="applied_app_count">應用到 %d 個應用</string>
     <string name="create_template_title">創建模板</string>
@@ -74,6 +73,7 @@
     <string name="permitted_media_types_title">允許的媒體類型</string>
     <string name="filter_path_title">過濾路徑</string>
     <string name="add_path">添加路徑</string>
+    <string name="save">保存</string>
     <string name="quit_without_save">更改未保存，您確定要退出嗎？</string>
 
     <!-- 媒體儲存 -->
