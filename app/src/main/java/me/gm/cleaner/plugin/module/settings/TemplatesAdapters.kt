@@ -116,7 +116,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
             false
         }
         binding.root.setOnCreateContextMenuListener { menu, _, _ ->
-            activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
+            activity.menuInflater.inflate(R.menu.item_delete, menu)
             menu.setHeaderTitle(item.first)
             menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
         }
@@ -130,9 +130,8 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
         if (!::selectedHolder.isInitialized) return false
         val position = selectedHolder.bindingAdapterPosition
         val label = getItem(position)?.first
-        if (item.itemId == R.id.menu_delete_all_rules) {
-            val modified =
-                fragment.binderViewModel.readSpAsJson(R.xml.template_preferences)
+        if (item.itemId == R.id.menu_delete) {
+            val modified = fragment.binderViewModel.readSpAsJson(R.xml.template_preferences)
             modified.remove(label)
             fragment.binderViewModel.writeSp(R.xml.template_preferences, modified.toString())
             return true

@@ -83,6 +83,7 @@
     <string name="edit_template_title">Edit template</string>
     <string name="template_name_key" translatable="false">template_name</string>
     <string name="template_name_title">Template name</string>
+    <string name="template_name_not_unique">The template name is not unique.</string>
     <string name="hook_operation_key" translatable="false">hook_operation</string>
     <string name="hook_operation_title">Hook operation</string>
     <string name="hook_operation_query" translatable="false">query</string>

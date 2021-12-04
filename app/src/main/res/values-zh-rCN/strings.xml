@@ -68,6 +68,7 @@
     <string name="create_template_title">创建模板</string>
     <string name="edit_template_title">编辑模板</string>
     <string name="template_name_title">模板名</string>
+    <string name="template_name_not_unique">模板名不能与已有的相同</string>
     <string name="hook_operation_title">挂钩操作</string>
     <string name="apply_to_app_title">应用到应用</string>
     <string name="permitted_media_types_title">允许的媒体类型</string>

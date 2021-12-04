@@ -26,6 +26,7 @@ import androidx.preference.MultiSelectListPreference;
 import androidx.preference.R;
 
 import java.util.Arrays;
+import java.util.Set;
 
 @SuppressLint({"RestrictedApi", "PrivateResource"})
 public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPreference {
@@ -48,6 +49,17 @@ public class SummaryProvidedMultiSelectListPreference extends MultiSelectListPre
 
     public SummaryProvidedMultiSelectListPreference(Context context) {
         this(context, null);
+    }
+
+    @Override
+    public void setValues(Set<String> values) {
+        super.setValues(values);
+        notifyDependencyChange(shouldDisableDependents());
+    }
+
+    @Override
+    public boolean shouldDisableDependents() {
+        return getValues().isEmpty();
     }
 
     /**

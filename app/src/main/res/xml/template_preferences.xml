@@ -33,12 +33,14 @@
         app:title="@string/hook_operation_title" />
 
     <me.gm.cleaner.plugin.module.settings.preference.SummaryProvidedMultiSelectListPreference
+        app:dependency="@string/hook_operation_key"
         app:iconSpaceReserved="false"
         app:key="@string/apply_to_app_key"
         app:title="@string/apply_to_app_title" />
 
     <me.gm.cleaner.plugin.module.settings.preference.SummaryProvidedMultiSelectListPreference
         app:defaultValue="@array/media_types_entryValues"
+        app:dependency="@string/hook_operation_key"
         app:entries="@array/media_types_entries"
         app:entryValues="@array/media_types_entryValues"
         app:iconSpaceReserved="false"
