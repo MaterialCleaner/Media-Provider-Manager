@@ -241,6 +241,12 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
 
         @Override
         public boolean commit() {
+            var jsonToWriteToDisk = commitToMemory();
+            return commitToDisk(jsonToWriteToDisk);
+        }
+
+        @NonNull
+        private JSONObject commitToMemory() {
             JSONObject jsonToWriteToDisk;
             Set<OnSharedPreferenceChangeListener> listeners;
             var keysModified = new ArrayList<String>();
@@ -287,10 +293,10 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
                 jsonToWriteToDisk = new JSONObject(getAll());
             }
             notifyListeners(listeners, keysModified);
-            return commitToDisk(jsonToWriteToDisk);
+            return jsonToWriteToDisk;
         }
 
-        public void notifyListeners(Set<OnSharedPreferenceChangeListener> listeners, List<String> keysModified) {
+        private void notifyListeners(Set<OnSharedPreferenceChangeListener> listeners, List<String> keysModified) {
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 for (int i = keysModified.size() - 1; i >= 0; i--) {
                     final String key = keysModified.get(i);
@@ -312,7 +318,8 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
 
         @Override
         public void apply() {
-            new Thread(this::commit).start();
+            var jsonToWriteToDisk = commitToMemory();
+            new Thread(() -> commitToDisk(jsonToWriteToDisk)).start();
         }
     }
 }

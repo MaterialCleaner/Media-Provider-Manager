@@ -72,7 +72,6 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
-
         val templateName = getString(R.string.template_name_key)
         findPreference<EditTextPreference>(templateName)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
