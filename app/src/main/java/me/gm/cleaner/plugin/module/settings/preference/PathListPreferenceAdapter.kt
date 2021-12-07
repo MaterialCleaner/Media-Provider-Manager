@@ -28,8 +28,7 @@ import me.gm.cleaner.plugin.databinding.PathListItemBinding
 import java.io.File
 
 class PathListPreferenceAdapter(
-    private val fragment: PathListPreferenceFragmentCompat,
-    private val preference: PathListPreference
+    private val fragment: PathListPreferenceFragmentCompat
 ) : ListAdapter<String, PathListPreferenceAdapter.ViewHolder>(CALLBACK) {
     private lateinit var selectedHolder: ViewHolder
 
@@ -40,14 +39,6 @@ class PathListPreferenceAdapter(
         val binding = holder.binding
         val path = getItem(position)!!
         binding.title.text = path
-        binding.root.setOnClickListener {
-//            FilePickerDialog.newInstance(
-//                preference.dialogTitle, path, object : OnOkListener {
-//                    override fun onOk(dir: String) {
-//                        fragment.newValues = fragment.newValues - path + dir
-//                    }
-//                }).show(fragment.childFragmentManager, null)
-        }
         binding.root.setOnLongClickListener {
             selectedHolder = holder
             false
@@ -76,7 +67,6 @@ class PathListPreferenceAdapter(
         private val CALLBACK: DiffUtil.ItemCallback<String> =
             object : DiffUtil.ItemCallback<String>() {
                 override fun areItemsTheSame(oldItem: String, newItem: String) = oldItem == newItem
-
                 override fun areContentsTheSame(oldItem: String, newItem: String) =
                     oldItem == newItem
             }

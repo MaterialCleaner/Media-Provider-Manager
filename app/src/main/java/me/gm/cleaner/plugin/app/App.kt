@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.app
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
@@ -26,11 +27,15 @@ import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 @HiltAndroidApp
 class App : Application() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            HiddenApiBypass.addHiddenApiExemptions("")
+        }
         if (!BuildConfig.DEBUG) {
             AppCenter.start(
                 this, "274b837f-ed2e-43ec-b36d-b08328b353ca",

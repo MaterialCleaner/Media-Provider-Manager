@@ -19,9 +19,11 @@ package me.gm.cleaner.plugin.module.settings.preference
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
@@ -30,6 +32,7 @@ import androidx.preference.PreferenceDialogFragmentCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
@@ -38,11 +41,12 @@ import java.text.Collator
 
 class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
     private val pathListPreference by lazy { preference as PathListPreference }
-    private val adapter by lazy { PathListPreferenceAdapter(this, pathListPreference) }
+    private val adapter by lazy { PathListPreferenceAdapter(this) }
     var newValues = emptyList<String>()
         set(value) {
+            val collator = Collator.getInstance()
             field = value.sortedWith { o1, o2 ->
-                Collator.getInstance().compare(o1, o2)
+                collator.compare(o1, o2)
             }
             adapter.submitList(field)
         }
@@ -59,6 +63,9 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
             .setNegativeButton(android.R.string.cancel, null)
             .create()
     }
+    val openDocumentTreeLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree(), this::onFragmentResult
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,14 +131,15 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-//        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
-//            FilePickerDialog.newInstance(pathListPreference.dialogTitle, null, object :
-//                FilePickerDialog.OnOkListener {
-//                override fun onOk(dir: String) {
-//                    newValues += dir
-//                }
-//            }).show(childFragmentManager, null)
-//        }
+        view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            openDocumentTreeLauncher.launch(null)
+        }
+    }
+
+    fun onFragmentResult(result: Uri?) {
+        result ?: return
+        val target = treeUriToFile(result, requireContext()) ?: return
+        newValues += target.path
     }
 
     override fun onDestroyView() {
