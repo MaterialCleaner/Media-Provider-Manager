@@ -28,7 +28,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
-import androidx.preference.PreferenceDialogFragmentCompat
+import androidx.preference.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
@@ -39,7 +39,8 @@ import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 import java.text.Collator
 
-class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
+class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
+    PreferenceManager.OnDisplayPreferenceDialogListener, DialogPreference.TargetFragment {
     private val pathListPreference by lazy { preference as PathListPreference }
     private val adapter by lazy { PathListPreferenceAdapter(this) }
     var newValues = emptyList<String>()
@@ -66,6 +67,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
     val openDocumentTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(), this::onFragmentResult
     )
+    private val preferences = mutableListOf<Preference>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,9 +133,57 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+        val preference = object : EditTextPreference(requireContext()) {
+            override fun getPreferenceManager() = object : PreferenceManager(requireContext()) {
+                init {
+                    onDisplayPreferenceDialogListener = this@PathListPreferenceFragmentCompat
+                }
+            }
+        }.apply {
+            key = TEXT_EDITOR
+            dialogTitle = pathListPreference.dialogTitle
+        }
+        preferences.add(preference)
+
         view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
             openDocumentTreeLauncher.launch(null)
         }
+    }
+
+    override fun onDisplayPreferenceDialog(preference: Preference?) {
+        preference ?: return
+        val f = when (preference) {
+            is EditTextPreference -> {
+                EditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey())
+            }
+            is ListPreference -> {
+                ListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
+            }
+            is MultiSelectListPreference -> {
+                MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
+            }
+            else -> {
+                throw IllegalArgumentException(
+                    "Cannot display dialog for an unknown Preference type: "
+                            + preference.javaClass.simpleName
+                            + ". Make sure to implement onPreferenceDisplayDialog() to handle "
+                            + "displaying a custom dialog for this Preference."
+                )
+            }
+        }
+        f.setTargetFragment(this, 0)
+        f.show(parentFragmentManager, null)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Preference?> findPreference(key: CharSequence): T? {
+        for (preference in preferences) {
+            val curKey = preference.key
+            if (curKey == key) {
+                return preference as T
+            }
+        }
+        return null
     }
 
     fun onFragmentResult(result: Uri?) {
@@ -169,6 +219,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat() {
     companion object {
         private const val SAVE_STATE_VALUES = "PathListPreferenceFragmentCompat.values"
         private const val SAVED_SHOWS_ALERT_DIALOG = "android:showsAlertDialog"
+        const val TEXT_EDITOR = "android:textEditor"
         fun newInstance(key: String?) =
             PathListPreferenceFragmentCompat().apply { arguments = bundleOf(ARG_KEY to key) }
     }

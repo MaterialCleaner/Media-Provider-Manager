@@ -16,15 +16,18 @@
 
 package me.gm.cleaner.plugin.module.settings.preference
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.core.view.forEach
+import androidx.preference.EditTextPreference
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.PathListItemBinding
+import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat.Companion.TEXT_EDITOR
 import java.io.File
 
 class PathListPreferenceAdapter(
@@ -35,10 +38,20 @@ class PathListPreferenceAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(PathListItemBinding.inflate(LayoutInflater.from(parent.context)))
 
+    @SuppressLint("RestrictedApi")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val path = getItem(position)!!
         binding.title.text = path
+        binding.root.setOnClickListener {
+            val preference = fragment.findPreference<EditTextPreference>(TEXT_EDITOR)
+            preference?.text = path
+            preference?.setOnPreferenceChangeListener { _, newValue ->
+                fragment.newValues = fragment.newValues - path + newValue as String
+                false
+            }
+            preference?.performClick()
+        }
         binding.root.setOnLongClickListener {
             selectedHolder = holder
             false
