@@ -26,6 +26,7 @@
 
     <me.gm.cleaner.plugin.module.settings.preference.RefinedMultiSelectListPreference
         app:defaultValue="@array/hook_operation_entryValues"
+        app:dependency="@string/template_name_key"
         app:entries="@array/hook_operation_entries"
         app:entryValues="@array/hook_operation_entryValues"
         app:iconSpaceReserved="false"

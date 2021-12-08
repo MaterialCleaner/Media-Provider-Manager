@@ -58,7 +58,7 @@ public class RefinedMultiSelectListPreference extends MultiSelectListPreference 
 
     @Override
     public boolean shouldDisableDependents() {
-        return getValues().isEmpty();
+        return getValues().isEmpty() || super.shouldDisableDependents();
     }
 
     /**
