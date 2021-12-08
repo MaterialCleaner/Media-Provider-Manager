@@ -16,17 +16,17 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
-    android:padding="@dimen/screen_edge">
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="?android:textColorPrimary" />
-</FrameLayout>
+    <shortcut
+        android:icon="@mipmap/images_shortcut_icon"
+        android:shortcutId="images"
+        android:shortcutShortLabel="@string/images">
+        <intent
+            android:action="me.gm.cleaner.plugin.intent.action.IMAGES"
+            android:targetClass="me.gm.cleaner.plugin.app.MainActivity"
+            android:targetPackage="me.gm.cleaner.plugin" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+</shortcuts>

@@ -16,8 +16,20 @@
 
 package me.gm.cleaner.plugin.app
 
+import android.os.Bundle
+import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.drawer.DrawerActivity
 
 @AndroidEntryPoint
-class MainActivity : DrawerActivity()
+class MainActivity : DrawerActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val action = intent.action ?: return
+        when (action) {
+            "me.gm.cleaner.plugin.intent.action.IMAGES" ->
+                findNavController(R.id.nav_host).navigate(R.id.images_fragment)
+        }
+    }
+}

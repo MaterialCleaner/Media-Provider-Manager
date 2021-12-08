@@ -255,8 +255,8 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
                 var hasListeners = !listeners.isEmpty();
                 synchronized (mEditorLock) {
                     if (mClear) {
-                        mStore.keys().forEachRemaining(this::remove);
                         mModified.clear();
+                        mStore.keys().forEachRemaining(this::remove);
                         mClear = false;
                     }
 
