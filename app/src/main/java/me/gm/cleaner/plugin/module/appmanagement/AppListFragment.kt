@@ -81,7 +81,7 @@ class AppListFragment : ModuleFragment() {
             insets
         }
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(binderViewModel, requireContext().packageManager, null)
+            viewModel.loadApps(binderViewModel, requireContext(), null)
         }
 
         // Start a coroutine in the lifecycle scope
@@ -106,7 +106,7 @@ class AppListFragment : ModuleFragment() {
             }
         }
         if (savedInstanceState == null && viewModel.isLoading) {
-            viewModel.loadApps(binderViewModel, requireContext().packageManager)
+            viewModel.loadApps(binderViewModel, requireContext())
         }
         setFragmentResultListener(AppFragment::class.java.simpleName) { _, bundle ->
             enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
@@ -117,7 +117,7 @@ class AppListFragment : ModuleFragment() {
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
-                viewModel.updateApps()
+                viewModel.updateApps(binderViewModel, requireContext())
             }
         })
         return binding.root

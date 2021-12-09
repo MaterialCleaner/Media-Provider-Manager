@@ -8,7 +8,7 @@
 	public static void throw*(...);
 }
 
--keepnames class * extends me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
+-keepnames class * extends me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 
 -keepclasseswithmembers,allowobfuscation class * {
   @com.google.gson.annotations.SerializedName <fields>;

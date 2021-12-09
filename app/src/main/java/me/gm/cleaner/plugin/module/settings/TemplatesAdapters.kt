@@ -82,7 +82,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
         submitList(
             json.keys().asSequence()
                 .map {
-                    it to (JSONObject(json.getString(it))
+                    it to (json.getJSONObject(it)
                         .optJSONArray(fragment.getString(R.string.apply_to_app_key))?.length() ?: 0)
                 }
                 .toList(), commitCallback

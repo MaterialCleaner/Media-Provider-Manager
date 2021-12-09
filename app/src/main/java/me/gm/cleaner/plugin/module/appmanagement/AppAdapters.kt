@@ -26,9 +26,9 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.databinding.AppHeaderBinding
 import me.gm.cleaner.plugin.di.GlideApp
 

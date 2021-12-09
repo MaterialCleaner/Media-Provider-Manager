@@ -17,10 +17,8 @@
 package me.gm.cleaner.plugin.module.appmanagement
 
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.forEach
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -38,7 +36,6 @@ class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
-    private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ApplistItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -51,7 +48,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             .into(binding.icon)
         binding.title.text = pi.label
         binding.summary.text = if (pi.ruleCount > 0) {
-            activity.buildStyledTitle(pi.ruleCount.toString())
+            activity.buildStyledTitle(fragment.getString(R.string.enabled_rule_count, pi.ruleCount))
         } else {
             pi.packageName
         }
@@ -69,34 +66,10 @@ class AppListAdapter(private val fragment: AppListFragment) :
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }
-        binding.root.setOnLongClickListener {
-            selectedHolder = holder
-            false
-        }
-        binding.root.setOnCreateContextMenuListener { menu, _, _ ->
-            activity.menuInflater.inflate(R.menu.item_delete_all_rules, menu)
-            menu.setHeaderTitle(pi.label)
-            if (pi.ruleCount == 0) {
-                menu.removeItem(R.id.menu_delete_all_rules)
-            } else {
-                menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
-            }
-        }
 
         if (fragment.enterPackageName == pi.packageName) {
             fragment.startPostponedEnterTransition()
         }
-    }
-
-    private fun onContextItemSelected(item: MenuItem): Boolean {
-        if (!::selectedHolder.isInitialized) return false
-        val position = selectedHolder.bindingAdapterPosition
-        val pi = getItem(position)!!
-        if (item.itemId == R.id.menu_delete_all_rules) {
-//            ModulePreferences.removePackage(pi.packageName)
-            return true
-        }
-        return false
     }
 
     class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root)

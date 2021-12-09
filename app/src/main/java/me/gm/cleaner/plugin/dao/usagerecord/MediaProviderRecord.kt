@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.dao.mediaprovider
+package me.gm.cleaner.plugin.dao.usagerecord
 
 import android.database.Cursor
 import androidx.room.Database

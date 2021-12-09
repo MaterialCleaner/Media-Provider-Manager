@@ -60,6 +60,32 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
         }
     }
 
+    public JSONObject getDelegate() {
+        synchronized (mLock) {
+            try {
+                return new JSONObject(mStore, getNames(mStore));
+            } catch (JSONException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static String[] getNames(JSONObject jo) {
+        var length = jo.length();
+        if (length == 0) {
+            return null;
+        }
+        var iterator = jo.keys();
+        var names = new String[length];
+        var i = 0;
+        while (iterator.hasNext()) {
+            names[i] = iterator.next();
+            i += 1;
+        }
+        return names;
+    }
+
     @Override
     public Map<String, ?> getAll() {
         var all = new HashMap<String, Object>();
@@ -217,6 +243,24 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
 
         @Override
         public Editor putBoolean(String key, boolean value) {
+            synchronized (mEditorLock) {
+                mModified.put(key, value);
+                return this;
+            }
+        }
+
+        /**
+         * Maps {@code name} to {@code value}, clobbering any existing name/value
+         * mapping with the same name. If the value is {@code null}, any existing
+         * mapping for {@code name} is removed.
+         *
+         * @param value a {@link JSONObject}, {@link JSONArray}, String, Boolean,
+         *              Integer, Long, Double, {@link JSONObject#NULL}, or {@code null}. May not be
+         *              {@link Double#isNaN() NaNs} or {@link Double#isInfinite()
+         *              infinities}.
+         * @return this object.
+         */
+        public Editor putAny(String key, Object value) {
             synchronized (mEditorLock) {
                 mModified.put(key, value);
                 return this;

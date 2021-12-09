@@ -16,11 +16,12 @@
 
 package me.gm.cleaner.plugin.module.appmanagement
 
-import android.content.pm.PackageManager
+import android.content.Context
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
@@ -28,22 +29,46 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {
     suspend fun load(
-        binderViewModel: BinderViewModel, pm: PackageManager, l: ProgressListener?
+        binderViewModel: BinderViewModel, context: Context, l: ProgressListener?
     ) = withContext(defaultDispatcher) {
+        val packageNameToRuleCount = fetchRuleCount(binderViewModel, context)
         val installedPackages = binderViewModel.installedPackages
         val size = installedPackages.size
         val count = AtomicInteger(0)
         installedPackages.map {
             ensureActive()
             l?.onProgress(100 * count.incrementAndGet() / size)
-            PreferencesPackageInfo.newInstance(it, pm)
+            PreferencesPackageInfo.newInstance(it, context.packageManager).apply {
+                ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
+            }
         }
     }
 
-    suspend fun update(old: List<PreferencesPackageInfo>) = withContext(defaultDispatcher) {
+    private fun fetchRuleCount(
+        binderViewModel: BinderViewModel, context: Context
+    ): Map<String, Int> {
+        val map = mutableMapOf<String, Int>()
+        val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
+        json.keys().forEach { templateName ->
+            val packages = json.getJSONObject(templateName)
+                .getJSONArray(context.getString(R.string.apply_to_app_key))
+            for (i in 0 until packages.length()) {
+                val packageName = packages[i] as String
+                map[packageName] = map.getOrDefault(packageName, 0) + 1
+            }
+        }
+        return map
+    }
+
+    suspend fun update(
+        old: List<PreferencesPackageInfo>, binderViewModel: BinderViewModel, context: Context
+    ) = withContext(defaultDispatcher) {
+        val packageNameToRuleCount = fetchRuleCount(binderViewModel, context)
         mutableListOf<PreferencesPackageInfo>().apply {
             old.forEach {
-                add(it.copy())
+                add(it.copy().apply {
+                    ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
+                })
             }
         }
     }

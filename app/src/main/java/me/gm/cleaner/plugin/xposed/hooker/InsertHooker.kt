@@ -25,7 +25,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver

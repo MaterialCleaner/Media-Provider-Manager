@@ -24,7 +24,6 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
     lateinit var label: String
         private set
     var ruleCount = 0
-        private set
 
     override fun hashCode(): Int {
         var result = label.hashCode()
@@ -78,12 +77,10 @@ class PreferencesPackageInfo private constructor() : PackageInfo() {
         fun newInstance(old: PackageInfo, pm: PackageManager) = PreferencesPackageInfo().apply {
             copyFieldsFrom(old)
             label = pm.getApplicationLabel(old.applicationInfo).toString()
-//                ruleCount = ModulePreferences.getPackageSRCount(old.packageName)
         }
 
         fun PreferencesPackageInfo.copy() = PreferencesPackageInfo().also {
             it.copyFieldsFrom(this)
-//                it.ruleCount = ModulePreferences.getPackageSRCount(packageName)
         }
     }
 }

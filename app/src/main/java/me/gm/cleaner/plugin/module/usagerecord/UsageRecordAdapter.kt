@@ -31,10 +31,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer

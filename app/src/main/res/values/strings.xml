@@ -23,6 +23,7 @@
     <string name="not_active">NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
+    <string name="enabled_rule_count">%d rules enabled</string>
     <string name="query_times">Queried %d times</string>
     <string name="insert_times">Inserted %d times</string>
     <string name="delete_times">Deleted %d times</string>
@@ -50,7 +51,6 @@
     <string name="menu_hide_no_storage_permission_key" translatable="false">hide_no_storage_permission</string>
     <string name="menu_hide_no_storage_permission_title">No storage permission apps</string>
     <string name="delete">Delete</string>
-    <string name="delete_all_rules">Delete All Rules</string>
     <string name="pick_date_title">Pick a date</string>
     <string name="menu_hide_query_key" translatable="false">hide_query</string>
     <string name="menu_hide_query_title">Query records</string>

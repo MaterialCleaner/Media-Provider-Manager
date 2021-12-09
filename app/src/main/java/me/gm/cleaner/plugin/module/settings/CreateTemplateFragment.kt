@@ -54,7 +54,10 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     private val args: CreateTemplateFragmentArgs by navArgs()
     private val tempSp by lazy {
         try {
-            JsonSharedPreferencesImpl(remoteSp.getString(args.label, null))
+            JsonSharedPreferencesImpl(
+                binderViewModel.readSpAsJson(who).optJSONObject(args.label)
+                    ?: throw JSONException("")
+            )
         } catch (e: JSONException) {
             JsonSharedPreferencesImpl()
         }.apply {
@@ -152,14 +155,10 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         val hookOperationValues =
             findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
         if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
-            tempSp.edit(true) {
-                remove(templateName)
-            }
+            val delegate = tempSp.delegate
+            delegate.remove(templateName)
             remoteSp.edit {
-                putString(label, tempSp.toString())
-            }
-            tempSp.edit {
-                putString(templateName, label)
+                (this as JsonSharedPreferencesImpl.JsonEditorImpl).putAny(label, delegate)
             }
         }
         return true

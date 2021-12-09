@@ -26,7 +26,7 @@ import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.MimeUtils

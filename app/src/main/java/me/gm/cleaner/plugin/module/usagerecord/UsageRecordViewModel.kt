@@ -28,10 +28,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.mediaprovider.MediaProviderRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
+import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.util.*

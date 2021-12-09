@@ -14,37 +14,36 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.dao.mediaprovider
+package me.gm.cleaner.plugin.dao.usagerecord
 
 import android.database.Cursor
 import androidx.room.*
-import me.gm.cleaner.plugin.dao.ListConverter
 
 @Entity
-data class MediaProviderQueryRecord(
+data class MediaProviderInsertRecord(
     @PrimaryKey @ColumnInfo(name = "time_millis") override val timeMillis: Long,
     @ColumnInfo(name = "package_name") override val packageName: String,
-    @ColumnInfo(name = "table") val table: Int,
-    @ColumnInfo(name = "data") val data: List<String>,
-    @ColumnInfo(name = "mime_type") val mimeType: List<String>,
+    @ColumnInfo(name = "match") val match: Int,
+    @ColumnInfo(name = "data") val data: String,
+    @ColumnInfo(name = "mime_type") val mimeType: String,
     @ColumnInfo(name = "intercepted") override val intercepted: Boolean,
-) : MediaProviderRecord(timeMillis, packageName, data, intercepted) {
-    override fun convert(cursor: Cursor): List<MediaProviderQueryRecord> {
+) : MediaProviderRecord(timeMillis, packageName, listOf(data), intercepted) {
+    override fun convert(cursor: Cursor): List<MediaProviderInsertRecord> {
         val timeMillisColumn = cursor.getColumnIndex("time_millis")
         val packageNameColumn = cursor.getColumnIndex("package_name")
-        val tableColumn = cursor.getColumnIndex("table")
+        val matchColumn = cursor.getColumnIndex("match")
         val dataColumn = cursor.getColumnIndex("data")
         val mimeTypeColumn = cursor.getColumnIndex("mime_type")
         val interceptedColumn = cursor.getColumnIndex("intercepted")
 
-        val records = mutableListOf<MediaProviderQueryRecord>()
+        val records = mutableListOf<MediaProviderInsertRecord>()
         while (cursor.moveToNext()) {
-            records += MediaProviderQueryRecord(
+            records += MediaProviderInsertRecord(
                 cursor.getLong(timeMillisColumn),
                 cursor.getString(packageNameColumn),
-                cursor.getInt(tableColumn),
-                ListConverter.fromString(cursor.getString(dataColumn)) ?: continue,
-                ListConverter.fromString(cursor.getString(mimeTypeColumn)) ?: continue,
+                cursor.getInt(matchColumn),
+                cursor.getString(dataColumn),
+                cursor.getString(mimeTypeColumn),
                 cursor.getLong(interceptedColumn) != 0L,
             )
         }
@@ -53,16 +52,16 @@ data class MediaProviderQueryRecord(
 }
 
 @Dao
-interface MediaProviderQueryRecordDao {
-    @Query("SELECT * FROM MediaProviderQueryRecord WHERE time_millis BETWEEN (:start) AND (:end)")
+interface MediaProviderInsertRecordDao {
+    @Query("SELECT * FROM MediaProviderInsertRecord WHERE time_millis BETWEEN (:start) AND (:end)")
     fun loadForTimeMillis(start: Long, end: Long): Cursor
 
-    @Query("SELECT count(*) FROM MediaProviderQueryRecord WHERE package_name IN (:packageNames)")
+    @Query("SELECT count(*) FROM MediaProviderInsertRecord WHERE package_name IN (:packageNames)")
     fun packageUsageTimes(vararg packageNames: String): Int
 
     @Insert
-    fun insert(records: MediaProviderQueryRecord)
+    fun insert(vararg records: MediaProviderInsertRecord)
 
     @Delete
-    fun delete(record: MediaProviderQueryRecord)
+    fun delete(record: MediaProviderInsertRecord)
 }

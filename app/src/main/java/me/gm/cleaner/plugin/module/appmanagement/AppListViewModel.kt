@@ -17,8 +17,8 @@
 package me.gm.cleaner.plugin.module.appmanagement
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -85,13 +85,9 @@ class AppListViewModel : ViewModel() {
                         else -> throw IllegalArgumentException()
                     }
                     if (ModulePreferences.ruleCount) {
-//                    sequence = sortWith { o1, o2 ->
-//                        when (mTitle) {
-//                            R.string.storage_redirect_title -> return@sortWith o2!!.srCount - o1!!.srCount
-//                            R.string.foreground_activity_observer_title -> return@sortWith o2!!.faInfo.size - o1!!.faInfo.size
-//                            else -> return@sortWith 0
-//                        }
-//                    }
+                        sequence = sequence.sortedWith { o1, o2 ->
+                            o2.ruleCount - o1.ruleCount
+                        }
                     }
                     SourceState.Done(sequence.toList())
                 }
@@ -99,7 +95,7 @@ class AppListViewModel : ViewModel() {
         }
 
     fun loadApps(
-        binderViewModel: BinderViewModel, pm: PackageManager,
+        binderViewModel: BinderViewModel, context: Context,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
                 _appsFlow.value = SourceState.Loading(progress)
@@ -108,15 +104,17 @@ class AppListViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             _appsFlow.value = SourceState.Loading(0)
-            val list = AppListLoader().load(binderViewModel, pm, l)
+            val list = AppListLoader().load(binderViewModel, context, l)
             _appsFlow.value = SourceState.Done(list)
         }
     }
 
-    fun updateApps() {
+    fun updateApps(binderViewModel: BinderViewModel, context: Context) {
         viewModelScope.launch {
             if (!isLoading) {
-                val list = AppListLoader().update((_appsFlow.value as SourceState.Done).list)
+                val list = AppListLoader().update(
+                    (_appsFlow.value as SourceState.Done).list, binderViewModel, context
+                )
                 _appsFlow.value = SourceState.Loading(0)
                 _appsFlow.value = SourceState.Done(list)
             }
