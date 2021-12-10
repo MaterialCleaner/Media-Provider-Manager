@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.module.settings;
 
+import org.json.JSONException;
+
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.module.BinderViewModel;
 
@@ -23,14 +25,14 @@ public final class BinderSpImpl extends JsonSharedPreferencesImpl {
     public final int who;
     private final BinderViewModel mBinderViewModel;
 
-    public BinderSpImpl(BinderViewModel binderViewModel, int who) {
-        super(binderViewModel.readSpAsJson(who));
+    public BinderSpImpl(BinderViewModel binderViewModel, int who) throws JSONException {
+        super(binderViewModel.readSp(who));
         mBinderViewModel = binderViewModel;
         this.who = who;
     }
 
     @Override
-    public Editor edit() {
+    public JsonEditorImpl edit() {
         return new JsonEditorImpl(jsonObject -> {
             mBinderViewModel.writeSp(who, jsonObject.toString());
             return true;

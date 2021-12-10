@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.model.Template
 import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
@@ -31,7 +31,7 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     suspend fun load(
         binderViewModel: BinderViewModel, context: Context, l: ProgressListener?
     ) = withContext(defaultDispatcher) {
-        val packageNameToRuleCount = fetchRuleCount(binderViewModel, context)
+        val packageNameToRuleCount = fetchRuleCount(binderViewModel.readTemplates())
         val installedPackages = binderViewModel.installedPackages
         val size = installedPackages.size
         val count = AtomicInteger(0)
@@ -44,16 +44,10 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
         }
     }
 
-    private fun fetchRuleCount(
-        binderViewModel: BinderViewModel, context: Context
-    ): Map<String, Int> {
+    private fun fetchRuleCount(templates: Array<Template>): Map<String, Int> {
         val map = mutableMapOf<String, Int>()
-        val json = binderViewModel.readSpAsJson(R.xml.template_preferences)
-        json.keys().forEach { templateName ->
-            val packages = json.getJSONObject(templateName)
-                .getJSONArray(context.getString(R.string.apply_to_app_key))
-            for (i in 0 until packages.length()) {
-                val packageName = packages[i] as String
+        templates.forEach { templateName ->
+            templateName.applyToApp?.forEach { packageName ->
                 map[packageName] = map.getOrDefault(packageName, 0) + 1
             }
         }
@@ -61,9 +55,9 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     }
 
     suspend fun update(
-        old: List<PreferencesPackageInfo>, binderViewModel: BinderViewModel, context: Context
+        old: List<PreferencesPackageInfo>, binderViewModel: BinderViewModel
     ) = withContext(defaultDispatcher) {
-        val packageNameToRuleCount = fetchRuleCount(binderViewModel, context)
+        val packageNameToRuleCount = fetchRuleCount(binderViewModel.readTemplates())
         mutableListOf<PreferencesPackageInfo>().apply {
             old.forEach {
                 add(it.copy().apply {

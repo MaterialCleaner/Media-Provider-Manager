@@ -61,6 +61,16 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
                         }
                     }
                 )
+
+//                XposedHelpers.findAndHookMethod("com.android.providers.media.scan.ModernMediaScanner",
+//                    classLoader, "scanFile", File::class.java, Int::class.java,
+//                    String::class.java, object : XC_MethodHook() {
+//                        override fun beforeHookedMethod(param: MethodHookParam) {
+//                            val file = param.args[0] as File
+//                            XposedBridge.log(file.path)
+//                        }
+//                    }
+//                )
             }
             "com.android.providers.downloads" -> {
                 XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())

@@ -27,12 +27,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.Hold
+import com.google.gson.Gson
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
-import org.json.JSONObject
+import me.gm.cleaner.plugin.model.Template
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     RecyclerView.Adapter<TemplatesHeaderAdapter.ViewHolder>() {
@@ -73,21 +74,10 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
 }
 
 class TemplatesAdapter(private val fragment: TemplatesFragment) :
-    ListAdapter<Pair<String, Int>, TemplatesAdapter.ViewHolder>(CALLBACK) {
+    ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
     private lateinit var selectedHolder: ViewHolder
-
-    fun submitJson(json: JSONObject, commitCallback: Runnable? = null) {
-        submitList(
-            json.keys().asSequence()
-                .map {
-                    it to (json.getJSONObject(it)
-                        .optJSONArray(fragment.getString(R.string.apply_to_app_key))?.length() ?: 0)
-                }
-                .toList(), commitCallback
-        )
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(TemplatesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -95,19 +85,21 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val item = getItem(position)
-        binding.title.text = item.first
-        binding.summary.text = fragment.getString(R.string.applied_app_count, item.second)
-        binding.root.transitionName = item.first
+        binding.title.text = item.templateName
+        binding.summary.text =
+            fragment.getString(R.string.applied_app_count, item.applyToApp?.size ?: 0)
+        binding.root.transitionName = item.templateName
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterRuleLabel = item.first
+            fragment.enterRuleLabel = item.templateName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
 
-            val direction = TemplatesFragmentDirections.actionTemplatesToCreateTemplate(item.first)
+            val direction =
+                TemplatesFragmentDirections.actionTemplatesToCreateTemplate(item.templateName)
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }
@@ -117,23 +109,23 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
         }
         binding.root.setOnCreateContextMenuListener { menu, _, _ ->
             activity.menuInflater.inflate(R.menu.item_delete, menu)
-            menu.setHeaderTitle(item.first)
+            menu.setHeaderTitle(item.templateName)
             menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
         }
 
-        if (fragment.enterRuleLabel == item.first) {
+        if (fragment.enterRuleLabel == item.templateName) {
             fragment.startPostponedEnterTransition()
         }
     }
 
     private fun onContextItemSelected(item: MenuItem): Boolean {
         if (!::selectedHolder.isInitialized) return false
-        val position = selectedHolder.bindingAdapterPosition
-        val label = getItem(position)?.first
         if (item.itemId == R.id.menu_delete) {
-            val modified = fragment.binderViewModel.readSpAsJson(R.xml.template_preferences)
-            modified.remove(label)
-            fragment.binderViewModel.writeSp(R.xml.template_preferences, modified.toString())
+            val position = selectedHolder.bindingAdapterPosition
+            val templateToRemove = getItem(position).templateName
+            val modified = fragment.binderViewModel.readTemplates()
+                .filterNot { it.templateName == templateToRemove }
+            fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
             return true
         }
         return false
@@ -142,14 +134,14 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
     class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<Pair<String, Int>> =
-            object : DiffUtil.ItemCallback<Pair<String, Int>>() {
+        private val CALLBACK: DiffUtil.ItemCallback<Template> =
+            object : DiffUtil.ItemCallback<Template>() {
                 override fun areItemsTheSame(
-                    oldItem: Pair<String, Int>, newItem: Pair<String, Int>
-                ) = oldItem.first == newItem.first
+                    oldItem: Template, newItem: Template
+                ) = oldItem.templateName == newItem.templateName
 
                 override fun areContentsTheSame(
-                    oldItem: Pair<String, Int>, newItem: Pair<String, Int>
+                    oldItem: Template, newItem: Template
                 ) = oldItem == newItem
             }
     }

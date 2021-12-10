@@ -122,22 +122,26 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 repeat(10) {
                     ensureActive()
                     val unsplashPhoto = unsplashPhotos.random()
-                    val newImageDetails = ContentValues().apply {
+                    val imageDetails = ContentValues().apply {
                         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
                         put(MediaStore.MediaColumns.DISPLAY_NAME, unsplashPhoto.filename)
                         put(
                             MediaStore.MediaColumns.MIME_TYPE,
                             "image/${unsplashPhoto.filename.substringAfterLast('.')}"
                         )
+                        put(MediaStore.Audio.Media.IS_PENDING, 1)
                     }
                     val imageUri = resolver.insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, newImageDetails
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageDetails
                     ) ?: return@repeat
                     runCatching {
                         val `is` = URL(unsplashPhoto.getPhotoUrl(width)).openStream()
                         val os = resolver.openOutputStream(imageUri, "w") ?: return@runCatching
                         FileUtils.copy(`is`, os)
                     }
+                    imageDetails.clear()
+                    imageDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
+                    resolver.update(imageUri, imageDetails, null, null)
                 }
             }.onFailure { e ->
                 e.printStackTrace()

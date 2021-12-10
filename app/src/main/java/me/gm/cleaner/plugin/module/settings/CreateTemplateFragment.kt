@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
-import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -36,15 +35,16 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.gson.Gson
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
 import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import me.gm.cleaner.plugin.model.Template
 import me.gm.cleaner.plugin.module.settings.preference.AppListMultiSelectListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
-import org.json.JSONException
 import kotlin.collections.set
 
 class CreateTemplateFragment : AbsSettingsFragment() {
@@ -55,15 +55,11 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     private val tempSp by lazy {
         try {
             JsonSharedPreferencesImpl(
-                binderViewModel.readSpAsJson(who).optJSONObject(args.label)
-                    ?: throw JSONException("")
+                Gson().toJson(
+                    binderViewModel.readTemplates().first { it.templateName == args.label })
             )
-        } catch (e: JSONException) {
+        } catch (e: NoSuchElementException) {
             JsonSharedPreferencesImpl()
-        }.apply {
-            edit(true) {
-                putString(getString(R.string.template_name_key), args.label)
-            }
         }
     }
 
@@ -78,14 +74,16 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         val templateName = getString(R.string.template_name_key)
         findPreference<EditTextPreference>(templateName)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                if (remoteSp.contains(newValue as String)) {
-                    makeSnackbarWithFullyDraggableContainer(
-                        { requireActivity().findViewById(R.id.fully_draggable_container) },
-                        requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
-                    ).show()
-                    false
-                } else {
-                    true
+                when {
+                    args.label == newValue as String -> false
+                    binderViewModel.readTemplates().any { it.templateName == newValue } -> {
+                        makeSnackbarWithFullyDraggableContainer(
+                            { requireActivity().findViewById(R.id.fully_draggable_container) },
+                            requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
+                        ).show()
+                        false
+                    }
+                    else -> true
                 }
             }
 
@@ -155,11 +153,12 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         val hookOperationValues =
             findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
         if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
-            val delegate = tempSp.delegate
-            delegate.remove(templateName)
-            remoteSp.edit {
-                (this as JsonSharedPreferencesImpl.JsonEditorImpl).putAny(label, delegate)
-            }
+            val template = Gson().fromJson(tempSp.delegate.toString(), Template::class.java)
+            val json = Gson().toJson(
+                binderViewModel.readTemplates()
+                    .filterNot { it.templateName == args.label } + template
+            )
+            binderViewModel.writeSp(who, json)
         }
         return true
     }

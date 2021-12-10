@@ -127,7 +127,7 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
             }
             try {
                 for (int i = 0, length = jsonArray.length(); i < length; i++) {
-                    result.add((String) jsonArray.get(i));
+                    result.add(jsonArray.get(i).toString());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -165,7 +165,7 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
     }
 
     @Override
-    public Editor edit() {
+    public JsonEditorImpl edit() {
         return new JsonEditorImpl(jsonObject -> false);
     }
 
