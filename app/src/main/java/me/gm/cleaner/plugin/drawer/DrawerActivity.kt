@@ -55,9 +55,14 @@ abstract class DrawerActivity : BaseActivity() {
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         // NavController's backend
-        val shouldAlterStartDestination =
-            savedInstanceState == null && ModulePreferences.startDestination in topLevelDestinationIds
+        val action = intent.action
+        val shouldAlterStartDestination = action != "android.intent.action.MAIN" ||
+                savedInstanceState == null && ModulePreferences.startDestination in topLevelDestinationIds
         if (shouldAlterStartDestination) {
+            when (action) {
+                "me.gm.cleaner.plugin.intent.action.IMAGES" ->
+                    ModulePreferences.startDestination = R.id.images_fragment
+            }
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
                 setStartDestination(ModulePreferences.startDestination)
             }

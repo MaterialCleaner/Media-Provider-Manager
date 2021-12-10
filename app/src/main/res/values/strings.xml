@@ -100,7 +100,7 @@
     <string name="media_type_none" translatable="false">0</string>
     <string name="filter_path_key" translatable="false">filter_path</string>
     <string name="filter_path_title">Filter path</string>
-    <string name="add_path">Add path</string>
+    <string name="add_path">Add a path</string>
     <string name="save">Save</string>
     <string name="quit_without_save">Changes aren\'t saved yet, are you sure you want to quit?</string>
 
