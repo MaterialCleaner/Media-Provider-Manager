@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import me.zhanghai.android.fastscroll.FastScroller
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
@@ -181,4 +182,27 @@ fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
     val vh = findViewHolderForAdapterPosition(position)
     vh ?: return true
     return layoutManager?.isViewPartiallyVisible(vh.itemView, false, false) == false
+}
+
+// ViewCompat's ApplyWindowInsetsListener has issue of the search view.
+// ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
+//     val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+//     view.setPaddingRelative(
+//         paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
+//     )
+//     fastScroller.setPadding(0, 0, 0, systemBarsBottom)
+//     insets
+// }
+fun RecyclerView.fitsSystemBottomInset(fastScroller: FastScroller? = null) {
+    val paddingStart = paddingStart
+    val paddingTop = paddingTop
+    val paddingEnd = paddingEnd
+    val paddingBottom = paddingBottom
+    setOnApplyWindowInsetsListener { view, insets ->
+        view.setPaddingRelative(
+            paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
+        )
+        fastScroller?.setPadding(0, 0, 0, insets.systemWindowInsetBottom)
+        insets
+    }
 }

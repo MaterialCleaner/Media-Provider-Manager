@@ -35,10 +35,7 @@ import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
-import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
-import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.buildStyledTitle
-import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
@@ -71,26 +68,7 @@ class UsageRecordFragment : ModuleFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        val paddingStart = list.paddingStart
-        val paddingTop = list.paddingTop
-        val paddingEnd = list.paddingEnd
-        val paddingBottom = list.paddingBottom
-        list.setOnApplyWindowInsetsListener { view, insets ->
-            view.setPaddingRelative(
-                paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
-            )
-            fastScroller.setPadding(0, 0, 0, insets.systemWindowInsetBottom)
-            insets
-        }
-//        ViewCompat's ApplyWindowInsetsListener has issue of the search view.
-//        ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
-//            val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-//            view.setPaddingRelative(
-//                paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
-//            )
-//            fastScroller.setPadding(0, 0, 0, systemBarsBottom)
-//            insets
-//        }
+        list.fitsSystemBottomInset(fastScroller)
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
                 viewModel.reloadRecords(binderViewModel, requireContext().packageManager).await()

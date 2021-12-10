@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
-import androidx.core.util.containsKey
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -56,16 +55,7 @@ class TemplatesFragment : ModuleFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        val paddingStart = list.paddingStart
-        val paddingTop = list.paddingTop
-        val paddingEnd = list.paddingEnd
-        val paddingBottom = list.paddingBottom
-        list.setOnApplyWindowInsetsListener { view, insets ->
-            view.setPaddingRelative(
-                paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
-            )
-            insets
-        }
+        list.fitsSystemBottomInset()
         list.addItemDecoration(DividerDecoration(list).apply {
             setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
             setAllowDividerAfterLastItem(false)
@@ -74,9 +64,7 @@ class TemplatesFragment : ModuleFragment() {
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
             templatesAdapter.submitList(binderViewModel.readTemplates().toList())
         }
-        if (!binderViewModel.remoteSpCache.containsKey(R.xml.template_preferences)) {
-            templatesAdapter.submitList(binderViewModel.readTemplates().toList())
-        }
+
         setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
             enterRuleLabel = bundle.getString(CreateTemplateFragment.KEY_LABEL)
             postponeEnterTransition()

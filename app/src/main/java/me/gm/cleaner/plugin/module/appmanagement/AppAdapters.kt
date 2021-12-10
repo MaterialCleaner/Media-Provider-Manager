@@ -21,16 +21,30 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.forEach
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.platform.Hold
+import com.google.gson.Gson
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.databinding.AppHeaderBinding
+import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
+import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
 import me.gm.cleaner.plugin.di.GlideApp
+import me.gm.cleaner.plugin.ktx.DividerViewHolder
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import me.gm.cleaner.plugin.model.Template
 
 class AppHeaderAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<AppHeaderAdapter.ViewHolder>() {
@@ -76,5 +90,122 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
 
     override fun getItemCount() = 1
 
-    class ViewHolder(val binding: AppHeaderBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: AppHeaderBinding) : DividerViewHolder(binding.root) {
+        init {
+            isDividerAllowedBelow = true
+        }
+    }
+}
+
+/** copy from TemplatesAdapters with a bit of modification */
+class TemplatesAdapter(private val fragment: AppFragment) :
+    ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
+    private val navController by lazy { fragment.findNavController() }
+    private val activity = fragment.requireActivity() as AppCompatActivity
+    private lateinit var selectedHolder: ViewHolder
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(TemplatesItemBinding.inflate(LayoutInflater.from(parent.context)))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        val item = getItem(position)
+        binding.title.text = item.templateName
+        binding.summary.text =
+            fragment.getString(R.string.applied_app_count, item.applyToApp?.size ?: 0)
+        binding.root.transitionName = item.templateName
+        binding.root.setOnClickListener {
+            if (navController.currentDestination?.id != R.id.app_fragment) {
+                return@setOnClickListener
+            }
+            fragment.enterRuleLabel = item.templateName
+            fragment.exitTransition = Hold().apply {
+                duration = fragment.requireContext().mediumAnimTime
+            }
+
+            val direction =
+                AppFragmentDirections.actionAppToCreateTemplate(item.templateName)
+            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction, extras)
+        }
+        binding.root.setOnLongClickListener {
+            selectedHolder = holder
+            false
+        }
+        binding.root.setOnCreateContextMenuListener { menu, _, _ ->
+            activity.menuInflater.inflate(R.menu.item_delete, menu)
+            menu.setHeaderTitle(item.templateName)
+            menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
+        }
+
+        if (fragment.enterRuleLabel == item.templateName) {
+            fragment.startPostponedEnterTransition()
+        }
+    }
+
+    private fun onContextItemSelected(item: MenuItem): Boolean {
+        if (!::selectedHolder.isInitialized) return false
+        if (item.itemId == R.id.menu_delete) {
+            val position = selectedHolder.bindingAdapterPosition
+            val templateToRemove = getItem(position).templateName
+            val modified = fragment.binderViewModel.readTemplates()
+                .filterNot { it.templateName == templateToRemove }
+            fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
+            return true
+        }
+        return false
+    }
+
+    class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)
+
+    companion object {
+        private val CALLBACK: DiffUtil.ItemCallback<Template> =
+            object : DiffUtil.ItemCallback<Template>() {
+                override fun areItemsTheSame(
+                    oldItem: Template, newItem: Template
+                ) = oldItem.templateName == newItem.templateName
+
+                override fun areContentsTheSame(
+                    oldItem: Template, newItem: Template
+                ) = oldItem == newItem
+            }
+    }
+}
+
+class TemplatesFooterAdapter(private val fragment: AppFragment) :
+    RecyclerView.Adapter<TemplatesFooterAdapter.ViewHolder>() {
+    private val navController by lazy { fragment.findNavController() }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        binding.root.transitionName = "null"
+        binding.root.setOnClickListener {
+            if (navController.currentDestination?.id != R.id.app_fragment) {
+                return@setOnClickListener
+            }
+            fragment.enterRuleLabel = "null"
+            fragment.exitTransition = Hold().apply {
+                duration = fragment.requireContext().mediumAnimTime
+            }
+
+            val direction = AppFragmentDirections.actionAppToCreateTemplate()
+            val extras = FragmentNavigatorExtras(it to it.transitionName)
+            navController.navigate(direction, extras)
+        }
+
+        if (fragment.enterRuleLabel == "null") {
+            fragment.startPostponedEnterTransition()
+        }
+    }
+
+    override fun getItemCount() = 1
+
+    class ViewHolder(val binding: TemplatesHeaderBinding) : DividerViewHolder(binding.root) {
+        init {
+            isDividerAllowedAbove = true
+        }
+    }
 }

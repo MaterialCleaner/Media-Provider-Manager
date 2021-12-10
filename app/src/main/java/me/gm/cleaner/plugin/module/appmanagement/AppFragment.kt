@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.module.appmanagement
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +24,12 @@ import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
@@ -34,21 +37,26 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.AppFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
+import me.gm.cleaner.plugin.module.settings.CreateTemplateFragment
 import rikka.recyclerview.fixEdgeEffect
 
 class AppFragment : ModuleFragment() {
     private val viewModel: AppViewModel by viewModels()
     private val args: AppFragmentArgs by navArgs()
     private val navController by lazy { findNavController() }
+    var enterRuleLabel: String? = null
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = AppFragmentBinding.inflate(layoutInflater)
 
-        val adapter = AppHeaderAdapter(this)
+        val templatesAdapter = TemplatesAdapter(this)
+        val adapters =
+            ConcatAdapter(AppHeaderAdapter(this), templatesAdapter, TemplatesFooterAdapter(this))
         val list = binding.list
-        list.adapter = adapter
+        list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
@@ -64,17 +72,20 @@ class AppFragment : ModuleFragment() {
                 }
             }
         })
-        val paddingStart = list.paddingStart
-        val paddingTop = list.paddingTop
-        val paddingEnd = list.paddingEnd
-        val paddingBottom = list.paddingBottom
-        list.setOnApplyWindowInsetsListener { view, insets ->
-            view.setPaddingRelative(
-                paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
-            )
-            insets
+        list.fitsSystemBottomInset()
+        list.addItemDecoration(DividerDecoration(list).apply {
+            setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
+            setAllowDividerAfterLastItem(false)
+        })
+
+        binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
+            templatesAdapter.submitList(binderViewModel.readTemplates().toList())
         }
 
+        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
+            enterRuleLabel = bundle.getString(CreateTemplateFragment.KEY_LABEL)
+            postponeEnterTransition()
+        }
         prepareSharedElementTransition(list)
         return binding.root
     }
