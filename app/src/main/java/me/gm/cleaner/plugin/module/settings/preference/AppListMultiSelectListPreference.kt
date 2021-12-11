@@ -29,6 +29,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.text.Collator
 import java.util.*
+import java.util.function.Consumer
 import java.util.function.Supplier
 
 @SuppressLint("RestrictedApi", "PrivateResource")
@@ -38,11 +39,14 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
     ), defStyleRes: Int = 0
 ) : MultiSelectListPreference(context, attrs, defStyleAttr, defStyleRes) {
     private lateinit var packageNameToLabel: List<Pair<String, CharSequence>>
+    private var onAppsLoadedListener: Consumer<AppListMultiSelectListPreference>? = null
 
     /** Delay showDialog if applist is not loaded when clicked. */
     private val mutex = Mutex()
 
-    fun loadApps(lifecycleScope: CoroutineScope, applistSupplier: Supplier<List<PackageInfo>>) {
+    fun loadApps(
+        lifecycleScope: CoroutineScope, applistSupplier: Supplier<List<PackageInfo>>
+    ): AppListMultiSelectListPreference {
         lifecycleScope.launch {
             mutex.withLock {
                 val pm = context.packageManager
@@ -58,6 +62,12 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
             }
             summaryProvider = instance
         }
+        return this
+    }
+
+    fun setOnAppsLoadedListener(l: Consumer<AppListMultiSelectListPreference>): AppListMultiSelectListPreference {
+        onAppsLoadedListener = l
+        return this
     }
 
     override fun setValues(values: Set<String>) {
@@ -76,6 +86,10 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
         }
         entries = list.stream().map { it.second }.toArray { arrayOfNulls<String>(list.size) }
         entryValues = list.stream().map { it.first }.toArray { arrayOfNulls<String>(list.size) }
+
+        val l = onAppsLoadedListener
+        onAppsLoadedListener = null
+        l?.accept(this)
     }
 
     override fun onClick() {

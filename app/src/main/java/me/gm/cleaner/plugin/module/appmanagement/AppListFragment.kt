@@ -100,6 +100,9 @@ class AppListFragment : ModuleFragment() {
             postponeEnterTransition()
         }
 
+        binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
+            viewModel.updateApps(binderViewModel)
+        }
         ModulePreferences.addOnPreferenceChangeListener(object :
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()

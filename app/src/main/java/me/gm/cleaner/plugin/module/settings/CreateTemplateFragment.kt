@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.SharedElementCallback
+import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -56,10 +57,14 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         try {
             JsonSharedPreferencesImpl(
                 Gson().toJson(
-                    binderViewModel.readTemplates().first { it.templateName == args.label })
+                    binderViewModel.readTemplates().first { it.templateName == args.templateName })
             )
         } catch (e: NoSuchElementException) {
             JsonSharedPreferencesImpl()
+        }.apply {
+            edit {
+                putString(getString(R.string.template_name_key), args.templateName)
+            }
         }
     }
 
@@ -75,7 +80,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         findPreference<EditTextPreference>(templateName)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
                 when {
-                    args.label == newValue as String -> false
+                    args.templateName == newValue as String -> false
                     binderViewModel.readTemplates().any { it.templateName == newValue } -> {
                         makeSnackbarWithFullyDraggableContainer(
                             { requireActivity().findViewById(R.id.fully_draggable_container) },
@@ -90,6 +95,11 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<AppListMultiSelectListPreference>(applyToApp)
             ?.loadApps(lifecycleScope) { binderViewModel.installedPackages }
+            ?.setOnAppsLoadedListener {
+                if (args.packageName != null) {
+                    it.values = it.values + args.packageName
+                }
+            }
     }
 
     override fun onCreateView(
@@ -97,12 +107,17 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     ): View? = super.onCreateView(inflater, container, savedInstanceState)
         ?.apply { prepareSharedElementTransition(findViewById(R.id.recycler_view)) }
 
-    private fun prepareSharedElementTransition(list: RecyclerView) {
-        val label = args.label ?: "null"
+    private fun prepareSharedElementTransition(list: RecyclerView?) {
+        val templateName =
+            tempSp.getString(getString(R.string.template_name_key), NULL_TEMPLATE_NAME)
         setFragmentResult(
-            CreateTemplateFragment::class.java.simpleName, bundleOf(KEY_LABEL to label)
+            CreateTemplateFragment::class.java.simpleName,
+            bundleOf(KEY_TEMPLATE_NAME to templateName)
         )
-        list.transitionName = label
+        if (list == null) {
+            return
+        }
+        list.transitionName = templateName
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host
@@ -125,7 +140,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (args.label != null) {
+        if (args.templateName != null) {
             (requireActivity() as AppCompatActivity).supportActionBar?.setTitle(R.string.edit_template_title)
         }
     }
@@ -145,18 +160,18 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onStop() {
         super.onStop()
         save()
+        prepareSharedElementTransition(null)
     }
 
     private fun save(): Boolean {
-        val templateName = getString(R.string.template_name_key)
-        val label = tempSp.getString(templateName, null)
+        val templateName = tempSp.getString(getString(R.string.template_name_key), null)
         val hookOperationValues =
             findPreference<MultiSelectListPreference>(getString(R.string.hook_operation_key))?.values
-        if (!label.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
+        if (!templateName.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
             val template = Gson().fromJson(tempSp.delegate.toString(), Template::class.java)
             val json = Gson().toJson(
                 binderViewModel.readTemplates()
-                    .filterNot { it.templateName == args.label } + template
+                    .filterNot { it.templateName == args.templateName } + template
             )
             binderViewModel.writeSp(who, json)
         }
@@ -164,7 +179,8 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     }
 
     companion object {
-        const val KEY_LABEL = "me.gm.cleaner.plugin.key.label"
+        const val KEY_TEMPLATE_NAME = "me.gm.cleaner.plugin.key.templateName"
+        const val NULL_TEMPLATE_NAME = "@null"
         private const val DIALOG_FRAGMENT_TAG = "androidx.preference.PreferenceFragment.DIALOG"
     }
 }

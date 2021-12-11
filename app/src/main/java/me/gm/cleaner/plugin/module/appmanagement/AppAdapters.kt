@@ -45,6 +45,7 @@ import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.module.settings.CreateTemplateFragment
 
 class AppHeaderAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<AppHeaderAdapter.ViewHolder>() {
@@ -97,7 +98,6 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
     }
 }
 
-/** copy from TemplatesAdapters with a bit of modification */
 class TemplatesAdapter(private val fragment: AppFragment) :
     ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
@@ -118,7 +118,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
             if (navController.currentDestination?.id != R.id.app_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterRuleLabel = item.templateName
+            fragment.lastTemplateName = item.templateName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
@@ -138,7 +138,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
             menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
         }
 
-        if (fragment.enterRuleLabel == item.templateName) {
+        if (fragment.lastTemplateName == item.templateName) {
             fragment.startPostponedEnterTransition()
         }
     }
@@ -174,6 +174,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
 
 class TemplatesFooterAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<TemplatesFooterAdapter.ViewHolder>() {
+    private val args: AppFragmentArgs by fragment.navArgs()
     private val navController by lazy { fragment.findNavController() }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -181,22 +182,23 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        binding.root.transitionName = "null"
+        binding.root.transitionName = args.label
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.app_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterRuleLabel = "null"
+            fragment.lastTemplateName = args.label
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
 
-            val direction = AppFragmentDirections.actionAppToCreateTemplate()
+            val direction =
+                AppFragmentDirections.actionAppToCreateTemplate(args.label, args.pi.packageName)
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }
 
-        if (fragment.enterRuleLabel == "null") {
+        if (fragment.lastTemplateName == CreateTemplateFragment.NULL_TEMPLATE_NAME) {
             fragment.startPostponedEnterTransition()
         }
     }

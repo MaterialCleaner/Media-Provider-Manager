@@ -72,7 +72,12 @@
         android:name="me.gm.cleaner.plugin.module.settings.CreateTemplateFragment"
         android:label="@string/create_template_title">
         <argument
-            android:name="label"
+            android:name="templateName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="packageName"
             app:argType="string"
             app:nullable="true"
             android:defaultValue="@null" />

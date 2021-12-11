@@ -23,22 +23,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.model.Template
 import me.gm.cleaner.plugin.module.ModuleFragment
 import rikka.recyclerview.fixEdgeEffect
+import java.text.Collator
 import kotlin.collections.set
 
 class TemplatesFragment : ModuleFragment() {
-    var enterRuleLabel: String? = null
+    var lastTemplateName: String? = null
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreateView(
@@ -62,15 +66,30 @@ class TemplatesFragment : ModuleFragment() {
         })
 
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
-            templatesAdapter.submitList(binderViewModel.readTemplates().toList())
+            templatesAdapter.submitList(prepareCurrentList())
         }
 
-        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
-            enterRuleLabel = bundle.getString(CreateTemplateFragment.KEY_LABEL)
-            postponeEnterTransition()
-        }
         prepareSharedElementTransition(list)
+        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
+            lastTemplateName = bundle.getString(CreateTemplateFragment.KEY_TEMPLATE_NAME)
+            postponeEnterTransition()
+            var position = prepareCurrentList().indexOfFirst { it.templateName == lastTemplateName }
+            if (position != -1) {
+                position++
+            } else {
+                position = adapters.itemCount - 1
+                lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
+            }
+            scrollToPosition(list, position)
+        }
         return binding.root
+    }
+
+    private fun prepareCurrentList(): List<Template> {
+        val collator = Collator.getInstance()
+        return binderViewModel.readTemplates().sortedWith { o1, o2 ->
+            collator.compare(o1?.templateName, o2?.templateName)
+        }
     }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
@@ -95,6 +114,25 @@ class TemplatesFragment : ModuleFragment() {
                 }
             }
         })
+    }
+
+    private fun scrollToPosition(list: RecyclerView, position: Int) {
+        list.doOnPreDraw {
+            val layoutManager = list.layoutManager as? LinearLayoutManager ?: return@doOnPreDraw
+            val viewAtPosition = layoutManager.findViewByPosition(position)
+            // Scroll to position if the view for the current position is null (not currently part of
+            // layout manager children), or it's not completely visible.
+            if (viewAtPosition == null ||
+                layoutManager.isViewPartiallyVisible(viewAtPosition, false, true)
+            ) {
+                val lastPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                if (position >= lastPosition && lastPosition - layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
+                    layoutManager.scrollToPosition(position)
+                } else {
+                    layoutManager.scrollToPositionWithOffset(position, list.paddingTop)
+                }
+            }
+        }
     }
 
     companion object {

@@ -44,12 +44,12 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        binding.root.transitionName = "null"
+        binding.root.transitionName = CreateTemplateFragment.NULL_TEMPLATE_NAME
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterRuleLabel = "null"
+            fragment.lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
@@ -59,7 +59,7 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
             navController.navigate(direction, extras)
         }
 
-        if (fragment.enterRuleLabel == "null") {
+        if (fragment.lastTemplateName == CreateTemplateFragment.NULL_TEMPLATE_NAME) {
             fragment.startPostponedEnterTransition()
         }
     }
@@ -93,7 +93,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterRuleLabel = item.templateName
+            fragment.lastTemplateName = item.templateName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
@@ -113,7 +113,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
             menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
         }
 
-        if (fragment.enterRuleLabel == item.templateName) {
+        if (fragment.lastTemplateName == item.templateName) {
             fragment.startPostponedEnterTransition()
         }
     }

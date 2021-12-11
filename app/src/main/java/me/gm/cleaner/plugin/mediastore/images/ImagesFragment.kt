@@ -51,12 +51,12 @@ import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
     private val viewModel: ImagesViewModel by viewModels()
     private lateinit var list: RecyclerView
-    private lateinit var keyProvider: StableIdKeyProvider
     private lateinit var selectionTracker: SelectionTracker<Long>
     private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
     private var actionMode: ActionMode? = null
@@ -78,9 +78,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
-        keyProvider = StableIdKeyProvider(list)
         selectionTracker = SelectionTracker.Builder(
-            ImagesAdapter::class.java.simpleName, list, keyProvider,
+            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
             DetailsLookup(list), StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -99,6 +98,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         FastScrollerBuilder(list)
             .useMd2Style()
+            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
             .build()
 
         findNavController().addOnExitListener { _, destination, _ ->
@@ -150,8 +150,8 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
                 override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
                     when (item.itemId) {
                         R.id.menu_delete -> {
-                            val images = selectionTracker.selection.map {
-                                viewModel.images[keyProvider.getPosition(it)]
+                            val images = selectionTracker.selection.map { selection ->
+                                viewModel.images.first { it.id == selection }
                             }
                             selectionTracker.clearSelection()
                             when {
@@ -193,11 +193,10 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
             viewModel.loadImages()
         }
         setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
-            val position = bundle.getInt(ImagePagerFragment.KEY_POSITION)
-            lastPosition = position
+            lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             prepareTransitions()
             postponeEnterTransition()
-            scrollToPosition(position)
+            scrollToPosition(list, lastPosition)
         }
     }
 
@@ -225,7 +224,7 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
      * Scrolls the recycler view to show the last viewed item in the grid. This is important when
      * navigating back from the grid.
      */
-    private fun scrollToPosition(position: Int) {
+    private fun scrollToPosition(list: RecyclerView, position: Int) {
         list.doOnPreDraw {
             val layoutManager = list.layoutManager as? LinearLayoutManager ?: return@doOnPreDraw
             val viewAtPosition = layoutManager.findViewByPosition(position)
