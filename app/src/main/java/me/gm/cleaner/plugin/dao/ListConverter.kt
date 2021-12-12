@@ -19,6 +19,8 @@ package me.gm.cleaner.plugin.dao
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.lang.Character.MAX_RADIX
+import java.math.BigInteger
 
 object ListConverter {
     @TypeConverter
@@ -31,4 +33,28 @@ object ListConverter {
 
     @TypeConverter
     fun listToString(list: List<String>?) = Gson().toJson(list)
+
+    @TypeConverter
+    fun booleanListFromString(value: String): List<Boolean> {
+        val splitIndex = value.indexOf(':', 1)
+        val size = value.substring(0, splitIndex).toInt()
+        val values = BigInteger(value.substring(splitIndex + 1), MAX_RADIX)
+
+        val list = mutableListOf<Boolean>()
+        for (i in 0 until size) {
+            list.add(values.testBit(i))
+        }
+        return list
+    }
+
+    @TypeConverter
+    fun booleanListToString(list: List<Boolean>): String {
+        val value = BigInteger("0", MAX_RADIX)
+        for (i in list.indices) {
+            if (list[i]) {
+                value.setBit(i)
+            }
+        }
+        return "${list.size}:${value.toString(MAX_RADIX)}"
+    }
 }

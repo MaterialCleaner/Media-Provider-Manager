@@ -31,7 +31,6 @@
     <string name="queried_at">查询于\ </string>
     <string name="inserted_at">插入于\ </string>
     <string name="deleted_at">删除于\ </string>
-    <string name="intercepted">（已拦截）</string>
     <string name="and_more">更多 %d 项</string>
     <string name="copied">已复制：%s</string>
 
@@ -67,7 +66,7 @@
     <string name="create_template_title">创建模板</string>
     <string name="edit_template_title">编辑模板</string>
     <string name="template_name_title">模板名</string>
-    <string name="template_name_not_unique">模板名不能与已有的相同</string>
+    <string name="template_name_not_unique">模板名不唯一</string>
     <string name="hook_operation_title">挂钩操作</string>
     <string name="apply_to_app_title">应用到应用</string>
     <string name="permitted_media_types_title">允许的媒体类型</string>

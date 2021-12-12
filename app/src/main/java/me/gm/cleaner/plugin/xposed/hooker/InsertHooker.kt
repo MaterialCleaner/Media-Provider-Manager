@@ -27,6 +27,8 @@ import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.ktx.retry
+import me.gm.cleaner.plugin.model.Templates
+import me.gm.cleaner.plugin.model.Templates.Companion.filterNot
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import me.gm.cleaner.plugin.xposed.util.FileUtils.externalStorageDirPath
@@ -65,7 +67,9 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** INTERCEPT */
-        val shouldIntercept = false
+        val shouldIntercept = data != null && mimeType != null && Templates(service.ruleSp.read())
+            .matchedTemplates(javaClass, param.callingPackage)
+            .filterNot(listOf(data), listOf(mimeType)).first()
         if (shouldIntercept) {
             param.result = null
         }

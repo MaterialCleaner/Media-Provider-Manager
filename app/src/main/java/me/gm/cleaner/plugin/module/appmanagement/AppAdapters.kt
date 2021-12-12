@@ -45,6 +45,7 @@ import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.settings.CreateTemplateFragment
 
 class AppHeaderAdapter(private val fragment: AppFragment) :
@@ -148,7 +149,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
         if (item.itemId == R.id.menu_delete) {
             val position = selectedHolder.bindingAdapterPosition
             val templateToRemove = getItem(position).templateName
-            val modified = fragment.binderViewModel.readTemplates()
+            val modified = Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
                 .filterNot { it.templateName == templateToRemove }
             fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
             return true

@@ -16,7 +16,14 @@
 
 package me.gm.cleaner.plugin.model
 
+import android.database.CrossProcessCursorWrapper
+import android.database.Cursor
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
+import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
+import me.gm.cleaner.plugin.xposed.util.FileUtils
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
 data class Template(
     @field:SerializedName("template_name") val templateName: String,
@@ -25,3 +32,57 @@ data class Template(
     @field:SerializedName("permitted_media_types") val permittedMediaTypes: List<Int>?,
     @field:SerializedName("filter_path") val filterPath: List<String>?,
 )
+
+class Templates(json: String?) : ArrayList<Template>() {
+    init {
+        if (!json.isNullOrEmpty()) {
+            addAll(
+                Gson().fromJson(json, Array<Template>::class.java)
+            )
+        }
+    }
+
+    fun matchedTemplates(cls: Class<*>, packageName: String): List<Template> = filter { template ->
+        when (cls) {
+            QueryHooker::class.java -> template.hookOperation.contains("query")
+            InsertHooker::class.java -> template.hookOperation.contains("insert")
+            else -> throw IllegalArgumentException()
+        } && template.applyToApp?.contains(packageName) == true
+    }
+
+    companion object {
+        fun List<Template>.filterNot(
+            dataList: List<String>, mimeTypeList: List<String>
+        ): List<Boolean> = dataList.zip(mimeTypeList).map { (data, mimeType) ->
+            any { template ->
+                MimeUtils.resolveMediaType(mimeType) !in template.permittedMediaTypes ?: emptyList() ||
+                        template.filterPath?.any { FileUtils.startsWith(it, data) } == true
+            }
+        }
+
+        fun List<Boolean>.applyToCursor(c: Cursor): Cursor {
+            // FIXME
+            return object : CrossProcessCursorWrapper(c) {
+                var filteredCount = -1
+                override fun getCount(): Int {
+                    if (filteredCount == -1) {
+                        filteredCount = asSequence().count { !it }
+                    }
+                    return filteredCount
+                }
+
+                override fun moveToNext(): Boolean {
+                    val maybeDstPosition = c.position + 1
+                    if (maybeDstPosition > size - 1) {
+                        return false
+                    }
+                    return if (this@applyToCursor[maybeDstPosition]) {
+                        moveToNext()
+                    } else {
+                        super.moveToNext()
+                    }
+                }
+            }
+        }
+    }
+}

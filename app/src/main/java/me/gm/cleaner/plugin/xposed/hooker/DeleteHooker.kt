@@ -124,6 +124,8 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
             else -> return // We don't care about these data, just ignore.
         }
 
+        // There is a system confirm dialog before deletion, thus we don't intercept delete operation.
+
         /** RECORD */
         if (service.rootSp.getBoolean(
                 service.resources.getString(R.string.usage_record_key), true
@@ -137,13 +139,11 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         match,
                         data,
                         mimeType,
-                        false
+                        Array(data.size) { false }.toList()
                     )
                 )
             }
         }
-
-        // There is a system confirm dialog before deletion, thus we don't need to intercept delete.
     }
 
     private val TYPE_DELETE: Int = when {

@@ -28,7 +28,8 @@ abstract class MediaProviderRecord(
     open val timeMillis: Long,
     open val packageName: String,
     @Ignore val dataList: List<String>,
-    open val intercepted: Boolean,
+    @Ignore val mimeTypeList: List<String>,
+    @Ignore val interceptedList: List<Boolean>,
     @Ignore open var packageInfo: PreferencesPackageInfo? = null,
 ) {
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
@@ -37,7 +38,8 @@ abstract class MediaProviderRecord(
         var result = timeMillis.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + dataList.hashCode()
-        result = 31 * result + intercepted.hashCode()
+        result = 31 * result + mimeTypeList.hashCode()
+        result = 31 * result + interceptedList.hashCode()
         return result
     }
 
@@ -50,7 +52,8 @@ abstract class MediaProviderRecord(
         if (timeMillis != other.timeMillis) return false
         if (packageName != other.packageName) return false
         if (dataList != other.dataList) return false
-        if (intercepted != other.intercepted) return false
+        if (mimeTypeList != other.mimeTypeList) return false
+        if (interceptedList != other.interceptedList) return false
 
         return true
     }

@@ -61,11 +61,7 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             is MediaProviderInsertRecord -> fragment.getString(R.string.inserted_at)
             is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
-        } + formatDateTime(record.timeMillis) + if (record.intercepted) {
-            fragment.getString(R.string.intercepted)
-        } else {
-            ""
-        }
+        } + formatDateTime(record.timeMillis)
         val more = record.dataList.size - 1
         val hasMore = more > 0
         binding.record.text = record.dataList.first() + if (hasMore) "... " else ""
@@ -77,7 +73,10 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
         }
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter<CharSequence>(
-                context, R.layout.usagerecord_popup_item, record.dataList
+                context, R.layout.usagerecord_popup_item,
+                record.dataList.zip(record.interceptedList).map { (data, intercepted) ->
+                    (if (intercepted) "-" else "") + data
+                }
             )
             val listPopupWindow = ListPopupWindow(context)
             listPopupWindow.setAdapter(adapter)

@@ -36,6 +36,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.TemplatesFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.ModuleFragment
 import rikka.recyclerview.fixEdgeEffect
 import java.text.Collator
@@ -87,7 +88,7 @@ class TemplatesFragment : ModuleFragment() {
 
     private fun prepareCurrentList(): List<Template> {
         val collator = Collator.getInstance()
-        return binderViewModel.readTemplates().sortedWith { o1, o2 ->
+        return Templates(binderViewModel.readSp(R.xml.template_preferences)).sortedWith { o1, o2 ->
             collator.compare(o1?.templateName, o2?.templateName)
         }
     }

@@ -27,15 +27,15 @@ data class MediaProviderDeleteRecord(
     @ColumnInfo(name = "match") val match: Int,
     @ColumnInfo(name = "data") val data: List<String>,
     @ColumnInfo(name = "mime_type") val mimeType: List<String>,
-    @ColumnInfo(name = "intercepted") override val intercepted: Boolean,
-) : MediaProviderRecord(timeMillis, packageName, data, intercepted) {
+    @ColumnInfo(name = "intercepted") val intercepted: List<Boolean>,
+) : MediaProviderRecord(timeMillis, packageName, data, mimeType, intercepted) {
     override fun convert(cursor: Cursor): List<MediaProviderDeleteRecord> {
-        val timeMillisColumn = cursor.getColumnIndex("time_millis")
-        val packageNameColumn = cursor.getColumnIndex("package_name")
-        val matchColumn = cursor.getColumnIndex("match")
-        val dataColumn = cursor.getColumnIndex("data")
-        val mimeTypeColumn = cursor.getColumnIndex("mime_type")
-        val interceptedColumn = cursor.getColumnIndex("intercepted")
+        val timeMillisColumn = cursor.getColumnIndexOrThrow("time_millis")
+        val packageNameColumn = cursor.getColumnIndexOrThrow("package_name")
+        val matchColumn = cursor.getColumnIndexOrThrow("match")
+        val dataColumn = cursor.getColumnIndexOrThrow("data")
+        val mimeTypeColumn = cursor.getColumnIndexOrThrow("mime_type")
+        val interceptedColumn = cursor.getColumnIndexOrThrow("intercepted")
 
         val records = mutableListOf<MediaProviderDeleteRecord>()
         while (cursor.moveToNext()) {
@@ -45,7 +45,7 @@ data class MediaProviderDeleteRecord(
                 cursor.getInt(matchColumn),
                 ListConverter.fromString(cursor.getString(dataColumn)) ?: continue,
                 ListConverter.fromString(cursor.getString(mimeTypeColumn)) ?: continue,
-                cursor.getLong(interceptedColumn) != 0L,
+                ListConverter.booleanListFromString(cursor.getString(interceptedColumn)),
             )
         }
         return records

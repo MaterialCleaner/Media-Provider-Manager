@@ -34,6 +34,7 @@ import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.model.Templates
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     RecyclerView.Adapter<TemplatesHeaderAdapter.ViewHolder>() {
@@ -123,7 +124,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
         if (item.itemId == R.id.menu_delete) {
             val position = selectedHolder.bindingAdapterPosition
             val templateToRemove = getItem(position).templateName
-            val modified = fragment.binderViewModel.readTemplates()
+            val modified = Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
                 .filterNot { it.templateName == templateToRemove }
             fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
             return true

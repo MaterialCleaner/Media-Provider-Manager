@@ -32,7 +32,6 @@
     <string name="queried_at">Queried at\ </string>
     <string name="inserted_at">Inserted at\ </string>
     <string name="deleted_at">Deleted at\ </string>
-    <string name="intercepted">(intercepted)</string>
     <string name="and_more"> and %d more</string>
     <string name="copied">Copied: %s</string>
 

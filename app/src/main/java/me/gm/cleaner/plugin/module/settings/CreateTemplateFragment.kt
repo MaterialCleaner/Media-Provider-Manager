@@ -42,6 +42,7 @@ import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl
 import me.gm.cleaner.plugin.ktx.colorSurface
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.settings.preference.AppListMultiSelectListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat
@@ -57,7 +58,8 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         try {
             JsonSharedPreferencesImpl(
                 Gson().toJson(
-                    binderViewModel.readTemplates().first { it.templateName == args.templateName })
+                    Templates(binderViewModel.readSp(R.xml.template_preferences))
+                        .first { it.templateName == args.templateName })
             )
         } catch (e: NoSuchElementException) {
             JsonSharedPreferencesImpl()
@@ -81,7 +83,8 @@ class CreateTemplateFragment : AbsSettingsFragment() {
             Preference.OnPreferenceChangeListener { _, newValue ->
                 when {
                     args.templateName == newValue as String -> false
-                    binderViewModel.readTemplates().any { it.templateName == newValue } -> {
+                    Templates(binderViewModel.readSp(R.xml.template_preferences))
+                        .any { it.templateName == newValue } -> {
                         makeSnackbarWithFullyDraggableContainer(
                             { requireActivity().findViewById(R.id.fully_draggable_container) },
                             requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
@@ -170,7 +173,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         if (!templateName.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
             val template = Gson().fromJson(tempSp.delegate.toString(), Template::class.java)
             val json = Gson().toJson(
-                binderViewModel.readTemplates()
+                Templates(binderViewModel.readSp(R.xml.template_preferences))
                     .filterNot { it.templateName == args.templateName } + template
             )
             binderViewModel.writeSp(who, json)

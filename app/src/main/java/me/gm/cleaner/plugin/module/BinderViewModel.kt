@@ -24,11 +24,8 @@ import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.gm.cleaner.plugin.IManagerService
-import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.model.Template
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,15 +59,6 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
 
     fun readSp(who: Int): String? =
         remoteSpCache[who, service!!.readSp(who).also { remoteSpCache.put(who, it) }]
-
-    fun readTemplates(): Array<Template> {
-        val sp = readSp(R.xml.template_preferences)
-        return if (sp.isNullOrEmpty()) {
-            emptyArray()
-        } else {
-            Gson().fromJson(sp, Array<Template>::class.java)
-        }
-    }
 
     fun writeSp(who: Int, what: String) {
         if (remoteSpCache[who] != what) {

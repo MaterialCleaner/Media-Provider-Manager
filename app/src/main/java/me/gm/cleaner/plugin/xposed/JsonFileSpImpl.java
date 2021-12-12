@@ -33,6 +33,7 @@ import me.gm.cleaner.plugin.dao.SharedPreferencesWrapper;
 
 public final class JsonFileSpImpl extends SharedPreferencesWrapper {
     public final File file;
+    private volatile String contentCache;
 
     public JsonFileSpImpl(File src) {
         file = src;
@@ -47,7 +48,6 @@ public final class JsonFileSpImpl extends SharedPreferencesWrapper {
                 json = new JSONObject(str);
             }
         } catch (JSONException e) {
-            XposedBridge.log(e);
             json = new JSONObject();
         }
         delegate = new JsonSharedPreferencesImpl(json);
@@ -65,11 +65,15 @@ public final class JsonFileSpImpl extends SharedPreferencesWrapper {
     }
 
     public String read() {
+        if (contentCache != null) {
+            return contentCache;
+        }
         ensureFile();
         try (var it = new FileInputStream(file)) {
             var bb = ByteBuffer.allocate(it.available());
             it.getChannel().read(bb);
-            return new String(bb.array());
+            contentCache = new String(bb.array());
+            return contentCache;
         } catch (IOException e) {
             XposedBridge.log(e);
         }
@@ -77,17 +81,17 @@ public final class JsonFileSpImpl extends SharedPreferencesWrapper {
     }
 
     public void write(String what) {
+        contentCache = what;
+        try {
+            delegate = new JsonSharedPreferencesImpl(new JSONObject(what));
+        } catch (JSONException ignored) {
+        }
+
         ensureFile();
         var bb = ByteBuffer.wrap(what.getBytes());
         try (var it = new FileOutputStream(file)) {
             it.getChannel().write(bb);
         } catch (IOException e) {
-            XposedBridge.log(e);
-        }
-
-        try {
-            delegate = new JsonSharedPreferencesImpl(new JSONObject(what));
-        } catch (JSONException e) {
             XposedBridge.log(e);
         }
     }

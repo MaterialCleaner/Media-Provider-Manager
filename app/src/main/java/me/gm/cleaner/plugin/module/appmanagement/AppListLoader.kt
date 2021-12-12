@@ -21,7 +21,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.model.Template
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.BinderViewModel
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
@@ -31,7 +32,8 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     suspend fun load(
         binderViewModel: BinderViewModel, context: Context, l: ProgressListener?
     ) = withContext(defaultDispatcher) {
-        val packageNameToRuleCount = fetchRuleCount(binderViewModel.readTemplates())
+        val packageNameToRuleCount =
+            fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
         val installedPackages = binderViewModel.installedPackages
         val size = installedPackages.size
         val count = AtomicInteger(0)
@@ -44,7 +46,7 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
         }
     }
 
-    private fun fetchRuleCount(templates: Array<Template>): Map<String, Int> {
+    private fun fetchRuleCount(templates: Templates): Map<String, Int> {
         val map = mutableMapOf<String, Int>()
         templates.forEach { templateName ->
             templateName.applyToApp?.forEach { packageName ->
@@ -57,7 +59,8 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     suspend fun update(
         old: List<PreferencesPackageInfo>, binderViewModel: BinderViewModel
     ) = withContext(defaultDispatcher) {
-        val packageNameToRuleCount = fetchRuleCount(binderViewModel.readTemplates())
+        val packageNameToRuleCount =
+            fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
         mutableListOf<PreferencesPackageInfo>().apply {
             old.forEach {
                 add(it.copy().apply {
