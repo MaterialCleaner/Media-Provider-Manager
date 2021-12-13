@@ -29,6 +29,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.internal.NavigationMenuPresenter
 import com.google.android.material.internal.NavigationMenuView
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
@@ -71,6 +72,13 @@ abstract class DrawerActivity : BaseActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id in topLevelDestinationIds) {
                 ModulePreferences.startDestination = destination.id
+
+                supportFragmentManager.findFragmentById(R.id.nav_host)
+                    ?.childFragmentManager?.fragments?.forEach {
+                        if (it.exitTransition is Hold) {
+                            it.exitTransition = null
+                        }
+                    }
             }
         }
 
