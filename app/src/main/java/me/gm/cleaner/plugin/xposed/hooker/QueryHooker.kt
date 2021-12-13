@@ -39,6 +39,7 @@ import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.model.Templates.Companion.filterNot
 import me.gm.cleaner.plugin.xposed.ManagerService
+import me.gm.cleaner.plugin.xposed.util.FilteredCursor
 import java.util.function.Consumer
 import java.util.function.Function
 
@@ -156,8 +157,10 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             c.close()
         } else {
             c.moveToFirst()
-            param.result = c
-//            param.result = shouldIntercept.applyToCursor(c)
+            val filter = shouldIntercept.mapIndexedNotNull { index, b ->
+                if (!b) index else null
+            }.toIntArray()
+            param.result = FilteredCursor.createUsingFilter(c, filter)
         }
 
         /** RECORD */

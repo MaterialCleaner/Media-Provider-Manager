@@ -16,8 +16,6 @@
 
 package me.gm.cleaner.plugin.model
 
-import android.database.CrossProcessCursorWrapper
-import android.database.Cursor
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import me.gm.cleaner.plugin.xposed.hooker.InsertHooker
@@ -57,31 +55,6 @@ class Templates(json: String?) : ArrayList<Template>() {
             any { template ->
                 MimeUtils.resolveMediaType(mimeType) !in template.permittedMediaTypes ?: emptyList() ||
                         template.filterPath?.any { FileUtils.startsWith(it, data) } == true
-            }
-        }
-
-        fun List<Boolean>.applyToCursor(c: Cursor): Cursor {
-            // FIXME
-            return object : CrossProcessCursorWrapper(c) {
-                var filteredCount = -1
-                override fun getCount(): Int {
-                    if (filteredCount == -1) {
-                        filteredCount = asSequence().count { !it }
-                    }
-                    return filteredCount
-                }
-
-                override fun moveToNext(): Boolean {
-                    val maybeDstPosition = c.position + 1
-                    if (maybeDstPosition > size - 1) {
-                        return false
-                    }
-                    return if (this@applyToCursor[maybeDstPosition]) {
-                        moveToNext()
-                    } else {
-                        super.moveToNext()
-                    }
-                }
             }
         }
     }
