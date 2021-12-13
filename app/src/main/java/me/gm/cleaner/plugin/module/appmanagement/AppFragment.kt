@@ -76,7 +76,7 @@ class AppFragment : ModuleFragment() {
                 }
             }
         })
-        list.fitsSystemBottomInset()
+        list.fitsSystemWindowInsetBottom()
         list.addItemDecoration(DividerDecoration(list).apply {
             setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
             setAllowDividerAfterLastItem(false)

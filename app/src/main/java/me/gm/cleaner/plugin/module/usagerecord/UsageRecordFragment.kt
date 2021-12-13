@@ -68,7 +68,7 @@ class UsageRecordFragment : ModuleFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemBottomInset(fastScroller)
+        list.fitsSystemWindowInsetBottom(fastScroller)
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
                 viewModel.reloadRecords(binderViewModel, requireContext().packageManager).await()

@@ -66,7 +66,7 @@ class AppListFragment : ModuleFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemBottomInset(fastScroller)
+        list.fitsSystemWindowInsetBottom(fastScroller)
         binding.listContainer.setOnRefreshListener {
             viewModel.loadApps(binderViewModel, requireContext(), null)
         }

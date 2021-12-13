@@ -60,7 +60,7 @@ class TemplatesFragment : ModuleFragment() {
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemBottomInset()
+        list.fitsSystemWindowInsetBottom()
         list.addItemDecoration(DividerDecoration(list).apply {
             setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
             setAllowDividerAfterLastItem(false)

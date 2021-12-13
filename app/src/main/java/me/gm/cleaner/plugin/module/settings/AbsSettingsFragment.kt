@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ktx.setObjectField
 import me.gm.cleaner.plugin.module.BinderViewModel
@@ -51,12 +52,14 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
         inflater: LayoutInflater, parent: ViewGroup, savedInstanceState: Bundle?
     ): RecyclerView {
         val list = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
+        list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener {
             val appBarLayout: AppBarLayout = requireActivity().findViewById(R.id.toolbar_container)
             appBarLayout.isLifted = it
         }
+        list.fitsSystemWindowInsetBottom()
         return list
     }
 

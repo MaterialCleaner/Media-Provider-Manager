@@ -193,7 +193,7 @@ fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
 //     fastScroller.setPadding(0, 0, 0, systemBarsBottom)
 //     insets
 // }
-fun RecyclerView.fitsSystemBottomInset(fastScroller: FastScroller? = null) {
+fun RecyclerView.fitsSystemWindowInsetBottom(fastScroller: FastScroller? = null) {
     val paddingStart = paddingStart
     val paddingTop = paddingTop
     val paddingEnd = paddingEnd
