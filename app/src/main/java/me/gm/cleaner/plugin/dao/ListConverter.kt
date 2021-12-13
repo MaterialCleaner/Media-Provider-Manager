@@ -50,9 +50,9 @@ object ListConverter {
     @TypeConverter
     fun booleanListToString(list: List<Boolean>): String {
         var value = BigInteger("0", MAX_RADIX)
-        for (i in list.indices) {
-            if (list[i]) {
-                value = value.setBit(i)
+        list.forEachIndexed { index, b ->
+            if (b) {
+                value = value.setBit(index)
             }
         }
         return "${list.size}:${value.toString(MAX_RADIX)}"
