@@ -19,10 +19,13 @@
 <resources>
 
     <style name="Base.AppTheme" parent="Theme.Material3.DayNight">
-        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>
-
-        <item name="preferenceHeader">@style/PreferenceHeader</item>
-        <item name="preferenceSummary">@style/PreferenceSummary</item>
+        <item name="android:windowLightStatusBar">?isLightTheme</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+        <!-- android:windowTranslucentNavigation conflicts with android:navigationBarColor,
+          ~ so we don't use it, but alter systemUiVisibility programmatically instead.
+          -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
 
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -33,14 +36,10 @@
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
         <item name="overlapAnchor">false</item>
 
-        <item name="android:windowLightStatusBar">?isLightTheme</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowLightNavigationBar">?isLightTheme</item>
-        <!-- android:windowTranslucentNavigation conflicts with android:navigationBarColor,
-          ~ so we don't use it, but alter systemUiVisibility programmatically instead.
-          -->
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <!-- Preference title -->
+        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>
+
+        <!-- Preference Theme -->
+        <item name="preferenceTheme">@style/PreferenceTheme</item>
         <item name="preferenceCategoryTitleTextAppearance">@style/TextAppearance.AppCompat.Body2
         </item>
         <item name="android:textAppearanceListItem">@style/TextAppearance.AppCompat.Medium</item>
