@@ -25,6 +25,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.ListPopupWindow
+import androidx.core.text.buildSpannedString
+import androidx.core.text.strikeThrough
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -72,10 +74,10 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             binding.more.isVisible = false
         }
         binding.root.setOnClickListener {
-            val adapter = ArrayAdapter<CharSequence>(
+            val adapter = ArrayAdapter(
                 context, R.layout.usagerecord_popup_item,
                 record.dataList.zip(record.interceptedList).map { (data, intercepted) ->
-                    (if (intercepted) "-" else "") + data
+                    if (intercepted) buildSpannedString { strikeThrough { append(data) } } else data
                 }
             )
             val listPopupWindow = ListPopupWindow(context)
