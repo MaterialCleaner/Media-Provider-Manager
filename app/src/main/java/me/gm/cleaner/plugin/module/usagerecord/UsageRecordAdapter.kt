@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.text.buildSpannedString
 import androidx.core.text.strikeThrough
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -64,14 +63,11 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
         } + formatDateTime(record.timeMillis)
+        binding.record.text = record.dataList.first()
         val more = record.dataList.size - 1
         val hasMore = more > 0
-        binding.record.text = record.dataList.first() + if (hasMore) "... " else ""
         if (hasMore) {
-            binding.more.isVisible = true
-            binding.more.text = fragment.getString(R.string.and_more, more)
-        } else {
-            binding.more.isVisible = false
+            binding.record.suffix = fragment.getString(R.string.and_more, more)
         }
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter(

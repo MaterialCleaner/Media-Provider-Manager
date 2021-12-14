@@ -65,9 +65,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                             it.packageName.lowercase().contains(lowerQuery)
                 }
             }
-            sequence = sequence.sortedWith { o1, o2 ->
-                (o2.timeMillis - o1.timeMillis).toInt()
-            }
+            sequence = sequence.sortedWith(Comparator.comparingLong {
+                -it.timeMillis
+            })
             sequence.toList()
         }
     val records: List<MediaProviderRecord>

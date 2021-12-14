@@ -57,30 +57,14 @@
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 
-    <me.gm.cleaner.plugin.module.usagerecord.MeasureOrderReversedHorizontalLinearLayout
+    <me.gm.cleaner.plugin.widget.CustomSuffixTextView
+        android:id="@+id/record"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/card_margin"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="?android:textColorSecondary" />
-
-        <TextView
-            android:id="@+id/more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="?android:textColorSecondary" />
-    </me.gm.cleaner.plugin.module.usagerecord.MeasureOrderReversedHorizontalLinearLayout>
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAlignment="viewStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="?android:textColorSecondary" />
 </LinearLayout>

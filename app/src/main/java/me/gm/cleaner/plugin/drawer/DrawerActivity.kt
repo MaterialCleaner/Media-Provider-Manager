@@ -57,8 +57,9 @@ abstract class DrawerActivity : BaseActivity() {
         setContentView(binding.root)
         // NavController's backend
         val action = intent.action
-        val shouldAlterStartDestination = action != "android.intent.action.MAIN" ||
-                savedInstanceState == null && ModulePreferences.startDestination in topLevelDestinationIds
+        val shouldAlterStartDestination = savedInstanceState == null &&
+                (action != "android.intent.action.MAIN" ||
+                        ModulePreferences.startDestination in topLevelDestinationIds)
         if (shouldAlterStartDestination) {
             when (action) {
                 "me.gm.cleaner.plugin.intent.action.IMAGES" ->

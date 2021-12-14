@@ -87,9 +87,9 @@ class AppListViewModel : ViewModel() {
                         else -> throw IllegalArgumentException()
                     }
                     if (ModulePreferences.ruleCount) {
-                        sequence = sequence.sortedWith { o1, o2 ->
-                            o2.ruleCount - o1.ruleCount
-                        }
+                        sequence = sequence.sortedWith(Comparator.comparingInt {
+                            -it.ruleCount
+                        })
                     }
                     SourceState.Done(sequence.toList())
                 }
