@@ -38,13 +38,17 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     abstract val who: Int
     protected val remoteSp by lazy { BinderSpImpl(binderViewModel, who) }
 
-    open fun onCreatePreferenceManager() = object : PreferenceManager(context) {
-        override fun getSharedPreferences() = remoteSp
-    }
+    open fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
+        object : PreferenceManager(context) {
+            override fun getSharedPreferences() = remoteSp
+        }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         if (binderViewModel.pingBinder()) {
-            setObjectField(onCreatePreferenceManager(), PreferenceFragmentCompat::class.java)
+            setObjectField(
+                onCreatePreferenceManager(savedInstanceState),
+                PreferenceFragmentCompat::class.java
+            )
         }
     }
 

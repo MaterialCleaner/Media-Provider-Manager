@@ -57,12 +57,14 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             .load(record.packageInfo)
             .into(binding.icon)
         binding.title.text = record.packageInfo?.label ?: record.packageName
-        binding.operation.text = when (record) {
+        val operation = when (record) {
             is MediaProviderQueryRecord -> fragment.getString(R.string.queried_at)
             is MediaProviderInsertRecord -> fragment.getString(R.string.inserted_at)
             is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
         } + formatDateTime(record.timeMillis)
+        binding.operation.text = if (record.interceptedList.any { it })
+            buildSpannedString { strikeThrough { append(operation) } } else operation
         binding.record.text = record.dataList.first()
         val more = record.dataList.size - 1
         val hasMore = more > 0

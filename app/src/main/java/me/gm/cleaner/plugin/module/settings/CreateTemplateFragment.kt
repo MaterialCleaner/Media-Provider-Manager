@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,25 +55,39 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         get() = R.xml.template_preferences
 
     private val args: CreateTemplateFragmentArgs by navArgs()
-    private val tempSp by lazy {
-        try {
-            JsonSharedPreferencesImpl(
-                Gson().toJson(
-                    Templates(binderViewModel.readSp(R.xml.template_preferences))
-                        .first { it.templateName == args.templateName })
-            )
-        } catch (e: NoSuchElementException) {
-            JsonSharedPreferencesImpl()
-        }.apply {
-            edit {
-                putString(getString(R.string.template_name_key), args.templateName)
-            }
-        }
-    }
+    private lateinit var tempSp: JsonSharedPreferencesImpl
 
     @SuppressLint("RestrictedApi")
-    override fun onCreatePreferenceManager() = object : PreferenceManager(context) {
-        override fun getSharedPreferences() = tempSp
+    override fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
+        object : PreferenceManager(context) {
+            override fun getSharedPreferences(): SharedPreferences {
+                tempSp = try {
+                    JsonSharedPreferencesImpl(
+                        Gson().toJson(
+                            Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
+                                it.templateName == if (savedInstanceState == null) args.templateName
+                                else savedInstanceState.getString(KEY_TEMPLATE_NAME)
+                            })
+                    )
+                } catch (e: NoSuchElementException) {
+                    JsonSharedPreferencesImpl()
+                }.apply {
+                    if (savedInstanceState == null) {
+                        edit {
+                            putString(getString(R.string.template_name_key), args.templateName)
+                        }
+                    }
+                }
+                return tempSp
+            }
+        }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(
+            KEY_TEMPLATE_NAME,
+            tempSp.getString(getString(R.string.template_name_key), args.templateName)
+        )
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -91,7 +106,10 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                         ).show()
                         false
                     }
-                    else -> true
+                    else -> {
+                        prepareSharedElementTransition(newValue, listView)
+                        true
+                    }
                 }
             }
 
@@ -108,18 +126,18 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? = super.onCreateView(inflater, container, savedInstanceState)
-        ?.apply { prepareSharedElementTransition(findViewById(R.id.recycler_view)) }
+        ?.apply {
+            prepareSharedElementTransition(
+                tempSp.getString(getString(R.string.template_name_key), NULL_TEMPLATE_NAME),
+                listView
+            )
+        }
 
-    private fun prepareSharedElementTransition(list: RecyclerView?) {
-        val templateName =
-            tempSp.getString(getString(R.string.template_name_key), NULL_TEMPLATE_NAME)
+    private fun prepareSharedElementTransition(templateName: String?, list: RecyclerView) {
         setFragmentResult(
             CreateTemplateFragment::class.java.simpleName,
             bundleOf(KEY_TEMPLATE_NAME to templateName)
         )
-        if (list == null) {
-            return
-        }
         list.transitionName = templateName
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
@@ -143,7 +161,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (args.templateName != null) {
+        if (args.templateName != null && args.packageName == null) {
             (requireActivity() as AppCompatActivity).supportActionBar?.setTitle(R.string.edit_template_title)
         }
     }
@@ -163,7 +181,6 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onStop() {
         super.onStop()
         save()
-        prepareSharedElementTransition(null)
     }
 
     private fun save(): Boolean {
@@ -173,8 +190,9 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         if (!templateName.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
             val template = Gson().fromJson(tempSp.delegate.toString(), Template::class.java)
             val json = Gson().toJson(
-                Templates(binderViewModel.readSp(R.xml.template_preferences))
-                    .filterNot { it.templateName == args.templateName } + template
+                Templates(binderViewModel.readSp(R.xml.template_preferences)).filterNot {
+                    it.templateName == templateName || it.templateName == args.templateName
+                } + template
             )
             binderViewModel.writeSp(who, json)
         }

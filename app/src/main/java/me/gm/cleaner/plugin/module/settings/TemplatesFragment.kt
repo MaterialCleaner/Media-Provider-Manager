@@ -73,7 +73,6 @@ class TemplatesFragment : ModuleFragment() {
         prepareSharedElementTransition(list)
         setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
             lastTemplateName = bundle.getString(CreateTemplateFragment.KEY_TEMPLATE_NAME)
-            postponeEnterTransition()
             var position = prepareCurrentList().indexOfFirst { it.templateName == lastTemplateName }
             if (position != -1) {
                 position++
@@ -81,6 +80,8 @@ class TemplatesFragment : ModuleFragment() {
                 position = adapters.itemCount - 1
                 lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
             }
+            prepareTransitions(list, position)
+            postponeEnterTransition()
             scrollToPosition(list, position)
         }
         return binding.root
@@ -91,6 +92,17 @@ class TemplatesFragment : ModuleFragment() {
         return Templates(binderViewModel.readSp(R.xml.template_preferences)).sortedWith { o1, o2 ->
             collator.compare(o1?.templateName, o2?.templateName)
         }
+    }
+
+    private fun prepareTransitions(list: RecyclerView, position: Int) {
+        setExitSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: List<String>, sharedElements: MutableMap<String, View>
+            ) {
+                val selectedViewHolder = list.findViewHolderForAdapterPosition(position) ?: return
+                sharedElements[names[0]] = selectedViewHolder.itemView
+            }
+        })
     }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
