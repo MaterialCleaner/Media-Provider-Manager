@@ -175,13 +175,16 @@ private fun isContentScrolls(list: RecyclerView): Boolean {
 fun RecyclerView.isItemCompletelyVisible(position: Int): Boolean {
     val vh = findViewHolderForAdapterPosition(position)
     vh ?: return false
-    return layoutManager?.isViewPartiallyVisible(vh.itemView, true, true) == true
+    val layoutManager = layoutManager!!
+    return layoutManager.isViewPartiallyVisible(vh.itemView, true, true)
 }
 
 fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
     val vh = findViewHolderForAdapterPosition(position)
     vh ?: return true
-    return layoutManager?.isViewPartiallyVisible(vh.itemView, false, false) == false
+    val layoutManager = layoutManager!!
+    return !layoutManager.isViewPartiallyVisible(vh.itemView, true, true) &&
+            !layoutManager.isViewPartiallyVisible(vh.itemView, false, false)
 }
 
 // ViewCompat's ApplyWindowInsetsListener has issue of the search view.

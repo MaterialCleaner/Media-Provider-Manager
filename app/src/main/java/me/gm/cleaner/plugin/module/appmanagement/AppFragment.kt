@@ -70,9 +70,9 @@ class AppFragment : ModuleFragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 supportActionBar?.title = if (recyclerView.isItemCompletelyInvisible(0)) {
-                    navController.currentDestination?.label
-                } else {
                     args.label
+                } else {
+                    navController.currentDestination?.label
                 }
             }
         })
