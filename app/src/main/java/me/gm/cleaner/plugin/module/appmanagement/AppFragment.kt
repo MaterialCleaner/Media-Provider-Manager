@@ -99,7 +99,7 @@ class AppFragment : ModuleFragment() {
             if (position != -1) {
                 position++
             } else {
-                position = adapters.itemCount - 1
+                position = adapters.itemCount - templatesFooterAdapter.itemCount
                 lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
             }
             prepareTransitions(list, position)

@@ -55,7 +55,10 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         get() = R.xml.template_preferences
 
     private val args: CreateTemplateFragmentArgs by navArgs()
+    private val lastTemplateName by lazy { bundleOf(KEY_TEMPLATE_NAME to currentTemplateName) }
     private lateinit var tempSp: JsonSharedPreferencesImpl
+    private val currentTemplateName: String
+        get() = tempSp.getString(getString(R.string.template_name_key), NULL_TEMPLATE_NAME)!!
 
     @SuppressLint("RestrictedApi")
     override fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
@@ -84,15 +87,13 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(
-            KEY_TEMPLATE_NAME,
-            tempSp.getString(getString(R.string.template_name_key), args.templateName)
-        )
+        outState.putString(KEY_TEMPLATE_NAME, currentTemplateName)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.template_preferences, rootKey)
+
         val templateName = getString(R.string.template_name_key)
         findPreference<EditTextPreference>(templateName)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
@@ -107,7 +108,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                         false
                     }
                     else -> {
-                        prepareSharedElementTransition(newValue, listView)
+                        lastTemplateName.putString(KEY_TEMPLATE_NAME, newValue)
                         true
                     }
                 }
@@ -125,20 +126,11 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? = super.onCreateView(inflater, container, savedInstanceState)
-        ?.apply {
-            prepareSharedElementTransition(
-                tempSp.getString(getString(R.string.template_name_key), NULL_TEMPLATE_NAME),
-                listView
-            )
-        }
+    ) = super.onCreateView(inflater, container, savedInstanceState)
+        ?.apply { prepareSharedElementTransition(listView) }
 
-    private fun prepareSharedElementTransition(templateName: String?, list: RecyclerView) {
-        setFragmentResult(
-            CreateTemplateFragment::class.java.simpleName,
-            bundleOf(KEY_TEMPLATE_NAME to templateName)
-        )
-        list.transitionName = templateName
+    private fun prepareSharedElementTransition(list: RecyclerView) {
+        setFragmentResult(CreateTemplateFragment::class.java.simpleName, lastTemplateName)
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host
@@ -153,6 +145,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                 names: List<String>, sharedElements: MutableMap<String, View>
             ) {
                 if (names.isNotEmpty()) {
+                    list.transitionName = currentTemplateName
                     sharedElements[names[0]] = list
                 }
             }

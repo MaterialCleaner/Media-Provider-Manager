@@ -40,15 +40,14 @@ class SettingsFragment : AbsSettingsFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        val sharedPreferences = preferenceManager.sharedPreferences
 
         val scanForObsoleteInsert = getString(R.string.scan_for_obsolete_insert_key)
         findPreference<SwitchPreferenceCompat>(scanForObsoleteInsert)?.isChecked =
-            sharedPreferences.getBoolean(scanForObsoleteInsert, true)
+            remoteSp.getBoolean(scanForObsoleteInsert, true)
 
         val usageRecord = getString(R.string.usage_record_key)
         findPreference<SwitchPreferenceCompat>(usageRecord)?.isChecked =
-            sharedPreferences.getBoolean(usageRecord, true)
+            remoteSp.getBoolean(usageRecord, true)
     }
 
     override fun onCreateView(

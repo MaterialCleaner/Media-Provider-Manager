@@ -123,6 +123,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
+            fragment.setExitSharedElementCallback(null)
 
             val direction =
                 AppFragmentDirections.actionAppToCreateTemplate(item.templateName)
@@ -162,13 +163,11 @@ class TemplatesAdapter(private val fragment: AppFragment) :
     companion object {
         private val CALLBACK: DiffUtil.ItemCallback<Template> =
             object : DiffUtil.ItemCallback<Template>() {
-                override fun areItemsTheSame(
-                    oldItem: Template, newItem: Template
-                ) = oldItem.templateName == newItem.templateName
+                override fun areItemsTheSame(oldItem: Template, newItem: Template) =
+                    oldItem.templateName == newItem.templateName
 
-                override fun areContentsTheSame(
-                    oldItem: Template, newItem: Template
-                ) = oldItem == newItem
+                override fun areContentsTheSame(oldItem: Template, newItem: Template) =
+                    oldItem == newItem
             }
     }
 }
@@ -192,6 +191,7 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
+            fragment.setExitSharedElementCallback(null)
 
             val direction =
                 AppFragmentDirections.actionAppToCreateTemplate(args.label, args.pi.packageName)

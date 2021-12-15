@@ -77,7 +77,7 @@ class TemplatesFragment : ModuleFragment() {
             if (position != -1) {
                 position++
             } else {
-                position = adapters.itemCount - 1
+                position = 0
                 lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
             }
             prepareTransitions(list, position)
