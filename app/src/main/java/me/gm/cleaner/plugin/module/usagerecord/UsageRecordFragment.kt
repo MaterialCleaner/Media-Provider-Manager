@@ -71,12 +71,6 @@ class UsageRecordFragment : ModuleFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.fitsSystemWindowInsetBottom(fastScroller)
-        binding.listContainer.setOnRefreshListener {
-            lifecycleScope.launch {
-                viewModel.reloadRecords(binderViewModel).await()
-                binding.listContainer.isRefreshing = false
-            }
-        }
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

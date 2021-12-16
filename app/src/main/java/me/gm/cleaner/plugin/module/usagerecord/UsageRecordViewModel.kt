@@ -24,11 +24,11 @@ import android.os.Looper
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
@@ -108,7 +108,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
     fun loadRecords(
         binderViewModel: BinderViewModel, start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
-    ): Deferred<Unit> = viewModelScope.async {
+    ): Job = viewModelScope.launch {
         val records = mutableListOf<MediaProviderRecord>().also {
             if (!isHideQuery) {
                 it += queryRecord<MediaProviderQueryRecord>(start, end)

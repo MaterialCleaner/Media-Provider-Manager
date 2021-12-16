@@ -21,16 +21,10 @@
     android:layout_height="match_parent"
     android:paddingTop="?actionBarSize">
 
-    <me.gm.cleaner.plugin.widget.ThemedSwipeRefreshLayout
-        android:id="@+id/list_container"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:fitsSystemWindows="true" />
-    </me.gm.cleaner.plugin.widget.ThemedSwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fitsSystemWindows="true" />
 </me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout>
