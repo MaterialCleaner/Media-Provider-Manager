@@ -22,6 +22,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -141,6 +142,9 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         mimeType,
                         Array(data.size) { false }.toList()
                     )
+                )
+                service.context.contentResolver.notifyChange(
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
                 )
             }
         }

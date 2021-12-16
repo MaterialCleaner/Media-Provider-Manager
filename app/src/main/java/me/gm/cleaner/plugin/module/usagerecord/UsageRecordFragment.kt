@@ -71,7 +71,7 @@ class UsageRecordFragment : ModuleFragment() {
         list.fitsSystemWindowInsetBottom(fastScroller)
         binding.listContainer.setOnRefreshListener {
             lifecycleScope.launch {
-                viewModel.reloadRecords(binderViewModel, requireContext().packageManager).await()
+                viewModel.reloadRecords(binderViewModel).await()
                 binding.listContainer.isRefreshing = false
             }
         }
@@ -90,9 +90,7 @@ class UsageRecordFragment : ModuleFragment() {
             }
         }
         if (savedInstanceState == null && viewModel.records.isEmpty()) {
-            viewModel.loadRecords(
-                binderViewModel, requireContext().packageManager, System.currentTimeMillis()
-            )
+            viewModel.loadRecords(binderViewModel, System.currentTimeMillis())
         }
         findNavController().addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
@@ -102,7 +100,7 @@ class UsageRecordFragment : ModuleFragment() {
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
-                viewModel.reloadRecords(binderViewModel, requireContext().packageManager)
+                viewModel.reloadRecords(binderViewModel)
             }
         })
         return binding.root
@@ -162,9 +160,7 @@ class UsageRecordFragment : ModuleFragment() {
                     .setSelection(viewModel.calendar.timeInMillis)
                     .build()
                 datePicker.addOnPositiveButtonClickListener { selection ->
-                    viewModel.loadRecords(
-                        binderViewModel, requireContext().packageManager, selection
-                    )
+                    viewModel.loadRecords(binderViewModel, selection)
                 }
                 datePicker.show(childFragmentManager, null)
             }

@@ -17,11 +17,14 @@
 package me.gm.cleaner.plugin.module.usagerecord
 
 import android.app.Application
-import android.content.pm.PackageManager
 import android.database.ContentObserver
+import android.database.Cursor
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +54,8 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             _queryTextFlow.value = value
         }
     val calendar: Calendar = Calendar.getInstance()
+    private val packageManager
+        get() = getApplication<Application>().packageManager
     private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<List<MediaProviderRecord>>(emptyList())
@@ -74,36 +79,36 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         get() = _recordsFlow.value
 
     private var contentObserver: ContentObserver? = null
+    private val cursors = mutableListOf<Cursor>()
 
     /**
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
      */
-    fun loadRecords(binderViewModel: BinderViewModel, pm: PackageManager, timeMillis: Long) =
-        calendar.run {
-            timeInMillis = timeMillis
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            val start = timeInMillis
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-            set(Calendar.MILLISECOND, 999)
-            val end = timeInMillis
-            loadRecords(
-                binderViewModel, pm, start, end,
-                ModulePreferences.isHideQuery,
-                ModulePreferences.isHideInsert,
-                ModulePreferences.isHideDelete
-            )
-        }
+    fun loadRecords(binderViewModel: BinderViewModel, timeMillis: Long) = calendar.run {
+        timeInMillis = timeMillis
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        val start = timeInMillis
+        set(Calendar.HOUR_OF_DAY, 23)
+        set(Calendar.MINUTE, 59)
+        set(Calendar.SECOND, 59)
+        set(Calendar.MILLISECOND, 999)
+        val end = timeInMillis
+        loadRecords(
+            binderViewModel, start, end,
+            ModulePreferences.isHideQuery,
+            ModulePreferences.isHideInsert,
+            ModulePreferences.isHideDelete
+        )
+    }
 
     fun loadRecords(
-        binderViewModel: BinderViewModel, pm: PackageManager, start: Long, end: Long,
+        binderViewModel: BinderViewModel, start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
-    ) = viewModelScope.async {
+    ): Deferred<Unit> = viewModelScope.async {
         val records = mutableListOf<MediaProviderRecord>().also {
             if (!isHideQuery) {
                 it += queryRecord<MediaProviderQueryRecord>(start, end)
@@ -114,12 +119,11 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             if (!isHideDelete) {
                 it += queryRecord<MediaProviderDeleteRecord>(start, end)
             }
-        }
-        records.onEach {
+        }.onEach {
             it.packageInfo = packageNameToPackageInfo[it.packageName]
             if (it.packageInfo == null) {
                 val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
-                it.packageInfo = PreferencesPackageInfo.newInstance(pi, pm)
+                it.packageInfo = PreferencesPackageInfo.newInstance(pi, packageManager)
                 packageNameToPackageInfo[it.packageName] = it.packageInfo!!
             }
         }.takeWhile {
@@ -127,18 +131,24 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
         _recordsFlow.value = records
 
-//           TODO: register support
-//            if (contentObserver == null) {
-//                contentObserver = getApplication<Application>().contentResolver.registerObserver(
-//                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
-//                ) {
-//                    loadImages()
-//                }
-//            }
+        if (contentObserver == null) {
+            contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    reloadRecords(binderViewModel)
+                }
+            }
+            cursors.forEach {
+                it.registerContentObserver(contentObserver)
+                it.setNotificationUri(
+                    getApplication<Application>().contentResolver,
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
+                )
+            }
+        }
     }
 
-    fun reloadRecords(binderViewModel: BinderViewModel, pm: PackageManager) =
-        loadRecords(binderViewModel, pm, calendar.timeInMillis)
+    fun reloadRecords(binderViewModel: BinderViewModel) =
+        loadRecords(binderViewModel, calendar.timeInMillis)
 
     private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
             : List<MediaProviderRecord> = withContext(Dispatchers.IO) {
@@ -153,6 +163,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             null,
             sortOrder
         )?.use { cursor ->
+            if (contentObserver == null) {
+                cursors.add(cursor)
+            }
             val constructor = E::class.java.declaredConstructors.first()
             val mockParameters = constructor.parameterTypes.map { type ->
                 when (type) {
@@ -167,5 +180,13 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             return@withContext (constructor.newInstance(*mockParameters) as E).convert(cursor)
         }
         return@withContext emptyList()
+    }
+
+    override fun onCleared() {
+        val contentObserver = contentObserver
+        if (contentObserver != null) {
+            cursors.forEach { it.unregisterContentObserver(contentObserver) }
+            cursors.clear()
+        }
     }
 }

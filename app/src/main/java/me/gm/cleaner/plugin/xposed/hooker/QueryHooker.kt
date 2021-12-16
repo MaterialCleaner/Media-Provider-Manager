@@ -179,6 +179,9 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                         shouldIntercept
                     )
                 )
+                service.context.contentResolver.notifyChange(
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
+                )
             }
         }
     }
