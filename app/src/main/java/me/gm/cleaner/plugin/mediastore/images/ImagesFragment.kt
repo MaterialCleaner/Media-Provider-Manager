@@ -32,7 +32,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.*
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -42,9 +41,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
-import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
-import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.mediastore.*
 import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
@@ -72,7 +69,10 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
         }
         list = binding.list
         list.adapter = adapter
-        list.layoutManager = GridLayoutManager(requireContext(), 3)
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 3)
+            .setOnLayoutCompletedListener {
+                appBarLayout.isLifted = adapter.itemCount != 0 && !list.isItemCompletelyVisible(0)
+            }
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()

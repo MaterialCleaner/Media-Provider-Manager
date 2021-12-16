@@ -26,7 +26,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -60,7 +59,10 @@ class UsageRecordFragment : ModuleFragment() {
         val adapter = UsageRecordAdapter(this)
         val list = binding.list
         list.adapter = adapter
-        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+            .setOnLayoutCompletedListener {
+                appBarLayout.isLifted = adapter.itemCount != 0 && !list.isItemCompletelyVisible(0)
+            }
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()

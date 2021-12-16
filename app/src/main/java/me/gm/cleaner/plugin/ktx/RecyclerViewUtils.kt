@@ -16,16 +16,15 @@
 
 package me.gm.cleaner.plugin.ktx
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.view.doOnPreDraw
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import me.zhanghai.android.fastscroll.FastScroller
+import java.util.function.Consumer
 
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
@@ -125,6 +124,25 @@ abstract class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
      * @return `true` if dividers are allowed below this item
      */
     var isDividerAllowedBelow = false
+}
+
+class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
+    context: Context, spanCount: Int,
+    @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
+    reverseLayout: Boolean = false
+) : GridLayoutManager(context, spanCount, orientation, reverseLayout) {
+    var onLayoutCompletedListener: Consumer<RecyclerView.State?>? = null
+        private set
+
+    fun setOnLayoutCompletedListener(l: Consumer<RecyclerView.State?>?): LayoutCompleteAwareGridLayoutManager {
+        onLayoutCompletedListener = l
+        return this
+    }
+
+    override fun onLayoutCompleted(state: RecyclerView.State?) {
+        super.onLayoutCompleted(state)
+        onLayoutCompletedListener?.accept(state)
+    }
 }
 
 fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) {
