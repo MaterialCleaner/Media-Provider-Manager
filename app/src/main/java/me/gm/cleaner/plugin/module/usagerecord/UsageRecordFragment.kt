@@ -85,11 +85,13 @@ class UsageRecordFragment : ModuleFragment() {
                 }
             }
         }
-        if (savedInstanceState == null && viewModel.records.isEmpty()) {
+        if (savedInstanceState == null) {
             viewModel.loadRecords(binderViewModel, System.currentTimeMillis())
         }
         findNavController().addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
+            // viewModel's lifeCycle is too long, we should stop updating the adapter manually.
+            viewModel.clear()
         }
 
         ModulePreferences.addOnPreferenceChangeListener(object :

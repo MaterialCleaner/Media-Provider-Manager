@@ -182,6 +182,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
+    fun clear() {
+        onCleared()
+    }
+
     override fun onCleared() {
         val contentObserver = contentObserver
         if (contentObserver != null) {
