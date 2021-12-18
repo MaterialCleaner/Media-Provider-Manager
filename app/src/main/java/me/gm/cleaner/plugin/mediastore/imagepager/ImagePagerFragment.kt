@@ -83,7 +83,6 @@ class ImagePagerFragment : BaseFragment() {
             title = args.displayNames[initialPosition]
             subtitle = "${initialPosition + 1} / $size"
         }
-
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int

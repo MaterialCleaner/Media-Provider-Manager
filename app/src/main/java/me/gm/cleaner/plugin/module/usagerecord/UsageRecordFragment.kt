@@ -177,7 +177,10 @@ class UsageRecordFragment : ModuleFragment() {
                 item.isChecked = isHideDelete
                 ModulePreferences.isHideDelete = isHideDelete
             }
-            R.id.menu_clear -> binderViewModel.clearAllTables()
+            R.id.menu_clear -> {
+                binderViewModel.clearAllTables()
+                viewModel.reloadRecords(binderViewModel)
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         return true

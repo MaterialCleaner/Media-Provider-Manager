@@ -16,16 +16,18 @@
 
 package me.gm.cleaner.plugin.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 
-class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
+open class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : SubsamplingScaleImageView(context, attrs) {
     var uri: Uri? = null
@@ -76,6 +78,22 @@ class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
         companion object CREATOR : Parcelable.Creator<SavedState> {
             override fun createFromParcel(source: Parcel) = SavedState(source)
             override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+        }
+    }
+}
+
+class NestedScrollableSubsamplingScaleImageView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : StateSavedSubsamplingScaleImageView(context, attrs) {
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        handleInterceptTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
+
+    private fun handleInterceptTouchEvent(e: MotionEvent) {
+        if (isImageLoaded) {
+            parent.requestDisallowInterceptTouchEvent(true)
         }
     }
 }

@@ -28,7 +28,7 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true" />
 
-    <me.gm.cleaner.plugin.widget.StateSavedSubsamplingScaleImageView
+    <me.gm.cleaner.plugin.widget.NestedScrollableSubsamplingScaleImageView
         android:id="@+id/subsampling_scale_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
