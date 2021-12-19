@@ -19,11 +19,47 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
 
     <shortcut
+        android:icon="@mipmap/audio_shortcut_icon"
+        android:shortcutId="audio"
+        android:shortcutShortLabel="@string/audio">
+        <intent
+            android:action="me.gm.cleaner.plugin.intent.action.AUDIO"
+            android:targetClass="me.gm.cleaner.plugin.app.MainActivity"
+            android:targetPackage="me.gm.cleaner.plugin" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
+        android:icon="@mipmap/files_shortcut_icon"
+        android:shortcutId="files"
+        android:shortcutShortLabel="@string/files">
+        <intent
+            android:action="me.gm.cleaner.plugin.intent.action.FILES"
+            android:targetClass="me.gm.cleaner.plugin.app.MainActivity"
+            android:targetPackage="me.gm.cleaner.plugin" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
         android:icon="@mipmap/images_shortcut_icon"
         android:shortcutId="images"
         android:shortcutShortLabel="@string/images">
         <intent
             android:action="me.gm.cleaner.plugin.intent.action.IMAGES"
+            android:targetClass="me.gm.cleaner.plugin.app.MainActivity"
+            android:targetPackage="me.gm.cleaner.plugin" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
+        android:icon="@mipmap/video_shortcut_icon"
+        android:shortcutId="video"
+        android:shortcutShortLabel="@string/video">
+        <intent
+            android:action="me.gm.cleaner.plugin.intent.action.VIDEO"
             android:targetClass="me.gm.cleaner.plugin.app.MainActivity"
             android:targetPackage="me.gm.cleaner.plugin" />
         <categories android:name="android.shortcut.conversation" />

@@ -62,8 +62,14 @@ abstract class DrawerActivity : BaseActivity() {
                         ModulePreferences.startDestination in topLevelDestinationIds)
         if (shouldAlterStartDestination) {
             when (action) {
+                "me.gm.cleaner.plugin.intent.action.AUDIO" ->
+                    ModulePreferences.startDestination = R.id.audio_fragment
+                "me.gm.cleaner.plugin.intent.action.FILES" ->
+                    ModulePreferences.startDestination = R.id.files_fragment
                 "me.gm.cleaner.plugin.intent.action.IMAGES" ->
                     ModulePreferences.startDestination = R.id.images_fragment
+                "me.gm.cleaner.plugin.intent.action.VIDEO" ->
+                    ModulePreferences.startDestination = R.id.video_fragment
             }
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
                 setStartDestination(ModulePreferences.startDestination)
