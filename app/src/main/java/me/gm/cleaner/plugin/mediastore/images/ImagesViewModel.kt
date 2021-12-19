@@ -86,8 +86,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteImage(image: MediaStoreImage) {
         when {
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> throw UnsupportedOperationException()
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> viewModelScope.launch {
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> viewModelScope.launch {
                 performDeleteImage(image)
             }
             else -> deleteImages(arrayOf(image))

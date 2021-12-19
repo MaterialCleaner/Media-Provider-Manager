@@ -81,6 +81,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
     private var contentObserver: ContentObserver? = null
     private val cursors = mutableListOf<Cursor>()
 
+    fun reloadRecords(binderViewModel: BinderViewModel) =
+        loadRecords(binderViewModel, calendar.timeInMillis)
+
     /**
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
@@ -131,24 +134,8 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
         _recordsFlow.value = records
 
-        if (contentObserver == null) {
-            contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-                    reloadRecords(binderViewModel)
-                }
-            }
-            cursors.forEach {
-                it.registerContentObserver(contentObserver)
-                it.setNotificationUri(
-                    getApplication<Application>().contentResolver,
-                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
-                )
-            }
-        }
+        registerObserver(binderViewModel)
     }
-
-    fun reloadRecords(binderViewModel: BinderViewModel) =
-        loadRecords(binderViewModel, calendar.timeInMillis)
 
     private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
             : List<MediaProviderRecord> = withContext(Dispatchers.IO) {
@@ -182,15 +169,32 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    fun clear() {
-        onCleared()
+    fun registerObserver(binderViewModel: BinderViewModel) {
+        if (contentObserver == null && cursors.isNotEmpty()) {
+            contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    reloadRecords(binderViewModel)
+                }
+            }
+            cursors.forEach {
+                it.registerContentObserver(contentObserver)
+                it.setNotificationUri(
+                    getApplication<Application>().contentResolver,
+                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
+                )
+            }
+        }
+    }
+
+    fun unregisterObserver() {
+        if (contentObserver != null) {
+            cursors.forEach { it.unregisterContentObserver(contentObserver) }
+            contentObserver = null
+        }
     }
 
     override fun onCleared() {
-        val contentObserver = contentObserver
-        if (contentObserver != null) {
-            cursors.forEach { it.unregisterContentObserver(contentObserver) }
-            cursors.clear()
-        }
+        unregisterObserver()
+        cursors.clear()
     }
 }

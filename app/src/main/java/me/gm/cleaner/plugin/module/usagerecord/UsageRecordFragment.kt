@@ -86,12 +86,10 @@ class UsageRecordFragment : ModuleFragment() {
             }
         }
         if (savedInstanceState == null) {
-            viewModel.loadRecords(binderViewModel, System.currentTimeMillis())
+            viewModel.reloadRecords(binderViewModel)
         }
         findNavController().addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
-            // viewModel's lifeCycle is too long, we should stop updating the adapter manually.
-            viewModel.clear()
         }
 
         ModulePreferences.addOnPreferenceChangeListener(object :
@@ -102,6 +100,16 @@ class UsageRecordFragment : ModuleFragment() {
             }
         })
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.registerObserver(binderViewModel)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.unregisterObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
