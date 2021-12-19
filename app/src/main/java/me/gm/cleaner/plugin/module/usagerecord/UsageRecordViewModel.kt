@@ -23,6 +23,8 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -75,9 +77,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             })
             sequence.toList()
         }
-    val records: List<MediaProviderRecord>
-        get() = _recordsFlow.value
 
+    // Use LiveData to ensure reloads are only triggered in our fragment's lifeCycle.
+    private val _reloadRecordsLiveData = MutableLiveData(false)
+    val reloadRecordsLiveData: LiveData<Boolean> = _reloadRecordsLiveData
     private var contentObserver: ContentObserver? = null
     private val cursors = mutableListOf<Cursor>()
 
@@ -134,7 +137,8 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
         _recordsFlow.value = records
 
-        registerObserver(binderViewModel)
+        registerObserverIfNeeded()
+        _reloadRecordsLiveData.value = false
     }
 
     private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
@@ -169,11 +173,11 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    fun registerObserver(binderViewModel: BinderViewModel) {
+    fun registerObserverIfNeeded() {
         if (contentObserver == null && cursors.isNotEmpty()) {
             contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {
-                    reloadRecords(binderViewModel)
+                    _reloadRecordsLiveData.value = true
                 }
             }
             cursors.forEach {
@@ -184,17 +188,5 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 )
             }
         }
-    }
-
-    fun unregisterObserver() {
-        if (contentObserver != null) {
-            cursors.forEach { it.unregisterContentObserver(contentObserver) }
-            contentObserver = null
-        }
-    }
-
-    override fun onCleared() {
-        unregisterObserver()
-        cursors.clear()
     }
 }

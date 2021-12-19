@@ -85,6 +85,11 @@ class UsageRecordFragment : ModuleFragment() {
                 }
             }
         }
+        viewModel.reloadRecordsLiveData.observe(viewLifecycleOwner) { reloadNeeded ->
+            if (reloadNeeded) {
+                viewModel.reloadRecords(binderViewModel)
+            }
+        }
         if (savedInstanceState == null) {
             viewModel.reloadRecords(binderViewModel)
         }
@@ -100,16 +105,6 @@ class UsageRecordFragment : ModuleFragment() {
             }
         })
         return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.registerObserver(binderViewModel)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.unregisterObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
