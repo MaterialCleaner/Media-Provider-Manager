@@ -60,22 +60,28 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         get() = getApplication<Application>().packageManager
     private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
-    private val _recordsFlow = MutableStateFlow<List<MediaProviderRecord>>(emptyList())
+    private val _recordsFlow = MutableStateFlow<SourceState>(SourceState.Loading)
     val recordsFlow =
         combine(_recordsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
-            var sequence = source.asSequence()
-            if (isSearching) {
-                val lowerQuery = queryText.lowercase()
-                sequence = sequence.filter {
-                    it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
-                            it.packageInfo?.label?.lowercase()?.contains(lowerQuery) == true ||
-                            it.packageName.lowercase().contains(lowerQuery)
+            when (source) {
+                is SourceState.Loading -> SourceState.Loading
+                is SourceState.Done -> {
+                    var sequence = source.list.asSequence()
+                    if (isSearching) {
+                        val lowerQuery = queryText.lowercase()
+                        sequence = sequence.filter {
+                            it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
+                                    it.packageInfo?.label?.lowercase()
+                                        ?.contains(lowerQuery) == true ||
+                                    it.packageName.lowercase().contains(lowerQuery)
+                        }
+                    }
+                    sequence = sequence.sortedWith(Comparator.comparingLong {
+                        -it.timeMillis
+                    })
+                    SourceState.Done(sequence.toList())
                 }
             }
-            sequence = sequence.sortedWith(Comparator.comparingLong {
-                -it.timeMillis
-            })
-            sequence.toList()
         }
 
     // Use LiveData to ensure reloads are only triggered in our fragment's lifeCycle.
@@ -115,6 +121,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         binderViewModel: BinderViewModel, start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
     ): Job = viewModelScope.launch {
+        _recordsFlow.value = SourceState.Loading
         val records = mutableListOf<MediaProviderRecord>().also {
             if (!isHideQuery) {
                 it += queryRecord<MediaProviderQueryRecord>(start, end)
@@ -135,7 +142,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }.takeWhile {
             it.packageInfo != null
         }
-        _recordsFlow.value = records
+        _recordsFlow.value = SourceState.Done(records)
 
         registerObserverIfNeeded()
         _reloadRecordsLiveData.value = false
@@ -189,4 +196,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
     }
+}
+
+sealed class SourceState {
+    object Loading : SourceState()
+    data class Done(val list: List<MediaProviderRecord>) : SourceState()
 }

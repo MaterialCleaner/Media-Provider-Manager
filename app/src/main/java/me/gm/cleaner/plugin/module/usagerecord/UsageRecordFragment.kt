@@ -75,12 +75,18 @@ class UsageRecordFragment : ModuleFragment() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.recordsFlow.collect { records ->
-                    adapter.submitList(records) {
-                        supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
-                            DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
-                        ).apply {
-                            timeZone = TimeZone.getTimeZone("UTC")
-                        }.format(Date(viewModel.calendar.timeInMillis))
+                    when (records) {
+                        is SourceState.Loading -> binding.progress.show()
+                        is SourceState.Done -> {
+                            adapter.submitList(records.list) {
+                                supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
+                                    DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
+                                ).apply {
+                                    timeZone = TimeZone.getTimeZone("UTC")
+                                }.format(Date(viewModel.calendar.timeInMillis))
+                                binding.progress.hide()
+                            }
+                        }
                     }
                 }
             }
