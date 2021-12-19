@@ -8,8 +8,8 @@ An Xposed module intended to prevent media storage abuse.
 
 ## Screenshots
 
-<img src="screenshots/record.jpg" height="400" alt="Screenshot"/>
-<img src="screenshots/template.jpg" height="400" alt="Screenshot"/>
+<p><img src="screenshots/record.jpg" height="400" alt="Screenshot"/>
+<img src="screenshots/template.jpg" height="400" alt="Screenshot"/></p>
 
 ## 什么是媒体存储
 
