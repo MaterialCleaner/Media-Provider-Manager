@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -42,6 +43,7 @@ import java.util.*
 
 class UsageRecordFragment : ModuleFragment() {
     private val viewModel: UsageRecordViewModel by viewModels()
+    private val navController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +58,9 @@ class UsageRecordFragment : ModuleFragment() {
         }
         val binding = UsagerecordFragmentBinding.inflate(layoutInflater)
 
-        val adapter = UsageRecordAdapter(this)
+        val adapter = UsageRecordAdapter(this).apply {
+            stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
+        }
         val list = binding.list
         list.adapter = adapter
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
@@ -79,12 +83,15 @@ class UsageRecordFragment : ModuleFragment() {
                         is SourceState.Loading -> binding.progress.show()
                         is SourceState.Done -> {
                             adapter.submitList(records.list) {
+                                if (navController.currentDestination?.id != R.id.usage_record_fragment) {
+                                    return@submitList
+                                }
+                                binding.progress.hide()
                                 supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
                                     DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
                                 ).apply {
                                     timeZone = TimeZone.getTimeZone("UTC")
                                 }.format(Date(viewModel.calendar.timeInMillis))
-                                binding.progress.hide()
                             }
                         }
                     }
@@ -99,7 +106,7 @@ class UsageRecordFragment : ModuleFragment() {
         if (savedInstanceState == null) {
             viewModel.reloadRecords(binderViewModel)
         }
-        findNavController().addOnExitListener { _, _, _ ->
+        navController.addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
         }
 
