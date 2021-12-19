@@ -20,14 +20,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
 class FilesFragment : BaseFragment() {
+    private val viewModel: FilesViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+        lifecycleScope.launch {
+            viewModel.queryImages()
+        }
         return binding.root
     }
 }
