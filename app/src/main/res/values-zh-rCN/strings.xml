@@ -12,8 +12,8 @@
     <string name="audio">音频</string>
     <string name="downloads">下载</string>
     <string name="files">文件</string>
-    <string name="images">图像</string>
-    <string name="video">录像</string>
+    <string name="images">图片</string>
+    <string name="video">视频</string>
     <string name="experiment">实验</string>
     <string name="about">关于</string>
 
@@ -88,7 +88,7 @@
     <string name="no_wifi">当前没有连接到 wifi 网络，此实验将会消耗您的数据流量，是否继续？</string>
     <string name="unsplash">Unsplash</string>
     <string name="unsplash_download_manager_title">通过下载管理程序下载 10 张来自 Unsplash 的随机图片</string>
-    <string name="unsplash_download_manager_summary">通过下载管理程序下载文件无需存储权限，且下载的文件归因于发起请求的应用（应用访问这些文件无需存储权限）。\n您可以撤销本应用的存储权限，点击开始，然后切换到图像页面并取消工具栏更多选项中的勾选，观察是否能看到下载的图片。</string>
+    <string name="unsplash_download_manager_summary">通过下载管理程序下载文件无需存储权限，且下载的文件归因于发起请求的应用（应用访问这些文件无需存储权限）。\n您可以撤销本应用的存储权限，点击开始，然后切换到图片页面并取消工具栏更多选项中的勾选，观察是否能看到下载的图片。</string>
     <string name="unsplash_insert_title">通过媒体存储插入 10 张来自 Unsplash 的随机图片</string>
     <string name="unsplash_insert_summary">效果与使用下载管理程序相似，主要区别在于下载管理程序不会发送通知以及下载管理程序中没有下载记录。</string>
     <string name="start">开始</string>

@@ -1,12 +1,12 @@
-# Media Provider Manager
+# 媒体存储设备管理
 
-An Xposed module intended to prevent media storage abuse.
+防止媒体存储滥用的 Xposed 模块。
 
 [![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/MediaProviderManager)
 [![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/GuhDoy/Media-Provider-Manager)
 [![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
 
-## Screenshots
+## 截屏
 
 <p><img src="screenshots/record.jpg" height="400" alt="Screenshot"/>
 <img src="screenshots/template.jpg" height="400" alt="Screenshot"/></p>
@@ -32,18 +32,18 @@ An Xposed module intended to prevent media storage abuse.
 - 质感设计 3 界面，简单易用
 - 开源
 
-## Source code
+## 源代码
 
 [https://github.com/GuhDoy/Media-Provider-Manager](https://github.com/GuhDoy/Media-Provider-Manager)
 
-## Releases
+## 发行版
 
 [Github Release](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
 
-## License
+## 协议
 
 [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 [1]: https://developer.android.com/reference/android/provider/MediaStore
-[2]: https://developer.android.com/training/data-storage/use-cases#handle-media-files
+[2]: https://developer.android.com/training/data-storage/use-cases?hl=zh-cn#handle-media-files
 [3]: https://developer.android.com/reference/android/Manifest.permission.html#READ_EXTERNAL_STORAGE

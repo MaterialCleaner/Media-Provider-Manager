@@ -12,8 +12,8 @@
     <string name="audio">音訊</string>
     <string name="downloads">下載</string>
     <string name="files">文件</string>
-    <string name="images">圖像</string>
-    <string name="video">錄影</string>
+    <string name="images">圖片</string>
+    <string name="video">影片</string>
     <string name="experiment">實驗</string>
     <string name="about">關於</string>
 
@@ -88,7 +88,7 @@
     <string name="no_wifi">當前沒有連接到 wifi 網路，此實驗將會消耗您的數據流量，是否繼續？</string>
     <string name="unsplash">Unsplash</string>
     <string name="unsplash_download_manager_title">通過下載管理程序下載 10 張來自 Unsplash 的隨機圖片</string>
-    <string name="unsplash_download_manager_summary">透過下載管理程序下載文件無需儲存權限，且下載的文件歸因於發起請求的應用（應用訪問這些文件無需儲存權限）。\n您可以撤銷本應用的儲存權限，點擊開始，然後切換到圖像頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
+    <string name="unsplash_download_manager_summary">透過下載管理程序下載文件無需儲存權限，且下載的文件歸因於發起請求的應用（應用訪問這些文件無需儲存權限）。\n您可以撤銷本應用的儲存權限，點擊開始，然後切換到圖片頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
     <string name="unsplash_insert_title">透過媒體儲存插入 10 張來自 Unsplash 的隨機圖片</string>
     <string name="unsplash_insert_summary">效果與使用下載管理程序相似，主要區別在於下載管理程序不會發送通知以及下載管理程序中沒有下載記錄。</string>
     <string name="start">開始</string>
