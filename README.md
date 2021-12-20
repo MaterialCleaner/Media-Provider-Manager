@@ -11,26 +11,26 @@ An Xposed module intended to prevent media storage abuse.
 <p><img src="screenshots/record.jpg" height="400" alt="Screenshot"/>
 <img src="screenshots/template.jpg" height="400" alt="Screenshot"/></p>
 
-## 什么是媒体存储
+## What is media store
 
-[媒体存储库][1]是安卓系统提供的媒体文件索引。当应用需要访问媒体文件时（如相册应用想显示设备中的全部图片），相比于遍历外部存储卷中的全部文件，[使用媒体存储 API][2]更加高效、方便。另外它还能减少应用可访问的文件，有利于保护用户隐私。
+[Media store][1] is an optimized index into media collections provided by the Android framework. When an application needs to access media files (e.g. an album application wants to display all the pictures in the device), it is more easier to [interact with the media store][2] than traversing all files in the external storage volume. In addition it reduces the number of files accessible to the app, which helps to protect user privacy.
 
-## 媒体存储如何被滥用
+## How media store is abused
 
-与原生存储空间一样，安卓系统没有提供媒体存储的精细管理方案
-- 应用只需要低危权限就可以访问全部媒体文件，用户无法限制读取范围
-- 无需权限即可写入文件，应用随意写入文件会让存储空间和媒体库混乱，而且还能借此实现跨应用追踪
+As with native storage, Android does not offer a fine-grained management scheme for media storage.
+- Apps only need low-risk permissions to access all media files, and users cannot limit the scope of reading.
+- No permission is required for applications to insert files through the media store. Writing files freewheelingly will clutter up the external storage and the media store, and it can also be used for cross-application tracking.
 
-## 特性
+## Features
 
-- 媒体文件管理器（无需 root 或 xposed，仅需要[读取外部存储空间权限][3]）
-- 过滤媒体存储 API 返回的数据，保护隐私数据不被查询
-- 防止应用通过媒体存储随意写入文件
-- 历史记录功能，了解应用是否使用媒体存储 API，是否有滥用情况
-- 使用过时 API 插入文件时执行扫描，如果您通过挂载修改了应用所在的进程的命名空间的目录视图（~~俗称存储重定向~~），此功能能让媒体库及时更新
-- 阻止 💩 ROM 的下载管理程序创建不规范文件
-- 质感设计 3 界面，简单易用
-- 开源
+- Media file manager (no root or Xposed needed, only requires [READ_EXTERNAL_STORAGE][3] permission)
+- Filter data returned from media store to protect your privacy.
+- Prevent apps from freewheelingly writing files through the media store.
+- Provide usage record to help you aware whether the application uses media store and whether there is any abuse.
+- Scan file when it's inserted using obsolete API. If you have modified the file hierarchy in mount namespace of the application processes (~~aka storage redirect~~), this feature allows the media store to be updated in time.
+- Prevent 💩 ROM's download manager from creating non-standard files.
+- Material Design 3, easy to use.
+- Open source.
 
 ## Source code
 
