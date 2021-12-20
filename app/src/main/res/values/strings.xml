@@ -73,7 +73,7 @@
     <string name="usage_record_key" translatable="false">usage_record</string>
     <string name="usage_record_title" translatable="false">@string/usage_record</string>
     <string name="usage_record_summary">Save usage records to the database. No new data will appear in the usage record page if you turned off.</string>
-    <string name="rule_header">RULE</string>
+    <string name="scoped_header">SCOPED</string>
     <string name="template_management_key" translatable="false">template_management</string>
     <string name="template_management_title">Template management</string>
     <string name="applied_app_count">Applied to %d app(s)</string>
