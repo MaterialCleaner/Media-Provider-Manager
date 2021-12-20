@@ -3,8 +3,8 @@
 An Xposed module intended to prevent media storage abuse.
 
 [![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/MediaProviderManager)
-[![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/GuhDoy/Media-Provider-Manager)
-[![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
+[![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/MaterialCleaner/Media-Provider-Manager)
+[![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/MaterialCleaner/Media-Provider-Manager/releases/latest)
 
 ## Screenshots
 
@@ -24,21 +24,21 @@ As with native storage, Android does not offer a fine-grained management scheme 
 ## Features
 
 - Media file manager (no root or Xposed needed, only requires [READ_EXTERNAL_STORAGE][3] permission)
-- Filter data returned from media store to protect your privacy.
+- Filter data returned from the media store to protect your privacy.
 - Prevent apps from freewheelingly writing files through the media store.
 - Provide usage record to help you aware whether the application uses media store and whether there is any abuse.
-- Scan file when it's inserted using obsolete API. If you have modified the file hierarchy in mount namespace of the application processes (~~aka storage redirect~~), this feature allows the media store to be updated in time.
+- Scan file when it's inserted using obsolete API. If you have modified the file hierarchy in the mount namespace of the application processes (~~aka storage redirect~~), this feature allows the media store to be updated in time.
 - Prevent 💩 ROM's download manager from creating non-standard files.
 - Material Design 3, easy to use.
 - Open source.
 
 ## Source code
 
-[https://github.com/GuhDoy/Media-Provider-Manager](https://github.com/GuhDoy/Media-Provider-Manager)
+[https://github.com/MaterialCleaner/Media-Provider-Manager](https://github.com/MaterialCleaner/Media-Provider-Manager)
 
 ## Releases
 
-[Github Release](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
+[Github Release](https://github.com/MaterialCleaner/Media-Provider-Manager/releases/latest)
 
 ## License
 

@@ -173,10 +173,6 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_delete -> {
-            Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
-            true
-        }
         R.id.menu_info -> {
             Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
             true

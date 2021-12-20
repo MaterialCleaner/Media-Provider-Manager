@@ -3,8 +3,8 @@
 防止媒体存储滥用的 Xposed 模块。
 
 [![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/MediaProviderManager)
-[![Stars](https://img.shields.io/github/stars/GuhDoy/Media-Provider-Manager?label=Stars)](https://github.com/GuhDoy/Media-Provider-Manager)
-[![Download](https://img.shields.io/github/v/release/GuhDoy/Media-Provider-Manager?label=Download)](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
+[![Stars](https://img.shields.io/github/stars/MaterialCleaner/Media-Provider-Manager?label=Stars)](https://github.com/MaterialCleaner/Media-Provider-Manager)
+[![Download](https://img.shields.io/github/v/release/MaterialCleaner/Media-Provider-Manager?label=Download)](https://github.com/MaterialCleaner/Media-Provider-Manager/releases/latest)
 
 ## 截屏
 
@@ -34,11 +34,11 @@
 
 ## 源代码
 
-[https://github.com/GuhDoy/Media-Provider-Manager](https://github.com/GuhDoy/Media-Provider-Manager)
+[https://github.com/MaterialCleaner/Media-Provider-Manager](https://github.com/MaterialCleaner/Media-Provider-Manager)
 
 ## 发行版
 
-[Github Release](https://github.com/GuhDoy/Media-Provider-Manager/releases/latest)
+[Github Release](https://github.com/MaterialCleaner/Media-Provider-Manager/releases/latest)
 
 ## 协议
 

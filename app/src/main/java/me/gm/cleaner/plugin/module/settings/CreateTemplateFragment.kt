@@ -64,20 +64,22 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
         object : PreferenceManager(context) {
             override fun getSharedPreferences(): SharedPreferences {
-                tempSp = try {
-                    JsonSharedPreferencesImpl(
-                        Gson().toJson(
-                            Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
-                                it.templateName == if (savedInstanceState == null) args.templateName
-                                else savedInstanceState.getString(KEY_TEMPLATE_NAME)
-                            })
-                    )
-                } catch (e: NoSuchElementException) {
-                    JsonSharedPreferencesImpl()
-                }.apply {
-                    if (savedInstanceState == null) {
-                        edit {
-                            putString(getString(R.string.template_name_key), args.templateName)
+                if (!::tempSp.isInitialized) {
+                    tempSp = try {
+                        JsonSharedPreferencesImpl(
+                            Gson().toJson(
+                                Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
+                                    it.templateName == if (savedInstanceState == null) args.templateName
+                                    else savedInstanceState.getString(KEY_TEMPLATE_NAME)
+                                })
+                        )
+                    } catch (e: NoSuchElementException) {
+                        JsonSharedPreferencesImpl()
+                    }.apply {
+                        if (savedInstanceState == null) {
+                            edit {
+                                putString(getString(R.string.template_name_key), args.templateName)
+                            }
                         }
                     }
                 }

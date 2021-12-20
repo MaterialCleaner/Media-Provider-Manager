@@ -25,6 +25,7 @@ import android.os.Environment
 import android.os.FileUtils
 import android.provider.MediaStore
 import android.util.SparseArray
+import android.widget.Toast
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
@@ -103,7 +104,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                // TODO
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
             unsplashPhotos = unsplashPhotoListResult
         }
@@ -145,7 +146,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                // TODO
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
             unsplashPhotos = unsplashPhotoListResult
         }
