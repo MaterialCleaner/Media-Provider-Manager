@@ -153,8 +153,8 @@ class AppListFragment : ModuleFragment() {
         })
 
         when (ModulePreferences.sortBy) {
-            ModulePreferences.SORT_BY_NAME ->
-                menu.findItem(R.id.menu_sort_by_name).isChecked = true
+            ModulePreferences.SORT_BY_APP_NAME ->
+                menu.findItem(R.id.menu_sort_by_app_name).isChecked = true
             ModulePreferences.SORT_BY_UPDATE_TIME ->
                 menu.findItem(R.id.menu_sort_by_update_time).isChecked = true
         }
@@ -171,9 +171,9 @@ class AppListFragment : ModuleFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_by_name -> {
+            R.id.menu_sort_by_app_name -> {
                 item.isChecked = true
-                ModulePreferences.sortBy = ModulePreferences.SORT_BY_NAME
+                ModulePreferences.sortBy = ModulePreferences.SORT_BY_APP_NAME
             }
             R.id.menu_sort_by_update_time -> {
                 item.isChecked = true

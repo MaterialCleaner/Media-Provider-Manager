@@ -121,10 +121,10 @@ class UsageRecordFragment : ModuleFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
         if (!binderViewModel.pingBinder()) {
             return
         }
-        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.usagerecord_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)
         if (viewModel.isSearching) {

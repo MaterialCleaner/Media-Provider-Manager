@@ -23,7 +23,7 @@
     <string name="not_active">NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
-    <string name="enabled_rule_count">%d rules enabled</string>
+    <string name="enabled_rule_count">%d rule(s) enabled</string>
     <string name="query_times">Queried %d times</string>
     <string name="insert_times">Inserted %d times</string>
     <string name="delete_times">Deleted %d times</string>
@@ -40,7 +40,7 @@
     <string name="view">View</string>
     <string name="sort_key" translatable="false">sort</string>
     <string name="sort_title">Sort by</string>
-    <string name="menu_sort_by_name_title">App name</string>
+    <string name="menu_sort_by_app_name_title">App name</string>
     <string name="menu_sort_by_update_time_title">Update time</string>
     <string name="menu_rule_count_key" translatable="false">rule_count</string>
     <string name="menu_rule_count">Rule count</string>
@@ -62,6 +62,9 @@
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>
     <string name="info">Info</string>
+    <string name="sort_media_key" translatable="false">sort_media</string>
+    <string name="menu_sort_by_file_name_title">File name</string>
+    <string name="menu_sort_by_date_taken_title">Date taken</string>
 
     <!-- Settings -->
     <string name="global_header">GLOBAL</string>
@@ -111,7 +114,7 @@
         Please revoke the permission in app info manually.</string>
     <string name="validation">Delete all invalid images</string>
     <string name="validation_nop">No invalid images found</string>
-    <string name="unsupported_delete_in_bulk">Deleting images in bulk through the media store is not possible on Android Q.</string>
+    <string name="unsupported_delete_in_bulk">Delete in bulk through the media store is not possible on Android Q.</string>
 
     <!-- Experiment -->
     <string name="experiment_header">Here are some experiments on media storage,

@@ -27,8 +27,10 @@ import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
 
 object ModulePreferences {
-    const val SORT_BY_NAME = 0
+    const val SORT_BY_APP_NAME = 0
     const val SORT_BY_UPDATE_TIME = 1
+    const val SORT_BY_FILE_NAME = 0
+    const val SORT_BY_DATE_TAKEN = 1
     private var broadcasting = false
     private val listeners by lazy { mutableListOf<PreferencesChangeListener>() }
     private lateinit var resources: Resources
@@ -72,13 +74,8 @@ object ModulePreferences {
 
     // APP LIST CONFIG
     var sortBy: Int
-        get() = defaultSp.getInt(resources.getString(R.string.sort_key), SORT_BY_NAME)
-        set(value) {
-            defaultSp.edit {
-                putInt(resources.getString(R.string.sort_key), value)
-            }
-            notifyListeners()
-        }
+        get() = defaultSp.getInt(resources.getString(R.string.sort_key), SORT_BY_APP_NAME)
+        set(value) = putInt(resources.getString(R.string.sort_key), value)
     var ruleCount: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_rule_count_key), true)
         set(value) = putBoolean(resources.getString(R.string.menu_rule_count_key), value)
@@ -109,11 +106,29 @@ object ModulePreferences {
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_show_all_key), true)
         set(value) = putBoolean(resources.getString(R.string.menu_show_all_key), value)
 
+    // MEDIA STORE
+    var sortMediaBy: Int
+        get() = defaultSp.getInt(resources.getString(R.string.sort_media_key), SORT_BY_FILE_NAME)
+        set(value) = putInt(resources.getString(R.string.sort_media_key), value)
+
     private fun putBoolean(key: String, value: Boolean) {
+        val isValueChanged = defaultSp.getBoolean(key, value) != value
         defaultSp.edit {
             putBoolean(key, value)
         }
-        notifyListeners()
+        if (isValueChanged) {
+            notifyListeners()
+        }
+    }
+
+    private fun putInt(key: String, value: Int) {
+        val isValueChanged = defaultSp.getInt(key, value) != value
+        defaultSp.edit {
+            putInt(key, value)
+        }
+        if (isValueChanged) {
+            notifyListeners()
+        }
     }
 
     interface PreferencesChangeListener {

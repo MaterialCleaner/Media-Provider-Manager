@@ -16,26 +16,112 @@
 
 package me.gm.cleaner.plugin.mediastore.files
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
+import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
+import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 
-class FilesFragment : BaseFragment() {
-    private val viewModel: FilesViewModel by viewModels()
+class FilesFragment : MediaStoreFragment() {
+    override val viewModel: FilesViewModel by viewModels()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+    override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
+        FilesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
+
+    override fun onBindView(binding: MediaStoreFragmentBinding) {
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+            .setOnLayoutCompletedListener {
+                appBarLayout.isLifted =
+                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
+            }
+
         lifecycleScope.launch {
-            viewModel.queryImages()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.requeryFlow.collect {
+                    if (!isInActionMode()) {
+                        dispatchRequestPermissions(requiredPermissions, null)
+                    }
+                }
+            }
         }
-        return binding.root
+        ModulePreferences.addOnPreferenceChangeListener(object :
+            ModulePreferences.PreferencesChangeListener {
+            override val lifecycle = getLifecycle()
+            override fun onPreferencesChanged() {
+                dispatchRequestPermissions(requiredPermissions, null)
+            }
+        })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.files_toolbar, menu)
+        val searchItem = menu.findItem(R.id.menu_search)
+        if (viewModel.isSearching) {
+            searchItem.expandActionView()
+        }
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                viewModel.isSearching = true
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                viewModel.isSearching = false
+                return true
+            }
+        })
+        val searchView = searchItem.actionView as SearchView
+        searchView.setQuery(viewModel.queryText, false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewModel.queryText = query
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewModel.queryText = newText
+                return false
+            }
+        })
+
+        when (ModulePreferences.sortMediaBy) {
+            ModulePreferences.SORT_BY_FILE_NAME ->
+                menu.findItem(R.id.menu_sort_by_file_name).isChecked = true
+            ModulePreferences.SORT_BY_DATE_TAKEN ->
+                menu.findItem(R.id.menu_sort_by_modify_time).isChecked = true
+        }
+        arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
+            it.title = requireContext().buildStyledTitle(it.title)
+        }
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_sort_by_file_name -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_FILE_NAME
+            }
+            R.id.menu_sort_by_modify_time -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+        return true
     }
 }

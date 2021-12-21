@@ -38,7 +38,7 @@
     <string name="search">搜索</string>
     <string name="view">查看</string>
     <string name="sort_title">排序方式</string>
-    <string name="menu_sort_by_name_title">应用名</string>
+    <string name="menu_sort_by_app_name_title">应用名</string>
     <string name="menu_sort_by_update_time_title">更新时间</string>
     <string name="menu_rule_count">规则数</string>
     <string name="menu_hide_title">隐藏</string>
@@ -53,6 +53,8 @@
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">显示其他应用的媒体文件</string>
     <string name="info">信息</string>
+    <string name="menu_sort_by_file_name_title">文件名</string>
+    <string name="menu_sort_by_date_taken_title">创建日期</string>
 
     <!-- 设置 -->
     <string name="global_header">全局</string>

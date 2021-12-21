@@ -16,48 +16,65 @@
 
 package me.gm.cleaner.plugin.mediastore.files
 
-import android.annotation.SuppressLint
 import android.app.Application
-import android.content.ContentResolver
-import android.database.ContentObserver
+import android.content.ContentUris
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.BuildConfig
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
+import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
-// TODO: Some of functions in this ViewModel need to be reused.
-//  Create MediaStoreImageOperations class and put them into it.
-class FilesViewModel(application: Application) : AndroidViewModel(application) {
-    private var contentObserver: ContentObserver? = null
+class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreFiles>(application) {
+    override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+    private val _isSearchingFlow = MutableStateFlow(false)
+    var isSearching: Boolean
+        get() = _isSearchingFlow.value
+        set(value) {
+            _isSearchingFlow.value = value
+        }
+    private val _queryTextFlow = MutableStateFlow("")
+    var queryText: String
+        get() = _queryTextFlow.value
+        set(value) {
+            _queryTextFlow.value = value
+        }
+    val requeryFlow = combine(_isSearchingFlow, _queryTextFlow) { isSearching, _ ->
+        if (isSearching) delay(500L)
+    }
 
-     suspend fun queryImages() {
+    override suspend fun queryMedias(): List<MediaStoreFiles> {
+        val files = mutableListOf<MediaStoreFiles>()
 
         withContext(Dispatchers.IO) {
 
             val projection = arrayOf(
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.DATE_ADDED,
+                MediaStore.Images.Media._ID,
                 MediaStore.Files.FileColumns.DATA,
                 MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.DATE_TAKEN,
+                MediaStore.Files.FileColumns.SIZE,
             )
 
-            val selection = "${MediaStore.Files.FileColumns.DATE_ADDED} >= ?"
+            val selection = "${MediaStore.Files.FileColumns.DATE_TAKEN} >= ?"
 
             val selectionArgs = arrayOf(
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
-            val sortOrder = "${MediaStore.Files.FileColumns.DATE_ADDED} DESC"
+            val sortOrder = when (ModulePreferences.sortMediaBy) {
+                ModulePreferences.SORT_BY_FILE_NAME -> MediaStore.Files.FileColumns.DATA
+                ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
+                else -> throw IllegalArgumentException()
+            }
 
-            getApplication<Application>().contentResolver.query(
+            val resolver = getApplication<Application>().contentResolver
+            resolver.query(
                 MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
                 projection,
                 selection,
@@ -65,70 +82,49 @@ class FilesViewModel(application: Application) : AndroidViewModel(application) {
                 sortOrder
             )?.use { cursor ->
 
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
-                val displayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
-                val dateModifiedColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_ADDED)
                 val mimeTypeColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                val dateTakenColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
+                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
 
-                Log.i(TAG, "Found ${cursor.count} images")
+                Log.i(TAG, "Found ${cursor.count} files")
                 while (cursor.moveToNext()) {
 
-                    // Here we'll use the column indexs that we found above.
+                    val id = cursor.getLong(idColumn)
                     val data = cursor.getString(dataColumn)
-                    val displayName = cursor.getString(displayNameColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
-                    val dateModified =
-                        Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
+                    val timeMillis = cursor.getLong(dateTakenColumn)
+                    val size = cursor.getLong(sizeColumn)
 
-                    Log.e(BuildConfig.APPLICATION_ID, data + displayName + mimeType + dateModified)
+                    val contentUri = ContentUris.withAppendedId(
+                        when (MimeUtils.resolveMediaType(mimeType)) {
+                            MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                            MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                            MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                            // Unsupported type
+                            else -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                        },
+                        id
+                    )
+
+                    val file = MediaStoreFiles(id, contentUri, data, mimeType, timeMillis, size)
+                    if (isSearching) {
+                        val lowerQuery = queryText.lowercase()
+                        if (!file.data.lowercase().contains(lowerQuery)) {
+                            continue
+                        }
+                    }
+                    files += file
+
+                    Log.v(TAG, "Added file: $file")
                 }
             }
         }
-    }
 
-    /**
-     * Convenience method to convert a day/month/year date into a UNIX timestamp.
-     *
-     * We're suppressing the lint warning because we're not actually using the date formatter
-     * to format the date to display, just to specify a format to use to parse it, and so the
-     * locale warning doesn't apply.
-     */
-    @Suppress("SameParameterValue")
-    @SuppressLint("SimpleDateFormat")
-    private fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
-        SimpleDateFormat("dd.MM.yyyy").let { formatter ->
-            TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
-        }
-
-    /**
-     * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`
-     * is being released.
-     */
-    override fun onCleared() {
-        val contentObserver = contentObserver
-        if (contentObserver != null) {
-            getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
-        }
+        Log.v(TAG, "Found ${files.size} files")
+        return files
     }
 }
-
-/**
- * Convenience extension method to register a [ContentObserver] given a lambda.
- */
-private fun ContentResolver.registerObserver(
-    uri: Uri,
-    observer: (selfChange: Boolean) -> Unit
-): ContentObserver {
-    val contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean) {
-            observer(selfChange)
-        }
-    }
-    registerContentObserver(uri, true, contentObserver)
-    return contentObserver
-}
-
-private const val TAG = "MediaStoreVM"

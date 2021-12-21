@@ -52,7 +52,7 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
 
     private var pendingDeleteMedia: MediaStoreModel? = null
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
-    val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
+    internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
     fun loadMedias() {
         viewModelScope.launch {
@@ -80,17 +80,17 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         }
     }
 
-    fun deletePendingMedia() {
-        pendingDeleteMedia?.let { media ->
-            pendingDeleteMedia = null
-            deleteMedia(media)
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.R)
     fun deleteMedias(medias: Array<out MediaStoreModel>) {
         viewModelScope.launch {
             performDeleteMedias(*medias)
+        }
+    }
+
+    internal fun deletePendingMedia() {
+        pendingDeleteMedia?.let { media ->
+            pendingDeleteMedia = null
+            deleteMedia(media)
         }
     }
 

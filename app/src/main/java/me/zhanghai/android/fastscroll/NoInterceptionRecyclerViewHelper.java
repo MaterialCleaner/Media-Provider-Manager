@@ -26,6 +26,7 @@ public class NoInterceptionRecyclerViewHelper extends RecyclerViewHelper {
 
     @NonNull
     private final RecyclerView mView;
+    private boolean mDragging;
 
     public NoInterceptionRecyclerViewHelper(@NonNull RecyclerView view,
                                             @Nullable PopupTextProvider popupTextProvider) {
@@ -39,8 +40,12 @@ public class NoInterceptionRecyclerViewHelper extends RecyclerViewHelper {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView recyclerView,
                                                  @NonNull MotionEvent event) {
-                onTouchEvent.test(event);
-                return false;
+                var action = event.getAction();
+                // Intercept up event to disable fling.
+                var shouldInterceptTouchEvent = (action == MotionEvent.ACTION_UP ||
+                        action == MotionEvent.ACTION_CANCEL) && mDragging;
+                mDragging = onTouchEvent.test(event);
+                return shouldInterceptTouchEvent;
             }
 
             @Override
