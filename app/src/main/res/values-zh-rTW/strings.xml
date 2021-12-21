@@ -53,8 +53,9 @@
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
     <string name="info">訊息</string>
-    <string name="menu_sort_by_file_name_title">檔案名</string>
+    <string name="menu_sort_by_path_title">路徑</string>
     <string name="menu_sort_by_date_taken_title">創建日期</string>
+    <string name="menu_sort_by_size_title">大小</string>
 
     <!-- 設置 -->
     <string name="global_header">全局</string>

@@ -99,10 +99,12 @@ class FilesFragment : MediaStoreFragment() {
         })
 
         when (ModulePreferences.sortMediaBy) {
-            ModulePreferences.SORT_BY_FILE_NAME ->
-                menu.findItem(R.id.menu_sort_by_file_name).isChecked = true
+            ModulePreferences.SORT_BY_PATH ->
+                menu.findItem(R.id.menu_sort_by_file_path).isChecked = true
             ModulePreferences.SORT_BY_DATE_TAKEN ->
                 menu.findItem(R.id.menu_sort_by_modify_time).isChecked = true
+            ModulePreferences.SORT_BY_SIZE ->
+                menu.findItem(R.id.menu_sort_by_file_size).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
             it.title = requireContext().buildStyledTitle(it.title)
@@ -112,13 +114,17 @@ class FilesFragment : MediaStoreFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_by_file_name -> {
+            R.id.menu_sort_by_file_path -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_FILE_NAME
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
             }
             R.id.menu_sort_by_modify_time -> {
                 item.isChecked = true
                 ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+            }
+            R.id.menu_sort_by_file_size -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_SIZE
             }
             else -> super.onOptionsItemSelected(item)
         }

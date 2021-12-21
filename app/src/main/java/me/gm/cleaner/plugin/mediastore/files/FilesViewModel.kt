@@ -56,6 +56,8 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Files.FileColumns.DATA,
+                MediaStore.Files.FileColumns.RELATIVE_PATH,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
                 MediaStore.Files.FileColumns.MIME_TYPE,
                 MediaStore.Files.FileColumns.DATE_TAKEN,
                 MediaStore.Files.FileColumns.SIZE,
@@ -68,8 +70,9 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
             )
 
             val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_FILE_NAME -> MediaStore.Files.FileColumns.DATA
+                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.DATA
                 ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
+                ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -83,7 +86,10 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
             )?.use { cursor ->
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA)
+                val relativePathColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
+                val displayNameColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
                 val mimeTypeColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
                 val dateTakenColumn =
@@ -94,7 +100,8 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                 while (cursor.moveToNext()) {
 
                     val id = cursor.getLong(idColumn)
-                    val data = cursor.getString(dataColumn)
+                    val data =
+                        cursor.getString(relativePathColumn) + cursor.getString(displayNameColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
                     val timeMillis = cursor.getLong(dateTakenColumn)
                     val size = cursor.getLong(sizeColumn)
@@ -110,13 +117,13 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                         id
                     )
 
-                    val file = MediaStoreFiles(id, contentUri, data, mimeType, timeMillis, size)
                     if (isSearching) {
                         val lowerQuery = queryText.lowercase()
-                        if (!file.data.lowercase().contains(lowerQuery)) {
+                        if (!data.lowercase().contains(lowerQuery)) {
                             continue
                         }
                     }
+                    val file = MediaStoreFiles(id, contentUri, data, mimeType, timeMillis, size)
                     files += file
 
                     Log.v(TAG, "Added file: $file")
