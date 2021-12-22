@@ -164,7 +164,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                             val images = selectionTracker.selection.map { selection ->
                                 viewModel.medias.first { it.id == selection }
                             }
-                            selectionTracker.clearSelection()
+                            actionMode?.finish()
                             when {
                                 images.size == 1 -> viewModel.deleteMedia(images.first())
                                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
