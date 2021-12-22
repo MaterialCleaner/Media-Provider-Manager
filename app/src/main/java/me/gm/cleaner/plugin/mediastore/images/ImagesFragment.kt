@@ -52,7 +52,7 @@ class ImagesFragment : MediaStoreFragment() {
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
-        setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
+        setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             prepareTransitions()
             postponeEnterTransition()

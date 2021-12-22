@@ -32,6 +32,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.transition.platform.Hold
 import com.google.gson.Gson
 import me.gm.cleaner.plugin.R
@@ -41,7 +42,6 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.databinding.AppHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
-import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.ktx.DividerViewHolder
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.model.Template
@@ -58,7 +58,7 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        GlideApp.with(fragment)
+        Glide.with(fragment)
             .load(args.pi)
             .into(binding.icon)
         binding.labelVersion.text = "${args.label} ${args.pi.versionName}"

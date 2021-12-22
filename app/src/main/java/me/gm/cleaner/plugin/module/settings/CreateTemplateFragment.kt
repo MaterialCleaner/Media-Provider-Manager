@@ -132,7 +132,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         ?.apply { prepareSharedElementTransition(listView) }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
-        setFragmentResult(CreateTemplateFragment::class.java.simpleName, lastTemplateName)
+        setFragmentResult(CreateTemplateFragment::class.java.name, lastTemplateName)
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host

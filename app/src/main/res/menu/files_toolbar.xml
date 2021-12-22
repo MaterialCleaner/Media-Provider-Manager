@@ -40,13 +40,13 @@
                 app:showAsAction="never" />
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu_sort_by_file_path"
+                    android:id="@+id/menu_sort_by_path"
                     android:title="@string/menu_sort_by_path_title" />
                 <item
-                    android:id="@+id/menu_sort_by_modify_time"
+                    android:id="@+id/menu_sort_by_date_taken"
                     android:title="@string/menu_sort_by_date_taken_title" />
                 <item
-                    android:id="@+id/menu_sort_by_file_size"
+                    android:id="@+id/menu_sort_by_size"
                     android:title="@string/menu_sort_by_size_title" />
             </group>
         </menu>

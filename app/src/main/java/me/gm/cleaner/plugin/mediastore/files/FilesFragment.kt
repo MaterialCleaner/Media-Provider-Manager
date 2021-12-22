@@ -58,16 +58,10 @@ class FilesFragment : MediaStoreFragment() {
                 }
             }
         }
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged() {
-                dispatchRequestPermissions(requiredPermissions, null)
-            }
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.files_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)
         if (viewModel.isSearching) {
@@ -100,34 +94,33 @@ class FilesFragment : MediaStoreFragment() {
 
         when (ModulePreferences.sortMediaBy) {
             ModulePreferences.SORT_BY_PATH ->
-                menu.findItem(R.id.menu_sort_by_file_path).isChecked = true
+                menu.findItem(R.id.menu_sort_by_path).isChecked = true
             ModulePreferences.SORT_BY_DATE_TAKEN ->
-                menu.findItem(R.id.menu_sort_by_modify_time).isChecked = true
+                menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
             ModulePreferences.SORT_BY_SIZE ->
-                menu.findItem(R.id.menu_sort_by_file_size).isChecked = true
+                menu.findItem(R.id.menu_sort_by_size).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
             it.title = requireContext().buildStyledTitle(it.title)
         }
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_by_file_path -> {
+            R.id.menu_sort_by_path -> {
                 item.isChecked = true
                 ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
             }
-            R.id.menu_sort_by_modify_time -> {
+            R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
                 ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
             }
-            R.id.menu_sort_by_file_size -> {
+            R.id.menu_sort_by_size -> {
                 item.isChecked = true
                 ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_SIZE
             }
             R.id.menu_validation -> viewModel.rescanFiles()
-            else -> super.onOptionsItemSelected(item)
+            else -> return super.onOptionsItemSelected(item)
         }
         return true
     }

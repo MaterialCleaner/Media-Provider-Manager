@@ -93,7 +93,7 @@ class AppFragment : ModuleFragment() {
         }
 
         prepareSharedElementTransition(list)
-        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
+        setFragmentResultListener(CreateTemplateFragment::class.java.name) { _, bundle ->
             lastTemplateName = bundle.getString(CreateTemplateFragment.KEY_TEMPLATE_NAME)
             var position = prepareCurrentList().indexOfFirst { it.templateName == lastTemplateName }
             if (position != -1) {
@@ -131,7 +131,7 @@ class AppFragment : ModuleFragment() {
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
         setFragmentResult(
-            AppFragment::class.java.simpleName, bundleOf(KEY_PACKAGENAME to args.pi.packageName)
+            AppFragment::class.java.name, bundleOf(KEY_PACKAGENAME to args.pi.packageName)
         )
         list.transitionName = args.pi.packageName
 

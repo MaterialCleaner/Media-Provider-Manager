@@ -71,7 +71,7 @@ class TemplatesFragment : ModuleFragment() {
         }
 
         prepareSharedElementTransition(list)
-        setFragmentResultListener(CreateTemplateFragment::class.java.simpleName) { _, bundle ->
+        setFragmentResultListener(CreateTemplateFragment::class.java.name) { _, bundle ->
             lastTemplateName = bundle.getString(CreateTemplateFragment.KEY_TEMPLATE_NAME)
             var position = prepareCurrentList().indexOfFirst { it.templateName == lastTemplateName }
             if (position != -1) {
@@ -107,7 +107,7 @@ class TemplatesFragment : ModuleFragment() {
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
         val key = getString(R.string.template_management_key) /* hardcoded */
-        setFragmentResult(TemplatesFragment::class.java.simpleName, bundleOf(KEY to key))
+        setFragmentResult(TemplatesFragment::class.java.name, bundleOf(KEY to key))
         list.transitionName = key
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {

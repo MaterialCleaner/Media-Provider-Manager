@@ -1,5 +1,6 @@
 /*
  * Copyright 2020 Google LLC
+ * Copyright 2021 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@ package me.gm.cleaner.plugin.di;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -26,7 +28,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
 
+import java.nio.ByteBuffer;
+
 import me.gm.cleaner.plugin.R;
+import me.gm.cleaner.plugin.mediastore.MediaModelLoader;
 import me.zhanghai.android.appiconloader.glide.AppIconModelLoader;
 
 @GlideModule
@@ -41,6 +46,7 @@ public class AppGlideModule extends com.bumptech.glide.module.AppGlideModule {
                                    @NonNull Registry registry) {
         int iconSize = context.getResources().getDimensionPixelSize(R.dimen.badge_size);
         registry.prepend(PackageInfo.class, Bitmap.class, new AppIconModelLoader.Factory(iconSize,
-                false, context));
+                false, context))
+                .prepend(Uri.class, ByteBuffer.class, new MediaModelLoader.Factory(context));
     }
 }

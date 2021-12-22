@@ -120,9 +120,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                             MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                             MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                             // Unsupported type
-                            else -> ContentUris.withAppendedId(
-                                MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL), id
-                            )
+                            else -> MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
                         },
                         id
                     )

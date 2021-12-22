@@ -24,10 +24,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
-import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.module.PreferencesPackageInfo
@@ -43,7 +43,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val pi = getItem(position)
-        GlideApp.with(fragment)
+        Glide.with(fragment)
             .load(pi)
             .into(binding.icon)
         binding.title.text = pi.label

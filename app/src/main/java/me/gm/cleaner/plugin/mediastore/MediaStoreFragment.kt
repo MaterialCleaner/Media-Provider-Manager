@@ -80,7 +80,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
         selectionTracker = SelectionTracker.Builder(
-            View.generateViewId().toString(), list, StableIdKeyProvider(list),
+            javaClass.name, list, StableIdKeyProvider(list),
             DetailsLookup(list), StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -130,7 +130,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
-                dispatchRequestPermissions(requiredPermissions, savedInstanceState)
+                dispatchRequestPermissions(requiredPermissions, null)
             }
         })
 
@@ -145,9 +145,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     override fun onRequestPermissionsSuccess(
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {
-        if (savedInstanceState == null) {
-            viewModel.loadMedias()
-        }
+        savedInstanceState ?: viewModel.loadMedias()
     }
 
     private fun startActionMode() {

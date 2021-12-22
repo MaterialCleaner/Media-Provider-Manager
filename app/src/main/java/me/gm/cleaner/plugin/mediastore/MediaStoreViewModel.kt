@@ -161,8 +161,7 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
      * is being released.
      */
     override fun onCleared() {
-        val contentObserver = contentObserver
-        if (contentObserver != null) {
+        contentObserver?.let { contentObserver ->
             getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
         }
     }

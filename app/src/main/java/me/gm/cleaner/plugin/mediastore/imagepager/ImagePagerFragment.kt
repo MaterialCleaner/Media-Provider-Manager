@@ -120,7 +120,7 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     private fun prepareSharedElementTransition() {
-        setFragmentResult(ImagePagerFragment::class.java.simpleName, lastPosition)
+        setFragmentResult(ImagePagerFragment::class.java.name, lastPosition)
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
             setAllContainerColors(requireContext().colorSurface)

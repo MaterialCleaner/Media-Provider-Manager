@@ -95,7 +95,7 @@ class AppListFragment : ModuleFragment() {
         if (savedInstanceState == null && viewModel.isLoading) {
             viewModel.loadApps(binderViewModel, requireContext())
         }
-        setFragmentResultListener(AppFragment::class.java.simpleName) { _, bundle ->
+        setFragmentResultListener(AppFragment::class.java.name) { _, bundle ->
             enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
             postponeEnterTransition()
         }
