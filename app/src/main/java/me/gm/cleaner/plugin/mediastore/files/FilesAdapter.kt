@@ -44,7 +44,7 @@ class FilesAdapter(private val fragment: FilesFragment) :
             .load(item.contentUri)
             .centerCrop()
             .into(binding.icon)
-        binding.title.text = item.data
+        binding.title.text = item.displayPath
         binding.title.isSelected = true
         binding.summary.text = formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
                 Formatter.formatFileSize(fragment.requireContext(), item.size)

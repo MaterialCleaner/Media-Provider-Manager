@@ -25,14 +25,9 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import java.util.*
@@ -162,26 +157,5 @@ class ImagesViewModel(application: Application) :
 
         Log.v(TAG, "Found ${images.size} images")
         return images
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun validateAsync() = viewModelScope.async(Dispatchers.IO) {
-        val contentResolver = getApplication<Application>().contentResolver
-        val displayMetrics = getApplication<Application>().resources.displayMetrics
-        val size = Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
-        val invalidImages = medias.filter {
-            try {
-                contentResolver.loadThumbnail(it.contentUri, size, null)
-                false
-            } catch (e: Throwable) {
-                true
-            }
-        }
-        return@async if (invalidImages.isNotEmpty()) {
-            deleteMedias(invalidImages.toTypedArray())
-            true
-        } else {
-            false
-        }
     }
 }

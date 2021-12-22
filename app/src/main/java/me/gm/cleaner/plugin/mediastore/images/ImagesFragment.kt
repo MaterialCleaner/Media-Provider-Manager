@@ -16,21 +16,14 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
@@ -39,7 +32,6 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
-import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
@@ -109,31 +101,5 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            inflater.inflate(R.menu.images_toolbar, menu)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_validation -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                lifecycleScope.launch {
-                    if (!viewModel.validateAsync().await()) {
-                        makeSnackbarWithFullyDraggableContainer(
-                            { requireActivity().findViewById(R.id.fully_draggable_container) },
-                            requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } else {
-                throw UnsupportedOperationException()
-            }
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
     }
 }

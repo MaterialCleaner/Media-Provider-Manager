@@ -168,7 +168,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                             }
                             selectionTracker.clearSelection()
                             when {
-                                images.size == 1 -> viewModel.deleteMedia(images.single())
+                                images.size == 1 -> viewModel.deleteMedia(images.first())
                                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
                                     // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
                                     getString(R.string.unsupported_delete_in_bulk)
@@ -191,9 +191,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST &&
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
-        ) {
+        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
             viewModel.deletePendingMedia()
         }
     }

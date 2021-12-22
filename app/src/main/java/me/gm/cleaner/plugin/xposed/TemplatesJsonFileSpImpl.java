@@ -34,7 +34,7 @@ public final class TemplatesJsonFileSpImpl extends JsonFileSpImpl {
         templatesCache = new Templates(what);
     }
 
-    public Templates getTemplatesCache() {
+    public Templates getTemplates() {
         return templatesCache;
     }
 }

@@ -56,6 +56,7 @@
     <string name="menu_sort_by_path_title">路径</string>
     <string name="menu_sort_by_date_taken_title">创建日期</string>
     <string name="menu_sort_by_size_title">大小</string>
+    <string name="validation">删除所有无效文件</string>
 
     <!-- 设置 -->
     <string name="global_header">全局</string>
@@ -82,8 +83,6 @@
     <string name="rationale_shouldShowRationale">访问其它应用创建的媒体文件需要读取外部存储空间权限</string>
     <string name="rationale_permanentlyDenied">访问其它应用创建的媒体文件需要读取外部存储空间权限，请在应用信息中手动授予</string>
     <string name="revoke_self_permission">只显示自己的媒体文件需要撤销应用的读取外部存储空间权限，请在应用信息中手动撤销</string>
-    <string name="validation">删除所有无效图片</string>
-    <string name="validation_nop">未发现无效图片</string>
     <string name="unsupported_delete_in_bulk">安卓 Q 的媒体存储不支持批量删除</string>
 
     <!-- 实验 -->

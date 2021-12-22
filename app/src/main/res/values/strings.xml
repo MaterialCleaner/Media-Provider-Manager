@@ -66,6 +66,7 @@
     <string name="menu_sort_by_path_title">Path</string>
     <string name="menu_sort_by_date_taken_title">Date taken</string>
     <string name="menu_sort_by_size_title">Size</string>
+    <string name="validation">Delete all invalid files</string>
 
     <!-- Settings -->
     <string name="global_header">GLOBAL</string>
@@ -113,8 +114,6 @@
         Please grant the permission in app info manually.</string>
     <string name="revoke_self_permission">App needs read external storage permission to be revoked for showing media files only created by itself.
         Please revoke the permission in app info manually.</string>
-    <string name="validation">Delete all invalid images</string>
-    <string name="validation_nop">No invalid images found</string>
     <string name="unsupported_delete_in_bulk">Delete in bulk through the media store is not possible on Android Q.</string>
 
     <!-- Experiment -->

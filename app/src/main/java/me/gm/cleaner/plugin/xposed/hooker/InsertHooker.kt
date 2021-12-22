@@ -66,7 +66,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
 
         /** INTERCEPT */
-        val shouldIntercept = data != null && mimeType != null && service.ruleSp.templatesCache
+        val shouldIntercept = data != null && mimeType != null && service.ruleSp.templates
             .matchedTemplates(javaClass, param.callingPackage)
             .filterNot(listOf(data), listOf(mimeType)).first()
         if (shouldIntercept) {

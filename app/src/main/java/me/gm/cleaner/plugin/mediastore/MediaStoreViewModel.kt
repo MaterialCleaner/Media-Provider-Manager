@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.BaseColumns
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
@@ -71,17 +72,14 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         }
     }
 
-    fun deleteMedia(media: MediaStoreModel) {
-        when {
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> viewModelScope.launch {
-                performDeleteMedia(media)
-            }
-            else -> deleteMedias(arrayOf(media))
+    open fun deleteMedia(media: MediaStoreModel) {
+        viewModelScope.launch {
+            performDeleteMedia(media)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun deleteMedias(medias: Array<out MediaStoreModel>) {
+    open fun deleteMedias(medias: Array<out MediaStoreModel>) {
         viewModelScope.launch {
             performDeleteMedias(*medias)
         }
@@ -112,7 +110,7 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
                  */
                 getApplication<Application>().contentResolver.delete(
                     media.contentUri,
-                    "$uri = ?",
+                    "${BaseColumns._ID} = ?",
                     arrayOf(media.id.toString())
                 )
             } catch (securityException: SecurityException) {

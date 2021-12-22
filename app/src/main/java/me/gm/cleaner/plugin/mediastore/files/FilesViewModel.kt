@@ -18,18 +18,24 @@ package me.gm.cleaner.plugin.mediastore.files
 
 import android.app.Application
 import android.content.ContentUris
+import android.media.MediaScannerConnection
+import android.mtp.MtpConstants
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
+@Suppress("UNCHECKED_CAST")
 class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreFiles>(application) {
     override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
     private val _isSearchingFlow = MutableStateFlow(false)
@@ -86,6 +92,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
             )?.use { cursor ->
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                 val relativePathColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
                 val displayNameColumn =
@@ -100,7 +107,8 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                 while (cursor.moveToNext()) {
 
                     val id = cursor.getLong(idColumn)
-                    val data =
+                    val data = cursor.getString(dataColumn)
+                    val displayPath =
                         cursor.getString(relativePathColumn) + cursor.getString(displayNameColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
                     val timeMillis = cursor.getLong(dateTakenColumn)
@@ -112,18 +120,22 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                             MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                             MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                             // Unsupported type
-                            else -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                            else -> ContentUris.withAppendedId(
+                                MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL), id
+                            )
                         },
                         id
                     )
 
                     if (isSearching) {
                         val lowerQuery = queryText.lowercase()
-                        if (!data.lowercase().contains(lowerQuery)) {
+                        if (!displayPath.lowercase().contains(lowerQuery)) {
                             continue
                         }
                     }
-                    val file = MediaStoreFiles(id, contentUri, data, mimeType, timeMillis, size)
+                    val file = MediaStoreFiles(
+                        id, contentUri, data, displayPath, mimeType, timeMillis, size
+                    )
                     files += file
 
                     Log.v(TAG, "Added file: $file")
@@ -133,5 +145,31 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
 
         Log.v(TAG, "Found ${files.size} files")
         return files
+    }
+
+    override fun deleteMedia(media: MediaStoreModel) {
+        if (media is MediaStoreFiles && MimeUtils.resolveFormatCode(media.mimeType) == MtpConstants.FORMAT_UNDEFINED) {
+            MediaScannerConnection.scanFile(getApplication(), arrayOf(media.data), null, null)
+        } else {
+            super.deleteMedia(media)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun deleteMedias(medias: Array<out MediaStoreModel>) {
+        val partition = medias.partition {
+            it is MediaStoreFiles && MimeUtils.resolveFormatCode(it.mimeType) == MtpConstants.FORMAT_UNDEFINED
+        }
+        MediaScannerConnection.scanFile(
+            getApplication(), partition.first.map { (it as MediaStoreFiles).data }.toTypedArray(),
+            null, null
+        )
+
+        super.deleteMedias(partition.second.toTypedArray())
+    }
+
+    fun rescanFiles() {
+        val paths = medias.map { it.data }.toTypedArray()
+        MediaScannerConnection.scanFile(getApplication(), paths, null, null)
     }
 }
