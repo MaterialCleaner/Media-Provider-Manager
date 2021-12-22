@@ -196,9 +196,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (selectionTracker.hasSelection()) {
-            startActionMode()
-        }
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
             .addInterceptTouchEventListener { _, ev ->
                 detector.onTouchEvent(ev)
@@ -271,6 +268,10 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        if (selectionTracker.hasSelection()) {
+            startActionMode()
+            return
+        }
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.mediastore_toolbar, menu)
         menu.findItem(R.id.menu_show_all).isChecked = ModulePreferences.isShowAllMediaFiles
