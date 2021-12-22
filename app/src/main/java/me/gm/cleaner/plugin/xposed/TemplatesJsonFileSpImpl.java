@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin;
+package me.gm.cleaner.plugin.xposed;
 
-import me.gm.cleaner.plugin.model.ParceledListSlice;
+import java.io.File;
 
-interface IManagerService {
+import me.gm.cleaner.plugin.model.Templates;
 
-    int getModuleVersion() = 0;
+public final class TemplatesJsonFileSpImpl extends JsonFileSpImpl {
+    private volatile Templates templatesCache;
 
-    ParceledListSlice<PackageInfo> getInstalledPackages(int userId, int flags) = 10;
+    public TemplatesJsonFileSpImpl(File src) {
+        super(src);
+        templatesCache = new Templates(read());
+    }
 
-    PackageInfo getPackageInfo(String packageName, int flags, int userId) = 11;
+    @Override
+    public void write(String what) {
+        super.write(what);
+        templatesCache = new Templates(what);
+    }
 
-    String readSp(int who) = 20;
-
-    void writeSp(int who, String what) = 21;
-
-    void clearAllTables() = 30;
-
-    int packageUsageTimes(String table, in List<String> packageNames) = 31;
+    public Templates getTemplatesCache() {
+        return templatesCache;
+    }
 }

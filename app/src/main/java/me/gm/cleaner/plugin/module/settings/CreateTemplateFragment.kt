@@ -118,7 +118,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<AppListMultiSelectListPreference>(applyToApp)
-            ?.loadApps(lifecycleScope) { binderViewModel.installedPackages }
+            ?.loadApps(lifecycleScope) { binderViewModel.getInstalledPackages(0) }
             ?.setOnAppsLoadedListener {
                 if (args.packageName != null) {
                     it.values = it.values + args.packageName

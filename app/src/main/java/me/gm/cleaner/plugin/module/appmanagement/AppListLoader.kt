@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.module.appmanagement
 
 import android.content.Context
+import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -34,7 +35,7 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     ) = withContext(defaultDispatcher) {
         val packageNameToRuleCount =
             fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
-        val installedPackages = binderViewModel.installedPackages
+        val installedPackages = binderViewModel.getInstalledPackages(PackageManager.GET_PERMISSIONS)
         val size = installedPackages.size
         val count = AtomicInteger(0)
         installedPackages.map {

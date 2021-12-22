@@ -31,9 +31,9 @@ import de.robv.android.xposed.XposedBridge;
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.dao.SharedPreferencesWrapper;
 
-public final class JsonFileSpImpl extends SharedPreferencesWrapper {
+public class JsonFileSpImpl extends SharedPreferencesWrapper {
     public final File file;
-    private volatile String contentCache;
+    protected volatile String contentCache;
 
     public JsonFileSpImpl(File src) {
         file = src;
