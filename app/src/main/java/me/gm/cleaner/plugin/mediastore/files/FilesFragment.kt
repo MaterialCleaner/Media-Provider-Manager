@@ -62,6 +62,9 @@ class FilesFragment : MediaStoreFragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        if (selectionTracker.hasSelection()) {
+            return
+        }
         inflater.inflate(R.menu.files_toolbar, menu)
         val searchItem = menu.findItem(R.id.menu_search)
         if (viewModel.isSearching) {
