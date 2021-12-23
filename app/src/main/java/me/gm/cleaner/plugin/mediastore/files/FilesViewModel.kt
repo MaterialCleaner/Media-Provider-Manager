@@ -127,7 +127,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
 
                     if (isSearching) {
                         val lowerQuery = queryText.lowercase()
-                        if (!displayPath.lowercase().contains(lowerQuery)) {
+                        if (!data.lowercase().contains(lowerQuery)) {
                             continue
                         }
                     }
