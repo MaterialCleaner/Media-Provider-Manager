@@ -99,11 +99,11 @@ class NestedScrollableSubsamplingScaleImageView @JvmOverloads constructor(
     private fun handleInterceptTouchEvent(e: MotionEvent) {
         if (e.action == MotionEvent.ACTION_MOVE) {
             sourceToViewCoord(0F, 0F, vTranslate)
-            var atXEdge = vTranslate.x == 0F
-            var atYEdge = vTranslate.y == 0F
+            var atXEdge = vTranslate.x >= 0F
+            var atYEdge = vTranslate.y >= 0F
             sourceToViewCoord(sWidth.toFloat(), sHeight.toFloat(), vTranslate)
-            atXEdge = atXEdge || vTranslate.x == sWidth.toFloat()
-            atYEdge = atYEdge || vTranslate.y == sHeight.toFloat()
+            atXEdge = atXEdge || vTranslate.x <= width.toFloat()
+            atYEdge = atYEdge || vTranslate.y <= height.toFloat()
             if (atYEdge && !atXEdge) {
                 parent.requestDisallowInterceptTouchEvent(true)
             }
