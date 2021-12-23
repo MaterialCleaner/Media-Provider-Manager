@@ -92,8 +92,9 @@ class NestedScrollableSubsamplingScaleImageView @JvmOverloads constructor(
     }
 
     private fun handleInterceptTouchEvent(e: MotionEvent) {
-        if (isImageLoaded) {
-            parent.requestDisallowInterceptTouchEvent(true)
+        if (!isImageLoaded) {
+            return
         }
+        parent.requestDisallowInterceptTouchEvent(true)
     }
 }

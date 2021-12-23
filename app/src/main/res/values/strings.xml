@@ -62,6 +62,8 @@
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>
     <string name="info">Info</string>
+    <string name="info_item">%s: %s</string>
+    <string name="resolution">Resolution</string>
     <string name="sort_media_key" translatable="false">sort_media</string>
     <string name="menu_sort_by_path_title">Path</string>
     <string name="menu_sort_by_date_taken_title">Date taken</string>

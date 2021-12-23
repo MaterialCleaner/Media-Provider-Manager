@@ -60,7 +60,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
         withContext(Dispatchers.IO) {
 
             val projection = arrayOf(
-                MediaStore.Images.Media._ID,
+                MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DATA,
                 MediaStore.Files.FileColumns.RELATIVE_PATH,
                 MediaStore.Files.FileColumns.DISPLAY_NAME,

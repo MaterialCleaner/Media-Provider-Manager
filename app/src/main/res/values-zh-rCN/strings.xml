@@ -53,6 +53,8 @@
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">显示其他应用的媒体文件</string>
     <string name="info">信息</string>
+    <string name="info_item">%s：%s</string>
+    <string name="resolution">分辨率</string>
     <string name="menu_sort_by_path_title">路径</string>
     <string name="menu_sort_by_date_taken_title">创建日期</string>
     <string name="menu_sort_by_size_title">大小</string>
