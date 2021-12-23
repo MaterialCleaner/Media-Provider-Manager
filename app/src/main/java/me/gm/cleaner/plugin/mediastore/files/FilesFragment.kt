@@ -16,18 +16,115 @@
 
 package me.gm.cleaner.plugin.mediastore.files
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
+import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
+import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 
-class FilesFragment : BaseFragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
-        return binding.root
+class FilesFragment : MediaStoreFragment() {
+    override val viewModel: FilesViewModel by viewModels()
+
+    override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
+        FilesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
+
+    override fun onBindView(binding: MediaStoreFragmentBinding) {
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+            .setOnLayoutCompletedListener {
+                appBarLayout.isLifted =
+                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
+            }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.requeryFlow.collect {
+                    if (!isInActionMode()) {
+                        dispatchRequestPermissions(requiredPermissions, null)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        if (selectionTracker.hasSelection()) {
+            return
+        }
+        inflater.inflate(R.menu.files_toolbar, menu)
+        val searchItem = menu.findItem(R.id.menu_search)
+        if (viewModel.isSearching) {
+            searchItem.expandActionView()
+        }
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                viewModel.isSearching = true
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                viewModel.isSearching = false
+                return true
+            }
+        })
+        val searchView = searchItem.actionView as SearchView
+        searchView.setQuery(viewModel.queryText, false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewModel.queryText = query
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewModel.queryText = newText
+                return false
+            }
+        })
+
+        when (ModulePreferences.sortMediaBy) {
+            ModulePreferences.SORT_BY_PATH ->
+                menu.findItem(R.id.menu_sort_by_path).isChecked = true
+            ModulePreferences.SORT_BY_DATE_TAKEN ->
+                menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
+            ModulePreferences.SORT_BY_SIZE ->
+                menu.findItem(R.id.menu_sort_by_size).isChecked = true
+        }
+        arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
+            it.title = requireContext().buildStyledTitle(it.title)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_sort_by_path -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
+            }
+            R.id.menu_sort_by_date_taken -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+            }
+            R.id.menu_sort_by_size -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_SIZE
+            }
+            R.id.menu_validation -> viewModel.rescanFiles()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 }

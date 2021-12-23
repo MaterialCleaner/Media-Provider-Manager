@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2021 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +20,15 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.net.Uri
-import androidx.recyclerview.widget.DiffUtil
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import java.util.*
 
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
  */
 data class MediaStoreImage(
-    val id: Long,
-    val contentUri: Uri,
+    override val id: Long,
+    override val contentUri: Uri,
     val displayName: String,
     val dateAdded: Date,
-) {
-    companion object {
-        val DiffCallback = object : DiffUtil.ItemCallback<MediaStoreImage>() {
-            override fun areItemsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage) =
-                oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage) =
-                oldItem == newItem
-        }
-    }
-}
+) : MediaStoreModel(id, contentUri)

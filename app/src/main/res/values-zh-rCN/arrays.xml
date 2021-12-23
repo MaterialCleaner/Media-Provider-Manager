@@ -26,7 +26,7 @@
         <item>字幕</item>
         <item>@string/audio</item>
         <item>@string/video</item>
-        <item>图片</item>
+        <item>@string/images</item>
         <item>文档</item>
         <item>无</item>
     </array>

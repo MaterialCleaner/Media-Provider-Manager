@@ -23,7 +23,7 @@
     <string name="not_active">NOT ACTIVE</string>
     <string name="restart_system">Restart the system to upgrade the module</string>
     <string name="active">ACTIVATED</string>
-    <string name="enabled_rule_count">%d rules enabled</string>
+    <string name="enabled_rule_count">%d rule(s) enabled</string>
     <string name="query_times">Queried %d times</string>
     <string name="insert_times">Inserted %d times</string>
     <string name="delete_times">Deleted %d times</string>
@@ -40,7 +40,7 @@
     <string name="view">View</string>
     <string name="sort_key" translatable="false">sort</string>
     <string name="sort_title">Sort by</string>
-    <string name="menu_sort_by_name_title">App name</string>
+    <string name="menu_sort_by_app_name_title">App name</string>
     <string name="menu_sort_by_update_time_title">Update time</string>
     <string name="menu_rule_count_key" translatable="false">rule_count</string>
     <string name="menu_rule_count">Rule count</string>
@@ -62,6 +62,13 @@
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>
     <string name="info">Info</string>
+    <string name="info_item">%s: %s</string>
+    <string name="resolution">Resolution</string>
+    <string name="sort_media_key" translatable="false">sort_media</string>
+    <string name="menu_sort_by_path_title">Path</string>
+    <string name="menu_sort_by_date_taken_title">Date taken</string>
+    <string name="menu_sort_by_size_title">Size</string>
+    <string name="validation">Delete all invalid files</string>
 
     <!-- Settings -->
     <string name="global_header">GLOBAL</string>
@@ -73,7 +80,7 @@
     <string name="usage_record_key" translatable="false">usage_record</string>
     <string name="usage_record_title" translatable="false">@string/usage_record</string>
     <string name="usage_record_summary">Save usage records to the database. No new data will appear in the usage record page if you turned off.</string>
-    <string name="rule_header">RULE</string>
+    <string name="scoped_header">SCOPED</string>
     <string name="template_management_key" translatable="false">template_management</string>
     <string name="template_management_title">Template management</string>
     <string name="applied_app_count">Applied to %d app(s)</string>
@@ -109,9 +116,7 @@
         Please grant the permission in app info manually.</string>
     <string name="revoke_self_permission">App needs read external storage permission to be revoked for showing media files only created by itself.
         Please revoke the permission in app info manually.</string>
-    <string name="validation">Delete all invalid images</string>
-    <string name="validation_nop">No invalid images found</string>
-    <string name="unsupported_delete_in_bulk">Deleting images in bulk through the media store is not possible on Android Q.</string>
+    <string name="unsupported_delete_in_bulk">Delete in bulk through the media store is not possible on Android Q.</string>
 
     <!-- Experiment -->
     <string name="experiment_header">Here are some experiments on media storage,

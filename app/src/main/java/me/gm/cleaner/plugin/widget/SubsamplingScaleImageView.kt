@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.PointF
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
@@ -85,15 +86,27 @@ open class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
 class NestedScrollableSubsamplingScaleImageView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : StateSavedSubsamplingScaleImageView(context, attrs) {
+    private val vTranslate = PointF()
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        handleInterceptTouchEvent(event)
+        if (isImageLoaded) {
+            handleInterceptTouchEvent(event)
+        }
         return super.onTouchEvent(event)
     }
 
     private fun handleInterceptTouchEvent(e: MotionEvent) {
-        if (isImageLoaded) {
-            parent.requestDisallowInterceptTouchEvent(true)
+        if (e.action == MotionEvent.ACTION_MOVE) {
+            sourceToViewCoord(0F, 0F, vTranslate)
+            var atXEdge = vTranslate.x == 0F
+            var atYEdge = vTranslate.y == 0F
+            sourceToViewCoord(sWidth.toFloat(), sHeight.toFloat(), vTranslate)
+            atXEdge = atXEdge || vTranslate.x == sWidth.toFloat()
+            atYEdge = atYEdge || vTranslate.y == sHeight.toFloat()
+            if (atYEdge && !atXEdge) {
+                parent.requestDisallowInterceptTouchEvent(true)
+            }
         }
     }
 }

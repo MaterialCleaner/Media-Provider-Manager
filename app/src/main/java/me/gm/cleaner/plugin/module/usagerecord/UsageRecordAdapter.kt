@@ -30,6 +30,7 @@ import androidx.core.text.strikeThrough
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
@@ -37,7 +38,6 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
-import me.gm.cleaner.plugin.di.GlideApp
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import me.zhanghai.android.fastscroll.PopupTextProvider
 
@@ -53,7 +53,7 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val record = getItem(position)
-        GlideApp.with(fragment)
+        Glide.with(fragment)
             .load(record.packageInfo)
             .into(binding.icon)
         binding.title.text = record.packageInfo?.label ?: record.packageName

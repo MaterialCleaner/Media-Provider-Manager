@@ -20,7 +20,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
@@ -28,6 +27,7 @@ import androidx.core.transition.doOnEnd
 import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,8 +35,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.transition.platform.MaterialContainerTransform
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.colorSurface
@@ -120,7 +122,7 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     private fun prepareSharedElementTransition() {
-        setFragmentResult(ImagePagerFragment::class.java.simpleName, lastPosition)
+        setFragmentResult(ImagePagerFragment::class.java.name, lastPosition)
 
         sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
             setAllContainerColors(requireContext().colorSurface)
@@ -173,12 +175,12 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_delete -> {
-            Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
-            true
-        }
         R.id.menu_info -> {
-            Toast.makeText(requireContext(), "coming soon", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val result = viewModel.queryImageInfoAsync(args.uris[viewPager.currentItem]).await()
+                InfoDialog.newInstance(result.getOrElse { it.stackTraceToString() })
+                    .show(childFragmentManager, null)
+            }
             true
         }
         else -> super.onOptionsItemSelected(item)

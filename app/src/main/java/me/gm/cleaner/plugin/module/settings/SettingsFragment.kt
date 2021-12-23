@@ -56,7 +56,7 @@ class SettingsFragment : AbsSettingsFragment() {
         ModuleFragmentBinding.inflate(layoutInflater).root
     } else {
         super.onCreateView(inflater, container, savedInstanceState).also {
-            setFragmentResultListener(TemplatesFragment::class.java.simpleName) { _, bundle ->
+            setFragmentResultListener(TemplatesFragment::class.java.name) { _, bundle ->
                 enterKey = bundle.getString(TemplatesFragment.KEY)
                 postponeEnterTransition()
             }

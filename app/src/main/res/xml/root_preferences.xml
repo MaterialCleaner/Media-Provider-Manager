@@ -47,7 +47,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="@string/rule_header">
+        app:title="@string/scoped_header">
 
         <Preference
             app:iconSpaceReserved="false"

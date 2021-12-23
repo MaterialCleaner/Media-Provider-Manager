@@ -75,7 +75,7 @@ class AppListViewModel : ViewModel() {
                         }
                     }
                     sequence = when (ModulePreferences.sortBy) {
-                        ModulePreferences.SORT_BY_NAME -> {
+                        ModulePreferences.SORT_BY_APP_NAME -> {
                             val collator = Collator.getInstance()
                             sequence.sortedWith { o1, o2 ->
                                 collator.compare(o1?.label, o2?.label)

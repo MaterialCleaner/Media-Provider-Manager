@@ -27,8 +27,11 @@ import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
 
 object ModulePreferences {
-    const val SORT_BY_NAME = 0
+    const val SORT_BY_APP_NAME = 0
     const val SORT_BY_UPDATE_TIME = 1
+    const val SORT_BY_PATH = 0
+    const val SORT_BY_DATE_TAKEN = 1
+    const val SORT_BY_SIZE = 2
     private var broadcasting = false
     private val listeners by lazy { mutableListOf<PreferencesChangeListener>() }
     private lateinit var resources: Resources
@@ -37,6 +40,11 @@ object ModulePreferences {
     fun init(context: Context) {
         resources = context.resources
         defaultSp = PreferenceManager.getDefaultSharedPreferences(context)
+    }
+
+    interface PreferencesChangeListener {
+        val lifecycle: Lifecycle
+        fun onPreferencesChanged()
     }
 
     fun addOnPreferenceChangeListener(l: PreferencesChangeListener) {
@@ -60,6 +68,26 @@ object ModulePreferences {
         broadcasting = false
     }
 
+    private fun putBoolean(key: String, value: Boolean) {
+        val isValueChanged = defaultSp.getBoolean(key, value) != value
+        defaultSp.edit {
+            putBoolean(key, value)
+        }
+        if (isValueChanged) {
+            notifyListeners()
+        }
+    }
+
+    private fun putInt(key: String, value: Int) {
+        val isValueChanged = defaultSp.getInt(key, value) != value
+        defaultSp.edit {
+            putInt(key, value)
+        }
+        if (isValueChanged) {
+            notifyListeners()
+        }
+    }
+
     var startDestination: Int
         get() = defaultSp.getInt(
             resources.getString(R.string.start_destination_key), R.id.about_fragment
@@ -70,15 +98,10 @@ object ModulePreferences {
             }
         }
 
-    // APP LIST CONFIG
+    // APP LIST
     var sortBy: Int
-        get() = defaultSp.getInt(resources.getString(R.string.sort_key), SORT_BY_NAME)
-        set(value) {
-            defaultSp.edit {
-                putInt(resources.getString(R.string.sort_key), value)
-            }
-            notifyListeners()
-        }
+        get() = defaultSp.getInt(resources.getString(R.string.sort_key), SORT_BY_APP_NAME)
+        set(value) = putInt(resources.getString(R.string.sort_key), value)
     var ruleCount: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_rule_count_key), true)
         set(value) = putBoolean(resources.getString(R.string.menu_rule_count_key), value)
@@ -93,7 +116,7 @@ object ModulePreferences {
             resources.getString(R.string.menu_hide_no_storage_permission_key), value
         )
 
-    // USAGE RECORD CONFIG
+    // USAGE RECORD
     var isHideQuery: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_query_key), false)
         set(value) = putBoolean(resources.getString(R.string.menu_hide_query_key), value)
@@ -104,20 +127,12 @@ object ModulePreferences {
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_delete_key), false)
         set(value) = putBoolean(resources.getString(R.string.menu_hide_delete_key), value)
 
-    // MEDIA STORE CONFIG
+    // MEDIA STORE
     var isShowAllMediaFiles: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_show_all_key), true)
         set(value) = putBoolean(resources.getString(R.string.menu_show_all_key), value)
 
-    private fun putBoolean(key: String, value: Boolean) {
-        defaultSp.edit {
-            putBoolean(key, value)
-        }
-        notifyListeners()
-    }
-
-    interface PreferencesChangeListener {
-        val lifecycle: Lifecycle
-        fun onPreferencesChanged()
-    }
+    var sortMediaBy: Int
+        get() = defaultSp.getInt(resources.getString(R.string.sort_media_key), SORT_BY_PATH)
+        set(value) = putInt(resources.getString(R.string.sort_media_key), value)
 }

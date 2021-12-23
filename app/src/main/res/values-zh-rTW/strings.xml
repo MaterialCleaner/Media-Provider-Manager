@@ -12,8 +12,8 @@
     <string name="audio">音訊</string>
     <string name="downloads">下載</string>
     <string name="files">文件</string>
-    <string name="images">圖像</string>
-    <string name="video">錄影</string>
+    <string name="images">圖片</string>
+    <string name="video">影片</string>
     <string name="experiment">實驗</string>
     <string name="about">關於</string>
 
@@ -38,7 +38,7 @@
     <string name="search">搜索</string>
     <string name="view">查看</string>
     <string name="sort_title">排序方式</string>
-    <string name="menu_sort_by_name_title">應用名</string>
+    <string name="menu_sort_by_app_name_title">應用名</string>
     <string name="menu_sort_by_update_time_title">更新時間</string>
     <string name="menu_rule_count">規則數</string>
     <string name="menu_hide_title">隱藏</string>
@@ -53,6 +53,12 @@
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
     <string name="info">訊息</string>
+    <string name="info_item">%s：%s</string>
+    <string name="resolution">解析度</string>
+    <string name="menu_sort_by_path_title">路徑</string>
+    <string name="menu_sort_by_date_taken_title">創建日期</string>
+    <string name="menu_sort_by_size_title">大小</string>
+    <string name="validation">刪除所有無效文件</string>
 
     <!-- 設置 -->
     <string name="global_header">全局</string>
@@ -60,7 +66,7 @@
     <string name="reject_nonstandard_dir_summary">在 AOSP 中系統應用不會創建非標準文件夾，但是一些設備生產商修改了這一行為。</string>
     <string name="scan_for_obsolete_insert_title">使用過時 API 插入文件時執行掃描</string>
     <string name="usage_record_summary">將使用記錄保存到資料庫。關閉後使用記錄頁面將不會再出現新的數據。</string>
-    <string name="rule_header">規則</string>
+    <string name="scoped_header">作用域</string>
     <string name="template_management_title">模板管理</string>
     <string name="applied_app_count">應用到 %d 個應用</string>
     <string name="create_template_title">創建模板</string>
@@ -79,8 +85,6 @@
     <string name="rationale_shouldShowRationale">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限</string>
     <string name="rationale_permanentlyDenied">訪問其它應用創建的媒體檔案需要讀取外部儲存空間權限，請在應用訊息中手動授予</string>
     <string name="revoke_self_permission">只顯示自己的媒體檔案需要撤銷應用的讀取外部儲存空間權限，請在應用訊息中手動撤銷</string>
-    <string name="validation">刪除所有無效圖片</string>
-    <string name="validation_nop">未發現無效圖片</string>
     <string name="unsupported_delete_in_bulk">安卓 Q 的媒體儲存不支持批次刪除</string>
 
     <!-- 實驗 -->
@@ -88,7 +92,7 @@
     <string name="no_wifi">當前沒有連接到 wifi 網路，此實驗將會消耗您的數據流量，是否繼續？</string>
     <string name="unsplash">Unsplash</string>
     <string name="unsplash_download_manager_title">通過下載管理程序下載 10 張來自 Unsplash 的隨機圖片</string>
-    <string name="unsplash_download_manager_summary">透過下載管理程序下載文件無需儲存權限，且下載的文件歸因於發起請求的應用（應用訪問這些文件無需儲存權限）。\n您可以撤銷本應用的儲存權限，點擊開始，然後切換到圖像頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
+    <string name="unsplash_download_manager_summary">透過下載管理程序下載文件無需儲存權限，且下載的文件歸因於發起請求的應用（應用訪問這些文件無需儲存權限）。\n您可以撤銷本應用的儲存權限，點擊開始，然後切換到圖片頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
     <string name="unsplash_insert_title">透過媒體儲存插入 10 張來自 Unsplash 的隨機圖片</string>
     <string name="unsplash_insert_summary">效果與使用下載管理程序相似，主要區別在於下載管理程序不會發送通知以及下載管理程序中沒有下載記錄。</string>
     <string name="start">開始</string>

@@ -19,95 +19,25 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.annotation.SuppressLint
 import android.app.Application
-import android.app.RecoverableSecurityException
 import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.ContentUris
-import android.content.IntentSender
-import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
+import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-// TODO: Some of functions in this ViewModel need to be reused.
-//  Create MediaStoreImageOperations class and put them into it.
-class ImagesViewModel(application: Application) : AndroidViewModel(application) {
-    private val _imagesFlow = MutableStateFlow<List<MediaStoreImage>>(emptyList())
-    val imagesFlow = _imagesFlow.asStateFlow()
-    val images: List<MediaStoreImage>
-        get() = _imagesFlow.value
+class ImagesViewModel(application: Application) :
+    MediaStoreViewModel<MediaStoreImage>(application) {
+    override val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-    private var contentObserver: ContentObserver? = null
-
-    private var pendingDeleteImage: MediaStoreImage? = null
-    private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
-    val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
-
-    /**
-     * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
-     * the [_imagesFlow] [StateFlow] above.
-     */
-    fun loadImages() {
-        viewModelScope.launch {
-            val imageList = queryImages()
-            _imagesFlow.value = imageList
-
-            if (contentObserver == null) {
-                contentObserver = getApplication<Application>().contentResolver.registerObserver(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                ) {
-                    loadImages()
-                }
-            }
-        }
-    }
-
-    fun deleteImage(image: MediaStoreImage) {
-        when {
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> viewModelScope.launch {
-                performDeleteImage(image)
-            }
-            else -> deleteImages(arrayOf(image))
-        }
-    }
-
-    fun deletePendingImage() {
-        pendingDeleteImage?.let { image ->
-            pendingDeleteImage = null
-            deleteImage(image)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun deleteImages(images: Array<out MediaStoreImage>) {
-        viewModelScope.launch {
-            performDeleteImages(*images)
-        }
-    }
-
-    private suspend fun queryImages(): List<MediaStoreImage> {
+    override suspend fun queryMedias(): List<MediaStoreImage> {
         val images = mutableListOf<MediaStoreImage>()
 
         /**
@@ -132,7 +62,7 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_ADDED
+                MediaStore.Images.Media.DATE_ADDED,
             )
 
             /**
@@ -228,116 +158,4 @@ class ImagesViewModel(application: Application) : AndroidViewModel(application) 
         Log.v(TAG, "Found ${images.size} images")
         return images
     }
-
-    // @see https://developer.android.com/training/data-storage/shared/media#remove-item
-    private suspend fun performDeleteImage(image: MediaStoreImage) {
-        withContext(Dispatchers.IO) {
-            try {
-                /**
-                 * In [Build.VERSION_CODES.Q] and above, it isn't possible to modify
-                 * or delete items in MediaStore directly, and explicit permission
-                 * must usually be obtained to do this.
-                 *
-                 * The way it works is the OS will throw a [RecoverableSecurityException],
-                 * which we can catch here. Inside there's an [IntentSender] which the
-                 * activity can use to prompt the user to grant permission to the item
-                 * so it can be either updated or deleted.
-                 */
-                getApplication<Application>().contentResolver.delete(
-                    image.contentUri,
-                    "${MediaStore.Images.Media._ID} = ?",
-                    arrayOf(image.id.toString())
-                )
-            } catch (securityException: SecurityException) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val recoverableSecurityException =
-                        securityException as? RecoverableSecurityException
-                            ?: throw securityException
-
-                    // Signal to the Activity that it needs to request permission and
-                    // try the delete again if it succeeds.
-                    pendingDeleteImage = image
-                    _permissionNeededForDelete.postValue(
-                        recoverableSecurityException.userAction.actionIntent.intentSender
-                    )
-                } else {
-                    throw securityException
-                }
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    private suspend fun performDeleteImages(vararg images: MediaStoreImage) {
-        withContext(Dispatchers.IO) {
-            val contentResolver = getApplication<Application>().contentResolver
-            val pendingIntent =
-                MediaStore.createDeleteRequest(contentResolver, images.map { it.contentUri })
-            _permissionNeededForDelete.postValue(pendingIntent.intentSender)
-        }
-    }
-
-    /**
-     * Convenience method to convert a day/month/year date into a UNIX timestamp.
-     *
-     * We're suppressing the lint warning because we're not actually using the date formatter
-     * to format the date to display, just to specify a format to use to parse it, and so the
-     * locale warning doesn't apply.
-     */
-    @Suppress("SameParameterValue")
-    @SuppressLint("SimpleDateFormat")
-    private fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
-        SimpleDateFormat("dd.MM.yyyy").let { formatter ->
-            TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
-        }
-
-    /**
-     * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`
-     * is being released.
-     */
-    override fun onCleared() {
-        val contentObserver = contentObserver
-        if (contentObserver != null) {
-            getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun validateAsync() = viewModelScope.async(Dispatchers.IO) {
-        val contentResolver = getApplication<Application>().contentResolver
-        val displayMetrics = getApplication<Application>().resources.displayMetrics
-        val size = Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
-        val invalidImages = images.filter {
-            try {
-                contentResolver.loadThumbnail(it.contentUri, size, null)
-                false
-            } catch (e: Throwable) {
-                true
-            }
-        }
-        return@async if (invalidImages.isNotEmpty()) {
-            deleteImages(invalidImages.toTypedArray())
-            true
-        } else {
-            false
-        }
-    }
 }
-
-/**
- * Convenience extension method to register a [ContentObserver] given a lambda.
- */
-private fun ContentResolver.registerObserver(
-    uri: Uri,
-    observer: (selfChange: Boolean) -> Unit
-): ContentObserver {
-    val contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-        override fun onChange(selfChange: Boolean) {
-            observer(selfChange)
-        }
-    }
-    registerContentObserver(uri, true, contentObserver)
-    return contentObserver
-}
-
-private const val TAG = "MediaStoreVM"

@@ -64,20 +64,22 @@ class CreateTemplateFragment : AbsSettingsFragment() {
     override fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
         object : PreferenceManager(context) {
             override fun getSharedPreferences(): SharedPreferences {
-                tempSp = try {
-                    JsonSharedPreferencesImpl(
-                        Gson().toJson(
-                            Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
-                                it.templateName == if (savedInstanceState == null) args.templateName
-                                else savedInstanceState.getString(KEY_TEMPLATE_NAME)
-                            })
-                    )
-                } catch (e: NoSuchElementException) {
-                    JsonSharedPreferencesImpl()
-                }.apply {
-                    if (savedInstanceState == null) {
-                        edit {
-                            putString(getString(R.string.template_name_key), args.templateName)
+                if (!::tempSp.isInitialized) {
+                    tempSp = try {
+                        JsonSharedPreferencesImpl(
+                            Gson().toJson(
+                                Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
+                                    it.templateName == if (savedInstanceState == null) args.templateName
+                                    else savedInstanceState.getString(KEY_TEMPLATE_NAME)
+                                })
+                        )
+                    } catch (e: NoSuchElementException) {
+                        JsonSharedPreferencesImpl()
+                    }.apply {
+                        if (savedInstanceState == null) {
+                            edit {
+                                putString(getString(R.string.template_name_key), args.templateName)
+                            }
                         }
                     }
                 }
@@ -116,7 +118,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<AppListMultiSelectListPreference>(applyToApp)
-            ?.loadApps(lifecycleScope) { binderViewModel.installedPackages }
+            ?.loadApps(lifecycleScope) { binderViewModel.getInstalledPackages(0) }
             ?.setOnAppsLoadedListener {
                 if (args.packageName != null) {
                     it.values = it.values + args.packageName
@@ -130,7 +132,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         ?.apply { prepareSharedElementTransition(listView) }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
-        setFragmentResult(CreateTemplateFragment::class.java.simpleName, lastTemplateName)
+        setFragmentResult(CreateTemplateFragment::class.java.name, lastTemplateName)
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host

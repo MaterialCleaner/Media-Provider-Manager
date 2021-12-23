@@ -46,13 +46,12 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     val moduleVersion: Int
         get() = service!!.moduleVersion
 
-    val installedPackages: List<PackageInfo>
-        get() = try {
-            service!!.getInstalledPackages(Process.myUid() / AID_USER_OFFSET).list
-        } catch (e: RemoteException) {
-            e.printStackTrace()
-            emptyList()
-        }
+    fun getInstalledPackages(flags: Int): List<PackageInfo> = try {
+        service!!.getInstalledPackages(Process.myUid() / AID_USER_OFFSET, flags).list
+    } catch (e: RemoteException) {
+        e.printStackTrace()
+        emptyList()
+    }
 
     fun getPackageInfo(packageName: String): PackageInfo? =
         service!!.getPackageInfo(packageName, 0, Process.myUid() / AID_USER_OFFSET)

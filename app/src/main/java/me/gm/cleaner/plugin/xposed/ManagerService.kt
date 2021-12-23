@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.xposed
 
 import android.content.Context
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.IBinder
 import android.os.IInterface
@@ -44,7 +43,7 @@ abstract class ManagerService : IManagerService.Stub() {
     lateinit var database: MediaProviderRecordDatabase
         private set
     val rootSp by lazy { JsonFileSpImpl(File(context.filesDir, "root")) }
-    val ruleSp by lazy { JsonFileSpImpl(File(context.filesDir, "rule")) }
+    val ruleSp by lazy { TemplatesJsonFileSpImpl(File(context.filesDir, "rule")) }
 
     protected fun onCreate(context: Context) {
         this.context = context
@@ -68,9 +67,9 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getModuleVersion() = BuildConfig.VERSION_CODE
 
-    override fun getInstalledPackages(userId: Int): ParceledListSlice<PackageInfo> {
+    override fun getInstalledPackages(userId: Int, flags: Int): ParceledListSlice<PackageInfo> {
         val parceledListSlice = XposedHelpers.callMethod(
-            packageManagerService, "getInstalledPackages", PackageManager.GET_PERMISSIONS, userId
+            packageManagerService, "getInstalledPackages", flags, userId
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
         return ParceledListSlice(list)

@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin;
+package me.gm.cleaner.plugin.mediastore.files
 
-import me.gm.cleaner.plugin.model.ParceledListSlice;
+import android.net.Uri
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 
-interface IManagerService {
-
-    int getModuleVersion() = 0;
-
-    ParceledListSlice<PackageInfo> getInstalledPackages(int userId, int flags) = 10;
-
-    PackageInfo getPackageInfo(String packageName, int flags, int userId) = 11;
-
-    String readSp(int who) = 20;
-
-    void writeSp(int who, String what) = 21;
-
-    void clearAllTables() = 30;
-
-    int packageUsageTimes(String table, in List<String> packageNames) = 31;
-}
+data class MediaStoreFiles(
+    override val id: Long,
+    override val contentUri: Uri,
+    val data: String,
+    val displayPath: String,
+    val mimeType: String,
+    val timeMillis: Long,
+    val size: Long,
+) : MediaStoreModel(id, contentUri)

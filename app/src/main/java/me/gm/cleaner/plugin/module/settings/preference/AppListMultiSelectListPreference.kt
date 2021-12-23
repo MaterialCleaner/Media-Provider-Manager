@@ -83,11 +83,12 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
             val i1 = if (values.contains(o1.first)) 1 else 0
             val i2 = if (values.contains(o2.first)) 1 else 0
             i2 - i1
-        }
-        entries = list.stream().map { it.second }.toArray { arrayOfNulls<String>(list.size) }
-        entryValues = list.stream().map { it.first }.toArray { arrayOfNulls<String>(list.size) }
+        }.unzip()
+        entries = list.second.toTypedArray()
+        entryValues = list.first.toTypedArray()
 
         val l = onAppsLoadedListener
+        // Avoid infinite recursions if liftSelected() is called from a listener
         onAppsLoadedListener = null
         l?.accept(this)
     }

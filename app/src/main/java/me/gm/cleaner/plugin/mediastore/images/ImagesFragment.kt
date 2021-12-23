@@ -16,183 +16,43 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.app.Activity
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
+import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.InfoDialog
-import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.databinding.ImagesFragmentBinding
-import me.gm.cleaner.plugin.ktx.*
-import me.gm.cleaner.plugin.mediastore.*
-import me.gm.cleaner.plugin.mediastore.StableIdKeyProvider
+import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
+import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
+import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
-import me.gm.cleaner.plugin.widget.FullyDraggableContainer
-import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
-import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
-import rikka.recyclerview.fixEdgeEffect
 
-class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
-    private val viewModel: ImagesViewModel by viewModels()
-    private lateinit var list: RecyclerView
-    private lateinit var selectionTracker: SelectionTracker<Long>
-    private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
-    private var actionMode: ActionMode? = null
+class ImagesFragment : MediaStoreFragment() {
+    override val viewModel: ImagesViewModel by viewModels()
     var lastPosition = 0
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ImagesFragmentBinding.inflate(inflater)
+    override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
+        ImagesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
 
-        val adapter = ImagesAdapter(this).apply {
-            setHasStableIds(true)
-        }
-        list = binding.list
-        list.adapter = adapter
+    override fun onBindView(binding: MediaStoreFragmentBinding) {
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 3)
             .setOnLayoutCompletedListener {
-                appBarLayout.isLifted = adapter.itemCount != 0 && !list.isItemCompletelyVisible(0)
+                appBarLayout.isLifted =
+                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
             }
-        list.setHasFixedSize(true)
-        list.fixEdgeEffect(false)
-        list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-
-        selectionTracker = SelectionTracker.Builder(
-            ImagesAdapter::class.java.simpleName, list, StableIdKeyProvider(list),
-            DetailsLookup(list), StorageStrategy.createLongStorage()
-        )
-            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-            .build()
-        selectionTracker.onRestoreInstanceState(savedInstanceState)
-        selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
-            override fun onSelectionChanged() {
-                if (selectionTracker.hasSelection()) {
-                    startActionMode()
-                } else {
-                    actionMode?.finish()
-                }
-            }
-        })
-        adapter.selectionTracker = selectionTracker
-        // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
-        FastScrollerBuilder(list)
-            .useMd2Style()
-            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
-            .build()
-
-        findNavController().addOnExitListener { _, destination, _ ->
-            actionMode?.finish()
-            supportActionBar?.title = destination.label
-        }
-
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.imagesFlow.collect { images ->
-                    adapter.submitList(images)
-                }
-            }
-        }
-        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
-            intentSender?.let {
-                // On Android 10+, if the app doesn't have permission to modify
-                // or delete an item, it returns an `IntentSender` that we can
-                // use here to prompt the user to grant permission to delete (or modify)
-                // the image.
-                startIntentSenderForResult(
-                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
-                )
-            }
-        }
-
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged() {
-                dispatchRequestPermissions(requiredPermissions, savedInstanceState)
-            }
-        })
-        return binding.root
-    }
-
-    // TODO: move this fun to MediaStoreFragment, make MediaStoreFragment implement ActionMode.Callback,
-    //  override onActionItemClicked in this fragment
-    private fun startActionMode() {
-        if (!isInActionMode()) {
-            val activity = requireActivity() as AppCompatActivity
-            actionMode = activity.startToolbarActionMode(object : ActionMode.Callback {
-                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    mode.menuInflater.inflate(R.menu.mediastore_actionmode, menu)
-                    return true
-                }
-
-                override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-                override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
-                    when (item.itemId) {
-                        R.id.menu_delete -> {
-                            val images = selectionTracker.selection.map { selection ->
-                                viewModel.images.first { it.id == selection }
-                            }
-                            selectionTracker.clearSelection()
-                            when {
-                                images.size == 1 -> viewModel.deleteImage(images.single())
-                                Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
-                                    // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
-                                    getString(R.string.unsupported_delete_in_bulk)
-                                ).show(childFragmentManager, null)
-                                else -> viewModel.deleteImages(images.toTypedArray())
-                            }
-                            true
-                        }
-                        else -> false
-                    }
-
-                override fun onDestroyActionMode(mode: ActionMode) {
-                    selectionTracker.clearSelection()
-                    actionMode = null
-                }
-            })
-        }
-        actionMode?.title = selectionTracker.selection.size().toString()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST &&
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
-        ) {
-            viewModel.deletePendingImage()
-        }
     }
 
     override fun onRequestPermissionsSuccess(
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {
         super.onRequestPermissionsSuccess(permissions, savedInstanceState)
-        if (savedInstanceState == null) {
-            viewModel.loadImages()
-        }
-        setFragmentResultListener(ImagePagerFragment::class.java.simpleName) { _, bundle ->
+        setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             prepareTransitions()
             postponeEnterTransition()
@@ -241,59 +101,5 @@ class ImagesFragment : MediaStoreFragment(), ToolbarActionModeIndicator {
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            inflater.inflate(R.menu.images_toolbar, menu)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_validation -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                lifecycleScope.launch {
-                    if (!viewModel.validateAsync().await()) {
-                        makeSnackbarWithFullyDraggableContainer(
-                            { requireActivity().findViewById(R.id.fully_draggable_container) },
-                            requireView(), R.string.validation_nop, Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } else {
-                throw UnsupportedOperationException()
-            }
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        if (selectionTracker.hasSelection()) {
-            startActionMode()
-        }
-        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener { _, ev ->
-                detector.onTouchEvent(ev)
-                detector.isSelecting && selectionTracker.hasSelection()
-            }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        if (::selectionTracker.isInitialized) {
-            selectionTracker.onSaveInstanceState(outState)
-        }
-    }
-
-    override fun isInActionMode() = actionMode != null
-
-    companion object {
-        /**
-         * Code used with [IntentSender] to request user permission to delete an image with scoped storage.
-         */
-        private const val DELETE_PERMISSION_REQUEST = 0x1033
     }
 }

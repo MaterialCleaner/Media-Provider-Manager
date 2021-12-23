@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin;
+package me.gm.cleaner.plugin.mediastore
 
-import me.gm.cleaner.plugin.model.ParceledListSlice;
+import android.net.Uri
+import androidx.recyclerview.widget.DiffUtil
 
-interface IManagerService {
-
-    int getModuleVersion() = 0;
-
-    ParceledListSlice<PackageInfo> getInstalledPackages(int userId, int flags) = 10;
-
-    PackageInfo getPackageInfo(String packageName, int flags, int userId) = 11;
-
-    String readSp(int who) = 20;
-
-    void writeSp(int who, String what) = 21;
-
-    void clearAllTables() = 30;
-
-    int packageUsageTimes(String table, in List<String> packageNames) = 31;
+abstract class MediaStoreModel(
+    open val id: Long,
+    open val contentUri: Uri,
+) {
+    companion object {
+        fun <M : MediaStoreModel> createCallback() = object : DiffUtil.ItemCallback<M>() {
+            override fun areItemsTheSame(oldItem: M, newItem: M) = oldItem.id == newItem.id
+            override fun areContentsTheSame(oldItem: M, newItem: M) = oldItem == newItem
+        }
+    }
 }

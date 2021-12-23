@@ -40,32 +40,19 @@
                 app:showAsAction="never" />
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/menu_sort_by_app_name"
-                    android:title="@string/menu_sort_by_app_name_title" />
+                    android:id="@+id/menu_sort_by_path"
+                    android:title="@string/menu_sort_by_path_title" />
                 <item
-                    android:id="@+id/menu_sort_by_update_time"
-                    android:title="@string/menu_sort_by_update_time_title" />
+                    android:id="@+id/menu_sort_by_date_taken"
+                    android:title="@string/menu_sort_by_date_taken_title" />
                 <item
-                    android:id="@+id/menu_rule_count"
-                    android:checkable="true"
-                    android:title="@string/menu_rule_count"
-                    app:showAsAction="never" />
+                    android:id="@+id/menu_sort_by_size"
+                    android:title="@string/menu_sort_by_size_title" />
             </group>
-            <item
-                android:id="@+id/menu_header_hide"
-                android:enabled="false"
-                android:title="@string/menu_hide_title"
-                app:showAsAction="never" />
-            <item
-                android:id="@+id/menu_hide_system_app"
-                android:checkable="true"
-                android:title="@string/menu_hide_system_app_title"
-                app:showAsAction="never" />
-            <item
-                android:id="@+id/menu_hide_no_storage_permission"
-                android:checkable="true"
-                android:title="@string/menu_hide_no_storage_permission_title"
-                app:showAsAction="never" />
         </menu>
     </item>
+    <item
+        android:id="@+id/menu_validation"
+        android:title="@string/validation"
+        app:showAsAction="never" />
 </menu>
