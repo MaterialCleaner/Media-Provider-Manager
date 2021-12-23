@@ -24,30 +24,30 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
-import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
-import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
-import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
-import me.gm.cleaner.plugin.mediastore.MediaStoreModel
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 
 class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
 
-    override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
-        FilesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
+    override fun onCreateAdapter() = FilesAdapter(this)
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
-        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
-            .setOnLayoutCompletedListener {
-                appBarLayout.isLifted =
-                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
-            }
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        val fastScroller = FastScrollerBuilder(list)
+            .useMd2Style()
+            .setViewHelper(SimpleRecyclerViewHelper(list))
+            .build()
+        list.fitsSystemWindowInsetBottom(fastScroller)
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -27,11 +27,14 @@ import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
@@ -46,6 +49,12 @@ class ImagesFragment : MediaStoreFragment() {
                 appBarLayout.isLifted =
                     list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
             }
+        // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
+        val fastScroller = FastScrollerBuilder(list)
+            .useMd2Style()
+            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
+            .build()
+        list.fitsSystemWindowInsetBottom(fastScroller)
     }
 
     override fun onRequestPermissionsSuccess(

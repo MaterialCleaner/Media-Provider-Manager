@@ -33,8 +33,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.flow.collect
@@ -48,8 +48,6 @@ import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.mediastore.images.*
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
-import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
@@ -79,11 +77,23 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
+        val keyProvider = StableIdKeyProvider(list)
         selectionTracker = SelectionTracker.Builder(
-            javaClass.name, list, StableIdKeyProvider(list),
-            DetailsLookup(list), StorageStrategy.createLongStorage()
+            javaClass.name, list, keyProvider, DetailsLookup(list),
+            StorageStrategy.createLongStorage()
         )
-            .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .withSelectionPredicate(object : SelectionPredicate<Long>() {
+                override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
+                    val viewHolder = list.findViewHolderForLayoutPosition(position)
+                    if (viewHolder is MediaStoreAdapter.ViewHolder) {
+                        return viewHolder.details != null
+                    }
+                    return true
+                }
+
+                override fun canSetStateForKey(key: Long, nextState: Boolean) = true
+                override fun canSelectMultiple() = true
+            })
             .build()
         selectionTracker.onRestoreInstanceState(savedInstanceState)
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<Long>() {
@@ -96,12 +106,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             }
         })
         adapter.selectionTracker = selectionTracker
-        // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
-        val fastScroller = FastScrollerBuilder(list)
-            .useMd2Style()
-            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
-            .build()
-        list.fitsSystemWindowInsetBottom(fastScroller)
 
         findNavController().addOnExitListener { _, destination, _ ->
             actionMode?.finish()

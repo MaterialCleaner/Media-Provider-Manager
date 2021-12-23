@@ -35,8 +35,8 @@ abstract class MediaStoreAdapter<M : MediaStoreModel, VH : MediaStoreAdapter.Vie
     // Id is unique in media store, hence we can use it as stable id directly.
     override fun getItemId(position: Int) = getItem(position).id
 
-    abstract class ViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView) {
-        lateinit var details: ItemDetails<Long>
+    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var details: ItemDetails<Long>? = null
     }
 }
 

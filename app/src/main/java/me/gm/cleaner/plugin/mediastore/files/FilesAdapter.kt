@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.mediastore.files
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.view.LayoutInflater
@@ -24,39 +25,64 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.databinding.FilesHeaderBinding
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
+import java.io.File
 import java.util.*
 
 class FilesAdapter(private val fragment: FilesFragment) :
-    MediaStoreAdapter<MediaStoreFiles, FilesAdapter.ViewHolder>() {
+    MediaStoreAdapter<MediaStoreModel, MediaStoreAdapter.ViewHolder>() {
     private val then: Calendar = Calendar.getInstance()
     private val now: Calendar = Calendar.getInstance()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolder(FilesItemBinding.inflate(LayoutInflater.from(parent.context)))
+    override fun getItemViewType(position: Int) = when (getItem(position)) {
+        is MediaStoreFilesHeader -> R.layout.files_header
+        is MediaStoreFiles -> R.layout.files_item
+        else -> throw IndexOutOfBoundsException()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
+        R.layout.files_header -> HeaderViewHolder(
+            FilesHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
+        R.layout.files_item -> ItemViewHolder(FilesItemBinding.inflate(LayoutInflater.from(parent.context)))
+        else -> throw IndexOutOfBoundsException()
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val binding = holder.binding
-        val item = getItem(position)
-        Glide.with(fragment)
-            .load(item.contentUri)
-            .centerCrop()
-            .into(binding.icon)
-        binding.title.text = item.displayPath
-        binding.title.isSelected = true
-        binding.summary.text = formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
-                Formatter.formatFileSize(fragment.requireContext(), item.size)
+        when (holder) {
+            is HeaderViewHolder -> {
+                val binding = holder.binding
+                val item = getItem(position) as MediaStoreFilesHeader
+                binding.title.text = item.title
+            }
+            is ItemViewHolder -> {
+                val binding = holder.binding
+                val item = getItem(position) as MediaStoreFiles
+                Glide.with(fragment)
+                    .load(item.contentUri)
+                    .centerCrop()
+                    .into(binding.icon)
+                binding.title.text = item.displayPath
+                binding.summary.text =
+                    formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
+                            Formatter.formatFileSize(fragment.requireContext(), item.size)
 
-        holder.details = object : ItemDetails<Long>() {
-            override fun getPosition() = holder.bindingAdapterPosition
-            override fun getSelectionKey() = item.id
-            override fun inSelectionHotspot(e: MotionEvent) = false
-            override fun inDragRegion(e: MotionEvent) = true
-        }
-        if (selectionTrackerInitialized) {
-            binding.card.isChecked = selectionTracker.isSelected(item.id)
+                holder.details = object : ItemDetails<Long>() {
+                    override fun getPosition() = holder.bindingAdapterPosition
+                    override fun getSelectionKey() = item.id
+                    override fun inSelectionHotspot(e: MotionEvent) = false
+                    override fun inDragRegion(e: MotionEvent) = true
+                }
+                if (selectionTrackerInitialized) {
+                    binding.card.isChecked = selectionTracker.isSelected(item.id)
+                }
+            }
         }
     }
 
@@ -72,5 +98,34 @@ class FilesAdapter(private val fragment: FilesFragment) :
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
-    class ViewHolder(val binding: FilesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
+    override fun submitList(list: List<MediaStoreModel>?) {
+        submitList(list, null)
+    }
+
+    override fun submitList(list: List<MediaStoreModel>?, commitCallback: Runnable?) {
+        if (list != null && ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
+            val groupedList = mutableListOf<MediaStoreModel>()
+            var lastRootDir = ""
+            list.forEach {
+                val rootDir =
+                    (it as MediaStoreFiles).displayPath.substringBefore(File.separatorChar)
+                if (lastRootDir != rootDir) {
+                    lastRootDir = rootDir
+                    groupedList += MediaStoreFilesHeader(rootDir)
+                }
+                groupedList += it
+            }
+            super.submitList(groupedList, commitCallback)
+        } else {
+            super.submitList(list, commitCallback)
+        }
+    }
+
+    class HeaderViewHolder(val binding: FilesHeaderBinding) :
+        MediaStoreAdapter.ViewHolder(binding.root)
+
+    class ItemViewHolder(val binding: FilesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
 }
+
+class MediaStoreFilesHeader(val title: String) :
+    MediaStoreModel(title.hashCode().toLong(), Uri.EMPTY)
