@@ -178,9 +178,8 @@ class ImagePagerFragment : BaseFragment() {
         R.id.menu_info -> {
             lifecycleScope.launch {
                 val result = viewModel.queryImageInfoAsync(args.uris[viewPager.currentItem]).await()
-                if (result.isSuccess) {
-                    InfoDialog.newInstance(result.getOrThrow()).show(childFragmentManager, null)
-                }
+                InfoDialog.newInstance(result.getOrElse { it.stackTraceToString() })
+                    .show(childFragmentManager, null)
             }
             true
         }

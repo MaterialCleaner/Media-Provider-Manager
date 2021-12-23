@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.R
+import java.io.FileNotFoundException
 
 class ImagePagerViewModel(application: Application) : AndroidViewModel(application) {
     var isFirstEntrance = true
@@ -118,6 +119,6 @@ class ImagePagerViewModel(application: Application) : AndroidViewModel(applicati
                 return@withContext Result.success(infos.joinToString("\n"))
             }
         }
-        Result.failure(NullPointerException())
+        Result.failure(FileNotFoundException())
     }
 }
