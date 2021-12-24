@@ -83,6 +83,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             StorageStrategy.createLongStorage()
         )
             .withSelectionPredicate(object : SelectionPredicate<Long>() {
+                override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean {
+                    val position = keyProvider.getPosition(key)
+                    return canSetStateAtPosition(position, nextState)
+                }
+
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
                     val viewHolder = list.findViewHolderForLayoutPosition(position)
                     if (viewHolder is MediaStoreAdapter.ViewHolder) {
@@ -91,7 +96,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     return true
                 }
 
-                override fun canSetStateForKey(key: Long, nextState: Boolean) = true
                 override fun canSelectMultiple() = true
             })
             .build()
