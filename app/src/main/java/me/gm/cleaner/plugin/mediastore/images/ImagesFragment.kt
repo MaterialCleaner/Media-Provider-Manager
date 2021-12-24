@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
@@ -44,17 +45,28 @@ class ImagesFragment : MediaStoreFragment() {
         ImagesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
-        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 3)
-            .setOnLayoutCompletedListener {
-                appBarLayout.isLifted =
-                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
-            }
+        val layoutManager =
+            LayoutCompleteAwareGridLayoutManager(requireContext(), ModulePreferences.spanCount)
+                .setOnLayoutCompletedListener {
+                    appBarLayout.isLifted =
+                        list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
+                }
+        list.layoutManager = layoutManager
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
+        list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
+
+        ModulePreferences.addOnPreferenceChangeListener(object :
+            ModulePreferences.PreferencesChangeListener {
+            override val lifecycle = getLifecycle()
+            override fun onPreferencesChanged() {
+                layoutManager.spanCount = ModulePreferences.spanCount
+            }
+        })
     }
 
     override fun onRequestPermissionsSuccess(

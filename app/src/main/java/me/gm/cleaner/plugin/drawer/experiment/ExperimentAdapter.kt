@@ -24,7 +24,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
@@ -32,6 +31,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.SwipeDismissBehavior
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDivider
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
@@ -134,7 +134,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                         viewModel.actions.put(item.id, deferred)
                         if (!fragment.requireContext().hasWifiTransport) {
                             button.toggle()
-                            fragment.dialog = AlertDialog.Builder(fragment.requireContext())
+                            fragment.dialog = MaterialAlertDialogBuilder(fragment.requireContext())
                                 .setMessage(R.string.no_wifi)
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .setPositiveButton(android.R.string.ok) { _, _ ->

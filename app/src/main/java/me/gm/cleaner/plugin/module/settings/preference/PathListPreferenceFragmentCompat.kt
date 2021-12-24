@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
@@ -32,6 +31,7 @@ import androidx.preference.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
@@ -55,7 +55,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
         get() = pathListPreference.values != newValues.toSet()
     var ignorePreferenceChanged = false
     private val dialog by lazy {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setMessage(R.string.quit_without_save)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 ignorePreferenceChanged = true

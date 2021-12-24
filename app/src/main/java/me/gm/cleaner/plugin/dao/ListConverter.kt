@@ -40,9 +40,8 @@ object ListConverter {
         val size = value.substring(0, splitIndex).toInt()
         val values = BigInteger(value.substring(splitIndex + 1), MAX_RADIX)
 
-        val list = mutableListOf<Boolean>()
-        for (i in 0 until size) {
-            list.add(values.testBit(i))
+        val list = MutableList(size) { i ->
+            values.testBit(i)
         }
         return list
     }

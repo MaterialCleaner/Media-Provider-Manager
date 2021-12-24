@@ -1,20 +1,24 @@
 package me.gm.cleaner.plugin.app
 
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.os.bundleOf
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class InfoDialog : AppCompatDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?) =
-        AlertDialog.Builder(requireContext(), theme)
+        MaterialAlertDialogBuilder(requireContext(), theme)
             .setMessage(requireArguments().getString(KEY_MESSAGE))
             .setPositiveButton(android.R.string.ok, null)
             .create().apply {
                 setOnShowListener {
                     requireDialog().window?.findViewById<TextView>(android.R.id.message)
-                        ?.setTextIsSelectable(true)
+                        ?.apply {
+                            textAlignment = View.TEXT_ALIGNMENT_VIEW_START
+                            setTextIsSelectable(true)
+                        }
                 }
             }
 

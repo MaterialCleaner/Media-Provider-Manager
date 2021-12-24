@@ -76,7 +76,7 @@ public class MediaModelLoader implements ModelLoader<Uri, ByteBuffer> {
             try (var retriever = new MediaMetadataRetriever()) {
                 retriever.setDataSource(mContext, mUri);
                 var data = retriever.getEmbeddedPicture();
-                ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+                var byteBuffer = ByteBuffer.wrap(data);
                 callback.onDataReady(byteBuffer);
             } catch (Exception e) {
                 callback.onLoadFailed(e);

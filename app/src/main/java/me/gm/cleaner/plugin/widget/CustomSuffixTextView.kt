@@ -44,6 +44,7 @@ class CustomSuffixTextView @JvmOverloads constructor(
         }
         val ellipsisWidth = measuredWidth - compoundPaddingLeft - compoundPaddingRight
         val totalEllipsisWidth = ellipsisWidth * maxLines
+        // Create a synthetic text for measuring ellipsize.
         val tmpText = "$suffix $text"
         var ellipsizedText =
             TextUtils.ellipsize(tmpText, paint, totalEllipsisWidth.toFloat(), ellipsize)

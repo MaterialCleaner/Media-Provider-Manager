@@ -135,4 +135,8 @@ object ModulePreferences {
     var sortMediaBy: Int
         get() = defaultSp.getInt(resources.getString(R.string.sort_media_key), SORT_BY_PATH)
         set(value) = putInt(resources.getString(R.string.sort_media_key), value)
+
+    var spanCount: Int
+        get() = defaultSp.getInt(resources.getString(R.string.span_count_key), 3)
+        set(value) = putInt(resources.getString(R.string.span_count_key), value)
 }

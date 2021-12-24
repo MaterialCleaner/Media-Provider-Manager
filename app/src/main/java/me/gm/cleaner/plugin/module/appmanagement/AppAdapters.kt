@@ -79,9 +79,10 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
                 it.first!!, listOf(args.pi.packageName)
             )
             if (packageUsageTimes == 0) {
-                return@mapNotNull null
+                null
+            } else {
+                fragment.getString(it.second, packageUsageTimes)
             }
-            fragment.getString(it.second, packageUsageTimes)
         }
         if (usageTimes.isNotEmpty()) {
             binding.usageTimes.isVisible = true

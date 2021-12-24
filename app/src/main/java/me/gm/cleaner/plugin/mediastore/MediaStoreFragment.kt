@@ -25,7 +25,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ActivityCompat
@@ -37,6 +36,7 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BuildConfig
@@ -119,7 +119,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mediasFlow.collect { medias ->
-                    adapter.submitList(medias)
+                    adapter.submitListKeepPosition(medias, list)
                 }
             }
         }
@@ -234,7 +234,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                             PackageManager.PERMISSION_GRANTED
                 }
             ) {
-                dialog = AlertDialog.Builder(requireContext())
+                dialog = MaterialAlertDialogBuilder(requireContext())
                     .setMessage(R.string.revoke_self_permission)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -254,7 +254,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         savedInstanceState: Bundle?
     ) {
         if (shouldShowRationale.isNotEmpty()) {
-            dialog = AlertDialog.Builder(requireContext())
+            dialog = MaterialAlertDialogBuilder(requireContext())
                 .setMessage(R.string.rationale_shouldShowRationale)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -262,7 +262,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
                 .show()
         } else if (permanentlyDenied.isNotEmpty()) {
-            dialog = AlertDialog.Builder(requireContext())
+            dialog = MaterialAlertDialogBuilder(requireContext())
                 .setMessage(R.string.rationale_permanentlyDenied)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(android.R.string.ok) { _, _ ->

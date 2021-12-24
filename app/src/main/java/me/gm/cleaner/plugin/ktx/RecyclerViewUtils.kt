@@ -32,7 +32,7 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     val layoutManager = recyclerView.layoutManager as LinearLayoutManager
     val position = layoutManager.findFirstVisibleItemPosition()
     if (position == RecyclerView.NO_POSITION) {
-        submitList(list)
+        submitList(list, commitCallback)
     } else {
         val rect = Rect()
         recyclerView.getDecoratedBoundsWithMargins(
