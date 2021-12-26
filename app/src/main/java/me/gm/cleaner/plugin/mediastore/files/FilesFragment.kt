@@ -33,8 +33,8 @@ import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.zhanghai.android.fastscroll.ComplexRecyclerViewHelper
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 
 class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
@@ -45,7 +45,7 @@ class FilesFragment : MediaStoreFragment() {
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setViewHelper(SimpleRecyclerViewHelper(list))
+            .setViewHelper(ComplexRecyclerViewHelper(list))
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
 

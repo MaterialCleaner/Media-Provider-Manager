@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.SharedElementCallback
@@ -23,11 +24,11 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ProgressionGridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
-import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
@@ -36,6 +37,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
+import java.util.function.Consumer
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
@@ -59,14 +61,6 @@ class ImagesFragment : MediaStoreFragment() {
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
-
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged() {
-                layoutManager.spanCount = ModulePreferences.spanCount
-            }
-        })
     }
 
     override fun onRequestPermissionsSuccess(
@@ -122,5 +116,24 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         }
+    }
+}
+
+class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
+    context: Context, spanCount: Int,
+    @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
+    reverseLayout: Boolean = false
+) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
+    var onLayoutCompletedListener: Consumer<RecyclerView.State?>? = null
+        private set
+
+    fun setOnLayoutCompletedListener(l: Consumer<RecyclerView.State?>?): LayoutCompleteAwareGridLayoutManager {
+        onLayoutCompletedListener = l
+        return this
+    }
+
+    override fun onLayoutCompleted(state: RecyclerView.State?) {
+        super.onLayoutCompleted(state)
+        onLayoutCompletedListener?.accept(state)
     }
 }
