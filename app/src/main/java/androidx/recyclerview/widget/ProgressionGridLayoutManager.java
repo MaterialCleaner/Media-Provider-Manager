@@ -35,8 +35,8 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
  * A {@link RecyclerView.LayoutManager} implementation that lays out items in a grid,
  * and supports animate between different spans.
  * <p/>
- * Note that its robustness is poor and it is only designed for this project,
- * you probably can't use it directly in your project.
+ * Note that there are some assumptions in this implementation. If you want to use it
+ * in your project, you probably need to make some adjustments to meet your needs.
  */
 public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
 
@@ -46,6 +46,7 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     int[] mLastCachedBorders;
     public static final int INVALID_ANCHOR_LINE = -1;
     int mPrevAnchorLine = INVALID_ANCHOR_LINE;
+    int mRemainingSpace;
     @FloatRange(from = 0F, to = 1F)
     float mProgress = 1F;
     @NonNull
@@ -199,6 +200,12 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     @Override
+    int fill(RecyclerView.Recycler recycler, LayoutState layoutState, RecyclerView.State state, boolean stopOnFocusable) {
+        mRemainingSpace = layoutState.mAvailable + layoutState.mExtraFillSpace;
+        return super.fill(recycler, layoutState, state, stopOnFocusable);
+    }
+
+    @Override
     protected void calculateMargins(LayoutState layoutState, LayoutChunkResult result, int count,
                                     int maxSize) {
         if (mLastCachedBorders == null) {
@@ -286,6 +293,16 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
                 result.mIgnoreConsumed = true;
             }
             result.mFocusable |= view.hasFocusable();
+        }
+        if (mProgress == 1F) {
+            // Optimize performance.
+            return;
+        }
+        if (!result.mIgnoreConsumed || layoutState.mScrapList != null
+                || !mRecyclerView.mState.isPreLayout()) {
+            mRemainingSpace -= mLastCachedBorders[1];
+            // Layout the items that previously visible but currently disappeared.
+            layoutState.mInfinite = mRemainingSpace + 3 * maxSize > 0;
         }
     }
 
