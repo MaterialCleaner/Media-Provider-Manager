@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -23,9 +24,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementation that lays out items in a grid,
@@ -44,6 +48,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     int mPrevAnchorLine = INVALID_ANCHOR_LINE;
     @FloatRange(from = 0F, to = 1F)
     float mProgress = 1F;
+    @NonNull
+    TimeInterpolator mInterpolator = new FastOutSlowInInterpolator();
 
     @SuppressLint("WrongConstant")
     public ProgressionGridLayoutManager(Context context, int spanCount) {
@@ -119,6 +125,18 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         requestLayout();
     }
 
+    public TimeInterpolator getInterpolator() {
+        return mInterpolator;
+    }
+
+    public void setInterpolator(@Nullable TimeInterpolator i) {
+        mInterpolator = i != null ? i : new LinearInterpolator();
+    }
+
+    private float getInterpolatedProgress() {
+        return mInterpolator.getInterpolation(mProgress);
+    }
+
     @Override
     protected void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec,
                                                         boolean alreadyMeasured) {
@@ -127,9 +145,11 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         final var height = child.getMeasuredHeight();
         final var lastWidth = width * mSpanCount / mLastSpanCount;
         final var lastHeight = height * mSpanCount / mLastSpanCount;
+        final var interpolatedWidth = lastWidth + (width - lastWidth) * getInterpolatedProgress();
+        final var interpolatedHeight = lastHeight + (height - lastHeight) * getInterpolatedProgress();
         child.measure(
-                MeasureSpec.makeMeasureSpec(Math.round(lastWidth + (width - lastWidth) * mProgress), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(Math.round(lastHeight + (height - lastHeight) * mProgress), MeasureSpec.EXACTLY)
+                MeasureSpec.makeMeasureSpec(Math.round(interpolatedWidth), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(Math.round(interpolatedHeight), MeasureSpec.EXACTLY)
         );
     }
 
@@ -272,10 +292,10 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     void layoutDecoratedWithMargins(@NonNull View child, int left, int top, int right, int bottom,
                                     int lastLeft, int lastTop, int lastRight, int lastBottom) {
         child.layout(
-                Math.round(lastLeft + (left - lastLeft) * mProgress),
-                Math.round(lastTop + (top - lastTop) * mProgress),
-                Math.round(lastRight + (right - lastRight) * mProgress),
-                Math.round(lastBottom + (bottom - lastBottom) * mProgress)
+                Math.round(lastLeft + (left - lastLeft) * getInterpolatedProgress()),
+                Math.round(lastTop + (top - lastTop) * getInterpolatedProgress()),
+                Math.round(lastRight + (right - lastRight) * getInterpolatedProgress()),
+                Math.round(lastBottom + (bottom - lastBottom) * getInterpolatedProgress())
         );
     }
 
