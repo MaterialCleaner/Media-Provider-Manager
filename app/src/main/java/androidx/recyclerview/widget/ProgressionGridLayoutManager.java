@@ -40,6 +40,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     private static final String TAG = "ProgressionGridLayoutManager";
     int mLastSpanCount;
     int[] mLastCachedBorders;
+    public static final int INVALID_ANCHOR_LINE = -1;
+    int mPrevAnchorLine = INVALID_ANCHOR_LINE;
     @FloatRange(from = 0F, to = 1F)
     float mProgress = 1F;
 
@@ -100,6 +102,7 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         }
         mSpanCount = spanCount;
         mSpanSizeLookup.invalidateSpanIndexCache();
+        mPrevAnchorLine = INVALID_ANCHOR_LINE;
         // Remove requestLayout.
         // requestLayout();
     }
@@ -162,13 +165,17 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     /**
-     * Assume width == height.
+     * Assume previous width == height.
      */
-    private int guessOffset(int line) {
+    private int guessOffset(int prevLine) {
+        if (mPrevAnchorLine == INVALID_ANCHOR_LINE) {
+            // align first prevLine
+            mPrevAnchorLine = prevLine;
+        }
         if (mAnchorInfo.mCoordinate == INVALID_OFFSET) {
             mAnchorInfo.assignCoordinateFromPadding();
         }
-        return mAnchorInfo.mCoordinate + mLastCachedBorders[1] * line;
+        return mAnchorInfo.mCoordinate + mLastCachedBorders[1] * (prevLine - mPrevAnchorLine);
     }
 
     @Override
