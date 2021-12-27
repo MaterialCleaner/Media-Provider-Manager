@@ -34,46 +34,41 @@ class ScaleGestureListener(
     private var scaleEndAnimator: ValueAnimator? = null
     private val gestureDetector =
         ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            var isScaleBegun = false
             var prevSpanCount = layoutManager.spanCount
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
-                val currSpan = detector.currentSpan
-                val prevSpan = detector.previousSpan
-                if (currSpan == prevSpan) {
-                    return false
-                }
-                if (isScaleBegun) {
-                    isScaleBegun = false
-                    // TODO reversed gesture support
-                    if (currSpan > prevSpan) {
+                val scaleFactor = detector.scaleFactor
+
+                layoutManager.spanCount = when {
+                    scaleFactor > 1F -> {
                         // zoom in
-                        if (layoutManager.spanCount == minSpanCount) {
+                        if (layoutManager.spanCount == minSpanCount && layoutManager.progress == 1F) {
                             return true
                         }
-                        layoutManager.spanCount -= spanCountInterval
-                    } else if (currSpan < prevSpan) {
-                        // zoom out
-                        if (layoutManager.spanCount == maxSpanCount) {
-                            return true
-                        }
-                        layoutManager.spanCount += spanCountInterval
+                        prevSpanCount - spanCountInterval
                     }
+                    scaleFactor < 1F -> {
+                        // zoom out
+                        if (layoutManager.spanCount == maxSpanCount && layoutManager.progress == 1F) {
+                            return true
+                        }
+                        prevSpanCount + spanCountInterval
+                    }
+                    else -> return false
                 }
 
                 val rawProgress = when {
-                    currSpan > prevSpan -> (currSpan / prevSpan - 1F) / scaleFactor
-                    currSpan < prevSpan -> (prevSpan / currSpan - 1F) / scaleFactor
+                    scaleFactor > 1F -> abs(1F - scaleFactor) / SCALE_FACTOR
+                    scaleFactor < 1F -> abs(1F - 1 / scaleFactor) / SCALE_FACTOR
                     else -> 0F
                 }
-                layoutManager.progress = clamp(abs(rawProgress), 0F, 1F)
+                layoutManager.progress = clamp(rawProgress, 0F, 1F)
                 return false
             }
 
             override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
                 prevSpanCount = layoutManager.spanCount
-                isScaleBegun = true
-                return isScaleBegun
+                return true
             }
 
             override fun onScaleEnd(detector: ScaleGestureDetector) {
@@ -108,7 +103,7 @@ class ScaleGestureListener(
     }
 
     companion object {
-        const val scaleFactor = 1F
+        const val SCALE_FACTOR = 1F
         const val minSpanCount = 1
         const val maxSpanCount = 5
         const val spanCountInterval = 1

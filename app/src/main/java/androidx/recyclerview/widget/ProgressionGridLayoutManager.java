@@ -299,7 +299,7 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         if (!result.mIgnoreConsumed || layoutState.mScrapList != null
                 || !mRecyclerView.mState.isPreLayout()) {
             mRemainingSpace -= mLastCachedBorders[1];
-            // Layout the items that previously visible but currently disappeared.
+            // Layout the items that previously visible but currently gone away.
             layoutState.mInfinite = mRemainingSpace + 3 * Math.abs(mLastSpanCount - mSpanCount) * maxSize > 0;
         }
     }
