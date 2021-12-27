@@ -139,17 +139,25 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     @Override
     protected void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec,
                                                         boolean alreadyMeasured) {
-        super.measureChildWithDecorationsAndMargin(child, widthSpec, heightSpec, alreadyMeasured);
-        final var width = child.getMeasuredWidth();
-        final var height = child.getMeasuredHeight();
-        final var lastWidth = width * mSpanCount / mLastSpanCount;
-        final var lastHeight = height * mSpanCount / mLastSpanCount;
-        final var interpolatedWidth = lastWidth + (width - lastWidth) * getInterpolatedProgress();
-        final var interpolatedHeight = lastHeight + (height - lastHeight) * getInterpolatedProgress();
-        child.measure(
-                MeasureSpec.makeMeasureSpec(Math.round(interpolatedWidth), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(Math.round(interpolatedHeight), MeasureSpec.EXACTLY)
-        );
+        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) child.getLayoutParams();
+        final boolean measure;
+        if (alreadyMeasured) {
+            measure = shouldReMeasureChild(child, widthSpec, heightSpec, lp);
+        } else {
+            measure = shouldMeasureChild(child, widthSpec, heightSpec, lp);
+        }
+        if (measure) {
+            final var width = MeasureSpec.getSize(widthSpec);
+            final var height = MeasureSpec.getSize(heightSpec);
+            final var lastWidth = width * mSpanCount / mLastSpanCount;
+            final var lastHeight = height * mSpanCount / mLastSpanCount;
+            final var interpolatedWidth = lastWidth + (width - lastWidth) * getInterpolatedProgress();
+            final var interpolatedHeight = lastHeight + (height - lastHeight) * getInterpolatedProgress();
+            child.measure(
+                    MeasureSpec.makeMeasureSpec(Math.round(interpolatedWidth), MeasureSpec.getMode(widthSpec)),
+                    MeasureSpec.makeMeasureSpec(Math.round(interpolatedHeight), MeasureSpec.getMode(heightSpec))
+            );
+        }
     }
 
     protected void updateLastSpans(int count, boolean layingOutInPrimaryDirection) {
