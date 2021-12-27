@@ -16,23 +16,24 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.core.math.MathUtils.clamp
 import androidx.recyclerview.widget.ProgressionGridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.animation.AnimationUtils
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import kotlin.math.abs
 
 class ScaleGestureListener(
-    context: Context, private val layoutManager: ProgressionGridLayoutManager
-) :
-    RecyclerView.SimpleOnItemTouchListener() {
-    private val gestureDetector = ScaleGestureDetector(
-        context,
-        object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            val scaleThreshold = 0.5F
+    private val context: Context, private val layoutManager: ProgressionGridLayoutManager
+) : RecyclerView.SimpleOnItemTouchListener() {
+    private var scaleEndAnimator: ValueAnimator? = null
+    private val gestureDetector =
+        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             var isScaleBegun = false
             var prevSpanCount = layoutManager.spanCount
 
@@ -45,25 +46,24 @@ class ScaleGestureListener(
                 if (isScaleBegun) {
                     isScaleBegun = false
                     // TODO reversed gesture support
-                    //  maybe overflow gesture support?
                     if (currSpan > prevSpan) {
                         // zoom in
-                        if (layoutManager.spanCount == 1) {
+                        if (layoutManager.spanCount == minSpanCount) {
                             return true
                         }
-                        layoutManager.spanCount -= 1
+                        layoutManager.spanCount -= spanCountInterval
                     } else if (currSpan < prevSpan) {
                         // zoom out
-                        if (layoutManager.spanCount == 5) {
+                        if (layoutManager.spanCount == maxSpanCount) {
                             return true
                         }
-                        layoutManager.spanCount += 1
+                        layoutManager.spanCount += spanCountInterval
                     }
                 }
 
                 val rawProgress = when {
-                    currSpan > prevSpan -> (currSpan / prevSpan - 1F) / scaleThreshold
-                    currSpan < prevSpan -> (prevSpan / currSpan - 1F) / scaleThreshold
+                    currSpan > prevSpan -> (currSpan / prevSpan - 1F) / scaleFactor
+                    currSpan < prevSpan -> (prevSpan / currSpan - 1F) / scaleFactor
                     else -> 0F
                 }
                 layoutManager.progress = clamp(abs(rawProgress), 0F, 1F)
@@ -77,16 +77,26 @@ class ScaleGestureListener(
             }
 
             override fun onScaleEnd(detector: ScaleGestureDetector) {
-                if (layoutManager.progress >= 0.6F) {
+                if (layoutManager.progress >= 0.4F) {
                     ModulePreferences.spanCount = layoutManager.spanCount
                 } else {
                     layoutManager.spanCount = prevSpanCount
                 }
-                // TODO use animator to animate progress to 1F
-                layoutManager.progress = 1F
+                // use animator to animate progress to 1F
+                animateProgress(layoutManager.progress, 1F)
             }
+        })
+
+    fun animateProgress(from: Float, to: Float) {
+        scaleEndAnimator?.cancel()
+        scaleEndAnimator = ValueAnimator.ofFloat(from, to)
+        scaleEndAnimator?.duration = (context.mediumAnimTime * abs(to - from)).toLong()
+        scaleEndAnimator?.interpolator = AnimationUtils.LINEAR_INTERPOLATOR
+        scaleEndAnimator?.addUpdateListener { valueAnimator ->
+            layoutManager.progress = valueAnimator.animatedValue as Float
         }
-    )
+        scaleEndAnimator?.start()
+    }
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(e)
@@ -95,5 +105,12 @@ class ScaleGestureListener(
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
         gestureDetector.onTouchEvent(e)
+    }
+
+    companion object {
+        const val scaleFactor = 1F
+        const val minSpanCount = 1
+        const val maxSpanCount = 5
+        const val spanCountInterval = 1
     }
 }

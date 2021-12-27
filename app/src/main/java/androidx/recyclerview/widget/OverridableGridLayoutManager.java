@@ -16,7 +16,6 @@
 
 package androidx.recyclerview.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.Log;
@@ -33,9 +32,8 @@ public class OverridableGridLayoutManager extends GridLayoutManager {
     private static final boolean DEBUG = false;
     private static final String TAG = "GridLayoutManager";
 
-    @SuppressLint("WrongConstant")
     public OverridableGridLayoutManager(Context context, int spanCount) {
-        this(context, spanCount, RecyclerView.DEFAULT_ORIENTATION, false);
+        super(context, spanCount);
     }
 
     public OverridableGridLayoutManager(Context context, int spanCount,

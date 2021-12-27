@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:strokeWidth="0dp">
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <ImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

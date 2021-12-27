@@ -17,7 +17,6 @@
 package androidx.recyclerview.widget;
 
 import android.animation.TimeInterpolator;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -52,9 +51,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     @NonNull
     TimeInterpolator mInterpolator = new FastOutSlowInInterpolator();
 
-    @SuppressLint("WrongConstant")
     public ProgressionGridLayoutManager(Context context, int spanCount) {
-        this(context, spanCount, RecyclerView.DEFAULT_ORIENTATION, false);
+        super(context, spanCount);
     }
 
     public ProgressionGridLayoutManager(Context context, int spanCount,
@@ -302,7 +300,7 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
                 || !mRecyclerView.mState.isPreLayout()) {
             mRemainingSpace -= mLastCachedBorders[1];
             // Layout the items that previously visible but currently disappeared.
-            layoutState.mInfinite = mRemainingSpace + 3 * maxSize > 0;
+            layoutState.mInfinite = mRemainingSpace + 3 * Math.abs(mLastSpanCount - mSpanCount) * maxSize > 0;
         }
     }
 
