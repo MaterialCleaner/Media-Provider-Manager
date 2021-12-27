@@ -299,7 +299,8 @@ public class OverridableGridLayoutManager extends GridLayoutManager {
         Arrays.fill(mSet, null);
     }
 
-    protected void calculateMargins(LayoutState layoutState, LayoutChunkResult result, int count, int maxSize) {
+    protected void calculateMargins(LayoutState layoutState, LayoutChunkResult result, int count,
+                                    int maxSize) {
         int left = 0, right = 0, top = 0, bottom = 0;
         if (mOrientation == VERTICAL) {
             if (layoutState.mLayoutDirection == LayoutState.LAYOUT_START) {

@@ -49,7 +49,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     public ProgressionGridLayoutManager(Context context, int spanCount,
-                                        @RecyclerView.Orientation int orientation, boolean reverseLayout) {
+                                        @RecyclerView.Orientation int orientation,
+                                        boolean reverseLayout) {
         super(context, spanCount, orientation, reverseLayout);
     }
 
@@ -116,7 +117,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     @Override
-    protected void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec, boolean alreadyMeasured) {
+    protected void measureChildWithDecorationsAndMargin(View child, int widthSpec, int heightSpec,
+                                                        boolean alreadyMeasured) {
         super.measureChildWithDecorationsAndMargin(child, widthSpec, heightSpec, alreadyMeasured);
         final var width = child.getMeasuredWidth();
         final var height = child.getMeasuredHeight();
@@ -151,7 +153,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     @Override
-    protected void assignSpans(RecyclerView.Recycler recycler, RecyclerView.State state, int count, boolean layingOutInPrimaryDirection) {
+    protected void assignSpans(RecyclerView.Recycler recycler, RecyclerView.State state, int count,
+                               boolean layingOutInPrimaryDirection) {
         if (mPendingSpanCountChange) {
             updateLastSpans(count, layingOutInPrimaryDirection);
         }
@@ -169,7 +172,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     }
 
     @Override
-    protected void calculateMargins(LayoutState layoutState, LayoutChunkResult result, int count, int maxSize) {
+    protected void calculateMargins(LayoutState layoutState, LayoutChunkResult result, int count,
+                                    int maxSize) {
         if (mLastCachedBorders == null) {
             mLastCachedBorders = mCachedBorders;
         }

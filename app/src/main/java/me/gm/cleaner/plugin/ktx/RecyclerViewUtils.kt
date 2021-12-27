@@ -130,7 +130,7 @@ class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
     context: Context, spanCount: Int,
     @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
     reverseLayout: Boolean = false
-) : GridLayoutManager(context, spanCount, orientation, reverseLayout) {
+) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
     var onLayoutCompletedListener: Consumer<RecyclerView.State?>? = null
         private set
 
