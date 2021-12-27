@@ -40,7 +40,6 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
     private static final String TAG = "ProgressionGridLayoutManager";
     int mLastSpanCount;
     int[] mLastCachedBorders;
-    int mCurLine;
     @FloatRange(from = 0F, to = 1F)
     float mProgress = 1F;
 
@@ -100,8 +99,6 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         }
         mSpanCount = spanCount;
         mSpanSizeLookup.invalidateSpanIndexCache();
-
-        mCurLine = 0;
         // Remove requestLayout.
         // requestLayout();
     }
@@ -126,8 +123,8 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
         final var lastWidth = width * mSpanCount / mLastSpanCount;
         final var lastHeight = height * mSpanCount / mLastSpanCount;
         child.measure(
-                MeasureSpec.makeMeasureSpec((int) (lastWidth + (width - lastWidth) * mProgress), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec((int) (lastHeight + (height - lastHeight) * mProgress), MeasureSpec.EXACTLY)
+                MeasureSpec.makeMeasureSpec(Math.round(lastWidth + (width - lastWidth) * mProgress), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(Math.round(lastHeight + (height - lastHeight) * mProgress), MeasureSpec.EXACTLY)
         );
     }
 
@@ -165,7 +162,10 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
      * Assume width == height.
      */
     private int guessOffset(int line) {
-        return mAnchorInfo.mCoordinate + (mLastCachedBorders[1]) * line;
+        if (mAnchorInfo.mCoordinate == INVALID_OFFSET) {
+            mAnchorInfo.assignCoordinateFromPadding();
+        }
+        return mAnchorInfo.mCoordinate + mLastCachedBorders[1] * line;
     }
 
     @Override
@@ -216,8 +216,11 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
             } else {
                 top = getPaddingTop() + mCachedBorders[params.mSpanIndex];
                 bottom = top + mOrientationHelper.getDecoratedMeasurementInOther(view);
-                lastTop = getPaddingTop() + mLastCachedBorders[params.mLastSpanIndex];
-                lastBottom = lastTop + mOrientationHelper.getDecoratedMeasurementInOther(view);
+                if (params.mLastSpanIndex != GridLayoutManager.LayoutParams.INVALID_SPAN_ID &&
+                        params.mLastSpanIndex < mLastCachedBorders.length) {
+                    lastTop = getPaddingTop() + mLastCachedBorders[params.mLastSpanIndex];
+                    lastBottom = lastTop + mOrientationHelper.getDecoratedMeasurementInOther(view);
+                }
             }
             // Find the previous line for view.
             final var prevLine = getPosition(view) / mLastSpanCount;
@@ -244,8 +247,7 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
                     lastLeft, lastTop, lastRight, lastBottom);
             if (DEBUG) {
                 Log.d(TAG, "laid out child at position " + getPosition(view) + ", with l:"
-                        + (left + params.leftMargin) + ", t:" + (top + params.topMargin) + ", r:"
-                        + (right - params.rightMargin) + ", b:" + (bottom - params.bottomMargin)
+                        + left + ", t:" + top + ", r:" + right + ", b:" + bottom
                         + ", span:" + params.mSpanIndex + ", spanSize:" + params.mSpanSize);
             }
             // Consume the available space if the view is not removed OR changed
@@ -254,18 +256,15 @@ public class ProgressionGridLayoutManager extends OverridableGridLayoutManager {
             }
             result.mFocusable |= view.hasFocusable();
         }
-        if (mPendingSpanCountChange) {
-            mCurLine++;
-        }
     }
 
     void layoutDecoratedWithMargins(@NonNull View child, int left, int top, int right, int bottom,
                                     int lastLeft, int lastTop, int lastRight, int lastBottom) {
         child.layout(
-                (int) (lastLeft + (left - lastLeft) * mProgress),
-                (int) (lastTop + (top - lastTop) * mProgress),
-                (int) (lastRight + (right - lastRight) * mProgress),
-                (int) (lastBottom + (bottom - lastBottom) * mProgress)
+                Math.round(lastLeft + (left - lastLeft) * mProgress),
+                Math.round(lastTop + (top - lastTop) * mProgress),
+                Math.round(lastRight + (right - lastRight) * mProgress),
+                Math.round(lastBottom + (bottom - lastBottom) * mProgress)
         );
     }
 
