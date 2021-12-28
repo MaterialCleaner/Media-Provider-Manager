@@ -182,8 +182,7 @@ class ImagePagerFragment : BaseFragment() {
             val sendIntent = Intent(Intent.ACTION_SEND)
                 .setType("image/*")
                 .putExtra(Intent.EXTRA_STREAM, args.uris[viewPager.currentItem])
-            val shareIntent =
-                Intent.createChooser(sendIntent, args.displayNames[viewPager.currentItem])
+            val shareIntent = Intent.createChooser(sendIntent, null)
             try {
                 startActivity(shareIntent)
             } catch (e: ActivityNotFoundException) {

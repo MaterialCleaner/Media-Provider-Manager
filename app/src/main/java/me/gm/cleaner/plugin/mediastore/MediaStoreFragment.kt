@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.mediastore
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -25,6 +26,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ActivityCompat
@@ -45,8 +47,11 @@ import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.mediastore.files.FilesFragment
+import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.mediastore.images.*
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
@@ -165,25 +170,52 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
 
                 override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-                override fun onActionItemClicked(mode: ActionMode, item: MenuItem) =
+                override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+                    val medias = selectionTracker.selection.map { selection ->
+                        viewModel.medias.first { it.id == selection }
+                    }
+                    actionMode?.finish()
                     when (item.itemId) {
-                        R.id.menu_delete -> {
-                            val images = selectionTracker.selection.map { selection ->
-                                viewModel.medias.first { it.id == selection }
+                        R.id.menu_share -> {
+                            val mimeType = when (this@MediaStoreFragment) {
+                                // is AudioFragment -> "audio/*"
+                                is ImagesFragment -> "image/*"
+                                // is VideoFragment -> "video/*"
+                                is FilesFragment -> when {
+                                    medias.all { MimeUtils.isAudioMimeType((it as MediaStoreFiles).mimeType) } -> "audio/*"
+                                    medias.all { MimeUtils.isImageMimeType((it as MediaStoreFiles).mimeType) } -> "image/*"
+                                    medias.all { MimeUtils.isVideoMimeType((it as MediaStoreFiles).mimeType) } -> "video/*"
+                                    else -> "*/*"
+                                }
+                                else -> throw IllegalStateException()
                             }
-                            actionMode?.finish()
+                            val mediaUris = ArrayList<Uri>(medias.size)
+                            medias.mapTo(mediaUris) { it.contentUri }
+                            val sendIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
+                                .setType(mimeType)
+                                .putParcelableArrayListExtra(Intent.EXTRA_STREAM, mediaUris)
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            try {
+                                startActivity(shareIntent)
+                            } catch (e: ActivityNotFoundException) {
+                                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
+                        R.id.menu_delete -> {
                             when {
-                                images.size == 1 -> viewModel.deleteMedia(images.first())
+                                medias.size == 1 -> viewModel.deleteMedia(medias.first())
                                 Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
                                     // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
                                     getString(R.string.unsupported_delete_in_bulk)
                                 ).show(childFragmentManager, null)
-                                else -> viewModel.deleteMedias(images.toTypedArray())
+                                else -> viewModel.deleteMedias(medias.toTypedArray())
                             }
-                            true
                         }
-                        else -> false
+                        else -> return false
                     }
+                    return true
+                }
 
                 override fun onDestroyActionMode(mode: ActionMode) {
                     selectionTracker.clearSelection()
