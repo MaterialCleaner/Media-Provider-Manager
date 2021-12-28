@@ -30,7 +30,7 @@ abstract class MediaProviderRecord(
     @Ignore val dataList: List<String>,
     @Ignore val mimeTypeList: List<String>,
     @Ignore val interceptedList: List<Boolean>,
-    @Ignore open var packageInfo: PreferencesPackageInfo? = null,
+    @Ignore var packageInfo: PreferencesPackageInfo? = null,
 ) {
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
 

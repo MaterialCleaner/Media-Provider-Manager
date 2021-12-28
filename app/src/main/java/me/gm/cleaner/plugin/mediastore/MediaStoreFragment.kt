@@ -178,6 +178,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     when (item.itemId) {
                         R.id.menu_share -> {
                             val mimeType = when (this@MediaStoreFragment) {
+                                // TODO
                                 // is AudioFragment -> "audio/*"
                                 is ImagesFragment -> "image/*"
                                 // is VideoFragment -> "video/*"

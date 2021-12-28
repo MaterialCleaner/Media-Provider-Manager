@@ -27,7 +27,6 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isInvisible
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -39,6 +38,7 @@ import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
 class ImagePagerItem : BaseFragment() {
     private val viewModel by lazy { ViewModelProvider(requireParentFragment())[ImagePagerViewModel::class.java] }
     private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
+    private val isMediaStoreUri by lazy { requireArguments().getBoolean(KEY_IS_MEDIA_STORE_URI) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -58,7 +58,7 @@ class ImagePagerItem : BaseFragment() {
             }
         } catch (e: Throwable) {
             Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
-            findNavController().navigateUp()
+            parentFragment?.startPostponedEnterTransition()
             return binding.root
         }
         val ssiv = binding.subsamplingScaleImageView
@@ -99,7 +99,11 @@ class ImagePagerItem : BaseFragment() {
             }
         })
         if (savedInstanceState == null) {
-            ssiv.setImageUri(uri)
+            if (isMediaStoreUri) {
+                ssiv.setImageUri(uri)
+            } else {
+                ssiv.decodeImageUri(uri)
+            }
         }
         parentFragment?.startPostponedEnterTransition()
         return binding.root
@@ -127,7 +131,12 @@ class ImagePagerItem : BaseFragment() {
         private const val SAVED_SUBTITLE = "android:subtitle"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
-        fun newInstance(uri: Uri) =
-            ImagePagerItem().apply { arguments = bundleOf(KEY_IMAGE_URI to uri) }
+        private const val KEY_IS_MEDIA_STORE_URI = "me.gm.cleaner.plugin.key.isMediaStoreUri"
+        fun newInstance(uri: Uri, isMediaStoreUri: Boolean) = ImagePagerItem().apply {
+            arguments = bundleOf(
+                KEY_IMAGE_URI to uri,
+                KEY_IS_MEDIA_STORE_URI to isMediaStoreUri
+            )
+        }
     }
 }

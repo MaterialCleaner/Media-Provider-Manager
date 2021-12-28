@@ -18,15 +18,23 @@ package me.gm.cleaner.plugin.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 open class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -39,9 +47,36 @@ open class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
         this.uri = uri
     }
 
-    fun setImageUri(uri: Uri, state: ImageViewState) {
-        setImage(ImageSource.uri(uri), state)
-        this.uri = uri
+    fun decodeImageUri(uri: Uri) {
+        lifecycleScope.launch {
+            val bitmap = decodeImageUriInternal(uri).getOrElse {
+                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            setImage(ImageSource.bitmap(bitmap))
+            this@StateSavedSubsamplingScaleImageView.uri = uri
+        }
+    }
+
+    fun decodeImageUri(uri: Uri, state: ImageViewState) {
+        lifecycleScope.launch {
+            val bitmap = decodeImageUriInternal(uri).getOrElse {
+                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            setImage(ImageSource.bitmap(bitmap), state)
+            this@StateSavedSubsamplingScaleImageView.uri = uri
+        }
+    }
+
+    private val lifecycleScope: CoroutineScope
+        get() = (context as AppCompatActivity).lifecycleScope
+
+    private suspend fun decodeImageUriInternal(uri: Uri) = withContext(Dispatchers.IO) {
+        runCatching {
+            val fd = context.contentResolver.openFileDescriptor(uri, "r")?.fileDescriptor
+            BitmapFactory.decodeFileDescriptor(fd)
+        }
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -56,7 +91,7 @@ open class StateSavedSubsamplingScaleImageView @JvmOverloads constructor(
         super.onRestoreInstanceState(ss.superState)
         val uri = ss.uri ?: return
         val state = ss.state ?: return
-        setImageUri(uri, state)
+        decodeImageUri(uri, state)
     }
 
     internal class SavedState : BaseSavedState {

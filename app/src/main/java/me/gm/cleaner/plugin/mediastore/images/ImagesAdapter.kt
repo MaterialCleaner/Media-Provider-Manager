@@ -82,7 +82,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
             val images = viewModel.medias
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
                 initialPosition = holder.bindingAdapterPosition,
-                hasOptionsMenu = true,
+                isMediaStoreUri = true,
                 uris = images.map { it.contentUri }.toTypedArray(),
                 displayNames = images.map { it.displayName }.toTypedArray()
             )

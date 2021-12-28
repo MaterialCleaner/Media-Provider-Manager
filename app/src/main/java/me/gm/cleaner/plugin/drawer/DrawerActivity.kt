@@ -17,9 +17,11 @@
 package me.gm.cleaner.plugin.drawer
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -39,6 +41,7 @@ import me.gm.cleaner.plugin.ktx.getObjectField
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.mediastore.ToolbarActionModeIndicator
 import me.gm.cleaner.plugin.module.BinderViewModel
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class DrawerActivity : BaseActivity() {
@@ -72,9 +75,28 @@ abstract class DrawerActivity : BaseActivity() {
                     ModulePreferences.startDestination = R.id.video_fragment
             }
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
-                setStartDestination(ModulePreferences.startDestination)
+                val startDestId = if (action == Intent.ACTION_VIEW) {
+                    when {
+                        // TODO
+//                        MimeUtils.isAudioMimeType(intent.type) -> R.id.audio_fragment
+                        MimeUtils.isImageMimeType(intent.type) -> R.id.image_pager_fragment
+//                        MimeUtils.isVideoMimeType(intent.type) -> R.id.video_fragment
+                        else -> throw IllegalArgumentException()
+                    }
+                } else {
+                    ModulePreferences.startDestination
+                }
+                setStartDestination(startDestId)
             }
-            navController.graph = navGraph
+            val args = if (action == Intent.ACTION_VIEW) {
+                bundleOf(
+                    "uris" to arrayOf(intent.data),
+                    "displayNames" to arrayOf(intent.data?.lastPathSegment ?: ""),
+                )
+            } else {
+                null
+            }
+            navController.setGraph(navGraph, args)
         }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id in topLevelDestinationIds) {

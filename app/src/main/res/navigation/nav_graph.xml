@@ -92,7 +92,7 @@
             android:defaultValue="0"
             app:argType="integer" />
         <argument
-            android:name="hasOptionsMenu"
+            android:name="isMediaStoreUri"
             android:defaultValue="false"
             app:argType="boolean" />
         <argument

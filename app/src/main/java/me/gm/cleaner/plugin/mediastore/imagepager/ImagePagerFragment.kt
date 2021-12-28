@@ -50,7 +50,7 @@ import me.gm.cleaner.plugin.ktx.mediumAnimTime
 /**
  * A fragment for displaying a series of images in a [ViewPager2].
  *
- * This is implemented with [androidx.navigation.Navigation] and requires 4 [androidx.navigation.NavArgs].
+ * This is implemented with [androidx.navigation.Navigation] and has 4 [androidx.navigation.NavArgs].
  * See nav_graph.xml for more details.
  */
 class ImagePagerFragment : BaseFragment() {
@@ -62,7 +62,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (args.hasOptionsMenu) {
+        if (args.isMediaStoreUri) {
             setHasOptionsMenu(true)
         }
     }
@@ -77,7 +77,7 @@ class ImagePagerFragment : BaseFragment() {
         viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) =
-                ImagePagerItem.newInstance(args.uris[position])
+                ImagePagerItem.newInstance(args.uris[position], args.isMediaStoreUri)
 
             override fun getItemCount() = size
         }
@@ -108,7 +108,7 @@ class ImagePagerFragment : BaseFragment() {
 
         prepareSharedElementTransition()
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && args.isMediaStoreUri) {
             postponeEnterTransition()
         } else {
             viewPager.isInvisible = false

@@ -21,14 +21,12 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.view.Window
 import android.view.accessibility.AccessibilityEvent
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 
 @SuppressLint("RestrictedApi")
@@ -118,17 +116,6 @@ class ToolbarActionMode(private val activity: AppCompatActivity, private val too
         animator?.cancel()
         animator = ObjectAnimator.ofFloat(arrowDrawable, "progress", startValue, endValue)
         animator?.start()
-    }
-
-    // TODO: Check if it's helpful to put here.
-    val toolbarTitle by lazy {
-        Toolbar::class.java.run {
-            if (BuildConfig.DEBUG) getDeclaredField("mTitleTextView")
-            else declaredFields.first { it.type == TextView::class.java }
-        }.let {
-            it.isAccessible = true
-            it[toolbar] as TextView
-        }
     }
 }
 
