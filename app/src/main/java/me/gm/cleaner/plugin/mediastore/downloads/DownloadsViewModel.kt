@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.mediastore.files
+package me.gm.cleaner.plugin.mediastore.downloads
 
 import android.app.Application
 import android.content.ContentUris
@@ -33,10 +33,12 @@ import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
+import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
-class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreFiles>(application) {
-    override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+class DownloadsViewModel(application: Application) :
+    MediaStoreViewModel<MediaStoreFiles>(application) {
+    override val uri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
     private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearchingFlow.value
@@ -59,25 +61,25 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
         withContext(Dispatchers.IO) {
 
             val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.MIME_TYPE,
-                MediaStore.Files.FileColumns.DATE_TAKEN,
-                MediaStore.Files.FileColumns.SIZE,
+                MediaStore.Downloads._ID,
+                MediaStore.Downloads.DATA,
+                MediaStore.Downloads.RELATIVE_PATH,
+                MediaStore.Downloads.DISPLAY_NAME,
+                MediaStore.Downloads.MIME_TYPE,
+                MediaStore.Downloads.DATE_TAKEN,
+                MediaStore.Downloads.SIZE,
             )
 
-            val selection = "${MediaStore.Files.FileColumns.DATE_TAKEN} >= ?"
+            val selection = "${MediaStore.Downloads.DATE_TAKEN} >= ?"
 
             val selectionArgs = arrayOf(
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
             val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.DATA
-                ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
-                ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
+                ModulePreferences.SORT_BY_PATH -> MediaStore.Downloads.DATA
+                ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Downloads.DATE_TAKEN} DESC"
+                ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Downloads.SIZE} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -91,15 +93,15 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val relativePathColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
+                    cursor.getColumnIndexOrThrow(MediaStore.Downloads.RELATIVE_PATH)
                 val displayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                    cursor.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                 val mimeTypeColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                    cursor.getColumnIndexOrThrow(MediaStore.Downloads.MIME_TYPE)
                 val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
-                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                    cursor.getColumnIndexOrThrow(MediaStore.Downloads.DATE_TAKEN)
+                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Downloads.SIZE)
 
                 Log.i(TAG, "Found ${cursor.count} files")
                 while (cursor.moveToNext()) {

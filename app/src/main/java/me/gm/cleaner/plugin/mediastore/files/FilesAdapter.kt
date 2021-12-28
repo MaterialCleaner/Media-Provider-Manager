@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
 import me.gm.cleaner.plugin.R
@@ -37,7 +38,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import java.io.File
 import java.util.*
 
-class FilesAdapter(private val fragment: FilesFragment) :
+class FilesAdapter(private val fragment: Fragment) :
     MediaStoreAdapter<MediaStoreModel, MediaStoreAdapter.ViewHolder>() {
     private val then: Calendar = Calendar.getInstance()
     private val now: Calendar = Calendar.getInstance()

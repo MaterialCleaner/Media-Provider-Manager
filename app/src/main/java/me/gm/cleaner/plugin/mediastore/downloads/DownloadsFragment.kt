@@ -16,43 +16,115 @@
 
 package me.gm.cleaner.plugin.mediastore.downloads
 
-import android.app.DownloadManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
+import me.gm.cleaner.plugin.mediastore.files.FilesAdapter
+import me.zhanghai.android.fastscroll.ComplexRecyclerViewHelper
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 
-class DownloadsFragment : BaseFragment() {
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            // TODO: reload list
+class DownloadsFragment : MediaStoreFragment() {
+    override val viewModel: DownloadsViewModel by viewModels()
+
+    override fun onCreateAdapter() = FilesAdapter(this)
+
+    override fun onBindView(binding: MediaStoreFragmentBinding) {
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        val fastScroller = FastScrollerBuilder(list)
+            .useMd2Style()
+            .setViewHelper(ComplexRecyclerViewHelper(list))
+            .build()
+        list.fitsSystemWindowInsetBottom(fastScroller)
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.requeryFlow.collect {
+                    if (!isInActionMode()) {
+                        dispatchRequestPermissions(requiredPermissions, null)
+                    }
+                }
+            }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
-
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) {
-                requireActivity().registerReceiver(
-                    receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-                )
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        if (selectionTracker.hasSelection()) {
+            return
+        }
+        inflater.inflate(R.menu.files_toolbar, menu)
+        val searchItem = menu.findItem(R.id.menu_search)
+        if (viewModel.isSearching) {
+            searchItem.expandActionView()
+        }
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                viewModel.isSearching = true
+                return true
             }
 
-            override fun onStop(owner: LifecycleOwner) {
-                requireActivity().unregisterReceiver(receiver)
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                viewModel.isSearching = false
+                return true
             }
         })
-        return binding.root
+        val searchView = searchItem.actionView as SearchView
+        searchView.setQuery(viewModel.queryText, false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewModel.queryText = query
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewModel.queryText = newText
+                return false
+            }
+        })
+
+        when (ModulePreferences.sortMediaBy) {
+            ModulePreferences.SORT_BY_PATH ->
+                menu.findItem(R.id.menu_sort_by_path).isChecked = true
+            ModulePreferences.SORT_BY_DATE_TAKEN ->
+                menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
+            ModulePreferences.SORT_BY_SIZE ->
+                menu.findItem(R.id.menu_sort_by_size).isChecked = true
+        }
+        arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
+            it.title = requireContext().buildStyledTitle(it.title)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_sort_by_path -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
+            }
+            R.id.menu_sort_by_date_taken -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+            }
+            R.id.menu_sort_by_size -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_SIZE
+            }
+            R.id.menu_validation -> viewModel.rescanFiles()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 }
