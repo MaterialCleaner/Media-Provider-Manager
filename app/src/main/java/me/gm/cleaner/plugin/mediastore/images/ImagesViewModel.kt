@@ -90,7 +90,7 @@ class ImagesViewModel(application: Application) :
             val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
             getApplication<Application>().contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                uri,
                 projection,
                 selection,
                 selectionArgs,
@@ -142,7 +142,7 @@ class ImagesViewModel(application: Application) :
                      * request there.
                      */
                     val contentUri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        uri,
                         id
                     )
 

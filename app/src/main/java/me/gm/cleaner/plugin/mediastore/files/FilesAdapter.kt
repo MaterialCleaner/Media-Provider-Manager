@@ -17,12 +17,15 @@
 package me.gm.cleaner.plugin.mediastore.files
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.net.Uri
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
 import me.gm.cleaner.plugin.R
@@ -72,6 +75,18 @@ class FilesAdapter(private val fragment: FilesFragment) :
                 binding.summary.text =
                     formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
                             Formatter.formatFileSize(fragment.requireContext(), item.size)
+                binding.root.setOnClickListener {
+                    val viewIntent = Intent(Intent.ACTION_VIEW)
+                        .setDataAndType(item.contentUri, item.mimeType)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    with(fragment) {
+                        try {
+                            startActivity(Intent.createChooser(viewIntent, null))
+                        } catch (e: ActivityNotFoundException) {
+                            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
 
                 holder.details = object : ItemDetails<Long>() {
                     override fun getPosition() = holder.bindingAdapterPosition

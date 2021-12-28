@@ -26,7 +26,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences

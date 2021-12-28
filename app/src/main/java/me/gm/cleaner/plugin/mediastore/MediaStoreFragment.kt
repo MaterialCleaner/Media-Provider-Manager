@@ -37,7 +37,6 @@ import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R

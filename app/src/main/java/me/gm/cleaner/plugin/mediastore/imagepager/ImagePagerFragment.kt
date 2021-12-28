@@ -16,10 +16,13 @@
 
 package me.gm.cleaner.plugin.mediastore.imagepager
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
@@ -175,6 +178,19 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.menu_share -> {
+            val sendIntent = Intent(Intent.ACTION_SEND)
+                .setType("image/*")
+                .putExtra(Intent.EXTRA_STREAM, args.uris[viewPager.currentItem])
+            val shareIntent =
+                Intent.createChooser(sendIntent, args.displayNames[viewPager.currentItem])
+            try {
+                startActivity(shareIntent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
         R.id.menu_info -> {
             lifecycleScope.launch {
                 val result = viewModel.queryImageInfoAsync(args.uris[viewPager.currentItem]).await()
