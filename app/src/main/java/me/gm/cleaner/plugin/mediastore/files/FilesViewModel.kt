@@ -82,8 +82,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                 else -> throw IllegalArgumentException()
             }
 
-            val resolver = getApplication<Application>().contentResolver
-            resolver.query(
+            getApplication<Application>().contentResolver.query(
                 uri,
                 projection,
                 selection,

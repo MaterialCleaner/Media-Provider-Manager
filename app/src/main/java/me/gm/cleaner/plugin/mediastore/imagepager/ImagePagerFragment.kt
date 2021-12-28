@@ -86,7 +86,9 @@ class ImagePagerFragment : BaseFragment() {
         viewPager.setCurrentItem(initialPosition, false)
         supportActionBar?.apply {
             title = args.displayNames[initialPosition]
-            subtitle = "${initialPosition + 1} / $size"
+            if (args.isMediaStoreUri) {
+                subtitle = "${initialPosition + 1} / $size"
+            }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
@@ -95,7 +97,9 @@ class ImagePagerFragment : BaseFragment() {
                 lastPosition.putInt(KEY_POSITION, position)
                 supportActionBar?.apply {
                     title = args.displayNames[position]
-                    subtitle = "${position + 1} / $size"
+                    if (args.isMediaStoreUri) {
+                        subtitle = "${position + 1} / $size"
+                    }
                 }
                 val ssiv: SubsamplingScaleImageView =
                     viewPager.findViewById(R.id.subsampling_scale_image_view)
