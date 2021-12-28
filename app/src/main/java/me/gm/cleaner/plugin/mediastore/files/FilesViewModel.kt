@@ -92,11 +92,11 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
             )?.use { cursor ->
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                 val relativePathColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                 val mimeTypeColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
                 val dateTakenColumn =
@@ -107,9 +107,9 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                 while (cursor.moveToNext()) {
 
                     val id = cursor.getLong(idColumn)
-                    val data = cursor.getString(dataColumn)
-                    val displayPath =
+                    val displayName =
                         cursor.getString(relativePathColumn) + cursor.getString(displayNameColumn)
+                    val data = cursor.getString(dataColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
                     val timeMillis = cursor.getLong(dateTakenColumn)
                     val size = cursor.getLong(sizeColumn)
@@ -132,7 +132,7 @@ class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreF
                         }
                     }
                     val file = MediaStoreFiles(
-                        id, contentUri, data, displayPath, mimeType, timeMillis, size
+                        id, contentUri, displayName, data, mimeType, timeMillis, size
                     )
                     files += file
 

@@ -189,11 +189,18 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                 }
                                 else -> throw IllegalStateException()
                             }
-                            val mediaUris = ArrayList<Uri>(medias.size)
-                            medias.mapTo(mediaUris) { it.contentUri }
-                            val sendIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
-                                .setType(mimeType)
-                                .putParcelableArrayListExtra(Intent.EXTRA_STREAM, mediaUris)
+                            val sendIntent = if (medias.size == 1) {
+                                Intent(Intent.ACTION_SEND)
+                                    .setType(mimeType)
+                                    .putExtra(Intent.EXTRA_STREAM, medias.first().contentUri)
+                                    .putExtra(Intent.EXTRA_TEXT, medias.first().displayName)
+                            } else {
+                                val mediaUris = ArrayList<Uri>(medias.size)
+                                medias.mapTo(mediaUris) { it.contentUri }
+                                Intent(Intent.ACTION_SEND_MULTIPLE)
+                                    .setType(mimeType)
+                                    .putParcelableArrayListExtra(Intent.EXTRA_STREAM, mediaUris)
+                            }
                             val shareIntent = Intent.createChooser(sendIntent, null)
                             try {
                                 startActivity(shareIntent)

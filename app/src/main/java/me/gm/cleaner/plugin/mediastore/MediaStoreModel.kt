@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DiffUtil
 abstract class MediaStoreModel(
     open val id: Long,
     open val contentUri: Uri,
+    open val displayName: String,
 ) {
     companion object {
         fun <M : MediaStoreModel> createCallback() = object : DiffUtil.ItemCallback<M>() {

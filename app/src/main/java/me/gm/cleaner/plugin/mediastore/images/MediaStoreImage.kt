@@ -29,6 +29,6 @@ import java.util.*
 data class MediaStoreImage(
     override val id: Long,
     override val contentUri: Uri,
-    val displayName: String,
+    override val displayName: String,
     val dateAdded: Date,
-) : MediaStoreModel(id, contentUri)
+) : MediaStoreModel(id, contentUri, displayName)

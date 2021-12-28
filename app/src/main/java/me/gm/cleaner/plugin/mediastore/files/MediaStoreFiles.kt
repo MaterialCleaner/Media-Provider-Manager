@@ -22,9 +22,9 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 data class MediaStoreFiles(
     override val id: Long,
     override val contentUri: Uri,
+    override val displayName: String,
     val data: String,
-    val displayPath: String,
     val mimeType: String,
     val timeMillis: Long,
     val size: Long,
-) : MediaStoreModel(id, contentUri)
+) : MediaStoreModel(id, contentUri, displayName)

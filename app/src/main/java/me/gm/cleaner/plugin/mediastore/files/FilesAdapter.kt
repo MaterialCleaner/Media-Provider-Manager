@@ -62,7 +62,7 @@ class FilesAdapter(private val fragment: FilesFragment) :
             is HeaderViewHolder -> {
                 val binding = holder.binding
                 val item = getItem(position) as MediaStoreFilesHeader
-                binding.title.text = item.title
+                binding.title.text = item.displayName
             }
             is ItemViewHolder -> {
                 val binding = holder.binding
@@ -71,7 +71,7 @@ class FilesAdapter(private val fragment: FilesFragment) :
                     .load(item.contentUri)
                     .centerCrop()
                     .into(binding.icon)
-                binding.title.text = item.displayPath
+                binding.title.text = item.displayName
                 binding.summary.text =
                     formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
                             Formatter.formatFileSize(fragment.requireContext(), item.size)
@@ -123,7 +123,7 @@ class FilesAdapter(private val fragment: FilesFragment) :
             var lastRootDir = ""
             list.forEach {
                 val rootDir =
-                    (it as MediaStoreFiles).displayPath.substringBefore(File.separatorChar)
+                    (it as MediaStoreFiles).displayName.substringBefore(File.separatorChar)
                 if (lastRootDir != rootDir) {
                     lastRootDir = rootDir
                     groupedList += MediaStoreFilesHeader(rootDir)
@@ -142,5 +142,5 @@ class FilesAdapter(private val fragment: FilesFragment) :
     class ItemViewHolder(val binding: FilesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
 }
 
-class MediaStoreFilesHeader(val title: String) :
-    MediaStoreModel(title.hashCode().toLong(), Uri.EMPTY)
+class MediaStoreFilesHeader(override val displayName: String) :
+    MediaStoreModel(displayName.hashCode().toLong(), Uri.EMPTY, displayName)
