@@ -23,7 +23,7 @@ import me.gm.cleaner.plugin.xposed.util.FileUtils.externalStorageDirPath
 import java.io.File
 
 class FileHooker : XC_MethodHook() {
-    private val niceParents = FileUtils.standardDirs + FileUtils.androidDir
+    private val niceParents = FileUtils.standardDirs + FileUtils.androidDir.path
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {

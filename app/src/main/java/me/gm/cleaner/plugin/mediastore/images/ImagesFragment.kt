@@ -59,14 +59,6 @@ class ImagesFragment : MediaStoreFragment() {
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
-
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
-            override fun onPreferencesChanged() {
-                layoutManager.spanCount = ModulePreferences.spanCount
-            }
-        })
     }
 
     override fun onRequestPermissionsSuccess(

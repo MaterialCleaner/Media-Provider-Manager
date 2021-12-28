@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.xposed.util
 
 import android.annotation.SuppressLint
 import android.os.Environment
-import de.robv.android.xposed.XposedHelpers
 import java.io.File
 
 object FileUtils {
@@ -33,12 +32,10 @@ object FileUtils {
 
     val externalStorageDirPath = Environment.getExternalStorageDirectory().path
     val androidDir = File(externalStorageDirPath, "Android")
-    val standardDirs: List<File>
+    val standardDirs: Array<String>
+        @Suppress("UNCHECKED_CAST")
         @SuppressLint("SoonBlockedPrivateApi")
-        get() {
-            val paths = XposedHelpers.getStaticObjectField(
-                Class.forName("android.os.Environment"), "STANDARD_DIRECTORIES"
-            ) as Array<String>
-            return paths.map { Environment.getExternalStoragePublicDirectory(it) }
-        }
+        get() = Environment::class.java
+            .getDeclaredField("STANDARD_DIRECTORIES")
+            .apply { isAccessible = true }[null] as Array<String>
 }

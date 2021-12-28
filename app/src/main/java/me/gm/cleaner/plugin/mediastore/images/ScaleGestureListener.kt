@@ -16,41 +16,96 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.core.animation.doOnEnd
+import androidx.core.math.MathUtils.clamp
+import androidx.recyclerview.widget.ProgressionGridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.animation.AnimationUtils
 import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import kotlin.math.abs
 
-class ScaleGestureListener(context: Context, private val layoutManager: GridLayoutManager) :
-    RecyclerView.SimpleOnItemTouchListener() {
-    private val gestureDetector = ScaleGestureDetector(context,
-        object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            val scaleThreshold = 0.2F
-            fun isZoomIn(currSpan: Float, prevSpan: Float) =
-                currSpan > (1F + scaleThreshold) * prevSpan
-
-            fun isZoomOut(currSpan: Float, prevSpan: Float) =
-                currSpan < (1F - scaleThreshold) * prevSpan
+class ScaleGestureListener(
+    private val context: Context, private val layoutManager: ProgressionGridLayoutManager
+) : RecyclerView.SimpleOnItemTouchListener() {
+    private var scaleEndAnimator: ValueAnimator? = null
+    private val gestureDetector =
+        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            var prevSpanCount = layoutManager.spanCount
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
-                val currSpan = detector.currentSpan
-                // TODO
+                val scaleFactor = detector.scaleFactor
+
+                layoutManager.spanCount = when {
+                    scaleFactor > 1F -> {
+                        // zoom in
+                        if (prevSpanCount - spanCountInterval < minSpanCount ||
+                            layoutManager.spanCount == minSpanCount && layoutManager.progress == 1F
+                        ) {
+                            return true
+                        }
+                        prevSpanCount - spanCountInterval
+                    }
+                    scaleFactor < 1F -> {
+                        // zoom out
+                        if (prevSpanCount + spanCountInterval > maxSpanCount ||
+                            layoutManager.spanCount == maxSpanCount && layoutManager.progress == 1F
+                        ) {
+                            return true
+                        }
+                        prevSpanCount + spanCountInterval
+                    }
+                    else -> return false
+                }
+
+                val rawProgress = when {
+                    scaleFactor > 1F -> abs(1F - scaleFactor) / SCALE_FACTOR
+                    scaleFactor < 1F -> abs(1F - 1 / scaleFactor) / SCALE_FACTOR
+                    else -> 0F
+                }
+                layoutManager.progress = clamp(rawProgress, 0F, 1F)
                 return false
             }
 
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                prevSpanCount = layoutManager.spanCount
+                return true
+            }
+
             override fun onScaleEnd(detector: ScaleGestureDetector) {
-                val currSpan = detector.currentSpan
-                val prevSpan = detector.previousSpan
-                if (isZoomIn(currSpan, prevSpan) && ModulePreferences.spanCount > 1) {
-                    ModulePreferences.spanCount -= 1
-                } else if (isZoomOut(currSpan, prevSpan) && ModulePreferences.spanCount < 5) {
-                    ModulePreferences.spanCount += 1
+                val progress = layoutManager.progress
+                val moveToSpan = progress >= 0.4F
+                // use animator to animate progress to 1F
+                animateProgress(progress, if (moveToSpan) 1F else 0F) {
+                    if (moveToSpan) {
+                        ModulePreferences.spanCount = layoutManager.spanCount
+                    } else {
+                        layoutManager.spanCount = prevSpanCount
+                        layoutManager.progress = 1F
+                    }
                 }
             }
+        })
+
+    fun animateProgress(from: Float, to: Float, doOnEnd: ((animator: Animator) -> Unit)? = null) {
+        scaleEndAnimator?.cancel()
+        scaleEndAnimator = ValueAnimator.ofFloat(from, to).apply {
+            duration = (context.mediumAnimTime * abs(to - from)).toLong()
+            interpolator = AnimationUtils.LINEAR_INTERPOLATOR
+            addUpdateListener { valueAnimator ->
+                layoutManager.progress = valueAnimator.animatedValue as Float
+            }
+            doOnEnd {
+                doOnEnd?.invoke(it)
+            }
+            start()
         }
-    )
+    }
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(e)
@@ -59,5 +114,12 @@ class ScaleGestureListener(context: Context, private val layoutManager: GridLayo
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
         gestureDetector.onTouchEvent(e)
+    }
+
+    companion object {
+        const val SCALE_FACTOR = 1F
+        const val minSpanCount = 1
+        const val maxSpanCount = 5
+        const val spanCountInterval = 1
     }
 }

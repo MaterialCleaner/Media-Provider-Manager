@@ -69,7 +69,6 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                     return false
                 }
             })
-            .thumbnail(1F / 3F)
             .centerCrop()
             .into(binding.image)
         binding.image.transitionName = item.contentUri.toString()
