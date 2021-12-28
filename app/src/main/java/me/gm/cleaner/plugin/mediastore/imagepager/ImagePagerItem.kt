@@ -62,6 +62,7 @@ class ImagePagerItem : BaseFragment() {
             return binding.root
         }
         val ssiv = binding.subsamplingScaleImageView
+        ssiv.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
         ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
                 if (viewModel.isFirstEntrance) {
