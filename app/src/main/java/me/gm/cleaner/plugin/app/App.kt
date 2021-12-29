@@ -34,7 +34,10 @@ class App : Application() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            HiddenApiBypass.addHiddenApiExemptions("")
+            HiddenApiBypass.addHiddenApiExemptions(
+                "Landroid/graphics/drawable/AdaptiveIconDrawableInjector;",
+                "Landroid/os/storage/StorageVolume;",
+            )
         }
         if (!BuildConfig.DEBUG) {
             AppCenter.start(

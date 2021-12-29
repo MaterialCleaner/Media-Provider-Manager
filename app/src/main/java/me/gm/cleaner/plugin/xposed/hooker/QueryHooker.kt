@@ -167,7 +167,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            retry(10) {
+            retry(3) {
                 dao.insert(
                     MediaProviderQueryRecord(
                         System.currentTimeMillis() + it,

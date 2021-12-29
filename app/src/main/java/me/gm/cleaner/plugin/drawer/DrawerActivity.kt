@@ -61,7 +61,7 @@ abstract class DrawerActivity : BaseActivity() {
         // NavController's backend
         val action = intent.action
         val shouldAlterStartDestination = savedInstanceState == null &&
-                (action != "android.intent.action.MAIN" ||
+                (action != Intent.ACTION_MAIN ||
                         ModulePreferences.startDestination in topLevelDestinationIds)
         if (shouldAlterStartDestination) {
             when (action) {

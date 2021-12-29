@@ -35,7 +35,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.zhanghai.android.fastscroll.ComplexRecyclerViewHelper
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 
-class FilesFragment : MediaStoreFragment() {
+open class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
 
     override fun onCreateAdapter() = FilesAdapter(this)

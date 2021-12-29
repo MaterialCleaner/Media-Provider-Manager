@@ -35,7 +35,8 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
-class FilesViewModel(application: Application) : MediaStoreViewModel<MediaStoreFiles>(application) {
+open class FilesViewModel(application: Application) :
+    MediaStoreViewModel<MediaStoreFiles>(application) {
     override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
     private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean

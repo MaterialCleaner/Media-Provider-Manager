@@ -47,6 +47,7 @@ import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.mediastore.downloads.DownloadsFragment
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.mediastore.images.*
@@ -182,7 +183,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                 // is AudioFragment -> "audio/*"
                                 is ImagesFragment -> "image/*"
                                 // is VideoFragment -> "video/*"
-                                is FilesFragment -> when {
+                                is FilesFragment, is DownloadsFragment -> when {
                                     medias.all { MimeUtils.isAudioMimeType((it as MediaStoreFiles).mimeType) } -> "audio/*"
                                     medias.all { MimeUtils.isImageMimeType((it as MediaStoreFiles).mimeType) } -> "image/*"
                                     medias.all { MimeUtils.isVideoMimeType((it as MediaStoreFiles).mimeType) } -> "video/*"

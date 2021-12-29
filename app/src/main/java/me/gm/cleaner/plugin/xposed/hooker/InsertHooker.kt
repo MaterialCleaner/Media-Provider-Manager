@@ -102,7 +102,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            retry(10) {
+            retry(3) {
                 dao.insert(
                     MediaProviderInsertRecord(
                         System.currentTimeMillis() + it,

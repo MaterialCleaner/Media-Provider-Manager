@@ -102,7 +102,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
-    implementation 'androidx.paging:paging-runtime-ktx:3.0.1'
+    implementation 'androidx.paging:paging-runtime-ktx:3.1.0'
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
     implementation 'com.google.code.gson:gson:2.8.9'
     def retrofitVersion = '2.9.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -121,4 +122,5 @@ dependencies {
     implementation 'me.zhanghai.android.fastscroll:library:1.1.7'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
+    implementation 'io.noties.markwon:core:4.6.2'
 }

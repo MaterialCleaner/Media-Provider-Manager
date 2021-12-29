@@ -22,15 +22,12 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
@@ -75,25 +72,16 @@ class UsageRecordFragment : ModuleFragment() {
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.fitsSystemWindowInsetBottom(fastScroller)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.recordsFlow.collect { records ->
-                    when (records) {
-                        is SourceState.Loading -> binding.progress.show()
-                        is SourceState.Done -> {
-                            adapter.submitList(records.list) {
-                                if (navController.currentDestination?.id != R.id.usage_record_fragment) {
-                                    return@submitList
-                                }
-                                binding.progress.hide()
-                                supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
-                                    DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
-                                ).apply {
-                                    timeZone = TimeZone.getTimeZone("UTC")
-                                }.format(Date(viewModel.calendar.timeInMillis))
-                            }
-                        }
-                    }
+        viewModel.recordsFlow.asLiveData().observe(viewLifecycleOwner) { records ->
+            when (records) {
+                is SourceState.Loading -> binding.progress.show()
+                is SourceState.Done -> adapter.submitList(records.list) {
+                    binding.progress.hide()
+                    supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
+                        DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()
+                    ).apply {
+                        timeZone = TimeZone.getTimeZone("UTC")
+                    }.format(Date(viewModel.calendar.timeInMillis))
                 }
             }
         }

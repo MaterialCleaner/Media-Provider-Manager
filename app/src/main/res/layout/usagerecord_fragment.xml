@@ -35,6 +35,5 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="invisible"
-        app:hideAnimationBehavior="outward"
-        app:showAnimationBehavior="inward" />
+        app:hideAnimationBehavior="outward" />
 </me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout>
