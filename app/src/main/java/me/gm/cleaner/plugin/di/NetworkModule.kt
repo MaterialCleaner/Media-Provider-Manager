@@ -16,9 +16,11 @@
 
 package me.gm.cleaner.plugin.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import me.gm.cleaner.plugin.data.github.ReadmeService
 import me.gm.cleaner.plugin.data.unsplash.UnsplashService
@@ -30,7 +32,7 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideReadmeService() = ReadmeService.create()
+    fun provideReadmeService(@ApplicationContext context: Context) = ReadmeService.create(context)
 
     @Singleton
     @Provides

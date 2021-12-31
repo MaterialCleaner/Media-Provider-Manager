@@ -18,8 +18,6 @@ package me.gm.cleaner.plugin.drawer.experiment
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +36,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
+import me.gm.cleaner.plugin.ktx.hasWifiTransport
 
 @SuppressLint("PrivateResource")
 class ExperimentAdapter(private val fragment: ExperimentFragment) :
@@ -187,14 +186,6 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                 override fun areContentsTheSame(
                     oldItem: ExperimentContentItem, newItem: ExperimentContentItem
                 ) = oldItem == newItem
-            }
-
-        val Context.hasWifiTransport: Boolean
-            get() {
-                val connManager =
-                    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-                val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
-                return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
             }
     }
 }
