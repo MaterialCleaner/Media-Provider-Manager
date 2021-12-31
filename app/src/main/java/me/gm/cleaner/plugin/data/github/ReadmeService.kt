@@ -32,10 +32,12 @@ interface ReadmeService {
         const val BASE_URL =
             "https://raw.githubusercontent.com/MaterialCleaner/Media-Provider-Manager/main/"
 
-        fun create(): ReadmeService = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .build()
-            .create(ReadmeService::class.java)
+        fun create(): ReadmeService {
+            return Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .build()
+                .create(ReadmeService::class.java)
+        }
     }
 }

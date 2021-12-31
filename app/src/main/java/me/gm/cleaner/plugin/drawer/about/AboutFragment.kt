@@ -16,18 +16,24 @@
 
 package me.gm.cleaner.plugin.drawer.about
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.request.target.Target
 import dagger.hilt.android.AndroidEntryPoint
+import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.image.AsyncDrawable
+import io.noties.markwon.image.glide.GlideImagesPlugin
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import me.gm.cleaner.plugin.databinding.AboutFragmentBinding
 
 @AndroidEntryPoint
 class AboutFragment : BaseFragment() {
@@ -36,15 +42,36 @@ class AboutFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+        val binding = AboutFragmentBinding.inflate(layoutInflater)
 
-        lifecycleScope.launch {
-            Log.e(
-                BuildConfig.APPLICATION_ID,
-                viewModel.getRawReadmeAsync().await().getOrThrow().toString()
-            )
+        binding.listContainer.setOnScrollChangeListener { v, _, scrollY, _, _ ->
+            appBarLayout.isLifted = v.canScrollVertically(-1) || scrollY > 0
         }
 
+        lifecycleScope.launch {
+            val rawReadme = viewModel.getRawReadmeAsync().await()
+            binding.progress.hide()
+            val text = rawReadme.getOrElse {
+                binding.content.text = it.stackTraceToString()
+                return@launch
+            }
+            val context = requireContext()
+            val markwon = Markwon.builder(context)
+                .usePlugin(StrikethroughPlugin.create())
+                .usePlugin(GlideImagesPlugin.create(context))
+                .usePlugin(GlideImagesPlugin.create(Glide.with(context)))
+                .usePlugin(GlideImagesPlugin.create(object : GlideImagesPlugin.GlideStore {
+                    override fun load(drawable: AsyncDrawable): RequestBuilder<Drawable> {
+                        return Glide.with(context).load(drawable.destination)
+                    }
+
+                    override fun cancel(target: Target<*>) {
+                        Glide.with(context).clear(target)
+                    }
+                }))
+                .build()
+            markwon.setMarkdown(binding.content, text)
+        }
         return binding.root
     }
 }
