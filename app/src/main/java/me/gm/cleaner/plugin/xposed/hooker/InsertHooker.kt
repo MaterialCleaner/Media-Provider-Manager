@@ -35,7 +35,7 @@ import java.io.File
 import java.util.*
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.MediaProviderInsertRecordDao()
+    private val dao = service.database.mediaProviderInsertRecordDao()
     private val pendingScan =
         Collections.synchronizedMap(mutableMapOf<String, FileCreationObserver>())
 

@@ -34,7 +34,7 @@ import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
 
 class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.MediaProviderDeleteRecordDao()
+    private val dao = service.database.mediaProviderDeleteRecordDao()
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {

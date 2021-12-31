@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.di
+package me.gm.cleaner.plugin.data.github
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import me.gm.cleaner.plugin.data.github.ReadmeService
-import me.gm.cleaner.plugin.data.unsplash.UnsplashService
-import javax.inject.Singleton
+import javax.inject.Inject
 
-@InstallIn(SingletonComponent::class)
-@Module
-class NetworkModule {
+class ReadmeRepository @Inject constructor(private val service: ReadmeService) {
 
-    @Singleton
-    @Provides
-    fun provideReadmeService() = ReadmeService.create()
-
-    @Singleton
-    @Provides
-    fun provideUnsplashService() = UnsplashService.create()
+    fun getRawReadme(languageTag: String): Result<String> = runCatching {
+        when (languageTag) {
+            "zh-CN", "zh-TW" -> service.zh.execute().body() ?: throw NullPointerException()
+            /* en-US */ else -> service.en.execute().body() ?: throw NullPointerException()
+        }
+    }
 }

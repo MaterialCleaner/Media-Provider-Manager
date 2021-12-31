@@ -71,17 +71,17 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
             fragment.startActivity(intent)
         }
         val usageTimes = arrayOf(
-            MediaProviderQueryRecord::class.simpleName to R.string.query_times,
-            MediaProviderInsertRecord::class.simpleName to R.string.insert_times,
-            MediaProviderDeleteRecord::class.simpleName to R.string.delete_times,
-        ).mapNotNull {
+            MediaProviderQueryRecord::class.simpleName!! to R.string.query_times,
+            MediaProviderInsertRecord::class.simpleName!! to R.string.insert_times,
+            MediaProviderDeleteRecord::class.simpleName!! to R.string.delete_times,
+        ).mapNotNull { (table, resId) ->
             val packageUsageTimes = fragment.binderViewModel.packageUsageTimes(
-                it.first!!, listOf(args.pi.packageName)
+                table, listOf(args.pi.packageName)
             )
             if (packageUsageTimes == 0) {
                 null
             } else {
-                fragment.getString(it.second, packageUsageTimes)
+                fragment.getString(resId, packageUsageTimes)
             }
         }
         if (usageTimes.isNotEmpty()) {

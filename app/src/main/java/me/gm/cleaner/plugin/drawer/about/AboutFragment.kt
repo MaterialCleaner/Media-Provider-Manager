@@ -17,17 +17,34 @@
 package me.gm.cleaner.plugin.drawer.about
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
 
+@AndroidEntryPoint
 class AboutFragment : BaseFragment() {
+    private val viewModel: AboutViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
+
+        lifecycleScope.launch {
+            Log.e(
+                BuildConfig.APPLICATION_ID,
+                viewModel.getRawReadmeAsync().await().getOrThrow().toString()
+            )
+        }
+
         return binding.root
     }
 }

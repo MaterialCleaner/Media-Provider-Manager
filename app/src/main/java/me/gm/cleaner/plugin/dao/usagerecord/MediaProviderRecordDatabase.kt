@@ -68,7 +68,7 @@ abstract class MediaProviderRecord(
 )
 @TypeConverters(ListConverter::class)
 abstract class MediaProviderRecordDatabase : RoomDatabase() {
-    abstract fun MediaProviderQueryRecordDao(): MediaProviderQueryRecordDao
-    abstract fun MediaProviderInsertRecordDao(): MediaProviderInsertRecordDao
-    abstract fun MediaProviderDeleteRecordDao(): MediaProviderDeleteRecordDao
+    abstract fun mediaProviderQueryRecordDao(): MediaProviderQueryRecordDao
+    abstract fun mediaProviderInsertRecordDao(): MediaProviderInsertRecordDao
+    abstract fun mediaProviderDeleteRecordDao(): MediaProviderDeleteRecordDao
 }

@@ -62,11 +62,9 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
     ) = withContext(defaultDispatcher) {
         val packageNameToRuleCount =
             fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
-        mutableListOf<PreferencesPackageInfo>().apply {
-            old.forEach {
-                add(it.copy().apply {
-                    ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
-                })
+        old.map {
+            it.copy().apply {
+                ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
             }
         }
     }

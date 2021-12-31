@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.di
+package me.gm.cleaner.plugin.dao.cache
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import me.gm.cleaner.plugin.data.github.ReadmeService
-import me.gm.cleaner.plugin.data.unsplash.UnsplashService
-import javax.inject.Singleton
+import androidx.room.*
 
-@InstallIn(SingletonComponent::class)
-@Module
-class NetworkModule {
+@Entity
+data class Release(
+    @PrimaryKey @ColumnInfo(name = "version_name") val versionName: String,
+)
 
-    @Singleton
-    @Provides
-    fun provideReadmeService() = ReadmeService.create()
+@Dao
+interface ReleaseDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(records: Release)
 
-    @Singleton
-    @Provides
-    fun provideUnsplashService() = UnsplashService.create()
+    @Delete
+    fun delete(record: Release)
 }

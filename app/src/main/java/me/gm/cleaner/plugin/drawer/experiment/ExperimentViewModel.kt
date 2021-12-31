@@ -32,9 +32,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
@@ -91,9 +89,9 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         return {
             val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
             else repository.fetchUnsplashPhotoList()
-            ensureActive()
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 repeat(10) {
+                    ensureActive()
                     val unsplashPhoto = unsplashPhotos.random()
                     val request = DownloadManager
                         .Request(unsplashPhoto.getPhotoUrl(width).toUri())
@@ -104,7 +102,9 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                }
             }
             unsplashPhotos = unsplashPhotoListResult
         }
@@ -117,7 +117,6 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
         return {
             val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
             else repository.fetchUnsplashPhotoList()
-            ensureActive()
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
                 val resolver = context.contentResolver
                 repeat(10) {
@@ -146,7 +145,9 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                }
             }
             unsplashPhotos = unsplashPhotoListResult
         }

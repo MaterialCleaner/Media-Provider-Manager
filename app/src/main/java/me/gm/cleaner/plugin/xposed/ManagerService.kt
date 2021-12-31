@@ -99,11 +99,11 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun packageUsageTimes(table: String, packageNames: List<String>) = when (table) {
         MediaProviderQueryRecord::class.simpleName ->
-            database.MediaProviderQueryRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+            database.mediaProviderQueryRecordDao().packageUsageTimes(*packageNames.toTypedArray())
         MediaProviderInsertRecord::class.simpleName ->
-            database.MediaProviderInsertRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+            database.mediaProviderInsertRecordDao().packageUsageTimes(*packageNames.toTypedArray())
         MediaProviderDeleteRecord::class.simpleName ->
-            database.MediaProviderDeleteRecordDao().packageUsageTimes(*packageNames.toTypedArray())
+            database.mediaProviderDeleteRecordDao().packageUsageTimes(*packageNames.toTypedArray())
         else -> throw IllegalArgumentException()
     }
 

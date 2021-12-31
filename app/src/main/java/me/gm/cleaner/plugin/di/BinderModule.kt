@@ -17,7 +17,6 @@
 package me.gm.cleaner.plugin.di
 
 import android.content.Context
-import android.os.IBinder
 import android.provider.MediaStore
 import dagger.Module
 import dagger.Provides
@@ -32,12 +31,9 @@ class BinderModule {
 
     @Singleton
     @Provides
-    fun provideBinder(@ApplicationContext context: Context): IBinder? {
-        context.contentResolver.query(
-            MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
-        )?.use {
-            return it.extras.getBinder("me.gm.cleaner.plugin.cursor.extra.BINDER") ?: return@use
-        }
-        return null
+    fun provideBinder(@ApplicationContext context: Context) = context.contentResolver.query(
+        MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null
+    )?.use {
+        it.extras.getBinder("me.gm.cleaner.plugin.cursor.extra.BINDER")
     }
 }

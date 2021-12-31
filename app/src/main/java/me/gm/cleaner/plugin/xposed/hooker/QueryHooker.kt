@@ -43,7 +43,7 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.MediaProviderQueryRecordDao()
+    private val dao = service.database.mediaProviderQueryRecordDao()
     private val databaseUtils: Class<*> = XposedHelpers.findClass(
         "com.android.providers.media.util.DatabaseUtils", service.classLoader
     )
@@ -213,9 +213,9 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             table.contains(MediaProviderQueryRecord::class.simpleName) && packageNames == null ->
                 dao.loadForTimeMillis(start, end)
             table.contains(MediaProviderInsertRecord::class.simpleName) && packageNames == null ->
-                service.database.MediaProviderInsertRecordDao().loadForTimeMillis(start, end)
+                service.database.mediaProviderInsertRecordDao().loadForTimeMillis(start, end)
             table.contains(MediaProviderDeleteRecord::class.simpleName) && packageNames == null ->
-                service.database.MediaProviderDeleteRecordDao().loadForTimeMillis(start, end)
+                service.database.mediaProviderDeleteRecordDao().loadForTimeMillis(start, end)
             else -> throw IllegalArgumentException()
         }
     }
