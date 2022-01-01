@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/settings_fragment"
-        android:name="me.gm.cleaner.plugin.module.settings.SettingsFragment"
+        android:name="me.gm.cleaner.plugin.module.settings.SettingsFragmentStub"
         android:label="@string/settings">
         <action
             android:id="@+id/action_settings_to_templates"

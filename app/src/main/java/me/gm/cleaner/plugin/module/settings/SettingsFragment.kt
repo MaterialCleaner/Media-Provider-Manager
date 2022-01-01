@@ -27,7 +27,6 @@ import androidx.preference.PreferenceViewHolder
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.databinding.ModuleFragmentBinding
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 class SettingsFragment : AbsSettingsFragment() {
@@ -52,14 +51,10 @@ class SettingsFragment : AbsSettingsFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ) = if (!binderViewModel.pingBinder()) {
-        ModuleFragmentBinding.inflate(layoutInflater).root
-    } else {
-        super.onCreateView(inflater, container, savedInstanceState).also {
-            setFragmentResultListener(TemplatesFragment::class.java.name) { _, bundle ->
-                enterKey = bundle.getString(TemplatesFragment.KEY)
-                postponeEnterTransition()
-            }
+    ) = super.onCreateView(inflater, container, savedInstanceState).also {
+        parentFragment?.setFragmentResultListener(TemplatesFragment::class.java.name) { _, bundle ->
+            enterKey = bundle.getString(TemplatesFragment.KEY)
+            parentFragment?.postponeEnterTransition()
         }
     }
 
@@ -73,15 +68,15 @@ class SettingsFragment : AbsSettingsFragment() {
                         return@setOnClickListener
                     }
                     enterKey = preference.key
-                    exitTransition = Hold().apply {
+                    parentFragment?.exitTransition = Hold().apply {
                         duration = requireContext().mediumAnimTime
                     }
 
-                    val direction = SettingsFragmentDirections.actionSettingsToTemplates()
+                    val direction = SettingsFragmentStubDirections.actionSettingsToTemplates()
                     val extras = FragmentNavigatorExtras(it to it.transitionName)
                     navController.navigate(direction, extras)
                 }
-                startPostponedEnterTransition()
+                parentFragment?.startPostponedEnterTransition()
             }
         }
     }

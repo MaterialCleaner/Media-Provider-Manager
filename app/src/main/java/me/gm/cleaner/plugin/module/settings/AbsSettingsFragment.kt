@@ -44,12 +44,9 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        if (binderViewModel.pingBinder()) {
-            setObjectField(
-                onCreatePreferenceManager(savedInstanceState),
-                PreferenceFragmentCompat::class.java
-            )
-        }
+        setObjectField(
+            onCreatePreferenceManager(savedInstanceState), PreferenceFragmentCompat::class.java
+        )
     }
 
     override fun onCreateRecyclerView(
