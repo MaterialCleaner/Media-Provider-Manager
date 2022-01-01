@@ -27,19 +27,14 @@ class CustomSuffixTextView @JvmOverloads constructor(
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
     var suffix: CharSequence? = null
         set(value) {
-            if (field == value) {
-                return
-            }
             field = value
-            suffixUpToDate = false
             requestLayout()
         }
-    private var suffixUpToDate = true
 
     @SuppressLint("SetTextI18n")
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        if (suffixUpToDate) {
+        if (suffix.isNullOrEmpty()) {
             return
         }
         val ellipsisWidth = measuredWidth - compoundPaddingLeft - compoundPaddingRight
@@ -52,7 +47,6 @@ class CustomSuffixTextView @JvmOverloads constructor(
             ellipsizedText = "$ellipsizedText\u2026"
         }
         ellipsizedText = ellipsizedText.subSequence("$suffix ".length, ellipsizedText.length)
-        suffixUpToDate = true
         text = "$ellipsizedText $suffix"
     }
 }
