@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.data.github.ReadmeRepository
 import java.util.*
 import javax.inject.Inject
@@ -29,9 +30,11 @@ import javax.inject.Inject
 class AboutViewModel @Inject constructor(private val repository: ReadmeRepository) : ViewModel() {
     private var rawReadme: Result<String> = Result.failure(UninitializedPropertyAccessException())
 
-    fun getRawReadmeAsync() = viewModelScope.async(Dispatchers.IO) {
+    fun getRawReadmeAsync() = viewModelScope.async {
         if (rawReadme.isFailure) {
-            rawReadme = repository.getRawReadme(Locale.getDefault().toLanguageTag())
+            withContext(Dispatchers.IO) {
+                rawReadme = repository.getRawReadme(Locale.getDefault().toLanguageTag())
+            }
         }
         rawReadme
     }
