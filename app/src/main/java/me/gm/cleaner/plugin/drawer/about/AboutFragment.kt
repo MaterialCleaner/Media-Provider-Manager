@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -52,6 +53,7 @@ class AboutFragment : BaseFragment() {
             }
             val markwon = Markwon.builder(requireContext())
                 .usePlugin(StrikethroughPlugin.create())
+                .usePlugin(HtmlPlugin.create())
                 .usePlugin(GlideImagesPlugin.create(requireContext()))
                 .build()
             markwon.setMarkdown(binding.content, md)

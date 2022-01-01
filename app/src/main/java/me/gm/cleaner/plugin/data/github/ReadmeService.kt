@@ -42,7 +42,7 @@ interface ReadmeService {
                 .addInterceptor { chain ->
                     val originalResponse = chain.proceed(chain.request())
                     if (context.hasWifiTransport) {
-                        val maxAge = 60 // read from cache for 1 minute
+                        val maxAge = 60 * 60 * 24 * 7 // read from cache for 1 week
                         originalResponse.newBuilder()
                             .header("Cache-Control", "public, max-age=$maxAge")
                             .build()
