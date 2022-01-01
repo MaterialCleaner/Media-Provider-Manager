@@ -8,8 +8,9 @@
 
 ## 截屏
 
-<p><img src="screenshots/record.jpg" height="400" alt="Screenshot"/>
-<img src="screenshots/template.jpg" height="400" alt="Screenshot"/></p>
+<p><img src="https://raw.githubusercontent.com/MaterialCleaner/Media-Provider-Manager/main/screenshots/about.jpg" height="400" alt="Screenshot"/>
+<img src="https://raw.githubusercontent.com/MaterialCleaner/Media-Provider-Manager/main/screenshots/record.jpg" height="400" alt="Screenshot"/>
+<img src="https://raw.githubusercontent.com/MaterialCleaner/Media-Provider-Manager/main/screenshots/template.jpg" height="400" alt="Screenshot"/></p>
 
 ## 什么是媒体存储
 

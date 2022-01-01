@@ -16,20 +16,15 @@
 
 package me.gm.cleaner.plugin.drawer.about
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.request.target.Target
 import dagger.hilt.android.AndroidEntryPoint
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
-import io.noties.markwon.image.AsyncDrawable
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -51,26 +46,15 @@ class AboutFragment : BaseFragment() {
         lifecycleScope.launch {
             val rawReadme = viewModel.getRawReadmeAsync().await()
             binding.progress.hide()
-            val text = rawReadme.getOrElse {
+            val md = rawReadme.getOrElse {
                 binding.content.text = it.stackTraceToString()
                 return@launch
             }
-            val context = requireContext()
-            val markwon = Markwon.builder(context)
+            val markwon = Markwon.builder(requireContext())
                 .usePlugin(StrikethroughPlugin.create())
-                .usePlugin(GlideImagesPlugin.create(context))
-                .usePlugin(GlideImagesPlugin.create(Glide.with(context)))
-                .usePlugin(GlideImagesPlugin.create(object : GlideImagesPlugin.GlideStore {
-                    override fun load(drawable: AsyncDrawable): RequestBuilder<Drawable> {
-                        return Glide.with(context).load(drawable.destination)
-                    }
-
-                    override fun cancel(target: Target<*>) {
-                        Glide.with(context).clear(target)
-                    }
-                }))
+                .usePlugin(GlideImagesPlugin.create(requireContext()))
                 .build()
-            markwon.setMarkdown(binding.content, text)
+            markwon.setMarkdown(binding.content, md)
         }
         return binding.root
     }
