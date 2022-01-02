@@ -69,23 +69,17 @@ object ModulePreferences {
     }
 
     private fun putBoolean(key: String, value: Boolean) {
-        val isValueChanged = defaultSp.getBoolean(key, value) != value
         defaultSp.edit {
             putBoolean(key, value)
         }
-        if (isValueChanged) {
-            notifyListeners()
-        }
+        notifyListeners()
     }
 
     private fun putInt(key: String, value: Int) {
-        val isValueChanged = defaultSp.getInt(key, value) != value
         defaultSp.edit {
             putInt(key, value)
         }
-        if (isValueChanged) {
-            notifyListeners()
-        }
+        notifyListeners()
     }
 
     var startDestination: Int

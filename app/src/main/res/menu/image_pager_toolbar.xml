@@ -20,9 +20,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_share"
-        android:icon="@drawable/ic_outline_share_24"
-        android:title="@string/share"
+        android:id="@+id/menu_screen_rotation"
+        android:icon="@drawable/ic_outline_screen_rotation_24"
+        android:title="@string/screen_rotation"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_info"

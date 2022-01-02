@@ -53,6 +53,7 @@
     <string name="refresh">刷新</string>
     <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
     <string name="share">分享</string>
+    <string name="screen_rotation">旋轉螢幕</string>
     <string name="info">訊息</string>
     <string name="info_item">%s：%s</string>
     <string name="resolution">解析度</string>

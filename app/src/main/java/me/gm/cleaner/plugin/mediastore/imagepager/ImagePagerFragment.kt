@@ -16,13 +16,12 @@
 
 package me.gm.cleaner.plugin.mediastore.imagepager
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
@@ -108,6 +107,7 @@ class ImagePagerFragment : BaseFragment() {
         })
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
+            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
 
         prepareSharedElementTransition()
@@ -182,16 +182,11 @@ class ImagePagerFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.menu_share -> {
-            val sendIntent = Intent(Intent.ACTION_SEND)
-                .setType("image/*")
-                .putExtra(Intent.EXTRA_STREAM, args.uris[viewPager.currentItem])
-                .putExtra(Intent.EXTRA_TEXT, args.displayNames[viewPager.currentItem])
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            try {
-                startActivity(shareIntent)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+        R.id.menu_screen_rotation -> {
+            requireActivity().requestedOrientation = when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                Configuration.ORIENTATION_LANDSCAPE -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                else -> throw IllegalArgumentException()
             }
             true
         }

@@ -62,6 +62,7 @@
     <string name="menu_show_all_key" translatable="false">show_all</string>
     <string name="menu_show_all_title">Show other apps\' media files</string>
     <string name="share">Share</string>
+    <string name="screen_rotation">Screen rotation</string>
     <string name="info">Info</string>
     <string name="info_item">%s: %s</string>
     <string name="resolution">Resolution</string>
