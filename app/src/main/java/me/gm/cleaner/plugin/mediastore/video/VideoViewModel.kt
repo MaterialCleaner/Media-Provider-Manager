@@ -16,11 +16,11 @@
 
 package me.gm.cleaner.plugin.mediastore.video
 
-import androidx.fragment.app.viewModels
-import me.gm.cleaner.plugin.mediastore.files.FilesFragment
+import android.app.Application
+import android.net.Uri
+import android.provider.MediaStore
+import me.gm.cleaner.plugin.mediastore.files.FilesViewModel
 
-class VideoFragment : FilesFragment() {
-    override val viewModel: VideoViewModel by viewModels()
-
-    override fun onCreateAdapter() = VideoAdapter(this)
+class VideoViewModel(application: Application) : FilesViewModel(application) {
+    override val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 }

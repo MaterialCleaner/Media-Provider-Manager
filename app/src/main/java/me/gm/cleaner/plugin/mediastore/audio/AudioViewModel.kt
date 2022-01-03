@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.mediastore.video
+package me.gm.cleaner.plugin.mediastore.audio
 
-import androidx.fragment.app.viewModels
-import me.gm.cleaner.plugin.mediastore.files.FilesFragment
+import android.app.Application
+import android.net.Uri
+import android.provider.MediaStore
+import me.gm.cleaner.plugin.mediastore.files.FilesViewModel
 
-class VideoFragment : FilesFragment() {
-    override val viewModel: VideoViewModel by viewModels()
-
-    override fun onCreateAdapter() = VideoAdapter(this)
+class AudioViewModel(application: Application) : FilesViewModel(application) {
+    override val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 }

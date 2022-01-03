@@ -38,7 +38,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import java.io.File
 import java.util.*
 
-class FilesAdapter(private val fragment: Fragment) :
+open class FilesAdapter(private val fragment: Fragment) :
     MediaStoreAdapter<MediaStoreModel, MediaStoreAdapter.ViewHolder>() {
     private val then: Calendar = Calendar.getInstance()
     private val now: Calendar = Calendar.getInstance()
@@ -114,24 +114,29 @@ class FilesAdapter(private val fragment: Fragment) :
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
+    open fun onCreateGroupedList(list: List<MediaStoreModel>): List<MediaStoreModel> {
+        val groupedList = mutableListOf<MediaStoreModel>()
+        var lastRootDir = ""
+        list.forEach {
+            val rootDir = (it as MediaStoreFiles).displayName
+                .substringBeforeLast(File.separatorChar)
+                .substringAfterLast(File.separatorChar)
+            if (lastRootDir != rootDir) {
+                lastRootDir = rootDir
+                groupedList += MediaStoreFilesHeader(rootDir)
+            }
+            groupedList += it
+        }
+        return groupedList
+    }
+
     override fun submitList(list: List<MediaStoreModel>?) {
         submitList(list, null)
     }
 
     override fun submitList(list: List<MediaStoreModel>?, commitCallback: Runnable?) {
         if (list != null && ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
-            val groupedList = mutableListOf<MediaStoreModel>()
-            var lastRootDir = ""
-            list.forEach {
-                val rootDir =
-                    (it as MediaStoreFiles).displayName.substringBefore(File.separatorChar)
-                if (lastRootDir != rootDir) {
-                    lastRootDir = rootDir
-                    groupedList += MediaStoreFilesHeader(rootDir)
-                }
-                groupedList += it
-            }
-            super.submitList(groupedList, commitCallback)
+            super.submitList(onCreateGroupedList(list), commitCallback)
         } else {
             super.submitList(list, commitCallback)
         }

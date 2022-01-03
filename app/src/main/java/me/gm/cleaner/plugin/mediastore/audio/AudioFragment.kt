@@ -16,18 +16,11 @@
 
 package me.gm.cleaner.plugin.mediastore.audio
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ComingSoonFragmentBinding
+import androidx.fragment.app.viewModels
+import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 
-class AudioFragment : BaseFragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val binding = ComingSoonFragmentBinding.inflate(layoutInflater)
-        return binding.root
-    }
+class AudioFragment : FilesFragment() {
+    override val viewModel: AudioViewModel by viewModels()
+
+//    override fun onCreateAdapter() = AudioAdapter(this)
 }
