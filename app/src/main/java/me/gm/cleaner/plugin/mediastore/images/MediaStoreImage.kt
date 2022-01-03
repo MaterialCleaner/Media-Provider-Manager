@@ -21,7 +21,6 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.net.Uri
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
-import java.util.*
 
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
@@ -30,5 +29,5 @@ data class MediaStoreImage(
     override val id: Long,
     override val contentUri: Uri,
     override val displayName: String,
-    val dateAdded: Date,
+    val dateTaken: Long,
 ) : MediaStoreModel(id, contentUri, displayName)

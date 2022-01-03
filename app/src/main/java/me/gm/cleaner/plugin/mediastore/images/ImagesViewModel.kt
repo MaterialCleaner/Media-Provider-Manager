@@ -30,8 +30,6 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 class ImagesViewModel(application: Application) :
     MediaStoreViewModel<MediaStoreImage>(application) {
@@ -62,7 +60,7 @@ class ImagesViewModel(application: Application) :
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.DATE_TAKEN,
             )
 
             /**
@@ -73,7 +71,7 @@ class ImagesViewModel(application: Application) :
              * Note that we've included a `?` in our selection. This stands in for a variable
              * which will be provided by the next variable.
              */
-            val selection = "${MediaStore.Images.Media.DATE_ADDED} >= ?"
+            val selection = "${MediaStore.Images.Media.DATE_TAKEN} >= ?"
 
             /**
              * The `selectionArgs` is a list of values that will be filled in for each `?`
@@ -87,7 +85,7 @@ class ImagesViewModel(application: Application) :
              * Sort order to use. This can also be null, which will use the default sort
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
-            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
 
             getApplication<Application>().contentResolver.query(
                 uri,
@@ -117,8 +115,8 @@ class ImagesViewModel(application: Application) :
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-                val dateModifiedColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                val dateTakenColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
 
                 Log.i(TAG, "Found ${cursor.count} images")
                 while (cursor.moveToNext()) {
@@ -126,8 +124,7 @@ class ImagesViewModel(application: Application) :
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
                     val displayName = cursor.getString(displayNameColumn)
-                    val dateModified =
-                        Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
+                    val dateTaken = cursor.getLong(dateTakenColumn)
 
                     /**
                      * This is one of the trickiest parts:
@@ -146,7 +143,7 @@ class ImagesViewModel(application: Application) :
                         id
                     )
 
-                    val image = MediaStoreImage(id, contentUri, displayName, dateModified)
+                    val image = MediaStoreImage(id, contentUri, displayName, dateTaken)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.

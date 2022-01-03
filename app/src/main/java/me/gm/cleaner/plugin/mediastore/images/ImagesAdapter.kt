@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -33,9 +34,11 @@ import com.google.android.material.transition.platform.MaterialFadeOutIn
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class ImagesAdapter(private val fragment: ImagesFragment) :
-    MediaStoreAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>() {
+    MediaStoreAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(), PopupTextProvider {
+    private val context = fragment.requireContext()
     private val viewModel: ImagesViewModel by fragment.viewModels()
     private val navController by lazy { fragment.findNavController() }
 
@@ -101,5 +104,12 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         }
     }
 
+    private fun formatDateTime(timeMillis: Long): String {
+        val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
+                DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_DATE
+        return DateUtils.formatDateTime(context, timeMillis, flags)
+    }
+
+    override fun getPopupText(position: Int) = formatDateTime(getItem(position).dateTaken)
     class ViewHolder(val binding: ImagesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
 }

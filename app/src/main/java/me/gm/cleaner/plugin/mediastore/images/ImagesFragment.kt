@@ -36,6 +36,7 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
@@ -55,7 +56,12 @@ class ImagesFragment : MediaStoreFragment() {
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
+            .setViewHelper(
+                NoInterceptionRecyclerViewHelper(
+                    list,
+                    list.adapter as PopupTextProvider
+                )
+            )
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
