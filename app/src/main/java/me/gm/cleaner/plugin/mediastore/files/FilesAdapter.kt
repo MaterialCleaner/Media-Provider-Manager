@@ -114,20 +114,24 @@ open class FilesAdapter(private val fragment: Fragment) :
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
-    open fun onCreateGroupedList(list: List<MediaStoreModel>): List<MediaStoreModel> {
-        val groupedList = mutableListOf<MediaStoreModel>()
-        var lastRootDir = ""
-        list.forEach {
-            val rootDir = (it as MediaStoreFiles).displayName
-                .substringBeforeLast(File.separatorChar)
-                .substringAfterLast(File.separatorChar)
-            if (lastRootDir != rootDir) {
-                lastRootDir = rootDir
-                groupedList += MediaStoreFilesHeader(rootDir)
+    open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel>? {
+        if (ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
+            val groupedList = mutableListOf<MediaStoreModel>()
+            var lastRootDir = ""
+            list.forEach {
+                val rootDir = (it as MediaStoreFiles).displayName
+                    .substringBeforeLast(File.separatorChar)
+                    .substringAfterLast(File.separatorChar)
+                if (lastRootDir != rootDir) {
+                    lastRootDir = rootDir
+                    groupedList += MediaStoreFilesHeader(rootDir)
+                }
+                groupedList += it
             }
-            groupedList += it
+            return groupedList
+        } else {
+            return list
         }
-        return groupedList
     }
 
     override fun submitList(list: List<MediaStoreModel>?) {
@@ -135,8 +139,8 @@ open class FilesAdapter(private val fragment: Fragment) :
     }
 
     override fun submitList(list: List<MediaStoreModel>?, commitCallback: Runnable?) {
-        if (list != null && ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
-            super.submitList(onCreateGroupedList(list), commitCallback)
+        if (list != null) {
+            super.submitList(onPreSubmitList(list), commitCallback)
         } else {
             super.submitList(list, commitCallback)
         }
