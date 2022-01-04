@@ -149,10 +149,13 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    // @see https://developer.android.com/training/system-ui/immersive#EnableFullscreen
     fun toggleAppBar(isShow: Boolean) {
         val decorView = requireActivity().window.decorView
         if (isShow) {
             supportActionBar?.show()
+            // Shows the system bars by removing all the flags
+            // except for the ones that make the content appear under the system bars.
             var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -164,11 +167,18 @@ abstract class BaseFragment : Fragment() {
             decorView.systemUiVisibility = flags
         } else {
             supportActionBar?.hide()
-            // Fullscreen is costly in my case, so I come to terms with immersive.
-            // If you persist in fullscreen, I'd advise you to display the photos with activity.
-            // See also: https://developer.android.com/training/system-ui/immersive
-            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            // Enables regular immersive mode.
+            // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+            // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                    // Set the content to appear under the system bars so that the
+                    // content doesn't resize when the system bars hide and show.
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    // Hide the nav bar and status bar
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
     }
 

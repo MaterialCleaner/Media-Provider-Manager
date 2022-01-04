@@ -16,11 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.video
 
-import androidx.fragment.app.viewModels
-import me.gm.cleaner.plugin.mediastore.files.FilesFragment
+import me.gm.cleaner.plugin.app.BaseFragment
 
-class VideoFragment : FilesFragment() {
-    override val viewModel: VideoViewModel by viewModels()
-
-    override fun onCreateAdapter() = VideoAdapter(this)
+class VideoPlayerFragment : BaseFragment() {
 }

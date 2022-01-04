@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Green Mushroom
+ * Copyright 2022 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class VideoAdapter(private val fragment: Fragment) : FilesAdapter(fragment) {
             is ItemViewHolder -> {
                 val binding = holder.binding
                 val item = getItem(position) as MediaStoreFiles
-                binding.root.setOnClickListener {
+                binding.card.setOnClickListener {
                     // TODO
                     val viewIntent = Intent(Intent.ACTION_VIEW)
                         .setDataAndType(item.contentUri, item.mimeType)

@@ -76,7 +76,7 @@ open class FilesAdapter(private val fragment: Fragment) :
                 binding.summary.text =
                     formatDateTime(item.timeMillis) + "\u0020\u0020\u0020\u0020" +
                             Formatter.formatFileSize(fragment.requireContext(), item.size)
-                binding.root.setOnClickListener {
+                binding.card.setOnClickListener {
                     val viewIntent = Intent(Intent.ACTION_VIEW)
                         .setDataAndType(item.contentUri, item.mimeType)
                         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

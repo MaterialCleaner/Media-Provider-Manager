@@ -85,25 +85,6 @@
 
     <!-- Media Store -->
     <fragment
-        android:id="@+id/image_pager_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment">
-        <argument
-            android:name="initialPosition"
-            android:defaultValue="0"
-            app:argType="integer" />
-        <argument
-            android:name="isMediaStoreUri"
-            android:defaultValue="false"
-            app:argType="boolean" />
-        <argument
-            android:name="uris"
-            app:argType="android.net.Uri[]" />
-        <argument
-            android:name="displayNames"
-            app:argType="string[]" />
-    </fragment>
-
-    <fragment
         android:id="@+id/audio_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.audio.AudioFragment"
         android:label="@string/audio" />
@@ -126,11 +107,47 @@
             android:id="@+id/action_images_to_image_pager"
             app:destination="@id/image_pager_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/image_pager_fragment"
+        android:name="me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment">
+        <argument
+            android:name="initialPosition"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <argument
+            android:name="isMediaStoreUri"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="uris"
+            app:argType="android.net.Uri[]" />
+        <argument
+            android:name="displayNames"
+            app:argType="string[]" />
+    </fragment>
 
     <fragment
         android:id="@+id/video_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.video.VideoFragment"
         android:label="@string/video" />
+    <fragment
+        android:id="@+id/video_player_fragment"
+        android:name="me.gm.cleaner.plugin.mediastore.video.VideoPlayerFragment">
+        <argument
+            android:name="initialPosition"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <argument
+            android:name="isMediaStoreUri"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="uris"
+            app:argType="android.net.Uri[]" />
+        <argument
+            android:name="displayNames"
+            app:argType="string[]" />
+    </fragment>
 
     <!-- Experiment & About -->
     <fragment

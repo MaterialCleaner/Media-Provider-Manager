@@ -47,10 +47,12 @@ import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.mediastore.audio.AudioFragment
 import me.gm.cleaner.plugin.mediastore.downloads.DownloadsFragment
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.mediastore.images.*
+import me.gm.cleaner.plugin.mediastore.video.VideoFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import rikka.recyclerview.fixEdgeEffect
@@ -161,7 +163,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         savedInstanceState ?: viewModel.loadMedias()
     }
 
-    private fun startActionMode() {
+    fun startActionMode() {
         if (!isInActionMode()) {
             val activity = requireActivity() as AppCompatActivity
             actionMode = activity.startToolbarActionMode(object : ActionMode.Callback {
@@ -179,10 +181,9 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     when (item.itemId) {
                         R.id.menu_share -> {
                             val mimeType = when (this@MediaStoreFragment) {
-                                // TODO
-                                // is AudioFragment -> "audio/*"
+                                is AudioFragment -> "audio/*"
                                 is ImagesFragment -> "image/*"
-                                // is VideoFragment -> "video/*"
+                                is VideoFragment -> "video/*"
                                 is FilesFragment, is DownloadsFragment -> when {
                                     medias.all { MimeUtils.isAudioMimeType((it as MediaStoreFiles).mimeType) } -> "audio/*"
                                     medias.all { MimeUtils.isImageMimeType((it as MediaStoreFiles).mimeType) } -> "image/*"

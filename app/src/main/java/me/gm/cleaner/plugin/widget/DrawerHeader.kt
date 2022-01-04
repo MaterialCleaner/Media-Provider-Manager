@@ -29,9 +29,14 @@ class DrawerHeader @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
+    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val localInsets = Rect()
         val result = computeSystemWindowInsets(insets, localInsets)
+        // @see https://developer.android.com/guide/topics/display-cutout
+        val displayCutout = insets.displayCutout
+        if (displayCutout != null) {
+            localInsets.top = displayCutout.safeInsetTop
+        }
         applyInsets(localInsets)
         return result
     }
