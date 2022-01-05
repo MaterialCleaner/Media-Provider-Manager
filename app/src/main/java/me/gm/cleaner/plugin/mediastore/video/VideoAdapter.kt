@@ -16,16 +16,16 @@
 
 package me.gm.cleaner.plugin.mediastore.video
 
-import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.mediastore.files.FilesAdapter
 import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 
-class VideoAdapter(private val fragment: Fragment) : FilesAdapter(fragment) {
-    @SuppressLint("SetTextI18n")
+class VideoAdapter(private val fragment: VideoFragment) : FilesAdapter(fragment) {
+    private val viewModel: VideoViewModel by fragment.viewModels()
+    private val navController by lazy { fragment.findNavController() }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
         when (holder) {
@@ -33,17 +33,23 @@ class VideoAdapter(private val fragment: Fragment) : FilesAdapter(fragment) {
                 val binding = holder.binding
                 val item = getItem(position) as MediaStoreFiles
                 binding.card.setOnClickListener {
-                    // TODO
-                    val viewIntent = Intent(Intent.ACTION_VIEW)
-                        .setDataAndType(item.contentUri, item.mimeType)
-                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    with(fragment) {
-                        try {
-                            startActivity(Intent.createChooser(viewIntent, null))
-                        } catch (e: ActivityNotFoundException) {
-                            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
-                        }
+                    if (navController.currentDestination?.id != R.id.video_fragment) {
+                        return@setOnClickListener
                     }
+
+                    // TODO
+//                    val videos = viewModel.medias
+//                    val direction = VideoFragmentDirections.actionVideoToVideoPlayer(
+//                        initialPosition = holder.bindingAdapterPosition,
+//                        isMediaStoreUri = true,
+//                        uris = videos.map { it.contentUri }.toTypedArray(),
+//                        displayNames = videos.map { it.displayName }.toTypedArray()
+//                    )
+                    val direction = VideoFragmentDirections.actionVideoToVideoPlayer(
+                        uris = arrayOf(item.contentUri),
+                        displayNames = arrayOf(item.displayName),
+                    )
+                    navController.navigate(direction)
                 }
             }
         }

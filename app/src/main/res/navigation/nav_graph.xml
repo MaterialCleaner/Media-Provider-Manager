@@ -73,14 +73,14 @@
         android:label="@string/create_template_title">
         <argument
             android:name="templateName"
+            android:defaultValue="@null"
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
         <argument
             android:name="packageName"
+            android:defaultValue="@null"
             app:argType="string"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
     </fragment>
 
     <!-- Media Store -->
@@ -129,7 +129,11 @@
     <fragment
         android:id="@+id/video_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.video.VideoFragment"
-        android:label="@string/video" />
+        android:label="@string/video">
+        <action
+            android:id="@+id/action_video_to_video_player"
+            app:destination="@id/video_player_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/video_player_fragment"
         android:name="me.gm.cleaner.plugin.mediastore.video.VideoPlayerFragment">

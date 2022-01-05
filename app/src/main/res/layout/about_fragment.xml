@@ -16,17 +16,19 @@
   ~ limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:paddingTop="?actionBarSize">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/list_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:fadeScrollbars="true"
+        android:fitsSystemWindows="true"
+        android:overScrollMode="ifContentScrolls"
         android:scrollbarStyle="insideOverlay"
         android:scrollbars="vertical">
 
@@ -45,5 +47,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:fitsSystemWindows="true"
         android:indeterminate="true" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout>

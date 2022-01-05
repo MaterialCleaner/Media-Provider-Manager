@@ -30,7 +30,6 @@ import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -107,7 +106,6 @@ class ImagePagerFragment : BaseFragment() {
         })
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
-            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
 
         prepareSharedElementTransition()
@@ -118,14 +116,6 @@ class ImagePagerFragment : BaseFragment() {
             viewPager.isInvisible = false
         }
         return binding.root
-    }
-
-    private fun toDefaultAppBarState(currentDestination: NavDestination) {
-        supportActionBar?.apply {
-            title = currentDestination.label
-            subtitle = null
-        }
-        toggleAppBar(true)
     }
 
     private fun prepareSharedElementTransition() {

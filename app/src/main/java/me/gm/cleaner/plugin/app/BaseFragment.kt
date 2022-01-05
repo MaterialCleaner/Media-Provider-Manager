@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.app
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -31,6 +32,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavDestination
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.isNightModeActivated
@@ -180,6 +182,15 @@ abstract class BaseFragment : Fragment() {
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
+    }
+
+    fun toDefaultAppBarState(currentDestination: NavDestination) {
+        supportActionBar?.apply {
+            title = currentDestination.label
+            subtitle = null
+        }
+        toggleAppBar(true)
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
     companion object {
