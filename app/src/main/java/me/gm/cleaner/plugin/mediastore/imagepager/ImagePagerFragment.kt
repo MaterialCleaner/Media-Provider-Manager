@@ -60,9 +60,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (args.isMediaStoreUri) {
-            setHasOptionsMenu(true)
-        }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -169,6 +167,9 @@ class ImagePagerFragment : BaseFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.image_pager_toolbar, menu)
+        if (!args.isMediaStoreUri) {
+            menu.removeItem(R.id.menu_info)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

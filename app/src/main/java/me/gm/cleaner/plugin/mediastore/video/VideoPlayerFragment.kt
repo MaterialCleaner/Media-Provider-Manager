@@ -28,31 +28,45 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
 import com.google.android.exoplayer2.util.EventLogger
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import kotlin.math.max
 
 class VideoPlayerFragment : BaseFragment() {
     private val viewModel: VideoPlayerViewModel by viewModels()
     private val args: VideoPlayerFragmentArgs by navArgs()
     private val navController by lazy { findNavController() }
+    private lateinit var trackSelectionParameters: DefaultTrackSelector.Parameters
+    private var startItemIndex = 0
+    private var startPosition = 0L
     private lateinit var trackSelector: DefaultTrackSelector
     private lateinit var player: ExoPlayer
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        if (savedInstanceState != null) {
+            // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
+            trackSelectionParameters = DefaultTrackSelector.Parameters.CREATOR.fromBundle(
+                savedInstanceState.getBundle(KEY_TRACK_SELECTION_PARAMETERS)!!
+            )
+            startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX)
+            startPosition = savedInstanceState.getLong(KEY_POSITION)
+        } else {
+            trackSelectionParameters = ParametersBuilder(requireContext()).build()
+        }
+
         val binding = VideoPlayerFragmentBinding.inflate(inflater)
 
-        toggleAppBar(false)
         initializePlayer()
         binding.playerView.player = player
 
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
         }
-
         return binding.root
     }
 
@@ -67,14 +81,33 @@ class VideoPlayerFragment : BaseFragment() {
 //            .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
             .build()
-//        player.setTrackSelectionParameters(trackSelectionParameters)
-//        player.addListener(com.google.android.exoplayer2.demo.PlayerActivity.PlayerEventListener())
+        player.trackSelectionParameters = trackSelectionParameters
+//        player.addListener(PlayerEventListener())
         player.addAnalyticsListener(EventLogger(trackSelector))
-        player.setAudioAttributes(AudioAttributes.DEFAULT,  /* handleAudioFocus= */true)
+        player.setAudioAttributes(AudioAttributes.DEFAULT, true)
         player.playWhenReady = true
-//        player.seekTo(startItemIndex, startPosition)
+        player.seekTo(startItemIndex, startPosition)
         val mediaItems = args.uris.map { MediaItem.fromUri(it) }
         player.setMediaItems(mediaItems, false)
         player.prepare()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        toggleAppBar(false)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle())
+        outState.putInt(KEY_ITEM_INDEX, player.currentMediaItemIndex)
+        outState.putLong(KEY_POSITION, max(0, player.contentPosition))
+    }
+
+    companion object {
+        // Saved instance state keys.
+        private const val KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters"
+        private const val KEY_ITEM_INDEX = "item_index"
+        private const val KEY_POSITION = "position"
     }
 }
