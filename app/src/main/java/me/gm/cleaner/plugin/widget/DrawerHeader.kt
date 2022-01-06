@@ -32,6 +32,10 @@ class DrawerHeader @JvmOverloads constructor(
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val localInsets = Rect()
         val result = computeSystemWindowInsets(insets, localInsets)
+        val displayCutout = insets.displayCutout
+        if (displayCutout != null) {
+            localInsets.top = displayCutout.safeInsetTop
+        }
         applyInsets(localInsets)
         return result
     }

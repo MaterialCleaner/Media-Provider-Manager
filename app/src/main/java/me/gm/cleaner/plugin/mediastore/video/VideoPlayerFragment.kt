@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.util.EventLogger
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
@@ -43,7 +44,8 @@ class VideoPlayerFragment : BaseFragment() {
     private var startItemIndex = 0
     private var startPosition = 0L
     private lateinit var trackSelector: DefaultTrackSelector
-    private lateinit var player: ExoPlayer
+    private var player: ExoPlayer? = null
+    private var playerView: StyledPlayerView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -60,9 +62,7 @@ class VideoPlayerFragment : BaseFragment() {
         }
 
         val binding = VideoPlayerFragmentBinding.inflate(inflater)
-
-        initializePlayer()
-        binding.playerView.player = player
+        playerView = binding.playerView
 
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
@@ -78,18 +78,51 @@ class VideoPlayerFragment : BaseFragment() {
 
         player = ExoPlayer.Builder(context)
             .setRenderersFactory(renderersFactory)
-//            .setMediaSourceFactory(mediaSourceFactory)
             .setTrackSelector(trackSelector)
-            .build()
-        player.trackSelectionParameters = trackSelectionParameters
+            .build().also { player ->
+                player.trackSelectionParameters = trackSelectionParameters
 //        player.addListener(PlayerEventListener())
-        player.addAnalyticsListener(EventLogger(trackSelector))
-        player.setAudioAttributes(AudioAttributes.DEFAULT, true)
-        player.playWhenReady = true
-        player.seekTo(startItemIndex, startPosition)
-        val mediaItems = args.uris.map { MediaItem.fromUri(it) }
-        player.setMediaItems(mediaItems, false)
-        player.prepare()
+                player.addAnalyticsListener(EventLogger(trackSelector))
+                player.setAudioAttributes(AudioAttributes.DEFAULT, true)
+                player.playWhenReady = true
+                player.seekTo(startItemIndex, startPosition)
+                val mediaItems = args.uris.map { MediaItem.fromUri(it) }
+                player.setMediaItems(mediaItems, false)
+                player.prepare()
+            }
+        playerView?.player = player
+    }
+
+    private fun releasePlayer() {
+        player?.release()
+        player = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initializePlayer()
+        playerView?.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initializePlayer()
+        playerView?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        playerView?.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        playerView?.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        releasePlayer()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -99,9 +132,14 @@ class VideoPlayerFragment : BaseFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle())
-        outState.putInt(KEY_ITEM_INDEX, player.currentMediaItemIndex)
-        outState.putLong(KEY_POSITION, max(0, player.contentPosition))
+        player?.let { player ->
+            outState.putBundle(
+                KEY_TRACK_SELECTION_PARAMETERS,
+                (player.trackSelectionParameters as DefaultTrackSelector.Parameters).toBundle()
+            )
+            outState.putInt(KEY_ITEM_INDEX, player.currentMediaItemIndex)
+            outState.putLong(KEY_POSITION, max(0, player.contentPosition))
+        }
     }
 
     companion object {
