@@ -32,16 +32,11 @@ class DrawerHeader @JvmOverloads constructor(
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val localInsets = Rect()
         val result = computeSystemWindowInsets(insets, localInsets)
-        // @see https://developer.android.com/guide/topics/display-cutout
-        val displayCutout = insets.displayCutout
-        if (displayCutout != null) {
-            localInsets.top = displayCutout.safeInsetTop
-        }
         applyInsets(localInsets)
         return result
     }
 
     private fun applyInsets(insets: Rect) {
-        setPaddingRelative(insets.left, insets.top, 0, 0)
+        setPaddingRelative(0, insets.top, 0, 0)
     }
 }

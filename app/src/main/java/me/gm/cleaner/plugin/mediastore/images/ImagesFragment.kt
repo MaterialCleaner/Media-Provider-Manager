@@ -57,10 +57,7 @@ class ImagesFragment : MediaStoreFragment() {
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(
-                NoInterceptionRecyclerViewHelper(
-                    list,
-                    list.adapter as PopupTextProvider
-                )
+                NoInterceptionRecyclerViewHelper(list, list.adapter as PopupTextProvider)
             )
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)

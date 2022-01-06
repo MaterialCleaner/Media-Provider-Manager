@@ -16,8 +16,10 @@
 
 package me.gm.cleaner.plugin.app
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.appbar.AppBarLayout
@@ -35,10 +37,15 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val decorView = window.decorView
-        decorView.systemUiVisibility = decorView.systemUiVisibility or
+        window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        // @see https://developer.android.com/guide/topics/display-cutout
+        window.attributes.layoutInDisplayCutoutMode = when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            Configuration.ORIENTATION_LANDSCAPE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+            else -> throw IllegalArgumentException()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
