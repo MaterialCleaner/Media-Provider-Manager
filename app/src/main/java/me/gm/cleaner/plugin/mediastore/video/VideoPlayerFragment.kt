@@ -71,6 +71,9 @@ class VideoPlayerFragment : BaseFragment() {
     }
 
     private fun initializePlayer() {
+        if (player != null) {
+            return
+        }
         val context = requireContext().applicationContext
         val renderersFactory = DefaultRenderersFactory(context)
             .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
@@ -93,7 +96,17 @@ class VideoPlayerFragment : BaseFragment() {
         playerView?.player = player
     }
 
+    private fun updatePlayerState() {
+        player?.let { player ->
+            trackSelectionParameters =
+                player.trackSelectionParameters as DefaultTrackSelector.Parameters
+            startItemIndex = player.currentMediaItemIndex
+            startPosition = max(0, player.contentPosition)
+        }
+    }
+
     private fun releasePlayer() {
+        updatePlayerState()
         player?.release()
         player = null
     }
@@ -113,15 +126,12 @@ class VideoPlayerFragment : BaseFragment() {
     override fun onPause() {
         super.onPause()
         playerView?.onPause()
+        releasePlayer()
     }
 
     override fun onStop() {
         super.onStop()
         playerView?.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         releasePlayer()
     }
 
@@ -132,14 +142,10 @@ class VideoPlayerFragment : BaseFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        player?.let { player ->
-            outState.putBundle(
-                KEY_TRACK_SELECTION_PARAMETERS,
-                (player.trackSelectionParameters as DefaultTrackSelector.Parameters).toBundle()
-            )
-            outState.putInt(KEY_ITEM_INDEX, player.currentMediaItemIndex)
-            outState.putLong(KEY_POSITION, max(0, player.contentPosition))
-        }
+        updatePlayerState()
+        outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle())
+        outState.putInt(KEY_ITEM_INDEX, startItemIndex)
+        outState.putLong(KEY_POSITION, startPosition)
     }
 
     companion object {
