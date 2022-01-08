@@ -50,6 +50,9 @@ class VideoPlayerFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        val binding = VideoPlayerFragmentBinding.inflate(inflater)
+        playerView = binding.playerView
+
         if (savedInstanceState != null) {
             // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
             trackSelectionParameters = DefaultTrackSelector.Parameters.CREATOR.fromBundle(
@@ -60,9 +63,6 @@ class VideoPlayerFragment : BaseFragment() {
         } else {
             trackSelectionParameters = ParametersBuilder(requireContext()).build()
         }
-
-        val binding = VideoPlayerFragmentBinding.inflate(inflater)
-        playerView = binding.playerView
 
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)

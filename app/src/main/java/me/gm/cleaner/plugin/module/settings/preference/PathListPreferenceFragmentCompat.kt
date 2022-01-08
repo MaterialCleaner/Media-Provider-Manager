@@ -67,6 +67,8 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     val openDocumentTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(), this::onFragmentResult
     )
+
+    // "preferences" should be retained to survive configuration change, but I'm too lazy to do this :)
     private val preferences = mutableListOf<Preference>()
 
     override fun onCreate(savedInstanceState: Bundle?) {

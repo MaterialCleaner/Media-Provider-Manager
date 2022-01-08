@@ -27,6 +27,6 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:show_shuffle_button="true"
+        app:show_buffering="when_playing"
         app:show_subtitle_button="true" />
 </FrameLayout>

@@ -31,7 +31,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatDrawableManager
-import kotlin.math.roundToInt
 
 fun Collection<*>.listFormat() = ListFormatter.getInstance().format(this)
 
@@ -60,7 +59,7 @@ fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
 
 fun Context.getDimenByAttr(@AttrRes attr: Int): Float {
     val a = obtainStyledAttributes(intArrayOf(attr))
-    val dimen = a.getDimension(0, 0f)
+    val dimen = a.getDimension(0, 0F)
     a.recycle()
     return dimen
 }
@@ -80,12 +79,12 @@ fun Context.getDrawableByAttr(@AttrRes attr: Int): Drawable? {
     return drawable
 }
 
-fun Context.dipToPx(dipValue: Float): Int {
-    val scale = resources.displayMetrics.density
-    return (dipValue * scale + 0.5f).roundToInt()
+fun Context.dpToPx(dps: Int): Int {
+    val density = resources.displayMetrics.density
+    return (dps * density + 0.5F).toInt()
 }
 
-fun Context.pxToDip(pxValue: Float): Int {
-    val scale = resources.displayMetrics.density
-    return (pxValue / scale + 0.5f).roundToInt()
+fun Context.pxToDp(px: Int): Int {
+    val density = resources.displayMetrics.density
+    return (px / density).toInt()
 }

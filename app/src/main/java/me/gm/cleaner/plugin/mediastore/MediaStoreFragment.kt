@@ -190,7 +190,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                     medias.all { MimeUtils.isVideoMimeType((it as MediaStoreFiles).mimeType) } -> "video/*"
                                     else -> "*/*"
                                 }
-                                else -> throw IllegalStateException()
+                                else -> throw UnsupportedOperationException()
                             }
                             val sendIntent = if (medias.size == 1) {
                                 Intent(Intent.ACTION_SEND)

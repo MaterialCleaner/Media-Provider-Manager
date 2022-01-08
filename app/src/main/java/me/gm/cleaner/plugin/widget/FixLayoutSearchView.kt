@@ -24,7 +24,7 @@ import androidx.appcompat.R
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
-import me.gm.cleaner.plugin.ktx.dipToPx
+import me.gm.cleaner.plugin.ktx.dpToPx
 import me.gm.cleaner.plugin.ktx.getDrawableByAttr
 
 open class FixLayoutSearchView @JvmOverloads constructor(
@@ -46,7 +46,7 @@ open class FixLayoutSearchView @JvmOverloads constructor(
         val searchSrcText = findViewById<View>(R.id.search_src_text)
         searchSrcText.setPaddingRelative(0, searchSrcText.top, 0, searchSrcText.paddingBottom)
         val searchCloseBtn = findViewById<View>(R.id.search_close_btn)
-        val searchCloseBtnPaddingHorizontal = searchCloseBtn.context.dipToPx(12F)
+        val searchCloseBtnPaddingHorizontal = searchCloseBtn.context.dpToPx(12)
         searchCloseBtn.updatePaddingRelative(
             start = searchCloseBtnPaddingHorizontal, end = searchCloseBtnPaddingHorizontal
         )

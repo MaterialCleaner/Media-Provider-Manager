@@ -29,7 +29,7 @@ import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
 import me.gm.cleaner.plugin.ktx.colorControlHighlight
-import me.gm.cleaner.plugin.ktx.dipToPx
+import me.gm.cleaner.plugin.ktx.dpToPx
 
 @SuppressLint("RestrictedApi", "PrivateResource")
 class CustomForegroundNavigationMenuItemView @JvmOverloads constructor(
@@ -42,7 +42,7 @@ class CustomForegroundNavigationMenuItemView @JvmOverloads constructor(
                 .builder(context, R.style.ShapeAppearanceOverlay_Material3_NavigationView_Item, 0)
                 .build()
         )
-        val inset = context.dipToPx(12F)
+        val inset = context.dpToPx(12)
         foreground = RippleDrawable(
             ColorStateList.valueOf(context.colorControlHighlight), null,
             InsetDrawable(materialShapeDrawable, inset, 0, inset, 0)
