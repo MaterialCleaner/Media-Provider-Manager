@@ -31,9 +31,11 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.util.EventLogger
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import kotlin.math.max
 
 class VideoPlayerFragment : BaseFragment() {
@@ -46,6 +48,9 @@ class VideoPlayerFragment : BaseFragment() {
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: StyledPlayerView? = null
+    private val forbidDrawerGestureListener = View.OnGenericMotionListener { _, _ ->
+        true
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -66,6 +71,8 @@ class VideoPlayerFragment : BaseFragment() {
 
         navController.addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
+            requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
+                .removeInterceptTouchEventListener(forbidDrawerGestureListener)
         }
         return binding.root
     }
@@ -138,6 +145,8 @@ class VideoPlayerFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         toggleAppBar(false)
+        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
+            .addInterceptTouchEventListener(forbidDrawerGestureListener)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
