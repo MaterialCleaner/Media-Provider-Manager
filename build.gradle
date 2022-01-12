@@ -2,16 +2,17 @@
 buildscript {
     ext {
         kotlinVersion = '1.6.10'
-        navigationVersion = '2.4.0-beta02'
+        navigationVersion = '2.5.0-SNAPSHOT'
         hiltVersion = '2.38.1'
     }
     repositories {
         jcenter()
         google()
         mavenCentral()
+        maven { url 'https://androidx.dev/snapshots/builds/8069845/artifacts/repository' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-beta04'
+        classpath 'com.android.tools.build:gradle:7.1.0-rc01'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
@@ -25,6 +26,7 @@ allprojects {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://api.xposed.info/' }
+        maven { url 'https://androidx.dev/snapshots/builds/8069845/artifacts/repository' }
     }
 }
 

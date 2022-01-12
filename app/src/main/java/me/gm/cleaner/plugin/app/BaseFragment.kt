@@ -45,7 +45,7 @@ abstract class BaseFragment : Fragment() {
 
     // PERMISSIONS
     open val requiredPermissions = emptyArray<String>()
-    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<out String>>
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestMultiplePermissions =

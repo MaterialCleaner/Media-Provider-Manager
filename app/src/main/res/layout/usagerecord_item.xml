@@ -61,7 +61,6 @@
         android:id="@+id/record"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/card_margin"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAlignment="viewStart"
