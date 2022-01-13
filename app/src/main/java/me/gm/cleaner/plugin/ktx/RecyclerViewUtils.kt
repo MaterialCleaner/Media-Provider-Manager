@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.view.doOnPreDraw
+import androidx.core.view.forEach
 import androidx.recyclerview.widget.*
 import me.zhanghai.android.fastscroll.FastScroller
 import java.util.function.Consumer
@@ -54,10 +55,8 @@ class DividerDecoration(private val list: RecyclerView) : RecyclerView.ItemDecor
         if (!::divider.isInitialized) {
             return
         }
-        val childCount = parent.childCount
         val width = parent.width
-        for (childViewIndex in 0 until childCount) {
-            val view = parent.getChildAt(childViewIndex)
+        parent.forEach { view ->
             if (shouldDrawDividerBelow(view, parent)) {
                 val top = view.y.toInt() + view.height
                 divider.setBounds(0, top, width, top + dividerHeight)

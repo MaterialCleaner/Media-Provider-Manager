@@ -64,6 +64,11 @@ class ImagesFragment : MediaStoreFragment() {
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        savedInstanceState ?: dispatchRequestPermissions(requiredPermissions, savedInstanceState)
+    }
+
     override fun onRequestPermissionsSuccess(
         permissions: Set<String>, savedInstanceState: Bundle?
     ) {

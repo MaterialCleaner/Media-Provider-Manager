@@ -70,11 +70,6 @@ abstract class BaseFragment : Fragment() {
             }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        dispatchRequestPermissions(requiredPermissions, savedInstanceState)
-    }
-
     open fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
         val granted = permissions.asSequence().filter {
             ActivityCompat.checkSelfPermission(requireContext(), it) ==

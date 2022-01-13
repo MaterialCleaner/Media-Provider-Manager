@@ -21,11 +21,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
@@ -48,13 +45,9 @@ open class FilesFragment : MediaStoreFragment() {
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.requeryFlow.collect {
-                    if (!isInActionMode()) {
-                        dispatchRequestPermissions(requiredPermissions, null)
-                    }
-                }
+        viewModel.requeryFlow.asLiveData().observe(viewLifecycleOwner) {
+            if (!isInActionMode()) {
+                dispatchRequestPermissions(requiredPermissions, null)
             }
         }
     }
