@@ -35,7 +35,6 @@ import me.gm.cleaner.plugin.databinding.FilesHeaderBinding
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
-import java.io.File
 import java.util.*
 
 open class FilesAdapter(private val fragment: Fragment) :
@@ -114,25 +113,22 @@ open class FilesAdapter(private val fragment: Fragment) :
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
-    open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel>? {
+    open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel>? =
         if (ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
             val groupedList = mutableListOf<MediaStoreModel>()
-            var lastRootDir = ""
+            var lastRelativePath = ""
             list.forEach {
-                val rootDir = (it as MediaStoreFiles).displayName
-                    .substringBeforeLast(File.separatorChar)
-                    .substringAfterLast(File.separatorChar)
-                if (lastRootDir != rootDir) {
-                    lastRootDir = rootDir
-                    groupedList += MediaStoreFilesHeader(rootDir)
+                val relativePath = (it as MediaStoreFiles).relativePath
+                if (lastRelativePath != relativePath) {
+                    lastRelativePath = relativePath
+                    groupedList += MediaStoreFilesHeader(relativePath)
                 }
                 groupedList += it
             }
-            return groupedList
+            groupedList
         } else {
-            return list
+            list
         }
-    }
 
     override fun submitList(list: List<MediaStoreModel>?) {
         submitList(list, null)

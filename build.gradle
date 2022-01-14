@@ -9,7 +9,7 @@ buildscript {
         jcenter()
         google()
         mavenCentral()
-        maven { url 'https://androidx.dev/snapshots/builds/8069845/artifacts/repository' }
+        maven { url 'https://androidx.dev/snapshots/builds/8074158/artifacts/repository' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.0-rc01'
@@ -26,7 +26,7 @@ allprojects {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://api.xposed.info/' }
-        maven { url 'https://androidx.dev/snapshots/builds/8069845/artifacts/repository' }
+        maven { url 'https://androidx.dev/snapshots/builds/8074158/artifacts/repository' }
     }
 }
 

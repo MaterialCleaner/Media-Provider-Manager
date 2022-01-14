@@ -62,8 +62,8 @@ open class FilesViewModel(application: Application) :
             val projection = arrayOf(
                 MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
                 MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.RELATIVE_PATH,
                 MediaStore.Files.FileColumns.MIME_TYPE,
                 MediaStore.Files.FileColumns.DATE_TAKEN,
                 MediaStore.Files.FileColumns.SIZE,
@@ -91,10 +91,10 @@ open class FilesViewModel(application: Application) :
             )?.use { cursor ->
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val relativePathColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                val relativePathColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
                 val mimeTypeColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
@@ -106,13 +106,12 @@ open class FilesViewModel(application: Application) :
                 while (cursor.moveToNext()) {
 
                     val id = cursor.getLong(idColumn)
-                    val displayName =
-                        cursor.getString(relativePathColumn) + cursor.getString(displayNameColumn)
+                    val displayName = cursor.getString(displayNameColumn)
+                    val relativePath = cursor.getString(relativePathColumn)
                     val data = cursor.getString(dataColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
                     val timeMillis = cursor.getLong(dateTakenColumn)
                     val size = cursor.getLong(sizeColumn)
-
                     val contentUri = ContentUris.withAppendedId(
                         when (MimeUtils.resolveMediaType(mimeType)) {
                             MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -131,7 +130,7 @@ open class FilesViewModel(application: Application) :
                         }
                     }
                     val file = MediaStoreFiles(
-                        id, contentUri, displayName, data, mimeType, timeMillis, size
+                        id, contentUri, displayName, relativePath, data, mimeType, timeMillis, size
                     )
                     files += file
 
