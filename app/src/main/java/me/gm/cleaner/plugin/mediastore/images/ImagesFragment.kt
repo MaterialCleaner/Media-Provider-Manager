@@ -17,6 +17,9 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
@@ -28,6 +31,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
@@ -122,5 +126,38 @@ class ImagesFragment : MediaStoreFragment() {
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        if (selectionTracker.hasSelection()) {
+            return
+        }
+        inflater.inflate(R.menu.images_toolbar, menu)
+
+        when (ModulePreferences.sortMediaBy) {
+            ModulePreferences.SORT_BY_PATH ->
+                menu.findItem(R.id.menu_sort_by_path).isChecked = true
+            ModulePreferences.SORT_BY_DATE_TAKEN ->
+                menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
+        }
+        arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
+            it.title = requireContext().buildStyledTitle(it.title)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_sort_by_path -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
+            }
+            R.id.menu_sort_by_date_taken -> {
+                item.isChecked = true
+                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 }
