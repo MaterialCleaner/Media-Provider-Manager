@@ -88,7 +88,8 @@ class ImagesViewModel(application: Application) :
              */
             val sortOrder = when (ModulePreferences.sortMediaBy) {
                 ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.DATA
-                /* ModulePreferences.SORT_BY_DATE_TAKEN */ else -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+                ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+                else -> throw IllegalArgumentException()
             }
 
             getApplication<Application>().contentResolver.query(

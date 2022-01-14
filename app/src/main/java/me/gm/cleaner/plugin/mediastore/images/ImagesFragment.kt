@@ -40,7 +40,6 @@ import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
-import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
@@ -60,9 +59,7 @@ class ImagesFragment : MediaStoreFragment() {
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setViewHelper(
-                NoInterceptionRecyclerViewHelper(list, list.adapter as PopupTextProvider)
-            )
+            .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
@@ -138,7 +135,7 @@ class ImagesFragment : MediaStoreFragment() {
         when (ModulePreferences.sortMediaBy) {
             ModulePreferences.SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
-            ModulePreferences.SORT_BY_DATE_TAKEN ->
+            ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {

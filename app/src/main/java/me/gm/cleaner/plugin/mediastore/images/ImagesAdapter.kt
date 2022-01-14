@@ -111,12 +111,11 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         return DateUtils.formatDateTime(context, timeMillis, flags)
     }
 
-    override fun getPopupText(position: Int) =
-        if (ModulePreferences.sortMediaBy != ModulePreferences.SORT_BY_PATH) {
+    override fun getPopupText(position: Int) = when (ModulePreferences.sortMediaBy) {
+        ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE ->
             formatDateTime(getItem(position).dateTaken)
-        } else {
-            ""
-        }
+        else -> ""
+    }
 
     class ViewHolder(val binding: ImagesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
 }
