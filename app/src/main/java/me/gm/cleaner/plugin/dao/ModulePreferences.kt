@@ -86,10 +86,8 @@ object ModulePreferences {
         get() = defaultSp.getInt(
             resources.getString(R.string.start_destination_key), R.id.about_fragment
         )
-        set(value) {
-            defaultSp.edit {
-                putInt(resources.getString(R.string.start_destination_key), value)
-            }
+        set(value) = defaultSp.edit {
+            putInt(resources.getString(R.string.start_destination_key), value)
         }
 
     // APP LIST

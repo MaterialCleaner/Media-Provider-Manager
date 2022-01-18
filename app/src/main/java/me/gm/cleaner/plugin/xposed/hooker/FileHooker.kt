@@ -31,7 +31,7 @@ class FileHooker : XC_MethodHook() {
         if (FileUtils.startsWith(externalStorageDirPath, file) &&
             niceParents.none { FileUtils.startsWith(it, file) }
         ) {
-            XposedBridge.log("rejected mkdir: $file")
+            XposedBridge.log("rejected ${param.method.name}: $file")
             param.result = false
         }
     }

@@ -41,7 +41,7 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
         _remoteSpCacheLiveData.postValue(remoteSpCache)
     }
 
-    fun pingBinder() = binder != null && binder.pingBinder()
+    fun pingBinder() = binder?.pingBinder() == true
 
     val moduleVersion: Int
         get() = service!!.moduleVersion

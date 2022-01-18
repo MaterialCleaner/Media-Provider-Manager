@@ -78,14 +78,14 @@ afterEvaluate {
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
     compileOnly 'de.robv.android.xposed:api:82:sources'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.fragment:fragment-ktx:1.4.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.google.android.material:material:1.5.0-rc01'
+    implementation 'com.google.android.material:material:1.5.0'
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
     def lifecycleVersion = '2.4.0'
@@ -120,7 +120,7 @@ dependencies {
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.2'
     implementation 'me.zhanghai.android.appiconloader:appiconloader:1.3.1'
     implementation 'me.zhanghai.android.appiconloader:appiconloader-glide:1.3.1'
-    implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.2.2'
+    implementation 'dev.rikka.rikkax.recyclerview:recyclerview-ktx:1.3.1'
     implementation 'com.drakeet.drawer:drawer:1.0.3'
     implementation 'me.zhanghai.android.fastscroll:library:1.1.7'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'

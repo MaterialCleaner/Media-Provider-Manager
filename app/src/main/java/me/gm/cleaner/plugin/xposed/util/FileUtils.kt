@@ -30,7 +30,7 @@ object FileUtils {
         return lowerChild == lowerParent || lowerChild.startsWith(lowerParent + File.separator)
     }
 
-    val externalStorageDirPath = Environment.getExternalStorageDirectory().path
+    val externalStorageDirPath: String = Environment.getExternalStorageDirectory().path
     val androidDir = File(externalStorageDirPath, "Android")
     val standardDirs: Array<String>
         @Suppress("UNCHECKED_CAST")

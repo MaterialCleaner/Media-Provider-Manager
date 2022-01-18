@@ -73,7 +73,9 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
 //                )
             }
             "com.android.providers.downloads" -> {
+                XposedHelpers.findAndHookMethod(File::class.java, "createNewFile", FileHooker())
                 XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())
+                XposedHelpers.findAndHookMethod(File::class.java, "mkdirs", FileHooker())
             }
         }
     }
