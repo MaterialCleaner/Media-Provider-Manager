@@ -134,6 +134,11 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
 
     @RequiresApi(Build.VERSION_CODES.R)
     private suspend fun performDeleteMedias(vararg medias: MediaStoreModel) {
+        if (medias.isEmpty()) {
+            // This check is important because media store iterates to the first element without check.
+            // Pass an empty collection to createRequest results in NoSuchElementException.
+            return
+        }
         withContext(Dispatchers.IO) {
             val pendingIntent = MediaStore.createDeleteRequest(
                 getApplication<Application>().contentResolver, medias.map { it.contentUri }
