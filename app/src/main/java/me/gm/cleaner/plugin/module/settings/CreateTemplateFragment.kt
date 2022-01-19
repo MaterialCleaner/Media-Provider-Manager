@@ -28,7 +28,6 @@ import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.preference.EditTextPreference
 import androidx.preference.MultiSelectListPreference
@@ -118,7 +117,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<AppListMultiSelectListPreference>(applyToApp)
-            ?.loadApps(lifecycleScope) { binderViewModel.getInstalledPackages(0) }
+            ?.loadApps { binderViewModel.getInstalledPackages(0) }
             ?.setOnAppsLoadedListener {
                 if (args.packageName != null) {
                     it.values = it.values + args.packageName

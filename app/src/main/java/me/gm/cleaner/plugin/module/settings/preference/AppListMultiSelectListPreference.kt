@@ -21,12 +21,16 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.icu.text.ListFormatter
 import android.util.AttributeSet
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.TypedArrayUtils
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.R
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.text.Collator
 import java.util.*
 import java.util.function.Consumer
@@ -38,25 +42,22 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
         context, R.attr.dialogPreferenceStyle, android.R.attr.dialogPreferenceStyle
     ), defStyleRes: Int = 0
 ) : MultiSelectListPreference(context, attrs, defStyleAttr, defStyleRes) {
+    private val lifecycleScope = (context as AppCompatActivity).lifecycleScope
     private lateinit var packageNameToLabel: List<Pair<String, CharSequence>>
     private var onAppsLoadedListener: Consumer<AppListMultiSelectListPreference>? = null
 
     /** Delay showDialog if applist is not loaded when clicked. */
     private val mutex = Mutex()
 
-    fun loadApps(
-        lifecycleScope: CoroutineScope, applistSupplier: Supplier<List<PackageInfo>>
-    ): AppListMultiSelectListPreference {
+    fun loadApps(applistSupplier: Supplier<List<PackageInfo>>): AppListMultiSelectListPreference {
         lifecycleScope.launch {
             mutex.withLock {
                 val pm = context.packageManager
                 val collator = Collator.getInstance()
                 packageNameToLabel = withContext(Dispatchers.Default) {
-                    applistSupplier.get().asSequence()
+                    applistSupplier.get()
                         .map { it.packageName to pm.getApplicationLabel(it.applicationInfo) }
-                        .sortedWith { o1, o2 ->
-                            collator.compare(o1?.second, o2?.second)
-                        }.toList()
+                        .sortedWith { o1, o2 -> collator.compare(o1?.second, o2?.second) }
                 }
                 liftSelected()
             }
@@ -79,11 +80,9 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
         if (!::packageNameToLabel.isInitialized) {
             return
         }
-        val list = packageNameToLabel.sortedWith { o1, o2 ->
-            val i1 = if (values.contains(o1.first)) 1 else 0
-            val i2 = if (values.contains(o2.first)) 1 else 0
-            i2 - i1
-        }.unzip()
+        val list = packageNameToLabel
+            .sortedWith(Comparator.comparing { it.first !in values })
+            .unzip()
         entries = list.second.toTypedArray()
         entryValues = list.first.toTypedArray()
 
@@ -94,7 +93,7 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
     }
 
     override fun onClick() {
-        MainScope().launch {
+        lifecycleScope.launch {
             mutex.withLock {
                 super.onClick()
             }
