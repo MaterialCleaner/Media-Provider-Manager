@@ -18,7 +18,7 @@
 
 <resources>
     <array name="hook_operation_entries">
-        <item>查詢</item>
+        <item>搜尋</item>
         <item>插入</item>
     </array>
     <array name="media_types_entries">
@@ -27,7 +27,7 @@
         <item>@string/audio</item>
         <item>@string/video</item>
         <item>@string/images</item>
-        <item>文件</item>
+        <item>檔案</item>
         <item>無</item>
     </array>
 </resources>
