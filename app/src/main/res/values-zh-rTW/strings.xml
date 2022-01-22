@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">媒體儲存裝置管理</string>
+    <string name="app_name">媒體儲存空間管理</string>
     <string name="description">防止媒體儲存濫用</string>
 
     <!-- 側欄 -->
@@ -98,8 +98,4 @@
     <string name="unsplash_insert_title">透過媒體儲存插入 10 張來自 Unsplash 的隨機圖片</string>
     <string name="unsplash_insert_summary">效果與使用下載管理程式相似，主要區別在於下載管理程式不會傳送通知以及下載管理程式中沒有下載記錄。</string>
     <string name="start">開始</string>
-
-    <!-- 關於 -->
-    <string name="source_code">原始碼</string>
-    <string name="telegram">Telegram</string>
 </resources>

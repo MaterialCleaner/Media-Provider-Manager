@@ -136,8 +136,4 @@
         The main distinctions are that the download manager does not send notifications and
         there are no download records in the download manager.</string>
     <string name="start">START</string>
-
-    <!-- About -->
-    <string name="source_code">Source code</string>
-    <string name="telegram">Telegram</string>
 </resources>

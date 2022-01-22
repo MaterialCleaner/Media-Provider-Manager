@@ -33,7 +33,7 @@ import me.gm.cleaner.plugin.dao.SharedPreferencesWrapper;
 
 public class JsonFileSpImpl extends SharedPreferencesWrapper {
     public final File file;
-    protected volatile String contentCache;
+    protected String contentCache;
 
     public JsonFileSpImpl(File src) {
         file = src;
@@ -65,19 +65,17 @@ public class JsonFileSpImpl extends SharedPreferencesWrapper {
     }
 
     public String read() {
-        if (contentCache != null) {
-            return contentCache;
+        if (contentCache == null) {
+            ensureFile();
+            try (var it = new FileInputStream(file)) {
+                var bb = ByteBuffer.allocate(it.available());
+                it.getChannel().read(bb);
+                contentCache = new String(bb.array());
+            } catch (IOException e) {
+                XposedBridge.log(e);
+            }
         }
-        ensureFile();
-        try (var it = new FileInputStream(file)) {
-            var bb = ByteBuffer.allocate(it.available());
-            it.getChannel().read(bb);
-            contentCache = new String(bb.array());
-            return contentCache;
-        } catch (IOException e) {
-            XposedBridge.log(e);
-        }
-        return null;
+        return contentCache;
     }
 
     public void write(String what) {

@@ -98,8 +98,4 @@
     <string name="unsplash_insert_title">通过媒体存储插入 10 张来自 Unsplash 的随机图片</string>
     <string name="unsplash_insert_summary">效果与使用下载管理程序相似，主要区别在于下载管理程序不会发送通知以及下载管理程序中没有下载记录。</string>
     <string name="start">开始</string>
-
-    <!-- 关于 -->
-    <string name="source_code">源代码</string>
-    <string name="telegram">电报</string>
 </resources>

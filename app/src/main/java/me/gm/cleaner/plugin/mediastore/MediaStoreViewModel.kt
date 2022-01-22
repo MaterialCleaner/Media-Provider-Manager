@@ -55,6 +55,10 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
     internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
+    /**
+     * Performs a one shot load of medias from [uri] [Uri] into
+     * the [_mediasFlow] [MutableStateFlow] above.
+     */
     fun loadMedias() {
         viewModelScope.launch {
             _mediasFlow.value = queryMedias()
