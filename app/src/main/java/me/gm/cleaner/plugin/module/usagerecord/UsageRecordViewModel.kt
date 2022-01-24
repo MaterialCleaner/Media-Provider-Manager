@@ -65,7 +65,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         combine(_recordsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
             when (source) {
                 is SourceState.Loading -> SourceState.Loading
-                is SourceState.Done -> {
+                is SourceState.Done -> withContext(Dispatchers.Default) {
                     var sequence = source.list.asSequence()
                     if (isSearching) {
                         val lowerQuery = queryText.lowercase()
@@ -180,7 +180,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    fun registerObserverIfNeeded() {
+    private fun registerObserverIfNeeded() {
         if (contentObserver == null && cursors.isNotEmpty()) {
             contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {

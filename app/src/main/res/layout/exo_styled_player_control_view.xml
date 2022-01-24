@@ -121,8 +121,8 @@
 
     </FrameLayout>
 
-    <View
-        android:id="@id/exo_progress_placeholder"
+    <me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
+        android:id="@id/exo_progress"
         android:layout_width="match_parent"
         android:layout_height="@dimen/exo_styled_progress_layout_height"
         android:layout_gravity="bottom"

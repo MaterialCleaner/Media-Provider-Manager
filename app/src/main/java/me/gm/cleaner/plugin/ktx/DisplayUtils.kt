@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.icu.text.ListFormatter
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -57,26 +56,17 @@ fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
     return bitmap
 }
 
-fun Context.getDimenByAttr(@AttrRes attr: Int): Float {
-    val a = obtainStyledAttributes(intArrayOf(attr))
-    val dimen = a.getDimension(0, 0F)
-    a.recycle()
-    return dimen
+fun Context.getDimenByAttr(@AttrRes attr: Int) = obtainStyledAttributes(intArrayOf(attr)).use {
+    it.getDimension(0, 0F)
 }
 
 @ColorInt
-fun Context.getColorByAttr(@AttrRes attr: Int): Int? {
-    val a = obtainStyledAttributes(intArrayOf(attr))
-    val color = a.getColorStateList(0)?.defaultColor
-    a.recycle()
-    return color
+fun Context.getColorByAttr(@AttrRes attr: Int) = obtainStyledAttributes(intArrayOf(attr)).use {
+    it.getColorStateList(0)?.defaultColor
 }
 
-fun Context.getDrawableByAttr(@AttrRes attr: Int): Drawable? {
-    val a = obtainStyledAttributes(intArrayOf(attr))
-    val drawable = a.getDrawable(0)
-    a.recycle()
-    return drawable
+fun Context.getDrawableByAttr(@AttrRes attr: Int) = obtainStyledAttributes(intArrayOf(attr)).use {
+    it.getDrawable(0)
 }
 
 fun Context.dpToPx(dps: Int): Int {

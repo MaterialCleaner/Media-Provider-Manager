@@ -65,11 +65,14 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
         } + formatDateTime(record.timeMillis)
         binding.operation.text = if (record.interceptedList.any { it })
             buildSpannedString { strikeThrough { append(operation) } } else operation
-        binding.record.text = record.dataList.first()
         val more = record.dataList.size - 1
         val hasMore = more > 0
         if (hasMore) {
-            binding.record.suffix = fragment.getString(R.string.and_more, more)
+            binding.record.setTextAndSuffix(
+                record.dataList.first(), fragment.getString(R.string.and_more, more)
+            )
+        } else {
+            binding.record.text = record.dataList.first()
         }
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter(
