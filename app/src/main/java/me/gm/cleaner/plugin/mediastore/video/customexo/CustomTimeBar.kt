@@ -184,7 +184,8 @@ class CustomTimeBar @JvmOverloads constructor(
     }
 
     private fun setValueForLabel(label: TooltipDrawable, value: Float) {
-        val left = (normalizeValue(value) * trackWidth).toInt() - label.intrinsicWidth / 2
+        val left =
+            (scrubberPadding + normalizeValue(value) * (trackWidth - 2 * scrubberPadding)).toInt() - label.intrinsicWidth / 2
         val top = trackTop - (labelPadding + thumbRadius)
         label.setBounds(left, top - label.intrinsicHeight, left + label.intrinsicWidth, top)
 
