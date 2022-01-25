@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ui.R;
 import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -243,44 +244,44 @@ public class DefaultTimeBar extends View implements TimeBar {
               context
                       .getTheme()
                       .obtainStyledAttributes(
-                              timebarAttrs, com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar, defStyleAttr, defStyleRes);
+                              timebarAttrs, R.styleable.DefaultTimeBar, defStyleAttr, defStyleRes);
       try {
-        scrubberDrawable = a.getDrawable(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_scrubber_drawable);
+        scrubberDrawable = a.getDrawable(R.styleable.DefaultTimeBar_scrubber_drawable);
         if (scrubberDrawable != null) {
           setDrawableLayoutDirection(scrubberDrawable);
           defaultTouchTargetHeight =
                   Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
         }
         barHeight =
-                a.getDimensionPixelSize(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_bar_height, defaultBarHeight);
+                a.getDimensionPixelSize(R.styleable.DefaultTimeBar_bar_height, defaultBarHeight);
         touchTargetHeight =
                 a.getDimensionPixelSize(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_touch_target_height, defaultTouchTargetHeight);
-        barGravity = a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_bar_gravity, BAR_GRAVITY_CENTER);
+                        R.styleable.DefaultTimeBar_touch_target_height, defaultTouchTargetHeight);
+        barGravity = a.getInt(R.styleable.DefaultTimeBar_bar_gravity, BAR_GRAVITY_CENTER);
         adMarkerWidth =
                 a.getDimensionPixelSize(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_ad_marker_width, defaultAdMarkerWidth);
+                        R.styleable.DefaultTimeBar_ad_marker_width, defaultAdMarkerWidth);
         scrubberEnabledSize =
                 a.getDimensionPixelSize(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_scrubber_enabled_size, defaultScrubberEnabledSize);
+                        R.styleable.DefaultTimeBar_scrubber_enabled_size, defaultScrubberEnabledSize);
         scrubberDisabledSize =
                 a.getDimensionPixelSize(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_scrubber_disabled_size, defaultScrubberDisabledSize);
+                        R.styleable.DefaultTimeBar_scrubber_disabled_size, defaultScrubberDisabledSize);
         scrubberDraggedSize =
                 a.getDimensionPixelSize(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_scrubber_dragged_size, defaultScrubberDraggedSize);
-        int playedColor = a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_played_color, DEFAULT_PLAYED_COLOR);
+                        R.styleable.DefaultTimeBar_scrubber_dragged_size, defaultScrubberDraggedSize);
+        int playedColor = a.getInt(R.styleable.DefaultTimeBar_played_color, DEFAULT_PLAYED_COLOR);
         int scrubberColor =
-                a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_scrubber_color, DEFAULT_SCRUBBER_COLOR);
+                a.getInt(R.styleable.DefaultTimeBar_scrubber_color, DEFAULT_SCRUBBER_COLOR);
         int bufferedColor =
-                a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_buffered_color, DEFAULT_BUFFERED_COLOR);
+                a.getInt(R.styleable.DefaultTimeBar_buffered_color, DEFAULT_BUFFERED_COLOR);
         int unplayedColor =
-                a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_unplayed_color, DEFAULT_UNPLAYED_COLOR);
+                a.getInt(R.styleable.DefaultTimeBar_unplayed_color, DEFAULT_UNPLAYED_COLOR);
         int adMarkerColor =
-                a.getInt(com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_ad_marker_color, DEFAULT_AD_MARKER_COLOR);
+                a.getInt(R.styleable.DefaultTimeBar_ad_marker_color, DEFAULT_AD_MARKER_COLOR);
         int playedAdMarkerColor =
                 a.getInt(
-                        com.google.android.exoplayer2.ui.R.styleable.DefaultTimeBar_played_ad_marker_color, DEFAULT_PLAYED_AD_MARKER_COLOR);
+                        R.styleable.DefaultTimeBar_played_ad_marker_color, DEFAULT_PLAYED_AD_MARKER_COLOR);
         playedPaint.setColor(playedColor);
         scrubberPaint.setColor(scrubberColor);
         bufferedPaint.setColor(bufferedColor);

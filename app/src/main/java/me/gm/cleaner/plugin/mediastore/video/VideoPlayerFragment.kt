@@ -29,13 +29,19 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
+import com.google.android.exoplayer2.ui.StyledPlayerControlView
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.util.EventLogger
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.getObjectField
+import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
+import me.gm.cleaner.plugin.mediastore.video.customexo.DefaultTimeBar
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
+import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.math.max
 
 class VideoPlayerFragment : BaseFragment() {
@@ -57,6 +63,7 @@ class VideoPlayerFragment : BaseFragment() {
     ): View {
         val binding = VideoPlayerFragmentBinding.inflate(inflater)
         playerView = binding.playerView
+        customizePlayerViewBehavior(playerView!!)
 
         if (savedInstanceState != null) {
             // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
@@ -75,6 +82,16 @@ class VideoPlayerFragment : BaseFragment() {
                 .removeInterceptTouchEventListener(forbidDrawerGestureListener)
         }
         return binding.root
+    }
+
+    private fun customizePlayerViewBehavior(playerView: StyledPlayerView) {
+        val timeBar = playerView
+            .findViewById<StyledPlayerControlView>(com.google.android.exoplayer2.ui.R.id.exo_controller)!!
+            .getObjectField<TimeBar>() as CustomTimeBar
+        val listeners =
+            timeBar.getObjectField<CopyOnWriteArraySet<TimeBar.OnScrubListener>>(DefaultTimeBar::class.java)
+        listeners.clear()
+        timeBar.addListener(timeBar)
     }
 
     private fun initializePlayer() {

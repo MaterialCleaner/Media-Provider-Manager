@@ -39,7 +39,8 @@ import kotlin.math.max
 class CustomTimeBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,
     timebarAttrs: AttributeSet? = null, defStyleRes: Int = 0
-) : DefaultTimeBar(context, attrs, defStyleAttr, timebarAttrs, defStyleRes) {
+) : DefaultTimeBar(context, attrs, defStyleAttr, timebarAttrs, defStyleRes),
+    TimeBar.OnScrubListener {
     private val label = context.obtainStyledAttributes(
         attrs, R.styleable.Slider, defStyleAttr, R.style.Widget_Material3_Slider
     ).use {
@@ -59,22 +60,18 @@ class CustomTimeBar @JvmOverloads constructor(
     private val labelPadding = resources.getDimensionPixelSize(R.dimen.mtrl_slider_label_padding)
     private var trackWidth = 0
 
-    init {
-        addListener(object : TimeBar.OnScrubListener {
-            override fun onScrubStart(timeBar: TimeBar, position: Long) {
-                label.text = Util.getStringForTime(formatBuilder, formatter, position)
-                ensureLabelAdded()
-            }
+    override fun onScrubStart(timeBar: TimeBar, position: Long) {
+        label.text = Util.getStringForTime(formatBuilder, formatter, position)
+        ensureLabelAdded()
+    }
 
-            override fun onScrubMove(timeBar: TimeBar, position: Long) {
-                label.text = Util.getStringForTime(formatBuilder, formatter, position)
-                ensureLabelAdded()
-            }
+    override fun onScrubMove(timeBar: TimeBar, position: Long) {
+        label.text = Util.getStringForTime(formatBuilder, formatter, position)
+        ensureLabelAdded()
+    }
 
-            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
-                ensureLabelRemoved()
-            }
-        })
+    override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+        ensureLabelRemoved()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
