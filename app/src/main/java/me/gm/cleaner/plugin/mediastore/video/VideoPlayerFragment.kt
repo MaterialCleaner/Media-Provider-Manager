@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
 import com.google.android.exoplayer2.ui.StyledPlayerControlView
+import com.google.android.exoplayer2.ui.StyledPlayerControlViewLayoutManagerAccessor
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.util.EventLogger
@@ -38,6 +39,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.getObjectField
+import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
 import me.gm.cleaner.plugin.mediastore.video.customexo.DefaultTimeBar
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
@@ -85,13 +87,26 @@ class VideoPlayerFragment : BaseFragment() {
     }
 
     private fun customizePlayerViewBehavior(playerView: StyledPlayerView) {
-        val timeBar = playerView
-            .findViewById<StyledPlayerControlView>(com.google.android.exoplayer2.ui.R.id.exo_controller)!!
-            .getObjectField<TimeBar>() as CustomTimeBar
+        val controller =
+            playerView.findViewById<StyledPlayerControlView>(com.google.android.exoplayer2.ui.R.id.exo_controller)!!
+        val timeBar = controller.getObjectField<TimeBar>() as CustomTimeBar
         val listeners =
             timeBar.getObjectField<CopyOnWriteArraySet<TimeBar.OnScrubListener>>(DefaultTimeBar::class.java)
         listeners.clear()
         timeBar.addListener(timeBar)
+
+        val controlViewLayoutManager = StyledPlayerControlViewLayoutManagerAccessor(controller)
+        timeBar.addListener(object : CustomOnScrubListener(playerView) {
+            override fun onScrubStart(timeBar: TimeBar, position: Long) {
+                super.onScrubStart(timeBar, position)
+                controlViewLayoutManager.removeHideCallbacks()
+            }
+
+            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+                super.onScrubStop(timeBar, position, canceled)
+                controlViewLayoutManager.resetHideCallbacks()
+            }
+        })
     }
 
     private fun initializePlayer() {
