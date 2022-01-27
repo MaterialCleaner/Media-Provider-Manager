@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.video
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,10 +24,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SeekParameters
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
@@ -35,6 +33,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerControlViewLayoutManagerAcce
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.util.EventLogger
+import com.google.android.exoplayer2.video.VideoSize
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
@@ -112,6 +111,20 @@ class VideoPlayerFragment : BaseFragment() {
         })
     }
 
+    inner class PlayerEventListener : Player.Listener {
+        override fun onVideoSizeChanged(videoSize: VideoSize) {
+            super.onVideoSizeChanged(videoSize)
+            if (viewModel.isFirstEntrance && videoSize != VideoSize.UNKNOWN) {
+                viewModel.isFirstEntrance = false
+                requireActivity().requestedOrientation = if (videoSize.width > videoSize.height) {
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                } else {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+            }
+        }
+    }
+
     private fun initializePlayer() {
         if (player != null) {
             return
@@ -126,7 +139,7 @@ class VideoPlayerFragment : BaseFragment() {
             .setTrackSelector(trackSelector)
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
-//        player.addListener(PlayerEventListener())
+                player.addListener(PlayerEventListener())
                 player.addAnalyticsListener(EventLogger(trackSelector))
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.playWhenReady = true

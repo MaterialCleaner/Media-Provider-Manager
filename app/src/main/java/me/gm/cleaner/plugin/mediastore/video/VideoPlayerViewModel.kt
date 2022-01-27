@@ -30,6 +30,8 @@ import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
 class VideoPlayerViewModel(application: Application) : AndroidViewModel(application) {
+    var isFirstEntrance = true
+
     fun queryVideoInfoAsync(uri: Uri) = viewModelScope.async {
         queryVideoInfo(uri)
     }

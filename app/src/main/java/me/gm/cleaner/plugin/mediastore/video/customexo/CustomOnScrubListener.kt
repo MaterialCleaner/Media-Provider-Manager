@@ -50,6 +50,11 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
         seekDelta = playerView.findViewById(me.gm.cleaner.plugin.R.id.seek_delta)
     }
 
+    private fun getDeltaString(timeMs: Long): String {
+        val prefix = if (timeMs > 0) "+" else ""
+        return prefix + Util.getStringForTime(formatBuilder, formatter, timeMs)
+    }
+
     override fun onScrubStart(timeBar: TimeBar, position: Long) {
         prepareViews()
         scrubbingField[controller] = true
@@ -65,11 +70,6 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
         playerView.player?.seekTo(position)
         seekDelta.text = getDeltaString(position - startingPosition)
-    }
-
-    private fun getDeltaString(timeMs: Long): String {
-        val prefix = if (timeMs > 0) "+" else ""
-        return prefix + Util.getStringForTime(formatBuilder, formatter, timeMs)
     }
 
     override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
