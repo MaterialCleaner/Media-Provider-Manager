@@ -2,14 +2,13 @@
 buildscript {
     ext {
         kotlinVersion = '1.6.10'
-        navigationVersion = '2.5.0-SNAPSHOT'
+        navigationVersion = '2.5.0-alpha01'
         hiltVersion = '2.38.1'
     }
     repositories {
         jcenter()
         google()
         mavenCentral()
-        maven { url 'https://androidx.dev/snapshots/builds/8090401/artifacts/repository' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.0-rc01'
@@ -26,7 +25,6 @@ allprojects {
         mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://api.xposed.info/' }
-        maven { url 'https://androidx.dev/snapshots/builds/8090401/artifacts/repository' }
     }
 }
 
