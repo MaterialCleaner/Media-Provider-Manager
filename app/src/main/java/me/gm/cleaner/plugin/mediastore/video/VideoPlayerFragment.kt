@@ -26,6 +26,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.SeekParameters
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
@@ -99,11 +100,13 @@ class VideoPlayerFragment : BaseFragment() {
         timeBar.addListener(object : CustomOnScrubListener(playerView) {
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
                 super.onScrubStart(timeBar, position)
+                (playerView.player as? ExoPlayer)?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
                 controlViewLayoutManager.removeHideCallbacks()
             }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
                 super.onScrubStop(timeBar, position, canceled)
+                (playerView.player as? ExoPlayer)?.setSeekParameters(null)
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })

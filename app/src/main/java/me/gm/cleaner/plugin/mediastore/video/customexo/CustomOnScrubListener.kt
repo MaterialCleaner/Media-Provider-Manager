@@ -43,7 +43,7 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
 
     override fun onScrubStart(timeBar: TimeBar, position: Long) {
         prepareViews()
-        scrubbingField.set(controller, true)
+        scrubbingField[controller] = true
         playerView.player?.pause()
         controlsBackground.isVisible = false
         centerControls.isVisible = false
@@ -54,9 +54,13 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
     }
 
     override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
-        scrubbingField.set(controller, false)
+        scrubbingField[controller] = false
+        playerView.player?.seekTo(position)
         playerView.player?.play()
         controlsBackground.isVisible = true
         centerControls.isVisible = true
     }
+
+    val isScrubbing: Boolean
+        get() = ::controller.isInitialized && scrubbingField[controller] as Boolean
 }
