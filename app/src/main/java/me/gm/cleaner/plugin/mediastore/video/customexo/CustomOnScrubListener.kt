@@ -18,11 +18,14 @@ package me.gm.cleaner.plugin.mediastore.video.customexo
 
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.exoplayer2.ui.R
 import com.google.android.exoplayer2.ui.StyledPlayerControlView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
+import com.google.android.exoplayer2.util.Util
+import java.util.*
 
 open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
     TimeBar.OnScrubListener {
@@ -31,6 +34,11 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
     private lateinit var controller: StyledPlayerControlView
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
+    private lateinit var seekDelta: TextView
+
+    private var startingPosition = 0L
+    private val formatBuilder = StringBuilder()
+    private val formatter = Formatter(formatBuilder, Locale.getDefault())
 
     private fun prepareViews() {
         if (::controller.isInitialized) {
@@ -39,26 +47,38 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
         controller = playerView.findViewById(R.id.exo_controller)
         controlsBackground = playerView.findViewById(R.id.exo_controls_background)
         centerControls = playerView.findViewById(R.id.exo_center_controls)
+        seekDelta = playerView.findViewById(me.gm.cleaner.plugin.R.id.seek_delta)
     }
 
     override fun onScrubStart(timeBar: TimeBar, position: Long) {
         prepareViews()
         scrubbingField[controller] = true
         playerView.player?.pause()
+        startingPosition = playerView.player?.currentPosition ?: 0L
         controlsBackground.isVisible = false
         centerControls.isVisible = false
+        seekDelta.isVisible = true
+        playerView.player?.seekTo(position)
+        seekDelta.text = getDeltaString(position - startingPosition)
     }
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
         playerView.player?.seekTo(position)
+        seekDelta.text = getDeltaString(position - startingPosition)
+    }
+
+    private fun getDeltaString(timeMs: Long): String {
+        val prefix = if (timeMs > 0) "+" else ""
+        return prefix + Util.getStringForTime(formatBuilder, formatter, timeMs)
     }
 
     override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
         scrubbingField[controller] = false
-        playerView.player?.seekTo(position)
-        playerView.player?.play()
         controlsBackground.isVisible = true
         centerControls.isVisible = true
+        seekDelta.isVisible = false
+        playerView.player?.seekTo(position)
+        playerView.player?.play()
     }
 
     val isScrubbing: Boolean

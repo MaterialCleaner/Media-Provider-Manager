@@ -99,14 +99,14 @@ class VideoPlayerFragment : BaseFragment() {
         val controlViewLayoutManager = StyledPlayerControlViewLayoutManagerAccessor(controller)
         timeBar.addListener(object : CustomOnScrubListener(playerView) {
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
-                super.onScrubStart(timeBar, position)
                 (playerView.player as? ExoPlayer)?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
+                super.onScrubStart(timeBar, position)
                 controlViewLayoutManager.removeHideCallbacks()
             }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
-                super.onScrubStop(timeBar, position, canceled)
                 (playerView.player as? ExoPlayer)?.setSeekParameters(null)
+                super.onScrubStop(timeBar, position, canceled)
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })
