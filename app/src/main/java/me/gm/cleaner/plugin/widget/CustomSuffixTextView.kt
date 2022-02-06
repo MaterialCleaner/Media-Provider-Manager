@@ -36,6 +36,9 @@ class CustomSuffixTextView @JvmOverloads constructor(
 
     fun setTextAndSuffix(text: CharSequence?, suffix: CharSequence?) {
         this.suffix = suffix
+        if (this.text != text) {
+            requestLayout()
+        }
         this.text = text
     }
 

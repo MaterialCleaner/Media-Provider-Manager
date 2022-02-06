@@ -81,7 +81,7 @@ abstract class DrawerActivity : BaseActivity() {
                         MimeUtils.isAudioMimeType(intent.type) -> R.id.audio_fragment
                         MimeUtils.isImageMimeType(intent.type) -> R.id.image_pager_fragment
                         MimeUtils.isVideoMimeType(intent.type) -> R.id.video_player_fragment
-                        else -> throw IllegalArgumentException()
+                        else -> throw IllegalArgumentException(intent.type)
                     }
                 } else {
                     ModulePreferences.startDestination
