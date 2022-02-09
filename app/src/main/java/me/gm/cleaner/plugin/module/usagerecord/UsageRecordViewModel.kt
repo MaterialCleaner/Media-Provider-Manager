@@ -56,8 +56,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             _queryTextFlow.value = value
         }
     val calendar: Calendar = Calendar.getInstance()
-    private val packageManager
-        get() = getApplication<Application>().packageManager
     private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<SourceState>(SourceState.Loading)
@@ -122,6 +120,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
     ): Job = viewModelScope.launch {
         _recordsFlow.value = SourceState.Loading
+        val packageManager = getApplication<Application>().packageManager
         val records = mutableListOf<MediaProviderRecord>().also {
             if (!isHideQuery) {
                 it += queryRecord<MediaProviderQueryRecord>(start, end)
@@ -144,7 +143,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
         _recordsFlow.value = SourceState.Done(records)
 
-        registerObserverIfNeeded()
+        maybeRegisterContentObserver()
         _reloadRecordsLiveData.value = false
     }
 
@@ -180,19 +179,17 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    private fun registerObserverIfNeeded() {
+    private fun maybeRegisterContentObserver() {
         if (contentObserver == null && cursors.isNotEmpty()) {
             contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
                 override fun onChange(selfChange: Boolean) {
                     _reloadRecordsLiveData.value = true
                 }
             }
+            val contentResolver = getApplication<Application>().contentResolver
             cursors.forEach {
                 it.registerContentObserver(contentObserver)
-                it.setNotificationUri(
-                    getApplication<Application>().contentResolver,
-                    MediaStore.Images.Media.INTERNAL_CONTENT_URI
-                )
+                it.setNotificationUri(contentResolver, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
             }
         }
     }
