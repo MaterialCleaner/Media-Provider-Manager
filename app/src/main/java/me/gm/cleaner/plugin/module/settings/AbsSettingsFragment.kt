@@ -39,7 +39,7 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     protected val remoteSp by lazy { BinderSpImpl(binderViewModel, who) }
 
     open fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
-        object : PreferenceManager(context) {
+        object : PreferenceManager(requireContext()) {
             override fun getSharedPreferences() = remoteSp
         }
 
@@ -64,10 +64,10 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
         return list
     }
 
-    override fun onCreateAdapter(preferenceScreen: PreferenceScreen?): RecyclerView.Adapter<*> {
+    override fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
         return object : PreferenceGroupAdapter(preferenceScreen) {
             override fun onBindViewHolder(holder: PreferenceViewHolder, position: Int) {
-                val preference = getItem(position)
+                val preference = getItem(position) ?: return
                 preference.onBindViewHolder(holder)
                 onBindPreferencesViewHolder(holder, preference)
             }

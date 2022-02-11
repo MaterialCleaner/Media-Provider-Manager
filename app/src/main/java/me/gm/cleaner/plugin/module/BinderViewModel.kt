@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.module
 import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
-import android.os.RemoteException
 import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -46,12 +45,8 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     val moduleVersion: Int
         get() = service!!.moduleVersion
 
-    fun getInstalledPackages(flags: Int): List<PackageInfo> = try {
+    fun getInstalledPackages(flags: Int): List<PackageInfo> =
         service!!.getInstalledPackages(Process.myUid() / AID_USER_OFFSET, flags).list
-    } catch (e: RemoteException) {
-        e.printStackTrace()
-        emptyList()
-    }
 
     fun getPackageInfo(packageName: String): PackageInfo? =
         service!!.getPackageInfo(packageName, 0, Process.myUid() / AID_USER_OFFSET)

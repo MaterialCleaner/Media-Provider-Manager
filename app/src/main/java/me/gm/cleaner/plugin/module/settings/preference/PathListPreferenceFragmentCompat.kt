@@ -152,7 +152,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
         }
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
+    override fun onDisplayPreferenceDialog(preference: Preference) {
         preference ?: return
         val f = when (preference) {
             is EditTextPreference -> {

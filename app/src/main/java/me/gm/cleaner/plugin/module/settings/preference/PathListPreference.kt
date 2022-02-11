@@ -47,6 +47,10 @@ class PathListPreference @JvmOverloads constructor(
             notifyChanged()
         }
 
+    init {
+        summaryProvider = instance
+    }
+
     override fun getDialogLayoutResource() = R.layout.path_list_dialog
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
@@ -122,17 +126,6 @@ class PathListPreference @JvmOverloads constructor(
     }
 
     companion object {
-        private lateinit var simpleSummaryProvider: SimpleSummaryProvider
-        val instance: SimpleSummaryProvider
-            get() {
-                if (!::simpleSummaryProvider.isInitialized) {
-                    simpleSummaryProvider = SimpleSummaryProvider()
-                }
-                return simpleSummaryProvider
-            }
-    }
-
-    init {
-        summaryProvider = instance
+        val instance by lazy { SimpleSummaryProvider() }
     }
 }

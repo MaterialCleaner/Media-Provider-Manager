@@ -114,13 +114,6 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
     }
 
     companion object {
-        private var sSimpleSummaryProvider: SimpleSummaryProvider? = null
-        val instance: SimpleSummaryProvider?
-            get() {
-                if (sSimpleSummaryProvider == null) {
-                    sSimpleSummaryProvider = SimpleSummaryProvider()
-                }
-                return sSimpleSummaryProvider
-            }
+        val instance by lazy { SimpleSummaryProvider() }
     }
 }

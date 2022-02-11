@@ -61,7 +61,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
-        object : PreferenceManager(context) {
+        object : PreferenceManager(requireContext()) {
             override fun getSharedPreferences(): SharedPreferences {
                 if (!::tempSp.isInitialized) {
                     tempSp = try {
@@ -160,7 +160,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         }
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
+    override fun onDisplayPreferenceDialog(preference: Preference) {
         val f = when (preference) {
             is PathListPreference -> PathListPreferenceFragmentCompat.newInstance(preference.key)
             else -> {

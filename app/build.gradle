@@ -80,11 +80,11 @@ dependencies {
     compileOnly 'de.robv.android.xposed:api:82:sources'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.0'
+    implementation 'androidx.fragment:fragment-ktx:1.4.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'com.google.android.material:material:1.5.0'
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
@@ -103,7 +103,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
     kapt 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
 
@@ -112,7 +112,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
-    def appCenterSdkVersion = '4.3.1'
+    def appCenterSdkVersion = '4.4.2'
     implementation "com.microsoft.appcenter:appcenter-analytics:$appCenterSdkVersion"
     implementation "com.microsoft.appcenter:appcenter-crashes:$appCenterSdkVersion"
 
