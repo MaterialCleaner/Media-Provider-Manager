@@ -60,6 +60,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     initialValues?.getAsString(MediaStore.MediaColumns.RELATIVE_PATH)
                         ?.trimEnd(File.separatorChar) + File.separator +
                     initialValues?.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+                        ?.trimStart(File.separatorChar)
         } else {
             initialValues?.getAsString(MediaStore.MediaColumns.DATA)
         }

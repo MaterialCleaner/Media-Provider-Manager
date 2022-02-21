@@ -26,19 +26,13 @@ class CustomSuffixTextView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = android.R.attr.textViewStyle
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
     var suffix: CharSequence? = null
-        private set
-
-    @Deprecated("Use setTextAndSuffix() for better performance.")
-    fun setSuffix(suffix: CharSequence?) {
-        this.suffix = suffix
-        requestLayout()
-    }
+        set(value) {
+            field = value
+            requestLayout()
+        }
 
     fun setTextAndSuffix(text: CharSequence?, suffix: CharSequence?) {
         this.suffix = suffix
-        if (this.text != text) {
-            requestLayout()
-        }
         this.text = text
     }
 
