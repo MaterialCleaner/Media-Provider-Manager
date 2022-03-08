@@ -67,7 +67,7 @@ abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     override fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
         return object : PreferenceGroupAdapter(preferenceScreen) {
             override fun onBindViewHolder(holder: PreferenceViewHolder, position: Int) {
-                val preference = getItem(position) ?: return
+                val preference = getItem(position)!!
                 preference.onBindViewHolder(holder)
                 onBindPreferencesViewHolder(holder, preference)
             }

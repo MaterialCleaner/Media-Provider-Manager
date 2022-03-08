@@ -87,7 +87,10 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     ob.setOnMaybeFileCreatedListener {
                         val firstResult = scanFile(param.thisObject, file)
                         XposedBridge.log("scan result: $firstResult")
-                        return@setOnMaybeFileCreatedListener if (firstResult != null) {
+                        return@setOnMaybeFileCreatedListener if (firstResult != null ||
+                            // Don't retry after failed 3 times.
+                            ob.queueSize < -1
+                        ) {
                             pendingScan.remove(data)
                             true
                         } else {

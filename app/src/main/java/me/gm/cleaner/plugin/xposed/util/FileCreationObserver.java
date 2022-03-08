@@ -48,14 +48,16 @@ public class FileCreationObserver extends FileObserver {
             mQueueSize.incrementAndGet();
             mExecutor.schedule(() -> {
                 // Less than 0 when predicate returns false.
-                if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget) ||
-                        // Don't retry after failed 3 times.
-                        mQueueSize.get() < -1) {
+                if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget)) {
                     stopWatching();
                     mExecutor.shutdownNow();
                 }
             }, 1, TimeUnit.SECONDS);
         }
+    }
+
+    public int getQueueSize() {
+        return mQueueSize.get();
     }
 
     public FileCreationObserver setOnMaybeFileCreatedListener(Predicate<File> l) {
