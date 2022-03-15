@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 
 public class FileCreationObserver extends FileObserver {
     private final File mTarget;
-    private Predicate<File> mOnMaybeFileCreatedListener;
+    private Predicate<Integer> mOnMaybeFileCreatedListener;
     private final ScheduledExecutorService mExecutor = newSingleThreadScheduledExecutor();
     private final AtomicInteger mQueueSize = new AtomicInteger();
 
@@ -47,8 +47,10 @@ public class FileCreationObserver extends FileObserver {
         if (mTarget.getName().equals(path)) {
             mQueueSize.incrementAndGet();
             mExecutor.schedule(() -> {
+                var queueSize = mQueueSize.decrementAndGet();
+                var testTimes = 1 - queueSize;
                 // Less than 0 when predicate returns false.
-                if (mQueueSize.decrementAndGet() <= 0 && mOnMaybeFileCreatedListener.test(mTarget)) {
+                if (queueSize <= 0 && mOnMaybeFileCreatedListener.test(testTimes)) {
                     stopWatching();
                     mExecutor.shutdownNow();
                 }
@@ -56,11 +58,7 @@ public class FileCreationObserver extends FileObserver {
         }
     }
 
-    public int getQueueSize() {
-        return mQueueSize.get();
-    }
-
-    public FileCreationObserver setOnMaybeFileCreatedListener(Predicate<File> l) {
+    public FileCreationObserver setOnMaybeFileCreatedListener(Predicate<Integer> l) {
         mOnMaybeFileCreatedListener = l;
         return this;
     }
