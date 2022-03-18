@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.ktx
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.icu.text.ListFormatter
@@ -54,6 +55,12 @@ fun Context.getBitmapFromVectorDrawable(@DrawableRes drawableId: Int): Bitmap {
     drawable.setTint(colorAccent)
     drawable.draw(canvas)
     return bitmap
+}
+
+inline fun <T : TypedArray, R> T.use(block: (T) -> R) = try {
+    block(this)
+} finally {
+    recycle()
 }
 
 fun Context.getDimenByAttr(@AttrRes attr: Int) = obtainStyledAttributes(intArrayOf(attr)).use {
