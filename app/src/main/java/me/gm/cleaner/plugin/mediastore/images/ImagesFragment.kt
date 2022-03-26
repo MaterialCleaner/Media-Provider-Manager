@@ -63,23 +63,18 @@ class ImagesFragment : MediaStoreFragment() {
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        savedInstanceState ?: dispatchRequestPermissions(requiredPermissions, savedInstanceState)
-    }
-
-    override fun onRequestPermissionsSuccess(
-        permissions: Set<String>, savedInstanceState: Bundle?
-    ) {
-        super.onRequestPermissionsSuccess(permissions, savedInstanceState)
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             prepareTransitions()
             postponeEnterTransition()
             scrollToPosition(list, lastPosition)
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        savedInstanceState ?: dispatchRequestPermissions(requiredPermissions, savedInstanceState)
     }
 
     /**
