@@ -35,7 +35,6 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecordDatabase
-import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.model.Templates.Companion.filterNot
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FilteredCursor
@@ -167,21 +166,19 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            retry(3) {
-                dao.insert(
-                    MediaProviderQueryRecord(
-                        System.currentTimeMillis() + it,
-                        param.callingPackage,
-                        table,
-                        data,
-                        mimeType,
-                        shouldIntercept
-                    )
+            dao.insert(
+                MediaProviderQueryRecord(
+                    System.currentTimeMillis(),
+                    param.callingPackage,
+                    table,
+                    data,
+                    mimeType,
+                    shouldIntercept
                 )
-                service.context.contentResolver.notifyChange(
-                    MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
-                )
-            }
+            )
+            service.context.contentResolver.notifyChange(
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
+            )
         }
     }
 

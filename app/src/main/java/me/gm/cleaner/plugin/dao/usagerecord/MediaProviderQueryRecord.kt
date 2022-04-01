@@ -60,7 +60,7 @@ interface MediaProviderQueryRecordDao {
     @Query("SELECT count(*) FROM MediaProviderQueryRecord WHERE package_name IN (:packageNames)")
     fun packageUsageTimes(vararg packageNames: String): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(records: MediaProviderQueryRecord)
 
     @Delete

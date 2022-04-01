@@ -28,7 +28,6 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.ktx.retry
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
@@ -132,21 +131,19 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            retry(3) {
-                dao.insert(
-                    MediaProviderDeleteRecord(
-                        System.currentTimeMillis() + it,
-                        param.callingPackage,
-                        match,
-                        data,
-                        mimeType,
-                        Array(data.size) { false }.toList()
-                    )
+            dao.insert(
+                MediaProviderDeleteRecord(
+                    System.currentTimeMillis(),
+                    param.callingPackage,
+                    match,
+                    data,
+                    mimeType,
+                    Array(data.size) { false }.toList()
                 )
-                service.context.contentResolver.notifyChange(
-                    MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
-                )
-            }
+            )
+            service.context.contentResolver.notifyChange(
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
+            )
         }
     }
 
