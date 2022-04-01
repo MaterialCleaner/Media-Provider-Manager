@@ -27,6 +27,5 @@ class ThemedSwipeRefreshLayout @JvmOverloads constructor(
 
     init {
         setColorSchemeColors(context.colorAccent)
-        setProgressViewOffset(false, 0, progressViewEndOffset)
     }
 }
