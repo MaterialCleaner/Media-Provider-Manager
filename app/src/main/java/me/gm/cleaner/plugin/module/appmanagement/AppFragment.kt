@@ -57,8 +57,9 @@ class AppFragment : ModuleFragment() {
 
         val templatesAdapter = TemplatesAdapter(this)
         val templatesFooterAdapter = TemplatesFooterAdapter(this)
-        val adapters =
-            ConcatAdapter(AppHeaderAdapter(this), templatesAdapter, templatesFooterAdapter)
+        val adapters = ConcatAdapter(
+            AppHeaderAdapter(this), templatesAdapter, templatesFooterAdapter
+        )
         val list = binding.list
         list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
