@@ -90,8 +90,10 @@ class UsageRecordFragment : ModuleFragment() {
                 viewModel.reloadRecords(binderViewModel)
             }
         }
+
         if (savedInstanceState == null) {
             viewModel.reloadRecords(binderViewModel)
+            viewModel.registerMediaChangeObserver(binderViewModel)
         }
         navController.addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null

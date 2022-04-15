@@ -17,10 +17,6 @@
 package me.gm.cleaner.plugin.module.usagerecord
 
 import android.app.Application
-import android.database.ContentObserver
-import android.database.Cursor
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -32,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.gm.cleaner.plugin.IMediaChangeObserver
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
@@ -85,8 +82,12 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
     // Use LiveData to ensure reloads are only triggered in our fragment's lifeCycle.
     private val _reloadRecordsLiveData = MutableLiveData(false)
     val reloadRecordsLiveData: LiveData<Boolean> = _reloadRecordsLiveData
-    private var contentObserver: ContentObserver? = null
-    private val cursors = mutableListOf<Cursor>()
+    private var binderViewModel: BinderViewModel? = null
+    private val mediaChangeObserver = object : IMediaChangeObserver.Stub() {
+        override fun onChange() {
+            _reloadRecordsLiveData.postValue(true)
+        }
+    }
 
     fun reloadRecords(binderViewModel: BinderViewModel) =
         loadRecords(binderViewModel, calendar.timeInMillis)
@@ -143,7 +144,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         }
         _recordsFlow.value = SourceState.Done(records)
 
-        maybeRegisterContentObserver()
         _reloadRecordsLiveData.value = false
     }
 
@@ -160,9 +160,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             null,
             sortOrder
         )?.use { cursor ->
-            if (contentObserver == null) {
-                cursors.add(cursor)
-            }
             val constructor = E::class.java.declaredConstructors.first()
             val mockParameters = constructor.parameterTypes.map { type ->
                 when (type) {
@@ -179,19 +176,13 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    private fun maybeRegisterContentObserver() {
-        if (contentObserver == null && cursors.isNotEmpty()) {
-            contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-                    _reloadRecordsLiveData.value = true
-                }
-            }
-            val contentResolver = getApplication<Application>().contentResolver
-            cursors.forEach {
-                it.registerContentObserver(contentObserver)
-                it.setNotificationUri(contentResolver, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-            }
-        }
+    fun registerMediaChangeObserver(binderViewModel: BinderViewModel) {
+        this.binderViewModel = binderViewModel
+        binderViewModel.registerMediaChangeObserver(mediaChangeObserver)
+    }
+
+    override fun onCleared() {
+        binderViewModel?.unregisterMediaChangeObserver(mediaChangeObserver)
     }
 }
 

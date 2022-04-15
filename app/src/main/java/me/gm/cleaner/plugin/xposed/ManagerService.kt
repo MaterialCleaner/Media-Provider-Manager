@@ -21,10 +21,13 @@ import android.content.pm.PackageInfo
 import android.content.res.Resources
 import android.os.IBinder
 import android.os.IInterface
+import android.os.RemoteCallbackList
+import android.os.RemoteException
 import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
+import me.gm.cleaner.plugin.IMediaChangeObserver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
@@ -42,6 +45,7 @@ abstract class ManagerService : IManagerService.Stub() {
         private set
     lateinit var database: MediaProviderRecordDatabase
         private set
+    private val observers = RemoteCallbackList<IMediaChangeObserver>()
     val rootSp by lazy { JsonFileSpImpl(File(context.filesDir, "root")) }
     val ruleSp by lazy { TemplatesJsonFileSpImpl(File(context.filesDir, "rule")) }
 
@@ -105,6 +109,29 @@ abstract class ManagerService : IManagerService.Stub() {
         MediaProviderDeleteRecord::class.simpleName ->
             database.mediaProviderDeleteRecordDao().packageUsageTimes(*packageNames.toTypedArray())
         else -> throw IllegalArgumentException()
+    }
+
+    override fun registerMediaChangeObserver(observer: IMediaChangeObserver) {
+        observers.register(observer)
+    }
+
+    override fun unregisterMediaChangeObserver(observer: IMediaChangeObserver) {
+        observers.unregister(observer)
+    }
+
+    override fun dispatchMediaChange() {
+        var i = observers.beginBroadcast()
+        while (i > 0) {
+            i--
+            val observer = observers.getBroadcastItem(i)
+            if (observer != null) {
+                try {
+                    observer.onChange()
+                } catch (ignored: RemoteException) {
+                }
+            }
+        }
+        observers.finishBroadcast()
     }
 
     companion object {

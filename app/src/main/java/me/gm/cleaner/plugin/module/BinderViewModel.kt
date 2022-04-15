@@ -25,6 +25,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.gm.cleaner.plugin.IManagerService
+import me.gm.cleaner.plugin.IMediaChangeObserver
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,6 +69,14 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
 
     fun packageUsageTimes(table: String, packageNames: List<String>): Int =
         service!!.packageUsageTimes(table, packageNames)
+
+    fun registerMediaChangeObserver(observer: IMediaChangeObserver) {
+        service!!.registerMediaChangeObserver(observer)
+    }
+
+    fun unregisterMediaChangeObserver(observer: IMediaChangeObserver) {
+        service!!.unregisterMediaChangeObserver(observer)
+    }
 
     companion object {
         const val AID_USER_OFFSET = 100000

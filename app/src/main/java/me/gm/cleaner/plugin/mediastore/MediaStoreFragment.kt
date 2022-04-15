@@ -85,10 +85,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
         val keyProvider = StableIdKeyProvider(list)
-        selectionTracker = SelectionTracker.Builder(
-            javaClass.name, list, keyProvider, DetailsLookup(list),
-            StorageStrategy.createLongStorage()
-        )
+        selectionTracker = SelectionTracker
+            .Builder(
+                javaClass.name, list, keyProvider, DetailsLookup(list),
+                StorageStrategy.createLongStorage()
+            )
             .withSelectionPredicate(object : SelectionPredicate<Long>() {
                 override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean {
                     val position = keyProvider.getPosition(key)

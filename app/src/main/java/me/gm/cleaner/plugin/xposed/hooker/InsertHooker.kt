@@ -115,9 +115,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     shouldIntercept
                 )
             )
-            service.context.contentResolver.notifyChange(
-                MediaStore.Images.Media.INTERNAL_CONTENT_URI, null
-            )
+            service.dispatchMediaChange()
         }
     }
 

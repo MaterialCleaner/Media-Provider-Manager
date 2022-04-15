@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin;
 
 import me.gm.cleaner.plugin.model.ParceledListSlice;
+import me.gm.cleaner.plugin.IMediaChangeObserver;
 
 interface IManagerService {
 
@@ -33,4 +34,10 @@ interface IManagerService {
     void clearAllTables() = 30;
 
     int packageUsageTimes(String table, in List<String> packageNames) = 31;
+
+    void registerMediaChangeObserver(in IMediaChangeObserver observer) = 32;
+
+    void unregisterMediaChangeObserver(in IMediaChangeObserver observer) = 33;
+
+    void dispatchMediaChange() = 34;
 }
