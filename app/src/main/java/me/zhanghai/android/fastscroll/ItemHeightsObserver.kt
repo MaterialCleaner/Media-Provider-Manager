@@ -53,23 +53,25 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
         for (i in positionStart until positionStart + itemCount) {
             val itemView = recycler.getViewForPosition(i)
-            itemHeights[i] = getItemOffset(itemView)
+            val itemOffset = getItemOffset(itemView)
+            itemHeightsSum = itemHeightsSum - itemHeights[i] + itemOffset
+            itemHeights[i] = itemOffset
             recycler.recycleView(itemView)
         }
-        itemHeightsSum = itemHeights.sum()
     }
 
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
         try {
             for (i in positionStart until positionStart + itemCount) {
                 val itemView = recycler.getViewForPosition(i)
-                itemHeights.add(i, getItemOffset(itemView))
+                val itemOffset = getItemOffset(itemView)
+                itemHeights.add(i, itemOffset)
+                itemHeightsSum += itemOffset
                 recycler.recycleView(itemView)
             }
         } catch (e: IndexOutOfBoundsException) {
             // will fallback to onChanged()
         }
-        itemHeightsSum = itemHeights.sum()
     }
 
     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
