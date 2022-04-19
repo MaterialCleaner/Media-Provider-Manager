@@ -23,7 +23,7 @@ internal class SimpleRecyclerViewHelper(
 ) : RecyclerViewHelper(list, popupTextProvider) {
 
     override fun getScrollRange() =
-        list.computeVerticalScrollRange() + list.paddingTop + list.paddingBottom
+        list.paddingTop + list.computeVerticalScrollRange() + list.paddingBottom
 
     override fun getScrollOffset() = list.computeVerticalScrollOffset()
 

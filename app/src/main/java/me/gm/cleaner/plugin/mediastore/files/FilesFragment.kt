@@ -22,15 +22,16 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
-import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
+import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
+import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
-import me.zhanghai.android.fastscroll.ComplexRecyclerViewHelper
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 
 open class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
@@ -38,10 +39,14 @@ open class FilesFragment : MediaStoreFragment() {
     override fun onCreateAdapter() = FilesAdapter(this)
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
-        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+            .setOnLayoutCompletedListener {
+                appBarLayout.isLifted =
+                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
+            }
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setViewHelper(ComplexRecyclerViewHelper(list))
+            .setViewHelper(PreciseRecyclerViewHelper(list))
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
 
