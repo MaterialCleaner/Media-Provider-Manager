@@ -17,11 +17,10 @@
 package me.zhanghai.android.fastscroll
 
 import android.graphics.Canvas
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import me.gm.cleaner.plugin.ktx.getObjectField
+import java.util.concurrent.LinkedBlockingDeque
 
 class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver() {
     val itemHeights = mutableListOf<Int>()
@@ -30,66 +29,83 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     private val recycler = list.getObjectField<RecyclerView.Recycler>()
     private val adapter = list.adapter!!
     private val layoutManager = list.layoutManager as LinearLayoutManager
+    private val queue = LinkedBlockingDeque<Runnable>()
 
-    private fun getItemOffset(itemView: View): Int {
-        layoutManager.measureChildWithMargins(itemView, 0, 0)
-        return if (layoutManager.orientation == RecyclerView.VERTICAL) {
-            itemView.measuredHeight
-        } else {
-            itemView.measuredWidth
+    private fun getItemOffset(position: Int): Int {
+        var itemView = layoutManager.findViewByPosition(position)
+        var newHolderCreated = false
+        if (itemView == null) {
+            itemView = recycler.getViewForPosition(position)
+            newHolderCreated = true
+            layoutManager.measureChildWithMargins(itemView, 0, 0)
+        }
+        try {
+            return if (layoutManager.orientation == RecyclerView.VERTICAL) {
+                itemView.measuredHeight
+            } else {
+                itemView.measuredWidth
+            }
+        } finally {
+            if (newHolderCreated) {
+                recycler.recycleView(itemView)
+            }
         }
     }
 
     override fun onChanged() {
-        itemHeights.clear()
-        for (i in 0 until adapter.itemCount) {
-            val itemView = recycler.getViewForPosition(i)
-            itemHeights += getItemOffset(itemView)
-            recycler.recycleView(itemView)
+        queue.add {
+            itemHeights.clear()
+            for (i in 0 until adapter.itemCount) {
+                itemHeights += getItemOffset(i)
+            }
+            itemHeightsSum = itemHeights.sum()
         }
-        itemHeightsSum = itemHeights.sum()
     }
 
     override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-        for (i in positionStart until positionStart + itemCount) {
-            val itemView = recycler.getViewForPosition(i)
-            val itemOffset = getItemOffset(itemView)
-            itemHeightsSum = itemHeightsSum - itemHeights[i] + itemOffset
-            itemHeights[i] = itemOffset
-            recycler.recycleView(itemView)
+        queue.add {
+            for (i in positionStart until positionStart + itemCount) {
+                val itemOffset = getItemOffset(i)
+                itemHeightsSum = itemHeightsSum - itemHeights[i] + itemOffset
+                itemHeights[i] = itemOffset
+            }
         }
     }
 
     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-        try {
+        queue.add {
             for (i in positionStart until positionStart + itemCount) {
-                val itemView = recycler.getViewForPosition(i)
-                val itemOffset = getItemOffset(itemView)
+                val itemOffset = getItemOffset(i)
                 itemHeights.add(i, itemOffset)
                 itemHeightsSum += itemOffset
-                recycler.recycleView(itemView)
             }
-        } catch (e: IndexOutOfBoundsException) {
-            // will fallback to onChanged()
         }
     }
 
     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-        for (i in 0 until itemCount) {
-            itemHeightsSum -= itemHeights.removeAt(positionStart)
+        queue.add {
+            for (i in 0 until itemCount) {
+                itemHeightsSum -= itemHeights.removeAt(positionStart)
+            }
         }
     }
 
     override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-        // itemCount is always 1
-        itemHeights.add(toPosition, itemHeights.removeAt(fromPosition))
+        queue.add {
+            // itemCount is always 1
+            itemHeights.add(toPosition, itemHeights.removeAt(fromPosition))
+        }
     }
 
     init {
-        list.addItemDecoration(object : ItemDecoration() {
+        list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-                if (itemHeights.size != adapter.itemCount) {
-                    onChanged()
+                if (queue.isNotEmpty()) {
+                    val iterator = queue.iterator()
+                    while (iterator.hasNext()) {
+                        iterator.next().run()
+                        iterator.remove()
+                    }
                 }
             }
         })
