@@ -20,7 +20,7 @@ import android.graphics.Canvas
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.ktx.getObjectField
-import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.LinkedBlockingQueue
 
 class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver() {
     val itemHeights = mutableListOf<Int>()
@@ -29,7 +29,7 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     private val recycler = list.getObjectField<RecyclerView.Recycler>()
     private val adapter = list.adapter!!
     private val layoutManager = list.layoutManager as LinearLayoutManager
-    private val queue = LinkedBlockingDeque<Runnable>()
+    private val queue = LinkedBlockingQueue<Runnable>()
 
     private fun getItemOffset(position: Int): Int {
         var itemView = layoutManager.findViewByPosition(position)
