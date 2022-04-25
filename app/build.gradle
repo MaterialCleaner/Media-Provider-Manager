@@ -97,7 +97,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
-    def kotlinxCoroutinesVersion = '1.6.0'
+    def kotlinxCoroutinesVersion = '1.6.1'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"

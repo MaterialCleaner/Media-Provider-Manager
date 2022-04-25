@@ -119,7 +119,7 @@ abstract class ManagerService : IManagerService.Stub() {
         observers.unregister(observer)
     }
 
-    override fun dispatchMediaChange() {
+    fun dispatchMediaChange() {
         var i = observers.beginBroadcast()
         while (i > 0) {
             i--

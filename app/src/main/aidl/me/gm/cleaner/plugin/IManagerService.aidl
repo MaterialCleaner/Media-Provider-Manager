@@ -38,6 +38,4 @@ interface IManagerService {
     void registerMediaChangeObserver(in IMediaChangeObserver observer) = 32;
 
     void unregisterMediaChangeObserver(in IMediaChangeObserver observer) = 33;
-
-    void dispatchMediaChange() = 34;
 }
