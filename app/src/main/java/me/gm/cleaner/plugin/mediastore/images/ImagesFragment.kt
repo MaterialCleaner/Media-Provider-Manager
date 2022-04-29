@@ -51,10 +51,6 @@ class ImagesFragment : MediaStoreFragment() {
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         val layoutManager =
             LayoutCompleteAwareGridLayoutManager(requireContext(), ModulePreferences.spanCount)
-                .setOnLayoutCompletedListener {
-                    appBarLayout.isLifted =
-                        list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
-                }
         list.layoutManager = layoutManager
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)

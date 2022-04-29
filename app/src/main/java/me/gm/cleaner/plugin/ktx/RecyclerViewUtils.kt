@@ -125,34 +125,6 @@ abstract class DividerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
     var isDividerAllowedBelow = false
 }
 
-class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
-    context: Context, spanCount: Int,
-    @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
-    reverseLayout: Boolean = false
-) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
-    var onLayoutCompletedListener: Consumer<RecyclerView.State?>? = null
-        private set
-
-    fun setOnLayoutCompletedListener(l: Consumer<RecyclerView.State?>?): LayoutCompleteAwareGridLayoutManager {
-        onLayoutCompletedListener = l
-        return this
-    }
-
-    override fun onLayoutCompleted(state: RecyclerView.State?) {
-        super.onLayoutCompleted(state)
-        onLayoutCompletedListener?.accept(state)
-    }
-}
-
-fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) {
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-            callback(adapter?.itemCount != 0 && !recyclerView.isItemCompletelyVisible(0))
-        }
-    })
-}
-
 fun RecyclerView.overScrollIfContentScrollsPersistent(supportsChangeAnimations: Boolean = true) {
     doOnPreDraw {
         overScrollIfContentScrolls()
@@ -202,6 +174,51 @@ fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
     val layoutManager = layoutManager!!
     return !layoutManager.isViewPartiallyVisible(vh.itemView, true, true) &&
             !layoutManager.isViewPartiallyVisible(vh.itemView, false, false)
+}
+
+/**
+ * A [GridLayoutManager] used to listen to layout completed event, which is helpful to know when
+ * [RecyclerView.LayoutManager.scrollToPosition] or [LinearLayoutManager.scrollToPositionWithOffset] is called.
+ */
+class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
+    context: Context, spanCount: Int,
+    @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
+    reverseLayout: Boolean = false
+) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
+    // Create anyway because this is the only feature of LayoutCompleteAwareGridLayoutManager.
+    val onLayoutCompletedListeners = mutableListOf<Consumer<RecyclerView.State>>()
+
+    fun addOnLayoutCompletedListener(l: Consumer<RecyclerView.State>): LayoutCompleteAwareGridLayoutManager {
+        onLayoutCompletedListeners.add(l)
+        return this
+    }
+
+    fun removeOnLayoutCompletedListener(l: Consumer<RecyclerView.State>) {
+        onLayoutCompletedListeners.remove(l)
+    }
+
+    fun clearOnLayoutCompletedListeners() {
+        onLayoutCompletedListeners.clear()
+    }
+
+    override fun onLayoutCompleted(state: RecyclerView.State) {
+        super.onLayoutCompleted(state)
+        onLayoutCompletedListeners.asReversed().forEach {
+            it.accept(state)
+        }
+    }
+}
+
+fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(list: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(list, dx, dy)
+            callback(adapter?.itemCount != 0 && !isItemCompletelyVisible(0))
+        }
+    })
+    (layoutManager as? LayoutCompleteAwareGridLayoutManager)?.addOnLayoutCompletedListener {
+        callback(adapter?.itemCount != 0 && !isItemCompletelyVisible(0))
+    }
 }
 
 // ViewCompat's ApplyWindowInsetsListener has issue of the search view.

@@ -82,7 +82,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
         val keyProvider = StableIdKeyProvider(list)
         selectionTracker = SelectionTracker
@@ -151,6 +150,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         })
 
         onBindView(binding)
+        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         return binding.root
     }
 

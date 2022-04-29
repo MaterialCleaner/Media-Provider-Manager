@@ -60,9 +60,6 @@ class UsageRecordFragment : ModuleFragment() {
         val list = binding.list
         list.adapter = adapter
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
-            .setOnLayoutCompletedListener {
-                appBarLayout.isLifted = adapter.itemCount != 0 && !list.isItemCompletelyVisible(0)
-            }
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()

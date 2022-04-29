@@ -40,10 +40,6 @@ open class FilesFragment : MediaStoreFragment() {
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
-            .setOnLayoutCompletedListener {
-                appBarLayout.isLifted =
-                    list.adapter?.itemCount != 0 && !list.isItemCompletelyVisible(0)
-            }
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setViewHelper(PreciseRecyclerViewHelper(list))
