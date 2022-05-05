@@ -91,15 +91,18 @@ class ImagePagerFragment : BaseFragment() {
                 position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
             ) {
                 lastPosition.putInt(KEY_POSITION, position)
+                val ssiv: SubsamplingScaleImageView =
+                    viewPager.findViewById(R.id.subsampling_scale_image_view)
+                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
+            }
+
+            override fun onPageSelected(position: Int) {
                 supportActionBar?.apply {
                     title = args.displayNames[position]
                     if (args.isMediaStoreUri) {
                         subtitle = "${position + 1} / $size"
                     }
                 }
-                val ssiv: SubsamplingScaleImageView =
-                    viewPager.findViewById(R.id.subsampling_scale_image_view)
-                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
             }
         })
         navController.addOnExitListener { _, destination, _ ->
