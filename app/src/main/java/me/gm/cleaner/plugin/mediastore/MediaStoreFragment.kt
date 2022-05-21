@@ -96,10 +96,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
                     val viewHolder = list.findViewHolderForLayoutPosition(position)
-                    if (viewHolder is MediaStoreAdapter.ViewHolder) {
-                        return viewHolder.details != null
-                    }
-                    return true
+                    return viewHolder is MediaStoreAdapter.ViewHolder && viewHolder.details != null
                 }
 
                 override fun canSelectMultiple() = true

@@ -34,6 +34,9 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     private val queue = LinkedBlockingQueue<Runnable>()
 
     private fun getItemOffset(position: Int): Int {
+        if (position >= adapter.itemCount) {
+            return 0
+        }
         var itemView = layoutManager.findViewByPosition(position)
         var newHolderCreated = false
         if (itemView == null) {

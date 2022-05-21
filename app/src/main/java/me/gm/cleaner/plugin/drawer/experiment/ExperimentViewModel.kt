@@ -38,6 +38,7 @@ import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
 import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
 import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findItemById
+import java.io.File
 import java.net.URL
 import javax.inject.Inject
 
@@ -96,7 +97,8 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                     val request = DownloadManager
                         .Request(unsplashPhoto.getPhotoUrl(width).toUri())
                         .setDestinationInExternalPublicDir(
-                            Environment.DIRECTORY_PICTURES, unsplashPhoto.filename
+                            Environment.DIRECTORY_PICTURES,
+                            File.separator + "MPM" + File.separator + unsplashPhoto.filename
                         )
                     val id = downloadManager.enqueue(request)
                 }
@@ -123,7 +125,10 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                     ensureActive()
                     val unsplashPhoto = unsplashPhotos.random()
                     val imageDetails = ContentValues().apply {
-                        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                        put(
+                            MediaStore.MediaColumns.RELATIVE_PATH,
+                            Environment.DIRECTORY_PICTURES + File.separator + "MPM"
+                        )
                         put(MediaStore.MediaColumns.DISPLAY_NAME, unsplashPhoto.filename)
                         put(
                             MediaStore.MediaColumns.MIME_TYPE,
