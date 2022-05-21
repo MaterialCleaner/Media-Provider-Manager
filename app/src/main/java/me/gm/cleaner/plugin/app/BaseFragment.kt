@@ -59,9 +59,9 @@ abstract class BaseFragment : Fragment() {
                 }
                 val denied = result.keys - granted
                 if (denied.isNotEmpty()) {
-                    val shouldShowRationale = denied.asSequence().filter {
+                    val shouldShowRationale = denied.filterTo(mutableSetOf()) {
                         ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
-                    }.toSet()
+                    }
                     val permanentlyDenied = denied - shouldShowRationale
                     onRequestPermissionsFailure(
                         shouldShowRationale, permanentlyDenied, savedInstanceState
@@ -71,18 +71,18 @@ abstract class BaseFragment : Fragment() {
     }
 
     open fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
-        val granted = permissions.asSequence().filter {
+        val granted = permissions.filterTo(mutableSetOf()) {
             ActivityCompat.checkSelfPermission(requireContext(), it) ==
                     PackageManager.PERMISSION_GRANTED
-        }.toSet()
+        }
         if (granted.isNotEmpty()) {
             onRequestPermissionsSuccess(granted, savedInstanceState)
         }
         if (permissions.size > granted.size) {
             val denied = permissions.toSet() - granted
-            val shouldShowRationale = denied.asSequence().filter {
+            val shouldShowRationale = denied.filterTo(mutableSetOf()) {
                 ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
-            }.toSet()
+            }
             if (shouldShowRationale.isNotEmpty()) {
                 onRequestPermissionsFailure(shouldShowRationale, emptySet(), savedInstanceState)
             } else {

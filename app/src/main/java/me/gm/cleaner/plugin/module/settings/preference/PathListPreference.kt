@@ -96,7 +96,7 @@ class PathListPreference @JvmOverloads constructor(
             val size = source.readInt()
             val strings = arrayOfNulls<String>(size)
             source.readStringArray(strings)
-            mValues = strings.asSequence().mapNotNull { it!! }.toSet()
+            mValues = strings.mapNotNullTo(mutableSetOf()) { it!! }
         }
 
         constructor(superState: Parcelable?) : super(superState)
