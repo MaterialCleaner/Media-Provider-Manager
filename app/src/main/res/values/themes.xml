@@ -36,7 +36,9 @@
         <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
         <item name="overlapAnchor">false</item>
 
-        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>
+        <!-- FastScrollerThumbColor -->
+        <item name="colorControlActivated">?colorPrimary</item>
+<!--        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>-->
 
         <!-- Preference Theme -->
         <item name="preferenceTheme">@style/PreferenceTheme</item>
