@@ -16,12 +16,14 @@
 
 package me.zhanghai.android.fastscroll
 
-import android.graphics.Canvas
+import androidx.annotation.VisibleForTesting
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.getObjectField
 import java.util.concurrent.LinkedBlockingQueue
 
+@VisibleForTesting
 class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver() {
     val itemHeights = mutableListOf<Int>()
     var itemHeightsSum = 0
@@ -98,16 +100,14 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     }
 
     init {
-        list.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-                if (queue.isNotEmpty()) {
-                    val iterator = queue.iterator()
-                    while (iterator.hasNext()) {
-                        iterator.next().run()
-                        iterator.remove()
-                    }
+        (layoutManager as? LayoutCompleteAwareGridLayoutManager)?.addOnLayoutCompletedListener {
+            if (queue.isNotEmpty()) {
+                val iterator = queue.iterator()
+                while (iterator.hasNext()) {
+                    iterator.next().run()
+                    iterator.remove()
                 }
             }
-        })
+        }
     }
 }

@@ -25,7 +25,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
@@ -33,7 +32,6 @@ import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.SimpleRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : ModuleFragment() {
@@ -56,11 +54,10 @@ class AppListFragment : ModuleFragment() {
         val adapter = AppListAdapter(this)
         val list = binding.list
         list.adapter = adapter
-        list.layoutManager = GridLayoutManager(requireContext(), 1)
+        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setViewHelper(SimpleRecyclerViewHelper(list))
             .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
