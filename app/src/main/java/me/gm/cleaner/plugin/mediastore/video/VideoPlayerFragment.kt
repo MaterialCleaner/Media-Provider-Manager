@@ -53,6 +53,8 @@ class VideoPlayerFragment : BaseFragment() {
     private lateinit var trackSelectionParameters: DefaultTrackSelector.Parameters
     private var startItemIndex = 0
     private var startPosition = 0L
+    private var isPlaying = true
+    private var playbackSpeed = 1F
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: StyledPlayerView? = null
@@ -74,6 +76,8 @@ class VideoPlayerFragment : BaseFragment() {
             )
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX)
             startPosition = savedInstanceState.getLong(KEY_POSITION)
+            isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, isPlaying)
+            playbackSpeed = savedInstanceState.getFloat(KEY_SPEED, playbackSpeed)
         } else {
             trackSelectionParameters = ParametersBuilder(requireContext()).build()
         }
@@ -142,8 +146,9 @@ class VideoPlayerFragment : BaseFragment() {
                 player.addListener(PlayerEventListener())
                 player.addAnalyticsListener(EventLogger(trackSelector))
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)
-                player.playWhenReady = true
                 player.seekTo(startItemIndex, startPosition)
+                player.playWhenReady = isPlaying
+                player.setPlaybackSpeed(playbackSpeed)
                 val mediaItems = args.uris.map { MediaItem.fromUri(it) }
                 player.setMediaItems(mediaItems, false)
                 player.prepare()
@@ -157,6 +162,8 @@ class VideoPlayerFragment : BaseFragment() {
                 player.trackSelectionParameters as DefaultTrackSelector.Parameters
             startItemIndex = player.currentMediaItemIndex
             startPosition = max(0, player.contentPosition)
+            isPlaying = player.isPlaying
+            playbackSpeed = player.playbackParameters.speed
         }
     }
 
@@ -203,6 +210,8 @@ class VideoPlayerFragment : BaseFragment() {
         outState.putBundle(KEY_TRACK_SELECTION_PARAMETERS, trackSelectionParameters.toBundle())
         outState.putInt(KEY_ITEM_INDEX, startItemIndex)
         outState.putLong(KEY_POSITION, startPosition)
+        outState.putBoolean(KEY_IS_PLAYING, isPlaying)
+        outState.putFloat(KEY_SPEED, playbackSpeed)
     }
 
     companion object {
@@ -210,5 +219,7 @@ class VideoPlayerFragment : BaseFragment() {
         private const val KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters"
         private const val KEY_ITEM_INDEX = "item_index"
         private const val KEY_POSITION = "position"
+        private const val KEY_IS_PLAYING = "is_playing"
+        private const val KEY_SPEED = "speed"
     }
 }
