@@ -87,7 +87,8 @@ class ImagesViewModel(application: Application) :
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
             val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.DATA
+                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
+                        MediaStore.Files.FileColumns.DISPLAY_NAME
                 ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
                 else -> throw IllegalArgumentException()
             }

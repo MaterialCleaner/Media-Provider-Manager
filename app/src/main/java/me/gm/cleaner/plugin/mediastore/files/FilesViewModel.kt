@@ -76,7 +76,8 @@ open class FilesViewModel(application: Application) :
             )
 
             val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.DATA
+                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
+                        MediaStore.Files.FileColumns.DISPLAY_NAME
                 ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
                 ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
                 else -> throw IllegalArgumentException()
