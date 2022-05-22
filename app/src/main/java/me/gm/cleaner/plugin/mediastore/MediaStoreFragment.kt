@@ -51,6 +51,7 @@ import me.gm.cleaner.plugin.mediastore.audio.AudioFragment
 import me.gm.cleaner.plugin.mediastore.downloads.DownloadsFragment
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
+import me.gm.cleaner.plugin.mediastore.files.MediaStoreFilesHeader
 import me.gm.cleaner.plugin.mediastore.images.*
 import me.gm.cleaner.plugin.mediastore.video.VideoFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
@@ -95,8 +96,9 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
-                    val viewHolder = list.findViewHolderForLayoutPosition(position)
-                    return viewHolder is MediaStoreAdapter.ViewHolder && viewHolder.details != null
+                    val currentList = adapter.currentList
+                    // empty onConfigurationChanged
+                    return currentList.isEmpty() || currentList[position] !is MediaStoreFilesHeader
                 }
 
                 override fun canSelectMultiple() = true

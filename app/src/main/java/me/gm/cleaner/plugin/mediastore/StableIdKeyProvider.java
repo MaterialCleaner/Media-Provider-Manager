@@ -18,7 +18,6 @@
 package me.gm.cleaner.plugin.mediastore;
 
 import androidx.annotation.NonNull;
-import androidx.collection.LongSparseArray;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,7 +47,6 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     private static final String TAG = "StableIdKeyProvider";
 
-    private final LongSparseArray<Integer> mKeyToPosition = new LongSparseArray<>();
     private final RecyclerView mRecyclerView;
     private final RecyclerView.Adapter<?> mAdapter;
 
@@ -77,12 +75,14 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
     public int getPosition(@NonNull Long key) {
         var holder = mRecyclerView.findViewHolderForItemId(key);
         if (holder != null) {
-            var id = holder.getItemId();
-            var position = holder.getLayoutPosition();
-            mKeyToPosition.put(id, position);
-            return position;
+            return holder.getLayoutPosition();
         } else {
-            return mKeyToPosition.get(key, RecyclerView.NO_POSITION);
+            for (int i = 0, itemCount = mAdapter.getItemCount(); i < itemCount; i++) {
+                if (key == mAdapter.getItemId(i)) {
+                    return i;
+                }
+            }
+            return RecyclerView.NO_POSITION;
         }
     }
 }

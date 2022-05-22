@@ -16,14 +16,12 @@
 
 package me.zhanghai.android.fastscroll
 
-import androidx.annotation.VisibleForTesting
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.getObjectField
 import java.util.concurrent.LinkedBlockingQueue
 
-@VisibleForTesting
 class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver() {
     val itemHeights = mutableListOf<Int>()
     var itemHeightsSum = 0
