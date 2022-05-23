@@ -28,9 +28,9 @@ import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
-import me.gm.cleaner.plugin.ktx.isItemCompletelyVisible
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.PopupStyle
 import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 
 open class FilesFragment : MediaStoreFragment() {
@@ -42,6 +42,7 @@ open class FilesFragment : MediaStoreFragment() {
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
+            .setPopupStyle(PopupStyle.MD3)
             .setViewHelper(PreciseRecyclerViewHelper(list))
             .build()
         list.fitsSystemWindowInsetBottom(fastScroller)
