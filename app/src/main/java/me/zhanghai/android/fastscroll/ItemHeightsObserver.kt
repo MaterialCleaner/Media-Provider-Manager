@@ -23,7 +23,9 @@ import me.gm.cleaner.plugin.ktx.getObjectField
 import java.util.concurrent.LinkedBlockingQueue
 
 class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver() {
-    val itemHeights = mutableListOf<Int>()
+    private val _itemHeights = mutableListOf<Int>()
+    val itemHeights: List<Int>
+        get() = _itemHeights
     var itemHeightsSum = 0
         private set
     private val recycler = list.getObjectField<RecyclerView.Recycler>()
@@ -57,11 +59,11 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
 
     override fun onChanged() {
         queue.add {
-            itemHeights.clear()
+            _itemHeights.clear()
             for (i in 0 until adapter.itemCount) {
-                itemHeights += getItemOffset(i)
+                _itemHeights += getItemOffset(i)
             }
-            itemHeightsSum = itemHeights.sum()
+            itemHeightsSum = _itemHeights.sum()
         }
     }
 
@@ -69,8 +71,8 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
         queue.add {
             for (i in positionStart until positionStart + itemCount) {
                 val itemOffset = getItemOffset(i)
-                itemHeightsSum = itemHeightsSum - itemHeights[i] + itemOffset
-                itemHeights[i] = itemOffset
+                itemHeightsSum = itemHeightsSum - _itemHeights[i] + itemOffset
+                _itemHeights[i] = itemOffset
             }
         }
     }
@@ -79,7 +81,7 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
         queue.add {
             for (i in positionStart until positionStart + itemCount) {
                 val itemOffset = getItemOffset(i)
-                itemHeights.add(i, itemOffset)
+                _itemHeights.add(i, itemOffset)
                 itemHeightsSum += itemOffset
             }
         }
@@ -88,7 +90,7 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
         queue.add {
             for (i in 0 until itemCount) {
-                itemHeightsSum -= itemHeights.removeAt(positionStart)
+                itemHeightsSum -= _itemHeights.removeAt(positionStart)
             }
         }
     }
@@ -96,7 +98,7 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
     override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
         queue.add {
             // itemCount is always 1
-            itemHeights.add(toPosition, itemHeights.removeAt(fromPosition))
+            _itemHeights.add(toPosition, _itemHeights.removeAt(fromPosition))
         }
     }
 

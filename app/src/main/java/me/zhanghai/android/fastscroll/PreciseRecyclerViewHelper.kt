@@ -75,8 +75,7 @@ internal class PreciseRecyclerViewHelper(
 
     private fun scrollToPositionWithOffset(position: Int, offset: Int) {
         if (layoutManager is GridLayoutManager && layoutManager.spanCount > 1) {
-            // GridLayoutManager is not supported yet.
-            throw UnsupportedOperationException()
+            throw UnsupportedOperationException("GridLayoutManager is not supported yet.")
         }
         // LinearLayoutManager actually takes offset from paddingTop instead of top of RecyclerView.
         val offset = offset - list.paddingTop
