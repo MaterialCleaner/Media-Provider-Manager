@@ -23,7 +23,7 @@
         android:checkable="true"
         android:title="@string/experiment_header" />
 
-    <item android:title="@string/unsplash">
+    <item android:title="@string/experiment_title_insert">
         <menu>
             <item
                 android:id="@+id/unsplash_download_manager"
@@ -38,9 +38,34 @@
         </menu>
     </item>
 
+    <item android:title="@string/experiment_title_intercept">
+        <menu>
+            <item
+                android:id="@+id/intercept_insert"
+                android:checked="false"
+                android:title="@string/intercept_insert_title"
+                android:titleCondensed="@string/intercept_insert_summary" />
+            <item
+                android:id="@+id/intercept_download_manager"
+                android:checked="false"
+                android:title="@string/intercept_download_manager_title"
+                android:titleCondensed="@string/intercept_download_manager_summary" />
+            <item
+                android:id="@+id/intercept_query"
+                android:checked="false"
+                android:title="@string/intercept_query_title"
+                android:titleCondensed="@string/intercept_query_summary" />
+        </menu>
+    </item>
+
+    <!--    <item android:title="@string/experiment_title_do_it_yourself">-->
+    <!--        <menu>-->
     <!--            <item-->
-    <!--                android:id="@+id/persistently_track"-->
-    <!--            android:checked="false"-->
-    <!--                android:title="@string/persistently_track_title" />-->
+    <!--                android:id="@+id/do_it_yourself"-->
+    <!--                android:checked="false"-->
+    <!--                android:title="@string/do_it_yourself_title"-->
+    <!--                android:titleCondensed="@string/do_it_yourself_summary" />-->
+    <!--        </menu>-->
+    <!--    </item>-->
 
 </menu>

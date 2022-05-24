@@ -17,7 +17,6 @@
 package me.gm.cleaner.plugin.drawer.experiment
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.DownloadManager
 import android.content.ContentValues
 import android.content.Context
@@ -31,8 +30,10 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
@@ -48,7 +49,8 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
     val dismissedCard = mutableListOf<Int>()
 
     @SuppressLint("RestrictedApi")
-    fun prepareContentItems(activity: Activity, adapter: ExperimentAdapter) {
+    fun prepareContentItems(fragment: ExperimentFragment, adapter: ExperimentAdapter) {
+        val activity = fragment.requireActivity()
         val menu = MenuBuilder(activity)
         activity.menuInflater.inflate(R.menu.experiment_content, menu)
         val items = ExperimentContentItems.forMenuBuilder(menu)
@@ -66,6 +68,13 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             unsplashDownloadManager(activity)
         items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).action =
             unsplashInsert(activity)
+        items.findItemById<ExperimentContentActionItem>(R.id.intercept_insert).action =
+            interceptInsert(fragment)
+        items.findItemById<ExperimentContentActionItem>(R.id.intercept_download_manager).action =
+            interceptDownloadManager(fragment)
+        items.findItemById<ExperimentContentActionItem>(R.id.intercept_query).action =
+            interceptQuery(fragment)
+
         adapter.submitList(items)
     }
 
@@ -157,4 +166,56 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             unsplashPhotos = unsplashPhotoListResult
         }
     }
+
+    private fun interceptInsert(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+        return {
+            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+                templateName = fragment.getString(R.string.intercept_insert_title),
+                hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
+                        fragment.getString(R.string.hook_operation_query),
+                packageNames = arrayOf(BuildConfig.APPLICATION_ID),
+                permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
+                        fragment.getString(R.string.media_type_image),
+            )
+            withContext(Dispatchers.Main.immediate) {
+                fragment.findNavController().navigate(direction)
+            }
+        }
+    }
+
+    private fun interceptDownloadManager(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+        return {
+            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+                templateName = fragment.getString(R.string.intercept_download_manager_title),
+                hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
+                        fragment.getString(R.string.hook_operation_query),
+                packageNames = fragment.resources.getStringArray(R.array.recommend_package),
+                permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
+                        fragment.getString(R.string.media_type_image),
+            )
+            withContext(Dispatchers.Main.immediate) {
+                fragment.findNavController().navigate(direction)
+            }
+        }
+    }
+
+    private fun interceptQuery(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+        return {
+            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+                templateName = fragment.getString(R.string.intercept_query_title),
+                hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
+                        fragment.getString(R.string.hook_operation_insert),
+                packageNames = arrayOf(BuildConfig.APPLICATION_ID),
+                permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
+                        fragment.getString(R.string.media_type_image),
+            )
+            withContext(Dispatchers.Main.immediate) {
+                fragment.findNavController().navigate(direction)
+            }
+        }
+    }
+}
+
+private inline operator fun <reified T> Array<T>.minus(string: T): Array<T> {
+    return (toMutableSet() - string).toTypedArray()
 }

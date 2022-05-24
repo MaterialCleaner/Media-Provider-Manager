@@ -46,6 +46,7 @@ import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.settings.preference.AppListMultiSelectListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.module.settings.preference.PathListPreferenceFragmentCompat
+import me.gm.cleaner.plugin.module.settings.preference.RefinedMultiSelectListPreference
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import kotlin.collections.set
 
@@ -70,7 +71,8 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                                 Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
                                     it.templateName == if (savedInstanceState == null) args.templateName
                                     else savedInstanceState.getString(KEY_TEMPLATE_NAME)
-                                })
+                                }
+                            )
                         )
                     } catch (e: NoSuchElementException) {
                         JsonSharedPreferencesImpl()
@@ -115,20 +117,32 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                 }
             }
 
+        args.hookOperation?.let {
+            val hookOperation = getString(R.string.hook_operation_key)
+            findPreference<RefinedMultiSelectListPreference>(hookOperation)
+                ?.values = it.toSet()
+        }
+
         val applyToApp = getString(R.string.apply_to_app_key)
         findPreference<AppListMultiSelectListPreference>(applyToApp)
             ?.loadApps { binderViewModel.getInstalledPackages(0) }
-            ?.setOnAppsLoadedListener {
-                if (args.packageName != null) {
-                    it.values = it.values + args.packageName
+            ?.setOnAppsLoadedListener { preference ->
+                args.packageNames?.let {
+                    preference.values = preference.values + it
                 }
             }
+
+        args.permittedMediaTypes?.let {
+            val permittedMediaTypes = getString(R.string.permitted_media_types_key)
+            findPreference<RefinedMultiSelectListPreference>(permittedMediaTypes)
+                ?.values = it.toSet()
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ) = super.onCreateView(inflater, container, savedInstanceState)
-        ?.apply { prepareSharedElementTransition(listView) }
+        .apply { prepareSharedElementTransition(listView) }
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
         setFragmentResult(CreateTemplateFragment::class.java.name, lastTemplateName)
@@ -155,7 +169,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (args.templateName != null && args.packageName == null) {
+        if (args.templateName != null && args.packageNames == null) {
             (requireActivity() as AppCompatActivity).supportActionBar?.setTitle(R.string.edit_template_title)
         }
     }

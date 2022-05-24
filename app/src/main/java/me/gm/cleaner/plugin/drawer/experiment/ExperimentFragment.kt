@@ -76,20 +76,18 @@ class ExperimentFragment : BaseFragment() {
             }
         })
 
-        viewModel.prepareContentItems(requireActivity(), adapter)
+        viewModel.prepareContentItems(this, adapter)
         viewModel.unsplashPhotosLiveData.observe(viewLifecycleOwner) {
-            synchronized(viewModel.actions) {
-                val changedItemIds = mutableListOf<Int>()
-                viewModel.actions.keyIterator().forEach { id ->
-                    if (!viewModel.actions[id].isActive) {
-                        changedItemIds.add(id)
-                        val position = adapter.currentList.findIndexById(id)
-                        adapter.notifyItemChanged(position)
-                    }
+            val changedItemIds = mutableListOf<Int>()
+            viewModel.actions.keyIterator().forEach { id ->
+                if (!viewModel.actions[id].isActive) {
+                    changedItemIds.add(id)
+                    val position = adapter.currentList.findIndexById(id)
+                    adapter.notifyItemChanged(position)
                 }
-                changedItemIds.forEach { id ->
-                    viewModel.actions.remove(id)
-                }
+            }
+            changedItemIds.forEach { id ->
+                viewModel.actions.remove(id)
             }
         }
         return binding.root

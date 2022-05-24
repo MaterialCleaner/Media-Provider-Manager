@@ -92,10 +92,19 @@
     <!-- 實驗 -->
     <string name="experiment_header">這裡有一些關於媒體儲存的實驗，您可以透過它們瞭解媒體儲存和測試模組功能。</string>
     <string name="no_wifi">當前沒有連線到 wifi 網路，此實驗將會消耗您的資料流量，是否繼續？</string>
-    <string name="unsplash">Unsplash</string>
+    <string name="start">開始</string>
+
+    <string name="experiment_title_insert">插入</string>
     <string name="unsplash_download_manager_title">透過下載管理程式下載 10 張來自 Unsplash 的隨機圖片</string>
     <string name="unsplash_download_manager_summary">透過下載管理程式下載檔案無需儲存許可權，且下載的檔案歸因於發起請求的應用（應用訪問這些檔案無需儲存許可權）。\n您可以撤銷本應用的儲存許可權，點選開始，然後切換到圖片頁面並取消工具欄更多選項中的勾選，觀察是否能看到下載的圖片。</string>
     <string name="unsplash_insert_title">透過媒體儲存插入 10 張來自 Unsplash 的隨機圖片</string>
-    <string name="unsplash_insert_summary">效果與使用下載管理程式相似，主要區別在於下載管理程式不會傳送通知以及下載管理程式中沒有下載記錄。</string>
-    <string name="start">開始</string>
+    <string name="unsplash_insert_summary">效果與使用下載管理程序相似，主要區別在於插入圖片的應用不同（使用記錄中可以看到）。</string>
+
+    <string name="experiment_title_intercept">攔截</string>
+    <string name="intercept_insert_title">攔截插入</string>
+    <string name="intercept_insert_summary">首先編寫攔截規則。在應用管理中找到本應用，點擊創建模板，掛鉤操作去掉查詢，允許的媒體類型去掉圖片。點擊開始可以快速添加此規則。\n然後點擊實驗二的開始，切換到圖片頁面，觀察是否能看到圖片。最後用檔案管理器打開 Pictures/MPM/，觀察是否能看到圖片。</string>
+    <string name="intercept_download_manager_title">攔截下載管理程序</string>
+    <string name="intercept_download_manager_summary">有時應用會先保存文件，然後再通知媒體儲存。在這種情況下，我們只能攔截媒體儲存對媒體檔案的紀錄，而無法阻止保存文件。\n首先編寫攔截規則。規則與上一個實驗大致相同，只是應用到應用改為下載管理程序和媒體儲存設備。點擊開始可以快速添加此規則。\n後續步驟與上個實驗相同。</string>
+    <string name="intercept_query_title">攔截查詢</string>
+    <string name="intercept_query_summary">首先編寫攔截規則。在應用管理中找到本應用，點擊創建模板，掛鉤操作去掉插入，允許的媒體類型去掉圖片。點擊開始可以快速添加此規則。\n然後切換到圖片頁面與文件頁面，觀察是否能看到圖片。</string>
 </resources>

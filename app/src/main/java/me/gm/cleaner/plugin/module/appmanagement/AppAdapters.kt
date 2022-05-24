@@ -194,8 +194,10 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
             }
             fragment.setExitSharedElementCallback(null)
 
-            val direction =
-                AppFragmentDirections.actionAppToCreateTemplate(args.label, args.pi.packageName)
+            val direction = AppFragmentDirections.actionAppToCreateTemplate(
+                templateName = args.label,
+                packageNames = arrayOf(args.pi.packageName),
+            )
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }

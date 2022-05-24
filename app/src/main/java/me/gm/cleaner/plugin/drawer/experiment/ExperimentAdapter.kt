@@ -100,9 +100,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
 
                         override fun onDismiss(view: View) {
                             viewModel.dismissedCard.add(item.id)
-                            viewModel.prepareContentItems(
-                                fragment.requireActivity(), this@ExperimentAdapter
-                            )
+                            viewModel.prepareContentItems(fragment, this@ExperimentAdapter)
                         }
                     })
                 }
@@ -131,7 +129,7 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                             Dispatchers.IO, CoroutineStart.LAZY, item.action!!
                         )
                         viewModel.actions.put(item.id, deferred)
-                        if (!fragment.requireContext().hasWifiTransport) {
+                        if (item.needsNetwork && !fragment.requireContext().hasWifiTransport) {
                             button.toggle()
                             fragment.dialog = MaterialAlertDialogBuilder(fragment.requireContext())
                                 .setMessage(R.string.no_wifi)

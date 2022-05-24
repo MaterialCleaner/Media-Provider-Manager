@@ -77,9 +77,19 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:name="packageName"
+            android:name="hookOperation"
             android:defaultValue="@null"
-            app:argType="string"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="packageNames"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="permittedMediaTypes"
+            android:defaultValue="@null"
+            app:argType="string[]"
             app:nullable="true" />
     </fragment>
 
@@ -157,7 +167,11 @@
     <fragment
         android:id="@+id/experiment_fragment"
         android:name="me.gm.cleaner.plugin.drawer.experiment.ExperimentFragment"
-        android:label="@string/experiment" />
+        android:label="@string/experiment">
+        <action
+            android:id="@+id/action_experiment_to_create_template"
+            app:destination="@id/create_template_fragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/about_fragment"

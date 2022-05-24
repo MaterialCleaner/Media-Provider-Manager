@@ -73,23 +73,19 @@ object ExperimentContentItems {
                     items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
                     convertTo(items, menuItemImpl.subMenu as MenuBuilder)
                 }
-                menuItemImpl.isCheckable -> {
-                    items.add(
-                        ExperimentContentSubHeaderItem(
-                            menuItemImpl.itemId, menuItemImpl.title, menuItemImpl.isChecked
-                        )
+                menuItemImpl.isCheckable -> items.add(
+                    ExperimentContentSubHeaderItem(
+                        menuItemImpl.itemId, menuItemImpl.title, menuItemImpl.isChecked
                     )
-                }
-                else -> {
-                    items.add(
-                        ExperimentContentActionItem(
-                            menuItemImpl.itemId,
-                            menuItemImpl.title,
-                            menuItemImpl.titleCondensed,
-                            needsNetwork = menuItemImpl.isChecked
-                        )
+                )
+                else -> items.add(
+                    ExperimentContentActionItem(
+                        menuItemImpl.itemId,
+                        menuItemImpl.title,
+                        menuItemImpl.titleCondensed,
+                        needsNetwork = menuItemImpl.isChecked
                     )
-                }
+                )
             }
         }
     }
