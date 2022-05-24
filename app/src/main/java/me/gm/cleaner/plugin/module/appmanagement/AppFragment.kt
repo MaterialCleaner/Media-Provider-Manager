@@ -113,7 +113,7 @@ class AppFragment : ModuleFragment() {
     private fun prepareCurrentList(): List<Template> {
         val collator = Collator.getInstance()
         return Templates(binderViewModel.readSp(R.xml.template_preferences))
-            .filter { it.applyToApp?.contains(args.pi.packageName) == true }
+            .filter { it.applyToApp?.contains(args.packageInfo.packageName) == true }
             .sortedWith { o1, o2 -> collator.compare(o1?.templateName, o2?.templateName) }
     }
 
@@ -130,9 +130,9 @@ class AppFragment : ModuleFragment() {
 
     private fun prepareSharedElementTransition(list: RecyclerView) {
         setFragmentResult(
-            AppFragment::class.java.name, bundleOf(KEY_PACKAGENAME to args.pi.packageName)
+            AppFragment::class.java.name, bundleOf(KEY_PACKAGENAME to args.packageInfo.packageName)
         )
-        list.transitionName = args.pi.packageName
+        list.transitionName = args.packageInfo.packageName
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host

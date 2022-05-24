@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.module.appmanagement
 
-import android.content.Context
 import android.content.pm.PackageManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -25,27 +24,9 @@ import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.module.BinderViewModel
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo.Companion.copy
 import java.util.concurrent.atomic.AtomicInteger
 
 class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default) {
-    suspend fun load(
-        binderViewModel: BinderViewModel, context: Context, l: ProgressListener?
-    ) = withContext(defaultDispatcher) {
-        val packageNameToRuleCount =
-            fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
-        val installedPackages = binderViewModel.getInstalledPackages(PackageManager.GET_PERMISSIONS)
-        val size = installedPackages.size
-        val count = AtomicInteger(0)
-        installedPackages.map {
-            ensureActive()
-            l?.onProgress(100 * count.incrementAndGet() / size)
-            PreferencesPackageInfo.newInstance(it, context.packageManager).apply {
-                ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
-            }
-        }
-    }
 
     private fun fetchRuleCount(templates: Templates): Map<String, Int> {
         val map = mutableMapOf<String, Int>()
@@ -57,17 +38,35 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
         return map
     }
 
-    suspend fun update(
-        old: List<PreferencesPackageInfo>, binderViewModel: BinderViewModel
+    suspend fun load(
+        binderViewModel: BinderViewModel, pm: PackageManager, l: ProgressListener?
     ) = withContext(defaultDispatcher) {
         val packageNameToRuleCount =
             fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
-        old.map {
-            it.copy().apply {
-                ruleCount = packageNameToRuleCount.getOrDefault(it.packageName, 0)
-            }
+        val installedPackages = binderViewModel.getInstalledPackages(PackageManager.GET_PERMISSIONS)
+        val size = installedPackages.size
+        val count = AtomicInteger(0)
+        installedPackages.map { pi ->
+            ensureActive()
+            l?.onProgress(100 * count.incrementAndGet() / size)
+            AppListModel(
+                pi,
+                pm.getApplicationLabel(pi.applicationInfo).toString(),
+                packageNameToRuleCount.getOrDefault(pi.packageName, 0),
+            )
         }
     }
+
+    suspend fun update(old: List<AppListModel>, binderViewModel: BinderViewModel) =
+        withContext(defaultDispatcher) {
+            val packageNameToRuleCount =
+                fetchRuleCount(Templates(binderViewModel.readSp(R.xml.template_preferences)))
+            old.map {
+                it.copy(
+                    ruleCount = packageNameToRuleCount.getOrDefault(it.packageInfo.packageName, 0)
+                )
+            }
+        }
 
     interface ProgressListener {
         fun onProgress(progress: Int)

@@ -30,10 +30,9 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 class AppListAdapter(private val fragment: AppListFragment) :
-    ListAdapter<PreferencesPackageInfo, AppListAdapter.ViewHolder>(CALLBACK) {
+    ListAdapter<AppListModel, AppListAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
 
@@ -42,32 +41,37 @@ class AppListAdapter(private val fragment: AppListFragment) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
-        val pi = getItem(position)
+        val model = getItem(position)
         Glide.with(fragment)
-            .load(pi)
+            .load(model.packageInfo)
             .into(binding.icon)
-        binding.title.text = pi.label
-        binding.summary.text = if (pi.ruleCount > 0) {
-            activity.buildStyledTitle(fragment.getString(R.string.enabled_rule_count, pi.ruleCount))
+        binding.title.text = model.label
+        binding.summary.text = if (model.ruleCount > 0) {
+            activity.buildStyledTitle(
+                fragment.getString(R.string.enabled_rule_count, model.ruleCount)
+            )
         } else {
-            pi.packageName
+            model.packageInfo.packageName
         }
-        binding.root.transitionName = pi.packageName
+        binding.root.transitionName = model.packageInfo.packageName
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.applist_fragment) {
                 return@setOnClickListener
             }
-            fragment.enterPackageName = pi.packageName
+            fragment.enterPackageName = model.packageInfo.packageName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
 
-            val direction = AppListFragmentDirections.actionApplistToApp(pi, pi.label)
+            val direction = AppListFragmentDirections.actionApplistToApp(
+                packageInfo = model.packageInfo,
+                label = model.label,
+            )
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }
 
-        if (fragment.enterPackageName == pi.packageName) {
+        if (fragment.enterPackageName == model.packageInfo.packageName) {
             fragment.startPostponedEnterTransition()
         }
     }
@@ -75,14 +79,14 @@ class AppListAdapter(private val fragment: AppListFragment) :
     class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<PreferencesPackageInfo> =
-            object : DiffUtil.ItemCallback<PreferencesPackageInfo>() {
+        private val CALLBACK: DiffUtil.ItemCallback<AppListModel> =
+            object : DiffUtil.ItemCallback<AppListModel>() {
                 override fun areItemsTheSame(
-                    oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
-                ) = oldItem.packageName == newItem.packageName
+                    oldItem: AppListModel, newItem: AppListModel
+                ) = oldItem.packageInfo.packageName == newItem.packageInfo.packageName
 
                 override fun areContentsTheSame(
-                    oldItem: PreferencesPackageInfo, newItem: PreferencesPackageInfo
+                    oldItem: AppListModel, newItem: AppListModel
                 ) = oldItem == newItem
             }
     }

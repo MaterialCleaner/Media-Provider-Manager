@@ -37,7 +37,7 @@
             android:id="@+id/action_app_to_create_template"
             app:destination="@id/create_template_fragment" />
         <argument
-            android:name="pi"
+            android:name="packageInfo"
             app:argType="android.content.pm.PackageInfo" />
         <argument
             android:name="label"

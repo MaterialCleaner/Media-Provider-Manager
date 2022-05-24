@@ -59,14 +59,14 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         Glide.with(fragment)
-            .load(args.pi)
+            .load(args.packageInfo)
             .into(binding.icon)
-        binding.labelVersion.text = "${args.label} ${args.pi.versionName}"
-        binding.packageName.text = args.pi.packageName
-        binding.sdk.text = "SDK ${args.pi.applicationInfo.targetSdkVersion}"
+        binding.labelVersion.text = "${args.label} ${args.packageInfo.versionName}"
+        binding.packageName.text = args.packageInfo.packageName
+        binding.sdk.text = "SDK ${args.packageInfo.applicationInfo.targetSdkVersion}"
         binding.sdk.setOnClickListener {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", args.pi.packageName, null)
+                data = Uri.fromParts("package", args.packageInfo.packageName, null)
             }
             fragment.startActivity(intent)
         }
@@ -76,7 +76,7 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
             MediaProviderDeleteRecord::class.simpleName!! to R.string.delete_times,
         ).mapNotNull { (table, resId) ->
             val packageUsageTimes = fragment.binderViewModel.packageUsageTimes(
-                table, listOf(args.pi.packageName)
+                table, listOf(args.packageInfo.packageName)
             )
             if (packageUsageTimes == 0) {
                 null
@@ -196,7 +196,7 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
 
             val direction = AppFragmentDirections.actionAppToCreateTemplate(
                 templateName = args.label,
-                packageNames = arrayOf(args.pi.packageName),
+                packageNames = arrayOf(args.packageInfo.packageName),
             )
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)

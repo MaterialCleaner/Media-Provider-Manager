@@ -17,20 +17,19 @@
 package me.gm.cleaner.plugin.module.appmanagement
 
 import android.Manifest
-import android.content.Context
+import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.os.Build
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.module.BinderViewModel
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.text.Collator
 
-class AppListViewModel : ViewModel() {
+class AppListViewModel(application: Application) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearchingFlow.value
@@ -54,12 +53,12 @@ class AppListViewModel : ViewModel() {
                     var sequence = source.list.asSequence()
                     if (ModulePreferences.isHideSystemApp) {
                         sequence = sequence.filter {
-                            it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0
+                            it.packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0
                         }
                     }
                     if (ModulePreferences.isHideNoStoragePermissionApp) {
                         sequence = sequence.filter {
-                            it.requestedPermissions?.run {
+                            it.packageInfo.requestedPermissions?.run {
                                 contains(Manifest.permission.READ_EXTERNAL_STORAGE)
                                         || contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                         || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -71,7 +70,7 @@ class AppListViewModel : ViewModel() {
                         val lowerQuery = queryText.lowercase()
                         sequence = sequence.filter {
                             it.label.lowercase().contains(lowerQuery) ||
-                                    it.applicationInfo.packageName.lowercase().contains(lowerQuery)
+                                    it.packageInfo.packageName.lowercase().contains(lowerQuery)
                         }
                     }
                     sequence = when (ModulePreferences.sortBy) {
@@ -82,7 +81,7 @@ class AppListViewModel : ViewModel() {
                             }
                         }
                         ModulePreferences.SORT_BY_UPDATE_TIME -> sequence.sortedWith(Comparator.comparingLong {
-                            -it.lastUpdateTime
+                            -it.packageInfo.lastUpdateTime
                         })
                         else -> throw IllegalArgumentException()
                     }
@@ -97,7 +96,7 @@ class AppListViewModel : ViewModel() {
         }
 
     fun loadApps(
-        binderViewModel: BinderViewModel, context: Context,
+        binderViewModel: BinderViewModel,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
                 _appsFlow.value = SourceState.Loading(progress)
@@ -106,7 +105,9 @@ class AppListViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             _appsFlow.value = SourceState.Loading(0)
-            val list = AppListLoader().load(binderViewModel, context, l)
+            val list = AppListLoader().load(
+                binderViewModel, getApplication<Application>().packageManager, l
+            )
             _appsFlow.value = SourceState.Done(list)
         }
     }
@@ -126,5 +127,5 @@ class AppListViewModel : ViewModel() {
 
 sealed class SourceState {
     data class Loading(val progress: Int) : SourceState()
-    data class Done(val list: List<PreferencesPackageInfo>) : SourceState()
+    data class Done(val list: List<AppListModel>) : SourceState()
 }

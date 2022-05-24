@@ -64,7 +64,7 @@ class AppListFragment : ModuleFragment() {
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.fitsSystemWindowInsetBottom(fastScroller)
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(binderViewModel, requireContext(), null)
+            viewModel.loadApps(binderViewModel, null)
         }
 
         // Start a coroutine in the lifecycle scope
@@ -88,7 +88,7 @@ class AppListFragment : ModuleFragment() {
             }
         }
         if (savedInstanceState == null && viewModel.isLoading) {
-            viewModel.loadApps(binderViewModel, requireContext())
+            viewModel.loadApps(binderViewModel)
         }
         setFragmentResultListener(AppFragment::class.java.name) { _, bundle ->
             enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
