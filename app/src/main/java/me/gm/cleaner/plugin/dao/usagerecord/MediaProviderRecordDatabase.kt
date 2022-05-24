@@ -16,13 +16,13 @@
 
 package me.gm.cleaner.plugin.dao.usagerecord
 
+import android.content.pm.PackageInfo
 import android.database.Cursor
 import androidx.room.Database
 import androidx.room.Ignore
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import me.gm.cleaner.plugin.dao.ListConverter
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 
 abstract class MediaProviderRecord(
     open val timeMillis: Long,
@@ -30,7 +30,8 @@ abstract class MediaProviderRecord(
     @Ignore val dataList: List<String>,
     @Ignore val mimeTypeList: List<String>,
     @Ignore val interceptedList: List<Boolean>,
-    @Ignore var packageInfo: PreferencesPackageInfo? = null,
+    @Ignore var packageInfo: PackageInfo? = null,
+    @Ignore var label: String? = null,
 ) {
     abstract fun convert(cursor: Cursor): List<MediaProviderRecord>
 

@@ -35,9 +35,7 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.module.BinderViewModel
-import me.gm.cleaner.plugin.module.PreferencesPackageInfo
 import java.util.*
-import kotlin.collections.set
 
 class UsageRecordViewModel(application: Application) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
@@ -53,7 +51,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             _queryTextFlow.value = value
         }
     val calendar: Calendar = Calendar.getInstance()
-    private val packageNameToPackageInfo = mutableMapOf<String, PreferencesPackageInfo>()
 
     private val _recordsFlow = MutableStateFlow<SourceState>(SourceState.Loading)
     val recordsFlow =
@@ -66,8 +63,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                         val lowerQuery = queryText.lowercase()
                         sequence = sequence.filter {
                             it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
-                                    it.packageInfo?.label?.lowercase()
-                                        ?.contains(lowerQuery) == true ||
+                                    it.label?.lowercase()?.contains(lowerQuery) == true ||
                                     it.packageName.lowercase().contains(lowerQuery)
                         }
                     }
@@ -133,12 +129,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 it += queryRecord<MediaProviderDeleteRecord>(start, end)
             }
         }.onEach {
-            it.packageInfo = packageNameToPackageInfo[it.packageName]
-            if (it.packageInfo == null) {
-                val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
-                it.packageInfo = PreferencesPackageInfo.newInstance(pi, packageManager)
-                packageNameToPackageInfo[it.packageName] = it.packageInfo!!
-            }
+            val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
+            it.packageInfo = pi
+            it.label = packageManager.getApplicationLabel(pi.applicationInfo).toString()
         }.takeWhile {
             it.packageInfo != null
         }
