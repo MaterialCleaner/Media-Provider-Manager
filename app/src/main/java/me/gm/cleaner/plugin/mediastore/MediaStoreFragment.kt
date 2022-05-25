@@ -96,6 +96,9 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
+                    if (position == RecyclerView.NO_POSITION) {
+                        return false
+                    }
                     val currentList = adapter.currentList
                     // empty onConfigurationChanged
                     return currentList.isEmpty() || currentList[position] !is MediaStoreFilesHeader

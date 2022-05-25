@@ -104,7 +104,7 @@
     <string name="intercept_insert_title">拦截插入</string>
     <string name="intercept_insert_summary">首先编写拦截规则。在应用管理中找到本应用，点击创建模板，挂钩操作去掉查询，允许的媒体类型去掉图片。点击开始可以快速添加此规则。\n然后点击实验二的开始，切换到图片页面，观察是否能看到图片。最后用文件管理器打开 Pictures/MPM/，观察是否能看到图片。</string>
     <string name="intercept_download_manager_title">拦截下载管理程序</string>
-    <string name="intercept_download_manager_summary">有时应用会先保存文件，然后再通知媒体存储。在这种情况下，我们只能拦截媒体存储对媒体文件的记录，而无法阻止保存文件。\n首先编写拦截规则。规则与上一个实验大致相同，只是应用到应用改为下载管理程序和媒体存储设备。点击开始可以快速添加此规则。\n后续步骤与上个实验相同。</string>
+    <string name="intercept_download_manager_summary">有时应用会先保存文件，然后再通知媒体存储。在这种情况下，我们只能拦截媒体存储对媒体文件的记录，而无法阻止保存文件。\n首先编写拦截规则。规则与上一个实验大致相同，只是应用到应用改为下载管理程序和媒体存储设备。点击开始可以快速添加此规则。\n然后点击实验一的开始，切换到图片页面，观察是否能看到图片。最后用文件管理器打开 Pictures/MPM/，观察是否能看到图片。</string>
     <string name="intercept_query_title">拦截查询</string>
     <string name="intercept_query_summary">首先编写拦截规则。在应用管理中找到本应用，点击创建模板，挂钩操作去掉插入，允许的媒体类型去掉图片。点击开始可以快速添加此规则。\n然后切换到图片页面与文件页面，观察是否能看到图片。</string>
 

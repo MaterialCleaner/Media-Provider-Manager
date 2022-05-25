@@ -150,7 +150,8 @@
         but not the saving of the file. \nFirst write interception rule.
         The rule is almost the same as the one in the previous experiment,
         except that Apply to app is changed to Downloads and Media Storage.
-        Click Start can add this rule directly.\nThe next steps are the same as in the previous experiment.</string>
+        Click Start can add this rule directly.\nThen click Start of experiment 1 and switch to the Images page to see if you can see the image.
+        Finally open Pictures/MPM/ with a file manager to see if you can see the image.</string>
     <string name="intercept_query_title">Intercept query</string>
     <string name="intercept_query_summary">First write the interception rule. Find this application in the App Management page,
         click Create template, remove Insert from Hook operation, and remove Image from Permitted media types.

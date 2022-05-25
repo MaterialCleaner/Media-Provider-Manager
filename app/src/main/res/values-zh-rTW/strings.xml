@@ -104,7 +104,7 @@
     <string name="intercept_insert_title">攔截插入</string>
     <string name="intercept_insert_summary">首先編寫攔截規則。在應用管理中找到本應用，點擊創建模板，掛鉤操作去掉查詢，允許的媒體類型去掉圖片。點擊開始可以快速添加此規則。\n然後點擊實驗二的開始，切換到圖片頁面，觀察是否能看到圖片。最後用檔案管理器打開 Pictures/MPM/，觀察是否能看到圖片。</string>
     <string name="intercept_download_manager_title">攔截下載管理程序</string>
-    <string name="intercept_download_manager_summary">有時應用會先保存文件，然後再通知媒體儲存。在這種情況下，我們只能攔截媒體儲存對媒體檔案的紀錄，而無法阻止保存文件。\n首先編寫攔截規則。規則與上一個實驗大致相同，只是應用到應用改為下載管理程序和媒體儲存設備。點擊開始可以快速添加此規則。\n後續步驟與上個實驗相同。</string>
+    <string name="intercept_download_manager_summary">有時應用會先保存文件，然後再通知媒體儲存。在這種情況下，我們只能攔截媒體儲存對媒體檔案的紀錄，而無法阻止保存文件。\n首先編寫攔截規則。規則與上一個實驗大致相同，只是應用到應用改為下載管理程序和媒體儲存設備。點擊開始可以快速添加此規則。\n然後點擊實驗一的開始，切換到圖片頁面，觀察是否能看到圖片。最後用檔案管理器打開 Pictures/MPM/，觀察是否能看到圖片。</string>
     <string name="intercept_query_title">攔截查詢</string>
     <string name="intercept_query_summary">首先編寫攔截規則。在應用管理中找到本應用，點擊創建模板，掛鉤操作去掉插入，允許的媒體類型去掉圖片。點擊開始可以快速添加此規則。\n然後切換到圖片頁面與文件頁面，觀察是否能看到圖片。</string>
 </resources>
