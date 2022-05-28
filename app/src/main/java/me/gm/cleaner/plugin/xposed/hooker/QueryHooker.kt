@@ -171,7 +171,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                     System.currentTimeMillis(),
                     param.callingPackage,
                     table,
-                    data,
+                    if (data.size < MAX_SIZE) data else data.subList(0, MAX_SIZE),
                     mimeType,
                     shouldIntercept
                 )
@@ -218,5 +218,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
     companion object {
         private const val INCLUDED_DEFAULT_DIRECTORIES = "android:included-default-directories"
         private const val TYPE_QUERY = 0
+
+        private const val MAX_SIZE = 1000
     }
 }
