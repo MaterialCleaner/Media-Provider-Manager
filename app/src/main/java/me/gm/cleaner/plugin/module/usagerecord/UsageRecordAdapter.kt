@@ -39,10 +39,9 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
-import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
-    ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK), PopupTextProvider {
+    ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK) {
     private val context = fragment.requireContext()
     private val clipboardManager by lazy { context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
 
@@ -103,8 +102,6 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
                 DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_TIME
         return DateUtils.formatDateTime(context, timeMillis, flags)
     }
-
-    override fun getPopupText(position: Int) = formatDateTime(getItem(position).timeMillis)
 
     class ViewHolder(val binding: UsagerecordItemBinding) : RecyclerView.ViewHolder(binding.root)
 

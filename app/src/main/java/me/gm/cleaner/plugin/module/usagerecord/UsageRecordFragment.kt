@@ -34,7 +34,6 @@ import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.PopupStyle
 import rikka.recyclerview.fixEdgeEffect
 import java.util.*
 
@@ -64,7 +63,6 @@ class UsageRecordFragment : ModuleFragment() {
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
-            .setPopupStyle(PopupStyle.MD3)
             .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
