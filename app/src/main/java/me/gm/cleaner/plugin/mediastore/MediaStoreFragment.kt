@@ -88,10 +88,8 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 StorageStrategy.createLongStorage()
             )
             .withSelectionPredicate(object : SelectionPredicate<Long>() {
-                override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean {
-                    val position = keyProvider.getPosition(key)
-                    return canSetStateAtPosition(position, nextState)
-                }
+                override fun canSetStateForKey(key: Long, nextState: Boolean) =
+                    viewModel.medias.any { it.id == key }
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
                     if (position == RecyclerView.NO_POSITION) {
@@ -253,7 +251,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     }
 
     override fun isInActionMode() = actionMode != null
-
 
     class MediaPermissionRequesterFragment : RequesterFragment() {
         private val viewModel by lazy { (parentFragment as MediaStoreFragment).viewModel }
