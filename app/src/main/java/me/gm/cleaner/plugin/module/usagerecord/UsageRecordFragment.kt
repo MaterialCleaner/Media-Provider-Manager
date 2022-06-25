@@ -145,7 +145,7 @@ class UsageRecordFragment : ModuleFragment() {
         menu.findItem(R.id.menu_hide_insert).isChecked = ModulePreferences.isHideInsert
         menu.findItem(R.id.menu_hide_delete).isChecked = ModulePreferences.isHideDelete
         arrayOf(menu.findItem(R.id.menu_header_hide)).forEach {
-            it.title = requireContext().buildStyledTitle(it.title)
+            it.title = requireContext().buildStyledTitle(it.title!!)
         }
     }
 

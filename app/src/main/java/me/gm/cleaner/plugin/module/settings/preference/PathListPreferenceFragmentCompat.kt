@@ -42,11 +42,11 @@ import java.text.Collator
 class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     PreferenceManager.OnDisplayPreferenceDialogListener, DialogPreference.TargetFragment {
     private val pathListPreference by lazy { preference as PathListPreference }
-    private val adapter by lazy { PathListPreferenceAdapter(this) }
+    private lateinit var adapter: PathListPreferenceAdapter
     var newValues = emptyList<String>()
         set(value) {
             val collator = Collator.getInstance()
-            field = value.sortedWith { o1, o2 ->
+            field = value.distinct().sortedWith { o1, o2 ->
                 collator.compare(o1, o2)
             }
             adapter.submitList(field)
@@ -74,6 +74,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.AppTheme_FullScreenDialog)
+        adapter = PathListPreferenceAdapter(this)
         newValues = if (savedInstanceState == null) {
             pathListPreference.values.toList()
         } else {
@@ -153,25 +154,19 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        preference ?: return
         val f = when (preference) {
-            is EditTextPreference -> {
+            is EditTextPreference ->
                 EditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey())
-            }
-            is ListPreference -> {
+            is ListPreference ->
                 ListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
-            }
-            is MultiSelectListPreference -> {
+            is MultiSelectListPreference ->
                 MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
-            }
-            else -> {
-                throw IllegalArgumentException(
-                    "Cannot display dialog for an unknown Preference type: "
-                            + preference.javaClass.simpleName
-                            + ". Make sure to implement onPreferenceDisplayDialog() to handle "
-                            + "displaying a custom dialog for this Preference."
-                )
-            }
+            else -> throw IllegalArgumentException(
+                "Cannot display dialog for an unknown Preference type: "
+                        + preference.javaClass.simpleName
+                        + ". Make sure to implement onPreferenceDisplayDialog() to handle "
+                        + "displaying a custom dialog for this Preference."
+            )
         }
         f.setTargetFragment(this, 0)
         f.show(parentFragmentManager, null)

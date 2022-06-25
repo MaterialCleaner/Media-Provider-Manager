@@ -19,10 +19,7 @@ package me.gm.cleaner.plugin.xposed
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.res.Resources
-import android.os.IBinder
-import android.os.IInterface
-import android.os.RemoteCallbackList
-import android.os.RemoteException
+import android.os.*
 import androidx.room.Room
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
@@ -73,7 +70,10 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getInstalledPackages(userId: Int, flags: Int): ParceledListSlice<PackageInfo> {
         val parceledListSlice = XposedHelpers.callMethod(
-            packageManagerService, "getInstalledPackages", flags, userId
+            packageManagerService,
+            "getInstalledPackages",
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) flags.toLong() else flags,
+            userId
         )
         val list = XposedHelpers.callMethod(parceledListSlice, "getList") as List<PackageInfo>
         return ParceledListSlice(list)
@@ -81,7 +81,11 @@ abstract class ManagerService : IManagerService.Stub() {
 
     override fun getPackageInfo(packageName: String, flags: Int, userId: Int) =
         XposedHelpers.callMethod(
-            packageManagerService, "getPackageInfo", packageName, 0, userId
+            packageManagerService,
+            "getPackageInfo",
+            packageName,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) flags.toLong() else flags,
+            userId
         ) as? PackageInfo
 
     override fun readSp(who: Int): String? = when (who) {

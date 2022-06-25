@@ -23,7 +23,7 @@ import android.view.MotionEvent
 class LongPressingListener : GestureDetector.SimpleOnGestureListener() {
     var isSelecting = false
 
-    override fun onLongPress(e: MotionEvent?) {
+    override fun onLongPress(e: MotionEvent) {
         isSelecting = true
     }
 }
@@ -35,8 +35,8 @@ class SelectionDetector(context: Context, private val l: LongPressingListener) :
 
     private val onUp = setOf(MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL)
 
-    override fun onTouchEvent(ev: MotionEvent?): Boolean {
-        if (ev?.action in onUp) {
+    override fun onTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action in onUp) {
             l.isSelecting = false
         }
         return super.onTouchEvent(ev)

@@ -98,7 +98,7 @@ open class FilesFragment : MediaStoreFragment() {
                 menu.findItem(R.id.menu_sort_by_size).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
-            it.title = requireContext().buildStyledTitle(it.title)
+            it.title = requireContext().buildStyledTitle(it.title!!)
         }
     }
 

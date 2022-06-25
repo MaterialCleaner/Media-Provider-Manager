@@ -160,7 +160,7 @@ class AppListFragment : ModuleFragment() {
         arrayOf(
             menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
         ).forEach {
-            it.title = requireContext().buildStyledTitle(it.title)
+            it.title = requireContext().buildStyledTitle(it.title!!)
         }
     }
 
