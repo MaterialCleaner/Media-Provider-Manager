@@ -26,6 +26,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
+import me.gm.cleaner.plugin.ktx.PermissionUtils
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
@@ -49,7 +50,9 @@ open class FilesFragment : MediaStoreFragment() {
 
         viewModel.requeryFlow.asLiveData().observe(viewLifecycleOwner) {
             if (!isInActionMode()) {
-                dispatchRequestPermissions(requiredPermissions, null)
+                PermissionUtils.requestPermissions(
+                    childFragmentManager, MediaPermissionRequesterFragment()
+                )
             }
         }
     }

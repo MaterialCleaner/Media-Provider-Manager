@@ -24,7 +24,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,7 +39,6 @@ import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.app.InfoDialog
@@ -148,7 +146,9 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             ModulePreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
-                dispatchRequestPermissions(requiredPermissions, null)
+                PermissionUtils.requestPermissions(
+                    childFragmentManager, MediaPermissionRequesterFragment()
+                )
             }
         })
         return binding.root
@@ -157,12 +157,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     abstract fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *>
 
     open fun onBindView(binding: MediaStoreFragmentBinding) {}
-
-    override fun onRequestPermissionsSuccess(
-        permissions: Set<String>, savedInstanceState: Bundle?
-    ) {
-        savedInstanceState ?: viewModel.loadMedias()
-    }
 
     fun startActionMode() {
         if (!isInActionMode()) {
@@ -260,58 +254,71 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
     override fun isInActionMode() = actionMode != null
 
-    // PERMISSION
-    override val requiredPermissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-    override fun dispatchRequestPermissions(
-        permissions: Array<String>, savedInstanceState: Bundle?
-    ) {
-        if (ModulePreferences.isShowAllMediaFiles) {
-            super.dispatchRequestPermissions(permissions, savedInstanceState)
-        } else {
-            if (requiredPermissions.any {
-                    ActivityCompat.checkSelfPermission(requireContext(), it) ==
-                            PackageManager.PERMISSION_GRANTED
+    class MediaPermissionRequesterFragment : RequesterFragment() {
+        private val viewModel by lazy { (parentFragment as MediaStoreFragment).viewModel }
+
+        override val requiredPermissions =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+
+        override fun onRequestPermissionsSuccess(
+            permissions: Set<String>, savedInstanceState: Bundle?
+        ) {
+            savedInstanceState ?: viewModel.loadMedias()
+        }
+
+        override fun dispatchRequestPermissions(
+            permissions: Array<String>, savedInstanceState: Bundle?
+        ) {
+            if (ModulePreferences.isShowAllMediaFiles) {
+                super.dispatchRequestPermissions(permissions, savedInstanceState)
+            } else {
+                if (requiredPermissions.any {
+                        ActivityCompat.checkSelfPermission(requireContext(), it) ==
+                                PackageManager.PERMISSION_GRANTED
+                    }
+                ) {
+                    dialog = MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(R.string.revoke_self_permission)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            PermissionUtils.startDetailsSettings(requireContext())
+                        }
+                        .show()
                 }
-            ) {
+                onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
+            }
+        }
+
+        override fun onRequestPermissionsFailure(
+            shouldShowRationale: Set<String>, permanentlyDenied: Set<String>,
+            haveAskedUser: Boolean, savedInstanceState: Bundle?
+        ) {
+            if (shouldShowRationale.isNotEmpty()) {
                 dialog = MaterialAlertDialogBuilder(requireContext())
-                    .setMessage(R.string.revoke_self_permission)
+                    .setMessage(R.string.rationale_shouldShowRationale)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        }
-                        startActivity(intent)
+                        onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
+                    }
+                    .show()
+            } else if (permanentlyDenied.isNotEmpty()) {
+                dialog = MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(R.string.rationale_permanentlyDenied)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        PermissionUtils.startDetailsSettings(requireContext())
                     }
                     .show()
             }
-            onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
-        }
-    }
-
-    override fun onRequestPermissionsFailure(
-        shouldShowRationale: Set<String>, permanentlyDenied: Set<String>,
-        savedInstanceState: Bundle?
-    ) {
-        if (shouldShowRationale.isNotEmpty()) {
-            dialog = MaterialAlertDialogBuilder(requireContext())
-                .setMessage(R.string.rationale_shouldShowRationale)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
-                }
-                .show()
-        } else if (permanentlyDenied.isNotEmpty()) {
-            dialog = MaterialAlertDialogBuilder(requireContext())
-                .setMessage(R.string.rationale_permanentlyDenied)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                    }
-                    startActivity(intent)
-                }
-                .show()
         }
     }
 
@@ -327,7 +334,9 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.menu_refresh -> {
-            dispatchRequestPermissions(requiredPermissions, null)
+            PermissionUtils.requestPermissions(
+                childFragmentManager, MediaPermissionRequesterFragment()
+            )
             true
         }
         R.id.menu_show_all -> {
