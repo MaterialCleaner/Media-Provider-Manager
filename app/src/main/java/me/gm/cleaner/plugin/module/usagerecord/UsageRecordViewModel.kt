@@ -67,9 +67,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                                     it.packageName.lowercase().contains(lowerQuery)
                         }
                     }
-                    sequence = sequence.sortedWith(Comparator.comparingLong {
+                    sequence = sequence.sortedBy {
                         -it.timeMillis
-                    })
+                    }
                     SourceState.Done(sequence.toList())
                 }
             }

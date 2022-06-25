@@ -80,15 +80,15 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                                 collator.compare(o1?.label, o2?.label)
                             }
                         }
-                        ModulePreferences.SORT_BY_UPDATE_TIME -> sequence.sortedWith(Comparator.comparingLong {
+                        ModulePreferences.SORT_BY_UPDATE_TIME -> sequence.sortedBy {
                             -it.packageInfo.lastUpdateTime
-                        })
+                        }
                         else -> throw IllegalArgumentException()
                     }
                     if (ModulePreferences.ruleCount) {
-                        sequence = sequence.sortedWith(Comparator.comparingInt {
+                        sequence = sequence.sortedBy {
                             -it.ruleCount
-                        })
+                        }
                     }
                     SourceState.Done(sequence.toList())
                 }
