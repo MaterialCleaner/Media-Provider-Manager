@@ -100,13 +100,6 @@ object ModulePreferences {
     var isHideSystemApp: Boolean
         get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_system_app_key), true)
         set(value) = putBoolean(resources.getString(R.string.menu_hide_system_app_key), value)
-    var isHideNoStoragePermissionApp: Boolean
-        get() = defaultSp.getBoolean(
-            resources.getString(R.string.menu_hide_no_storage_permission_key), true
-        )
-        set(value) = putBoolean(
-            resources.getString(R.string.menu_hide_no_storage_permission_key), value
-        )
 
     // USAGE RECORD
     var isHideQuery: Boolean

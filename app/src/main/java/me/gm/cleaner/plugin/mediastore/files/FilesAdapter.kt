@@ -35,12 +35,10 @@ import me.gm.cleaner.plugin.databinding.FilesHeaderBinding
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
-import me.zhanghai.android.fastscroll.PopupTextProvider
-import java.io.File
 import java.util.*
 
 open class FilesAdapter(private val fragment: Fragment) :
-    MediaStoreAdapter<MediaStoreModel, MediaStoreAdapter.ViewHolder>(), PopupTextProvider {
+    MediaStoreAdapter<MediaStoreModel, MediaStoreAdapter.ViewHolder>() {
     private val then: Calendar = Calendar.getInstance()
     private val now: Calendar = Calendar.getInstance()
 
@@ -143,19 +141,6 @@ open class FilesAdapter(private val fragment: Fragment) :
             super.submitList(list, commitCallback)
         }
     }
-
-    override fun getPopupText(position: Int) =
-        if (ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
-            val relativePath = when (val item = getItem(position)) {
-                is MediaStoreFilesHeader -> item.displayName
-                is MediaStoreFiles -> item.relativePath
-                else -> throw IllegalArgumentException()
-            }
-            relativePath.substringBeforeLast(File.separatorChar)
-                .substringAfterLast(File.separatorChar)
-        } else {
-            ""
-        }
 
     class HeaderViewHolder(val binding: FilesHeaderBinding) :
         MediaStoreAdapter.ViewHolder(binding.root)

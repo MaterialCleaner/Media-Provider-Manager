@@ -16,10 +16,8 @@
 
 package me.gm.cleaner.plugin.module.appmanagement
 
-import android.Manifest
 import android.app.Application
 import android.content.pm.ApplicationInfo
-import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,16 +52,6 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                     if (ModulePreferences.isHideSystemApp) {
                         sequence = sequence.filter {
                             it.packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0
-                        }
-                    }
-                    if (ModulePreferences.isHideNoStoragePermissionApp) {
-                        sequence = sequence.filter {
-                            it.packageInfo.requestedPermissions?.run {
-                                contains(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                        || contains(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                        || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                        && contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
-                            } == true
                         }
                     }
                     if (isSearching) {

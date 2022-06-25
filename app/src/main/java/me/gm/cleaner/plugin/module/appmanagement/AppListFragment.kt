@@ -155,8 +155,6 @@ class AppListFragment : ModuleFragment() {
         }
         menu.findItem(R.id.menu_rule_count).isChecked = ModulePreferences.ruleCount
         menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
-        menu.findItem(R.id.menu_hide_no_storage_permission).isChecked =
-            ModulePreferences.isHideNoStoragePermissionApp
         arrayOf(
             menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
         ).forEach {
@@ -183,11 +181,6 @@ class AppListFragment : ModuleFragment() {
                 val isHideSystemApp = !item.isChecked
                 item.isChecked = isHideSystemApp
                 ModulePreferences.isHideSystemApp = isHideSystemApp
-            }
-            R.id.menu_hide_no_storage_permission -> {
-                val isHideNoStoragePermissionApp = !item.isChecked
-                item.isChecked = isHideNoStoragePermissionApp
-                ModulePreferences.isHideNoStoragePermissionApp = isHideNoStoragePermissionApp
             }
             else -> return super.onOptionsItemSelected(item)
         }

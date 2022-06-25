@@ -47,8 +47,6 @@
     <string name="menu_hide_title">Hide</string>
     <string name="menu_hide_system_app_key" translatable="false">hide_system_app</string>
     <string name="menu_hide_system_app_title">System apps</string>
-    <string name="menu_hide_no_storage_permission_key" translatable="false">hide_no_storage_permission</string>
-    <string name="menu_hide_no_storage_permission_title">No storage permission apps</string>
     <string name="delete">Delete</string>
     <string name="pick_date_title">Pick a date</string>
     <string name="menu_hide_query_key" translatable="false">hide_query</string>

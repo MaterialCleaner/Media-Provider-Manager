@@ -61,11 +61,6 @@
                 android:checkable="true"
                 android:title="@string/menu_hide_system_app_title"
                 app:showAsAction="never" />
-            <item
-                android:id="@+id/menu_hide_no_storage_permission"
-                android:checkable="true"
-                android:title="@string/menu_hide_no_storage_permission_title"
-                app:showAsAction="never" />
         </menu>
     </item>
 </menu>

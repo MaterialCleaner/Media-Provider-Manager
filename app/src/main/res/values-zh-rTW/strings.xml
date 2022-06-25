@@ -43,7 +43,6 @@
     <string name="menu_rule_count">規則數</string>
     <string name="menu_hide_title">隱藏</string>
     <string name="menu_hide_system_app_title">系統應用</string>
-    <string name="menu_hide_no_storage_permission_title">無儲存許可權應用</string>
     <string name="delete">刪除</string>
     <string name="pick_date_title">選擇日期</string>
     <string name="menu_hide_query_title">查詢記錄</string>
