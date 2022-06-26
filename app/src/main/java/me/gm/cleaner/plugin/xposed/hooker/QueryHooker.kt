@@ -102,36 +102,42 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             else -> throw UnsupportedOperationException()
         }
 
-        val c = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
-                qb, "query", helper, dataProjection, query, signal
-            )
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-                val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
-                val selectionArgs =
-                    query.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
-                val sortOrder = query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER) ?: let {
-                    if (query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)) {
-                        XposedHelpers.callStaticMethod(
-                            ContentResolver::class.java, "createSqlSortClause", query
-                        ) as String?
-                    } else {
-                        null
-                    }
-                }
-                val groupBy = if (table == AUDIO_ARTISTS_ID_ALBUMS) "audio.album_id"
-                else null
-                val having = null
-                val limit = uri.getQueryParameter("limit")
-
-                XposedHelpers.callMethod(
-                    qb, "query", XposedHelpers.callMethod(helper, "getWritableDatabase"),
-                    dataProjection, selection, selectionArgs, groupBy, having, sortOrder, limit,
-                    signal
+        val c = try {
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
+                    qb, "query", helper, dataProjection, query, signal
                 )
-            }
-            else -> throw UnsupportedOperationException()
-        } as Cursor
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                    val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
+                    val selectionArgs =
+                        query.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
+                    val sortOrder =
+                        query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER) ?: let {
+                            if (query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)) {
+                                XposedHelpers.callStaticMethod(
+                                    ContentResolver::class.java, "createSqlSortClause", query
+                                ) as String?
+                            } else {
+                                null
+                            }
+                        }
+                    val groupBy = if (table == AUDIO_ARTISTS_ID_ALBUMS) "audio.album_id"
+                    else null
+                    val having = null
+                    val limit = uri.getQueryParameter("limit")
+
+                    XposedHelpers.callMethod(
+                        qb, "query", XposedHelpers.callMethod(helper, "getWritableDatabase"),
+                        dataProjection, selection, selectionArgs, groupBy, having, sortOrder, limit,
+                        signal
+                    )
+                }
+                else -> throw UnsupportedOperationException()
+            } as Cursor
+        } catch (e: XposedHelpers.InvocationTargetError) {
+            // IllegalArgumentException that thrown from the media provider. Nothing I can do.
+            return
+        }
         if (c.isAfterLast) {
             // querying nothing.
             c.close()

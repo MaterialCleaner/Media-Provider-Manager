@@ -57,16 +57,6 @@ class ItemHeightsObserver(list: RecyclerView) : RecyclerView.AdapterDataObserver
         }
     }
 
-    override fun onChanged() {
-        queue.add {
-            _itemHeights.clear()
-            for (i in 0 until adapter.itemCount) {
-                _itemHeights += getItemOffset(i)
-            }
-            itemHeightsSum = _itemHeights.sum()
-        }
-    }
-
     override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
         queue.add {
             for (i in positionStart until positionStart + itemCount) {
