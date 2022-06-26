@@ -39,16 +39,16 @@ class App : Application() {
                 "Landroid/os/storage/StorageVolume;",
             )
         }
-        if (!BuildConfig.DEBUG) {
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        if (!BuildConfig.DEBUG && !AppCenter.isConfigured()) {
             AppCenter.start(
                 this, "274b837f-ed2e-43ec-b36d-b08328b353ca",
                 Analytics::class.java, Crashes::class.java
             )
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
         ModulePreferences.init(createDeviceProtectedStorageContext())
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         DynamicColors.applyToActivitiesIfAvailable(this)
