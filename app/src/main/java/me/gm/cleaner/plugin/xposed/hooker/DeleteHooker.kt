@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
+import android.app.RecoverableSecurityException
 import android.content.ContentResolver.QUERY_ARG_SQL_SELECTION
 import android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS
 import android.database.Cursor
@@ -69,10 +70,12 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                             param.thisObject, "enforceCallingPermission", uri, true
                         )
                     }
-                } catch (securityException: SecurityException) {
-                    // Give callers interacting with a specific media item a chance to
-                    // escalate access if they don't already have it
-                    return
+                } catch (e: XposedHelpers.InvocationTargetError) {
+                    if (e.cause is RecoverableSecurityException) {
+                        // Give callers interacting with a specific media item a chance to
+                        // escalate access if they don't already have it
+                        return
+                    }
                 }
 
                 val qb = when {

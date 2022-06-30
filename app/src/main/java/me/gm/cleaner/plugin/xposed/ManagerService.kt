@@ -123,6 +123,7 @@ abstract class ManagerService : IManagerService.Stub() {
         observers.unregister(observer)
     }
 
+    @Synchronized
     fun dispatchMediaChange() {
         var i = observers.beginBroadcast()
         while (i > 0) {
