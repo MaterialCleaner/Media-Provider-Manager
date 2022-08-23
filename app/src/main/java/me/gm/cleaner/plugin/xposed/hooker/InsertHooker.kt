@@ -35,8 +35,9 @@ import java.util.*
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val dao = service.database.mediaProviderInsertRecordDao()
-    private val pendingScan =
-        Collections.synchronizedMap(mutableMapOf<String, FileCreationObserver>())
+    private val pendingScan = Collections.synchronizedMap(
+        mutableMapOf<String, FileCreationObserver>()
+    )
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
@@ -47,7 +48,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         else null
 
         val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
-        if (match == MEDIA_SCANNER) {
+        if (match == MEDIA_SCANNER || match == VOLUMES) {
             return
         }
 
@@ -79,17 +80,20 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             )
         ) {
             val file = File(data)
-            if (!file.exists()) {
+            val scanResult = if (file.exists()) {
+                // 我知道你很急，但是你先别急
+                scanFile(param.thisObject, file)
+            } else {
+                null
+            }
+            if (scanResult == null) {
                 XposedBridge.log("scan for obsolete insert: $data")
                 val ob = FileCreationObserver(file)
                 if (pendingScan.putIfAbsent(data, ob) == null) {
                     ob.setOnMaybeFileCreatedListener { retryTimes ->
                         val firstResult = scanFile(param.thisObject, file)
                         XposedBridge.log("scan result: $firstResult")
-                        return@setOnMaybeFileCreatedListener if (firstResult != null ||
-                            // Don't retry after failed 3 times.
-                            retryTimes >= 3
-                        ) {
+                        if (firstResult != null || retryTimes >= 3) {
                             pendingScan.remove(data)
                             true
                         } else {
