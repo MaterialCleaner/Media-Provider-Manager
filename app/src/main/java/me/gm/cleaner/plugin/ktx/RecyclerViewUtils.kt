@@ -27,6 +27,8 @@ import androidx.recyclerview.widget.*
 import me.zhanghai.android.fastscroll.FastScroller
 import java.util.function.Consumer
 
+private val rect = Rect()
+
 fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     list: List<T>, recyclerView: RecyclerView, commitCallback: Runnable? = null
 ) {
@@ -35,7 +37,6 @@ fun <T, VH : RecyclerView.ViewHolder> ListAdapter<T, VH>.submitListKeepPosition(
     if (position == RecyclerView.NO_POSITION) {
         submitList(list, commitCallback)
     } else {
-        val rect = Rect()
         recyclerView.getDecoratedBoundsWithMargins(
             layoutManager.findViewByPosition(position)!!, rect
         )
@@ -186,7 +187,7 @@ class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
     reverseLayout: Boolean = false
 ) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
     // Create anyway because this is the only feature of LayoutCompleteAwareGridLayoutManager.
-    val onLayoutCompletedListeners = mutableListOf<Consumer<RecyclerView.State>>()
+    private val onLayoutCompletedListeners = mutableListOf<Consumer<RecyclerView.State>>()
 
     fun addOnLayoutCompletedListener(l: Consumer<RecyclerView.State>): LayoutCompleteAwareGridLayoutManager {
         onLayoutCompletedListeners.add(l)

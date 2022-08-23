@@ -77,9 +77,9 @@ afterEvaluate {
 
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -87,7 +87,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
-    def lifecycleVersion = '2.4.1'
+    def lifecycleVersion = '2.5.1'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
@@ -96,7 +96,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
-    def kotlinxCoroutinesVersion = '1.6.1'
+    def kotlinxCoroutinesVersion = '1.6.4'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
@@ -112,7 +112,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
-    def appCenterSdkVersion = '4.4.4'
+    def appCenterSdkVersion = '4.4.5'
     implementation "com.microsoft.appcenter:appcenter-analytics:$appCenterSdkVersion"
     implementation "com.microsoft.appcenter:appcenter-crashes:$appCenterSdkVersion"
 

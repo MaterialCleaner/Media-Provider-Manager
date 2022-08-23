@@ -35,7 +35,6 @@ class App : Application() {
         super.attachBaseContext(base)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             HiddenApiBypass.addHiddenApiExemptions(
-                "Landroid/graphics/drawable/AdaptiveIconDrawableInjector;",
                 "Landroid/os/storage/StorageVolume;",
             )
         }
