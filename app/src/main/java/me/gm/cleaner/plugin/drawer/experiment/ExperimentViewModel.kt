@@ -58,7 +58,9 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             .map { id -> items.findIndexById(id) }
             .sortedDescending()
             .forEach { indexOfSubHeader ->
-                if (indexOfSubHeader + 1 <= items.size && items[indexOfSubHeader + 1] is ExperimentContentSeparatorItem) {
+                if (indexOfSubHeader + 1 <= items.size &&
+                    items[indexOfSubHeader + 1] is ExperimentContentSeparatorItem
+                ) {
                     items.removeAt(indexOfSubHeader + 1)
                 }
                 items.removeAt(indexOfSubHeader)

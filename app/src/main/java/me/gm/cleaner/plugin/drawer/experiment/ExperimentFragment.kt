@@ -16,10 +16,7 @@
 
 package me.gm.cleaner.plugin.drawer.experiment
 
-import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -55,19 +52,7 @@ class ExperimentFragment : BaseFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            private var divider = ColorDrawable(Color.TRANSPARENT)
             private var dividerHeight = resources.getDimensionPixelSize(R.dimen.card_margin)
-
-            override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-                val childCount = parent.childCount
-                val width = parent.width
-                for (childViewIndex in 0 until childCount) {
-                    val view = parent.getChildAt(childViewIndex)
-                    val top = view.y.toInt() + view.height
-                    divider.setBounds(0, top, width, top + dividerHeight)
-                    divider.draw(c)
-                }
-            }
 
             override fun getItemOffsets(
                 outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State

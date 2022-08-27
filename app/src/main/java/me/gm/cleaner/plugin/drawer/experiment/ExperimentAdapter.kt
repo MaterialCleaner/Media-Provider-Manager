@@ -68,14 +68,6 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == 0) {
-            val itemView = holder.itemView
-            itemView.setPaddingRelative(
-                itemView.paddingStart, itemView.paddingTop +
-                        itemView.resources.getDimensionPixelOffset(R.dimen.card_margin),
-                itemView.paddingEnd, itemView.paddingBottom
-            )
-        }
         when (holder) {
             is HeaderCardViewHolder -> {
                 val binding = holder.binding
