@@ -30,7 +30,7 @@ class AppListLoader(private val defaultDispatcher: CoroutineDispatcher = Dispatc
 
     private fun fetchRuleCount(templates: Templates): Map<String, Int> {
         val map = mutableMapOf<String, Int>()
-        templates.forEach { templateName ->
+        templates.values.forEach { templateName ->
             templateName.applyToApp?.forEach { packageName ->
                 map[packageName] = map.getOrDefault(packageName, 0) + 1
             }

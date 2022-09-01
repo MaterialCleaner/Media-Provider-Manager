@@ -127,7 +127,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
             val position = selectedHolder.bindingAdapterPosition
             val templateToRemove = getItem(position).templateName
             val modified = Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
-                .filterNot { it.templateName == templateToRemove }
+                .values.filterNot { it.templateName == templateToRemove }
             fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
             return true
         }

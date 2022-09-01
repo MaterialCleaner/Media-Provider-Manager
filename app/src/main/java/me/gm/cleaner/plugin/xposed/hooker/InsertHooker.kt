@@ -20,21 +20,24 @@ import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.os.FileUtils
 import android.provider.MediaStore
+import android.text.TextUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.model.Templates.Companion.filterNot
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
-import me.gm.cleaner.plugin.xposed.util.FileUtils.externalStorageDirPath
 import java.io.File
 import java.util.*
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val dao = service.database.mediaProviderInsertRecordDao()
+    private val fileUtilsCls: Class<*> by lazy {
+        XposedHelpers.findClass("com.android.providers.media.util.FileUtils", service.classLoader)
+    }
     private val pendingScan = Collections.synchronizedMap(
         mutableMapOf<String, FileCreationObserver>()
     )
@@ -42,66 +45,73 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         /** ARGUMENTS */
-        val uri = param.args[0] as Uri
-        val initialValues = param.args[1] as? ContentValues
-        val extras = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] as? Bundle
-        else null
-
-        val match = param.matchUri(uri, param.isCallingPackageAllowedHidden)
-        if (match == MEDIA_SCANNER || match == VOLUMES) {
-            return
-        }
+        val match = (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] else param.args[1]
+                ) as Int
+        val uri = (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[3] else param.args[2]
+                ) as Uri
+        val extras = (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[4] else Bundle.EMPTY
+                ) as Bundle
+        val values = (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[5] else param.args[3]
+                ) as ContentValues
+        val mediaType = (
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[6] else param.args[4]
+                ) as Int
 
         /** PARSE */
-        val modern = initialValues?.containsKey(MediaStore.MediaColumns.RELATIVE_PATH) == true &&
-                initialValues.containsKey(MediaStore.MediaColumns.DISPLAY_NAME)
-        val data = if (modern) {
-            externalStorageDirPath + File.separator +
-                    initialValues?.getAsString(MediaStore.MediaColumns.RELATIVE_PATH)
-                        ?.trimEnd(File.separatorChar) + File.separator +
-                    initialValues?.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
-                        ?.trimStart(File.separatorChar)
-        } else {
-            initialValues?.getAsString(MediaStore.MediaColumns.DATA)
+        val mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE) ?: ""
+        val wasPathEmpty = wasPathEmpty(values)
+        if (wasPathEmpty) {
+            // Generate path when undefined
+            ensureUniqueFileColumns(param.thisObject, match, uri, values, mimeType)
         }
-        val mimeType = initialValues?.getAsString(MediaStore.MediaColumns.MIME_TYPE)
+        val data = values.getAsString(MediaStore.MediaColumns.DATA)
+        if (wasPathEmpty) {
+            // Restore
+            values.remove(MediaStore.MediaColumns.DATA)
+        }
 
         /** INTERCEPT */
-        val shouldIntercept = data != null && mimeType != null && service.ruleSp.templates
-            .matchedTemplates(javaClass, param.callingPackage)
-            .filterNot(listOf(data), listOf(mimeType)).first()
+        val shouldIntercept = service.ruleSp.templates
+            .filterTemplate(javaClass, param.callingPackage)
+            .applyTemplates(listOf(data), listOf(mimeType)).first()
         if (shouldIntercept) {
             param.result = null
         }
 
         /** SCAN */
-        if (!shouldIntercept && !modern && data != null && service.rootSp.getBoolean(
+        if (!shouldIntercept && !wasPathEmpty && service.rootSp.getBoolean(
                 service.resources.getString(R.string.scan_for_obsolete_insert_key), true
             )
         ) {
-            val file = File(data)
-            val scanResult = if (file.exists()) {
-                // 我知道你很急，但是你先别急
-                scanFile(param.thisObject, file)
-            } else {
-                null
-            }
-            if (scanResult == null) {
-                XposedBridge.log("scan for obsolete insert: $data")
-                val ob = FileCreationObserver(file)
-                if (pendingScan.putIfAbsent(data, ob) == null) {
-                    ob.setOnMaybeFileCreatedListener { retryTimes ->
-                        val firstResult = scanFile(param.thisObject, file)
-                        XposedBridge.log("scan result: $firstResult")
-                        if (firstResult != null || retryTimes >= 3) {
-                            pendingScan.remove(data)
-                            true
-                        } else {
-                            false
-                        }
-                    }.startWatching()
-                }
-            }
+//            val file = File(data)
+//            XposedBridge.log("scan for obsolete insert: $data")
+//            val scanResult = if (file.exists()) {
+//                // 我知道你很急，但是你先别急
+//                scanFile(param.thisObject, file)
+//            } else {
+//                null
+//            }
+//            XposedBridge.log("scan result: $scanResult")
+//            if (scanResult == null) {
+//                XposedBridge.log("scan for obsolete insert: $data")
+//                val ob = FileCreationObserver(file)
+//                if (pendingScan.putIfAbsent(data, ob) == null) {
+//                    ob.setOnMaybeFileCreatedListener { retryTimes ->
+//                        val firstResult = scanFile(param.thisObject, file)
+//                        XposedBridge.log("scan result: $firstResult")
+//                        if (firstResult != null || retryTimes >= 3) {
+//                            pendingScan.remove(data)
+//                            true
+//                        } else {
+//                            false
+//                        }
+//                    }.startWatching()
+//                }
+//            }
         }
 
         /** RECORD */
@@ -114,8 +124,8 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                     System.currentTimeMillis(),
                     param.callingPackage,
                     match,
-                    data ?: "",
-                    mimeType ?: "",
+                    data,
+                    mimeType,
                     shouldIntercept
                 )
             )
@@ -123,25 +133,137 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
     }
 
-    private fun scanFile(thisObject: Any, file: File): Uri? = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-            val mediaScanner = XposedHelpers.getObjectField(thisObject, "mMediaScanner")
-            XposedHelpers.callMethod(
-                mediaScanner, "scanFile", file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
-            )
+    private fun wasPathEmpty(values: ContentValues) =
+        !values.containsKey(MediaStore.MediaColumns.DATA)
+                || values.getAsString(MediaStore.MediaColumns.DATA).isEmpty()
+
+    private fun ensureUniqueFileColumns(
+        thisObject: Any, match: Int, uri: Uri, values: ContentValues, mimeType: String
+    ) {
+        var defaultPrimary = Environment.DIRECTORY_DOWNLOADS
+        var defaultSecondary: String? = null
+        when (match) {
+            AUDIO_MEDIA, AUDIO_MEDIA_ID -> {
+                defaultPrimary = Environment.DIRECTORY_MUSIC
+            }
+            VIDEO_MEDIA, VIDEO_MEDIA_ID -> {
+                defaultPrimary = Environment.DIRECTORY_MOVIES
+            }
+            IMAGES_MEDIA, IMAGES_MEDIA_ID -> {
+                defaultPrimary = Environment.DIRECTORY_PICTURES
+            }
+            AUDIO_ALBUMART, AUDIO_ALBUMART_ID -> {
+                defaultPrimary = Environment.DIRECTORY_MUSIC
+                defaultSecondary = DIRECTORY_THUMBNAILS
+            }
+            VIDEO_THUMBNAILS, VIDEO_THUMBNAILS_ID -> {
+                defaultPrimary = Environment.DIRECTORY_MOVIES
+                defaultSecondary = DIRECTORY_THUMBNAILS
+            }
+            IMAGES_THUMBNAILS, IMAGES_THUMBNAILS_ID -> {
+                defaultPrimary = Environment.DIRECTORY_PICTURES
+                defaultSecondary = DIRECTORY_THUMBNAILS
+            }
+            AUDIO_PLAYLISTS, AUDIO_PLAYLISTS_ID -> {
+                defaultPrimary = Environment.DIRECTORY_MUSIC
+            }
+            DOWNLOADS, DOWNLOADS_ID -> {
+                defaultPrimary = Environment.DIRECTORY_DOWNLOADS
+            }
         }
-        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-            val mediaScanner = XposedHelpers.findClass(
-                "com.android.providers.media.scan.MediaScanner", service.classLoader
-            )
-            val instance =
-                XposedHelpers.callStaticMethod(mediaScanner, "instance", service.context)
-            XposedHelpers.callMethod(instance, "scanFile", file)
+        // Give ourselves reasonable defaults when missing
+        if (TextUtils.isEmpty(values.getAsString(MediaStore.MediaColumns.DISPLAY_NAME))) {
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, System.currentTimeMillis().toString())
         }
-        else -> throw UnsupportedOperationException()
-    } as Uri?
+        // Use default directories when missing
+        if (values.getAsString(MediaStore.MediaColumns.RELATIVE_PATH).isNullOrEmpty()) {
+            if (defaultSecondary != null) {
+                values.put(
+                    MediaStore.MediaColumns.RELATIVE_PATH, "$defaultPrimary/$defaultSecondary/"
+                )
+            } else {
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, "$defaultPrimary/")
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val resolvedVolumeName = XposedHelpers.callMethod(
+                thisObject, "resolveVolumeName", uri
+            ) as String
+            val volumePath = XposedHelpers.callMethod(
+                thisObject, "getVolumePath", resolvedVolumeName
+            ) as File
+
+            val isFuseThread = XposedHelpers.callMethod(thisObject, "isFuseThread")
+                    as Boolean
+            XposedHelpers.callStaticMethod(
+                fileUtilsCls, "sanitizeValues", values, !isFuseThread
+            )
+            XposedHelpers.callStaticMethod(
+                fileUtilsCls, "computeDataFromValues", values, volumePath, isFuseThread
+            )
+
+            var res = File(values.getAsString(MediaStore.MediaColumns.DATA))
+            res = XposedHelpers.callStaticMethod(
+                fileUtilsCls, "buildUniqueFile", res.parentFile, mimeType, res.name
+            ) as File
+
+            values.put(MediaStore.MediaColumns.DATA, res.absolutePath)
+        } else {
+            val resolvedVolumeName = XposedHelpers.callMethod(
+                thisObject, "resolveVolumeName", uri
+            ) as String
+
+            val relativePath = XposedHelpers.callMethod(
+                thisObject, "sanitizePath",
+                values.getAsString(MediaStore.MediaColumns.RELATIVE_PATH)
+            )
+            val displayName = XposedHelpers.callMethod(
+                thisObject, "sanitizeDisplayName",
+                values.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+            )
+
+            var res = XposedHelpers.callMethod(
+                thisObject, "getVolumePath", resolvedVolumeName
+            ) as File
+            res = XposedHelpers.callStaticMethod(
+                Environment::class.java, "buildPath", res, relativePath
+            ) as File
+            res = XposedHelpers.callStaticMethod(
+                FileUtils::class.java, "buildUniqueFile", res, mimeType, displayName
+            ) as File
+
+            values.put(MediaStore.MediaColumns.DATA, res.absolutePath)
+        }
+    }
+
+    private fun scanFile(thisObject: Any, file: File): Uri? = try {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> XposedHelpers.callMethod(
+                thisObject, "scanFileAsMediaProvider",
+                file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
+            )
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.R -> {
+                val mediaScanner = XposedHelpers.getObjectField(thisObject, "mMediaScanner")
+                XposedHelpers.callMethod(
+                    mediaScanner, "scanFile", file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
+                )
+            }
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                val mediaScanner = XposedHelpers.findClass(
+                    "com.android.providers.media.scan.MediaScanner", service.classLoader
+                )
+                val instance =
+                    XposedHelpers.callStaticMethod(mediaScanner, "instance", service.context)
+                XposedHelpers.callMethod(instance, "scanFile", file)
+            }
+            else -> throw UnsupportedOperationException()
+        } as Uri?
+    } catch (e: XposedHelpers.InvocationTargetError) {
+        null
+    }
 
     companion object {
+        private const val DIRECTORY_THUMBNAILS = ".thumbnails"
         const val MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND = 2
     }
 }

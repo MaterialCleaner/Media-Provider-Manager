@@ -35,7 +35,6 @@ import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecordDatabase
-import me.gm.cleaner.plugin.model.Templates.Companion.filterNot
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FilteredCursor
 import java.util.function.Consumer
@@ -154,10 +153,10 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         }
 
         /** INTERCEPT */
-        val matchedTemplates = service.ruleSp.templates
-            .matchedTemplates(javaClass, param.callingPackage)
-        val shouldIntercept = matchedTemplates.filterNot(data, mimeType)
-        if (matchedTemplates.isEmpty()) {
+        val shouldIntercept = service.ruleSp.templates
+            .filterTemplate(javaClass, param.callingPackage)
+            .applyTemplates(data, mimeType)
+        if (shouldIntercept.isEmpty()) {
             c.close()
         } else {
             c.moveToFirst()

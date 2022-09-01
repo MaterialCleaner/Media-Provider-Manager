@@ -68,7 +68,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                     tempSp = try {
                         JsonSharedPreferencesImpl(
                             Gson().toJson(
-                                Templates(binderViewModel.readSp(R.xml.template_preferences)).first {
+                                Templates(binderViewModel.readSp(R.xml.template_preferences)).values.first {
                                     it.templateName == if (savedInstanceState == null) args.templateName
                                     else savedInstanceState.getString(KEY_TEMPLATE_NAME)
                                 }
@@ -102,7 +102,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
             Preference.OnPreferenceChangeListener { _, newValue ->
                 when {
                     args.templateName == newValue as String -> false
-                    Templates(binderViewModel.readSp(R.xml.template_preferences))
+                    Templates(binderViewModel.readSp(R.xml.template_preferences)).values
                         .any { it.templateName == newValue } -> {
                         makeSnackbarWithFullyDraggableContainer(
                             { requireActivity().findViewById(R.id.fully_draggable_container) },
@@ -198,7 +198,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
         if (!templateName.isNullOrEmpty() && hookOperationValues?.isNotEmpty() == true) {
             val template = Gson().fromJson(tempSp.delegate.toString(), Template::class.java)
             val json = Gson().toJson(
-                Templates(binderViewModel.readSp(R.xml.template_preferences)).filterNot {
+                Templates(binderViewModel.readSp(R.xml.template_preferences)).values.filterNot {
                     it.templateName == templateName || it.templateName == args.templateName
                 } + template
             )

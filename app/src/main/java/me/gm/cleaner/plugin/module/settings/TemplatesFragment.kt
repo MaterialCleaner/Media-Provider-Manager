@@ -89,7 +89,7 @@ class TemplatesFragment : ModuleFragment() {
 
     private fun prepareCurrentList(): List<Template> {
         val collator = Collator.getInstance()
-        return Templates(binderViewModel.readSp(R.xml.template_preferences)).sortedWith { o1, o2 ->
+        return Templates(binderViewModel.readSp(R.xml.template_preferences)).values.sortedWith { o1, o2 ->
             collator.compare(o1?.templateName, o2?.templateName)
         }
     }
