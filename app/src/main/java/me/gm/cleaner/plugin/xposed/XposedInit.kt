@@ -30,17 +30,18 @@ import java.io.File
 class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteInit {
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        classLoader = lpparam.classLoader
         when (lpparam.packageName) {
             "com.android.providers.media", "com.android.providers.media.module" -> {
                 val mediaProvider = try {
                     XposedHelpers.findClass(
-                        "com.android.providers.media.MediaProvider", classLoader
+                        "com.android.providers.media.MediaProvider", lpparam.classLoader
                     )
                 } catch (e: XposedHelpers.ClassNotFoundError) {
                     return
                 }
 
+                // only save MediaProvider's classLoader
+                classLoader = lpparam.classLoader
                 XposedHelpers.findAndHookMethod(
                     mediaProvider, "onCreate", object : XC_MethodHook() {
                         @Throws(Throwable::class)
