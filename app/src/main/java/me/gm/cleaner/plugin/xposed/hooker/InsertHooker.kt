@@ -25,6 +25,7 @@ import android.os.FileUtils
 import android.provider.MediaStore
 import android.text.TextUtils
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
@@ -32,12 +33,15 @@ import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import java.io.File
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val dao = service.database.mediaProviderInsertRecordDao()
     private val fileUtilsCls: Class<*> by lazy {
         XposedHelpers.findClass("com.android.providers.media.util.FileUtils", service.classLoader)
     }
+    private val scheduler = Executors.newSingleThreadScheduledExecutor()
     private val pendingScan = Collections.synchronizedMap(
         mutableMapOf<String, FileCreationObserver>()
     )
@@ -87,31 +91,33 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 service.resources.getString(R.string.scan_for_obsolete_insert_key), true
             )
         ) {
-//            val file = File(data)
-//            XposedBridge.log("scan for obsolete insert: $data")
-//            val scanResult = if (file.exists()) {
-//                // 我知道你很急，但是你先别急
-//                scanFile(param.thisObject, file)
-//            } else {
-//                null
-//            }
-//            XposedBridge.log("scan result: $scanResult")
-//            if (scanResult == null) {
-//                XposedBridge.log("scan for obsolete insert: $data")
-//                val ob = FileCreationObserver(file)
-//                if (pendingScan.putIfAbsent(data, ob) == null) {
-//                    ob.setOnMaybeFileCreatedListener { retryTimes ->
-//                        val firstResult = scanFile(param.thisObject, file)
-//                        XposedBridge.log("scan result: $firstResult")
-//                        if (firstResult != null || retryTimes >= 3) {
-//                            pendingScan.remove(data)
-//                            true
-//                        } else {
-//                            false
-//                        }
-//                    }.startWatching()
-//                }
-//            }
+            scheduler.schedule({
+                val file = File(data)
+                XposedBridge.log("scan for obsolete insert: $data")
+                val scanResult = if (file.exists()) {
+                    // 我知道你很急，但是你先别急
+                    scanFile(param.thisObject, file)
+                } else {
+                    null
+                }
+                XposedBridge.log("scan result: $scanResult")
+                if (scanResult == null) {
+                    XposedBridge.log("scan for obsolete insert: $data")
+                    val ob = FileCreationObserver(file) { scheduler }
+                    if (pendingScan.putIfAbsent(data, ob) == null) {
+                        ob.setOnMaybeFileCreatedListener { retryTimes ->
+                            val firstResult = scanFile(param.thisObject, file)
+                            XposedBridge.log("scan result: $firstResult")
+                            if (firstResult != null || retryTimes >= 1) {
+                                pendingScan.remove(data)
+                                true
+                            } else {
+                                false
+                            }
+                        }.startWatching()
+                    }
+                }
+            }, 1, TimeUnit.SECONDS)
         }
 
         /** RECORD */
