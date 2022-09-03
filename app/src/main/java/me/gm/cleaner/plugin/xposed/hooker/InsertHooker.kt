@@ -28,7 +28,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
+import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import java.io.File
@@ -37,7 +38,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.mediaProviderInsertRecordDao()
     private val fileUtilsCls: Class<*> by lazy {
         XposedHelpers.findClass("com.android.providers.media.util.FileUtils", service.classLoader)
     }
@@ -74,7 +74,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
         val data = values.getAsString(MediaStore.MediaColumns.DATA)
         if (wasPathEmpty) {
-            // Restore
+            // Restore to allow mkdir
             values.remove(MediaStore.MediaColumns.DATA)
         }
 
@@ -125,14 +125,16 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            dao.insert(
-                MediaProviderInsertRecord(
+            service.dao.insert(
+                MediaProviderRecord(
+                    0,
                     System.currentTimeMillis(),
                     param.callingPackage,
                     match,
-                    data,
-                    mimeType,
-                    shouldIntercept
+                    OP_INSERT,
+                    listOf(data),
+                    listOf(mimeType),
+                    listOf(shouldIntercept)
                 )
             )
             service.dispatchMediaChange()

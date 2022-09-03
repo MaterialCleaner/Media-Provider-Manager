@@ -17,7 +17,7 @@ interface IManagerService {
 
     void clearAllTables() = 30;
 
-    int packageUsageTimes(String table, in List<String> packageNames) = 31;
+    int packageUsageTimes(int operation, in List<String> packageNames) = 31;
 
     void registerMediaChangeObserver(in IMediaChangeObserver observer) = 32;
 

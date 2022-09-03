@@ -36,9 +36,9 @@ import com.bumptech.glide.Glide
 import com.google.android.material.transition.platform.Hold
 import com.google.gson.Gson
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
 import me.gm.cleaner.plugin.databinding.AppHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesHeaderBinding
 import me.gm.cleaner.plugin.databinding.TemplatesItemBinding
@@ -71,12 +71,12 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
             fragment.startActivity(intent)
         }
         val usageTimes = arrayOf(
-            MediaProviderQueryRecord::class.simpleName!! to R.string.query_times,
-            MediaProviderInsertRecord::class.simpleName!! to R.string.insert_times,
-            MediaProviderDeleteRecord::class.simpleName!! to R.string.delete_times,
-        ).mapNotNull { (table, resId) ->
+            OP_QUERY to R.string.query_times,
+            OP_INSERT to R.string.insert_times,
+            OP_DELETE to R.string.delete_times,
+        ).mapNotNull { (op, resId) ->
             val packageUsageTimes = fragment.binderViewModel.packageUsageTimes(
-                table, listOf(args.packageInfo.packageName)
+                op, listOf(args.packageInfo.packageName)
             )
             if (packageUsageTimes == 0) {
                 null
@@ -86,8 +86,9 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
         }
         if (usageTimes.isNotEmpty()) {
             binding.usageTimes.isVisible = true
-            binding.usageTimes.text =
-                usageTimes.joinToString(fragment.getString(R.string.delimiter))
+            binding.usageTimes.text = usageTimes.joinToString(
+                fragment.getString(R.string.delimiter)
+            )
         }
     }
 

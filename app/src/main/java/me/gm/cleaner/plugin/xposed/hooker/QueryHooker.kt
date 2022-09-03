@@ -31,18 +31,15 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecordDatabase
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
+import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.FilteredCursor
 import java.util.function.Consumer
 import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.mediaProviderQueryRecordDao()
-    private val databaseUtils: Class<*> = XposedHelpers.findClass(
+    private val databaseUtilsCls: Class<*> = XposedHelpers.findClass(
         "com.android.providers.media.util.DatabaseUtils", service.classLoader
     )
 
@@ -66,7 +63,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         query.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs = ArraySet<String>()
         XposedHelpers.callStaticMethod(
-            databaseUtils, "resolveQueryArgs", query, object : Consumer<String> {
+            databaseUtilsCls, "resolveQueryArgs", query, object : Consumer<String> {
                 override fun accept(t: String) {
                     honoredArgs.add(t)
                 }
@@ -171,11 +168,13 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            dao.insert(
-                MediaProviderQueryRecord(
+            service.dao.insert(
+                MediaProviderRecord(
+                    0,
                     System.currentTimeMillis(),
                     param.callingPackage,
                     table,
+                    OP_QUERY,
                     if (data.size < MAX_SIZE) data else data.subList(0, MAX_SIZE),
                     mimeType,
                     shouldIntercept
@@ -209,15 +208,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val start = queryArgs.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)!!.toLong()
         val end = queryArgs.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER)!!.toLong()
         val packageNames = queryArgs.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
-        return when {
-            table.contains(MediaProviderQueryRecord::class.simpleName) && packageNames == null ->
-                dao.loadForTimeMillis(start, end)
-            table.contains(MediaProviderInsertRecord::class.simpleName) && packageNames == null ->
-                service.database.mediaProviderInsertRecordDao().loadForTimeMillis(start, end)
-            table.contains(MediaProviderDeleteRecord::class.simpleName) && packageNames == null ->
-                service.database.mediaProviderDeleteRecordDao().loadForTimeMillis(start, end)
-            else -> throw IllegalArgumentException()
-        }
+        return service.dao.loadForTimeMillis(start, end, *table.map { it.toInt() }.toIntArray())
     }
 
     companion object {

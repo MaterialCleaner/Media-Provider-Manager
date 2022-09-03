@@ -8,7 +8,7 @@
 	public static void throw*(...);
 }
 
--keepnames class * extends me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
+-keepnames class * extends me.gm.cleaner.plugin.dao.MediaProviderRecord
 
 -keepclassmembernames class com.google.android.exoplayer2.ui.StyledPlayerControlView {
     private boolean scrubbing;

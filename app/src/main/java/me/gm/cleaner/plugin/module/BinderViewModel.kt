@@ -67,8 +67,8 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
         service!!.clearAllTables()
     }
 
-    fun packageUsageTimes(table: String, packageNames: List<String>): Int =
-        service!!.packageUsageTimes(table, packageNames)
+    fun packageUsageTimes(operation: Int, packageNames: List<String>): Int =
+        service!!.packageUsageTimes(operation, packageNames)
 
     fun registerMediaChangeObserver(observer: IMediaChangeObserver) {
         service!!.registerMediaChangeObserver(observer)

@@ -26,10 +26,9 @@ import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.IManagerService
 import me.gm.cleaner.plugin.IMediaChangeObserver
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecordDatabase
+import me.gm.cleaner.plugin.dao.MIGRATION_1_2
+import me.gm.cleaner.plugin.dao.MediaProviderRecordDao
+import me.gm.cleaner.plugin.dao.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
 import java.io.File
 
@@ -40,7 +39,8 @@ abstract class ManagerService : IManagerService.Stub() {
         protected set
     lateinit var context: Context
         private set
-    lateinit var database: MediaProviderRecordDatabase
+    private lateinit var database: MediaProviderRecordDatabase
+    lateinit var dao: MediaProviderRecordDao
         private set
     private val observers = RemoteCallbackList<IMediaChangeObserver>()
     val rootSp by lazy { JsonFileSpImpl(File(context.filesDir, "root")) }
@@ -48,10 +48,16 @@ abstract class ManagerService : IManagerService.Stub() {
 
     protected fun onCreate(context: Context) {
         this.context = context
-        database = Room.databaseBuilder(
-            context.applicationContext, MediaProviderRecordDatabase::class.java,
-            MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
-        ).enableMultiInstanceInvalidation().build()
+        database = Room
+            .databaseBuilder(
+                context.applicationContext,
+                MediaProviderRecordDatabase::class.java,
+                MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
+            )
+            .enableMultiInstanceInvalidation()
+            .addMigrations(MIGRATION_1_2)
+            .build()
+        dao = database.mediaProviderRecordDao()
     }
 
     private val packageManagerService: IInterface by lazy {
@@ -105,15 +111,8 @@ abstract class ManagerService : IManagerService.Stub() {
         database.clearAllTables()
     }
 
-    override fun packageUsageTimes(table: String, packageNames: List<String>) = when (table) {
-        MediaProviderQueryRecord::class.simpleName ->
-            database.mediaProviderQueryRecordDao().packageUsageTimes(*packageNames.toTypedArray())
-        MediaProviderInsertRecord::class.simpleName ->
-            database.mediaProviderInsertRecordDao().packageUsageTimes(*packageNames.toTypedArray())
-        MediaProviderDeleteRecord::class.simpleName ->
-            database.mediaProviderDeleteRecordDao().packageUsageTimes(*packageNames.toTypedArray())
-        else -> throw IllegalArgumentException()
-    }
+    override fun packageUsageTimes(operation: Int, packageNames: List<String>) =
+        dao.packageUsageTimes(operation, *packageNames.toTypedArray())
 
     override fun registerMediaChangeObserver(observer: IMediaChangeObserver) {
         observers.register(observer)

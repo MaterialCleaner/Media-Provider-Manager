@@ -27,14 +27,13 @@ import android.provider.MediaStore.Files.FileColumns
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
+import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
 
 class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val dao = service.database.mediaProviderDeleteRecordDao()
-
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         /** ARGUMENTS */
@@ -133,14 +132,16 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 service.resources.getString(R.string.usage_record_key), true
             )
         ) {
-            dao.insert(
-                MediaProviderDeleteRecord(
+            service.dao.insert(
+                MediaProviderRecord(
+                    0,
                     System.currentTimeMillis(),
                     param.callingPackage,
                     match,
+                    OP_DELETE,
                     data,
                     mimeType,
-                    Array(data.size) { false }.toList()
+                    MutableList(data.size) { false }
                 )
             )
             service.dispatchMediaChange()

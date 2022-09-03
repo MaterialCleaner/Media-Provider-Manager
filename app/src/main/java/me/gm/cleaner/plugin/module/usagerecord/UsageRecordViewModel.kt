@@ -29,11 +29,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.IMediaChangeObserver
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
+import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.dao.ModulePreferences
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
 import me.gm.cleaner.plugin.module.BinderViewModel
 import java.util.*
 
@@ -62,13 +62,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                     if (isSearching) {
                         val lowerQuery = queryText.lowercase()
                         sequence = sequence.filter {
-                            it.dataList.any { data -> data.lowercase().contains(lowerQuery) } ||
+                            it.data.any { data -> data.lowercase().contains(lowerQuery) } ||
                                     it.label?.lowercase()?.contains(lowerQuery) == true ||
                                     it.packageName.lowercase().contains(lowerQuery)
                         }
-                    }
-                    sequence = sequence.sortedBy {
-                        -it.timeMillis
                     }
                     SourceState.Done(sequence.toList())
                 }
@@ -118,16 +115,18 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
     ): Job = viewModelScope.launch {
         _recordsFlow.value = SourceState.Loading
         val packageManager = getApplication<Application>().packageManager
+        val operations = mutableListOf<Int>()
+        if (!isHideQuery) {
+            operations += OP_QUERY
+        }
+        if (!isHideInsert) {
+            operations += OP_INSERT
+        }
+        if (!isHideDelete) {
+            operations += OP_DELETE
+        }
         val records = mutableListOf<MediaProviderRecord>().also {
-            if (!isHideQuery) {
-                it += queryRecord<MediaProviderQueryRecord>(start, end)
-            }
-            if (!isHideInsert) {
-                it += queryRecord<MediaProviderInsertRecord>(start, end)
-            }
-            if (!isHideDelete) {
-                it += queryRecord<MediaProviderDeleteRecord>(start, end)
-            }
+            it += queryRecord(start, end, operations)
         }.onEach {
             val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
             it.packageInfo = pi
@@ -140,9 +139,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         _reloadRecordsLiveData.value = false
     }
 
-    private suspend inline fun <reified E : MediaProviderRecord> queryRecord(start: Long, end: Long)
-            : List<MediaProviderRecord> = withContext(Dispatchers.IO) {
-        val projection = arrayOf(E::class.simpleName)
+    private suspend inline fun queryRecord(
+        start: Long, end: Long, operations: List<Int>
+    ): List<MediaProviderRecord> = withContext(Dispatchers.IO) {
+        val projection = operations.map { it.toString() }.toTypedArray()
         val selection = start.toString()
         val sortOrder = end.toString()
 
@@ -153,18 +153,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             null,
             sortOrder
         )?.use { cursor ->
-            val constructor = E::class.java.declaredConstructors.first()
-            val mockParameters = constructor.parameterTypes.map { type ->
-                when (type) {
-                    Int::class.java -> 0
-                    String::class.java -> ""
-                    Long::class.java -> 0L
-                    List::class.java -> emptyList<String>()
-                    Boolean::class.java -> false
-                    else -> throw IllegalArgumentException()
-                }
-            }.toTypedArray()
-            return@withContext (constructor.newInstance(*mockParameters) as E).convert(cursor)
+            return@withContext MediaProviderRecord.convert(cursor)
         }
         return@withContext emptyList()
     }

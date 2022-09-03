@@ -33,10 +33,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderDeleteRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderInsertRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderQueryRecord
-import me.gm.cleaner.plugin.dao.usagerecord.MediaProviderRecord
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
+import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
+import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
 import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 
@@ -56,27 +56,27 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             .load(record.packageInfo)
             .into(binding.icon)
         binding.title.text = record.label ?: record.packageName
-        val operation = when (record) {
-            is MediaProviderQueryRecord -> fragment.getString(R.string.queried_at)
-            is MediaProviderInsertRecord -> fragment.getString(R.string.inserted_at)
-            is MediaProviderDeleteRecord -> fragment.getString(R.string.deleted_at)
+        val operation = when (record.operation) {
+            OP_QUERY -> fragment.getString(R.string.queried_at)
+            OP_INSERT -> fragment.getString(R.string.inserted_at)
+            OP_DELETE -> fragment.getString(R.string.deleted_at)
             else -> throw IllegalArgumentException()
         } + formatDateTime(record.timeMillis)
-        binding.operation.text = if (record.interceptedList.any { it })
+        binding.operation.text = if (record.intercepted.any { it })
             buildSpannedString { strikeThrough { append(operation) } } else operation
-        val more = record.dataList.size - 1
+        val more = record.data.size - 1
         val hasMore = more > 0
         if (hasMore) {
             binding.record.setTextAndSuffix(
-                record.dataList.first(), fragment.getString(R.string.and_more, more)
+                record.data.first(), fragment.getString(R.string.and_more, more)
             )
         } else {
-            binding.record.text = record.dataList.first()
+            binding.record.text = record.data.first()
         }
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter(
                 context, R.layout.usagerecord_popup_item,
-                record.dataList.zip(record.interceptedList).map { (data, intercepted) ->
+                record.data.zip(record.intercepted).map { (data, intercepted) ->
                     if (intercepted) buildSpannedString { strikeThrough { append(data) } } else data
                 }
             )
