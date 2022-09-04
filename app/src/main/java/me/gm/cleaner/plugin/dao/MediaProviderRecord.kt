@@ -45,6 +45,9 @@ data class MediaProviderRecord(
 
     companion object {
         fun convert(cursor: Cursor): List<MediaProviderRecord> {
+            if (cursor.count == 0) {
+                return emptyList()
+            }
             val timeMillisColumn = cursor.getColumnIndexOrThrow("time_millis")
             val packageNameColumn = cursor.getColumnIndexOrThrow("package_name")
             val matchColumn = cursor.getColumnIndexOrThrow("match")
@@ -73,7 +76,7 @@ data class MediaProviderRecord(
 
 @Dao
 interface MediaProviderRecordDao {
-    @Query("SELECT * FROM MediaProviderRecord WHERE operation IN (:operations) AND time_millis BETWEEN (:start) AND (:end) ORDER BY time_millis DESC")
+    @Query("SELECT * FROM MediaProviderRecord WHERE time_millis BETWEEN (:start) AND (:end) AND operation IN (:operations) ORDER BY time_millis DESC")
     fun loadForTimeMillis(
         start: Long, end: Long, @MediaProviderOperation vararg operations: Int
     ): Cursor
