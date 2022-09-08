@@ -102,10 +102,10 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 }
                 XposedBridge.log("scan result: $scanResult")
                 if (scanResult == null) {
-                    XposedBridge.log("scan for obsolete insert: $data")
                     val ob = FileCreationObserver(file) { scheduler }
                     if (pendingScan.putIfAbsent(data, ob) == null) {
                         ob.setOnMaybeFileCreatedListener { retryTimes ->
+                            XposedBridge.log("scan for obsolete insert: $data")
                             val firstResult = scanFile(param.thisObject, file)
                             XposedBridge.log("scan result: $firstResult")
                             if (firstResult != null || retryTimes >= 1) {
@@ -184,7 +184,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, System.currentTimeMillis().toString())
         }
         // Use default directories when missing
-        if (values.getAsString(MediaStore.MediaColumns.RELATIVE_PATH).isNullOrEmpty()) {
+        if (TextUtils.isEmpty(values.getAsString(MediaStore.MediaColumns.RELATIVE_PATH))) {
             if (defaultSecondary != null) {
                 values.put(
                     MediaStore.MediaColumns.RELATIVE_PATH, "$defaultPrimary/$defaultSecondary/"

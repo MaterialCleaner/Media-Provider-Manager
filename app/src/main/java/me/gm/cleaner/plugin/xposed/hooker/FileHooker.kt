@@ -16,19 +16,22 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
+import android.os.Environment
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import me.gm.cleaner.plugin.xposed.util.FileUtils
 import java.io.File
 
 class FileHooker : XC_MethodHook() {
-    private val niceParents = FileUtils.standardDirs + FileUtils.androidDir.path
+    private val standardParents =
+        FileUtils.standardDirs.map { type -> Environment.getExternalStoragePublicDirectory(type) } +
+                FileUtils.androidDir
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         val file = param.thisObject as File
         if (FileUtils.startsWith(FileUtils.externalStorageDirPath, file) &&
-            niceParents.none { FileUtils.startsWith(it, file) }
+            standardParents.none { FileUtils.startsWith(it, file) }
         ) {
             XposedBridge.log("rejected ${param.method.name}: $file")
             param.result = false
