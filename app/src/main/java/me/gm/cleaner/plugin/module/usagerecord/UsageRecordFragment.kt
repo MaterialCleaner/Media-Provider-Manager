@@ -33,6 +33,7 @@ import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
+import me.gm.cleaner.plugin.widget.FixQueryChangeSearchView
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 import java.util.*
@@ -119,6 +120,7 @@ class UsageRecordFragment : ModuleFragment() {
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 viewModel.isSearching = true
+                viewModel.queryText = ""
                 return true
             }
 
@@ -127,7 +129,7 @@ class UsageRecordFragment : ModuleFragment() {
                 return true
             }
         })
-        val searchView = searchItem.actionView as SearchView
+        val searchView = searchItem.actionView as FixQueryChangeSearchView
         searchView.setQuery(viewModel.queryText, false)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -136,7 +138,9 @@ class UsageRecordFragment : ModuleFragment() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                viewModel.queryText = newText
+                if (!searchView.shouldIgnoreQueryChange) {
+                    viewModel.queryText = newText
+                }
                 return false
             }
         })

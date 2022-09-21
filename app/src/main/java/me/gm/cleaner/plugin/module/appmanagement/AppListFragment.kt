@@ -24,13 +24,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.ModulePreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
+import me.gm.cleaner.plugin.widget.FixQueryChangeSearchView
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 
@@ -121,6 +121,7 @@ class AppListFragment : ModuleFragment() {
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 viewModel.isSearching = true
+                viewModel.queryText = ""
                 return true
             }
 
@@ -129,18 +130,16 @@ class AppListFragment : ModuleFragment() {
                 return true
             }
         })
-        val searchView = searchItem.actionView as SearchView
+        val searchView = searchItem.actionView as FixQueryChangeSearchView
         searchView.setQuery(viewModel.queryText, false)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            private val navController = findNavController()
-
             override fun onQueryTextSubmit(query: String): Boolean {
                 viewModel.queryText = query
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (navController.currentDestination?.id == R.id.applist_fragment) {
+                if (!searchView.shouldIgnoreQueryChange) {
                     viewModel.queryText = newText
                 }
                 return false
