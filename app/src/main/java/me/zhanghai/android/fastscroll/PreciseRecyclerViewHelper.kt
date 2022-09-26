@@ -22,9 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 internal class PreciseRecyclerViewHelper(
-    private val list: RecyclerView, popupTextProvider: PopupTextProvider? = null
+    private val list: RecyclerView, popupTextProvider: PopupTextProvider? = null,
+    measureAllItemsOnStart: Boolean = true
 ) : NoInterceptionRecyclerViewHelper(list, popupTextProvider) {
-    private val observer = ItemHeightsObserver(list)
+    private val observer = ItemHeightsObserver(list, measureAllItemsOnStart)
     private val adapter = list.adapter!!
     private val layoutManager = list.layoutManager as LinearLayoutManager
     private val mTempRect = Rect()
