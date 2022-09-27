@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.ktx.getObjectField
 
-class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart: Boolean = true) :
+open class ItemHeightsObserver(list: RecyclerView, measureAllItemsOnStart: Boolean = true) :
     RecyclerView.AdapterDataObserver() {
     private val _itemHeights = mutableListOf<Int>()
     private val heightUndeterminedPositions = mutableListOf<Int>()
@@ -29,11 +29,19 @@ class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart
         get() = _itemHeights
     var itemHeightsSum = 0
         private set
-    private val adapter = list.adapter!!
-    private val layoutManager = list.layoutManager as LinearLayoutManager
-    private val visibleItemPositions: IntRange
-        get() = layoutManager.findFirstVisibleItemPosition()..
-                layoutManager.findLastVisibleItemPosition()
+    protected val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> = list.adapter!!
+    protected val layoutManager = list.layoutManager!!
+
+    /**
+     * You should override it if you are not using [LinearLayoutManager].
+     * @return Returns the adapter position of all visible view.
+     */
+    open val visibleItemPositions: Iterable<Int>
+        get() {
+            val layoutManager = layoutManager as LinearLayoutManager
+            return layoutManager.findFirstVisibleItemPosition()..
+                    layoutManager.findLastVisibleItemPosition()
+        }
 
     private val recycler by lazy { list.getObjectField<RecyclerView.Recycler>() }
     private fun enforceItemOffset(position: Int): Int {
@@ -45,11 +53,7 @@ class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart
             layoutManager.measureChildWithMargins(itemView, 0, 0)
         }
         try {
-            return if (layoutManager.orientation == RecyclerView.VERTICAL) {
-                itemView.measuredHeight
-            } else {
-                itemView.measuredWidth
-            }
+            return itemView.measuredHeight
         } finally {
             if (newHolderCreated) {
                 recycler.recycleView(itemView)
@@ -57,22 +61,32 @@ class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart
         }
     }
 
-    private fun guessItemOffset(): Int? = _itemHeights.firstOrNull { it > 0 }
+    /**
+     * You should override it if you are not using [LinearLayoutManager].
+     * @return Returns one item's height obtained in the easiest way.
+     */
+    open fun getOneItemOffset(): Int = _itemHeights.firstOrNull { it > 0 }
+        ?: getVisibleItemOffset((layoutManager as LinearLayoutManager).findFirstVisibleItemPosition())
 
-    private fun getVisibleItemOffset(position: Int): Int {
+    /**
+     * You can override it to get a better user experience if you know how to estimate the height
+     * of the view at the specific position.
+     * @param position The adapter position of the view we need to estimate its height.
+     * @return Returns the height of the view at the specific position. Return `null` if you don't
+     * know how to estimate the height of the view at the specific position.
+     */
+    open fun guessItemOffsetAt(position: Int): Int? = null
+
+    protected fun getVisibleItemOffset(position: Int): Int {
         val itemView = layoutManager.findViewByPosition(position) ?: return -1
-        return if (layoutManager.orientation == RecyclerView.VERTICAL) {
-            itemView.measuredHeight
-        } else {
-            itemView.measuredWidth
-        }
+        return itemView.measuredHeight
     }
 
     private fun enforceAllItemsOffset(measureAllItems: Boolean) {
-        val guessItemOffset = if (measureAllItems) {
+        val oneItemOffset = if (measureAllItems) {
             0
         } else {
-            guessItemOffset() ?: getVisibleItemOffset(layoutManager.findFirstVisibleItemPosition())
+            getOneItemOffset()
         }
         _itemHeights.clear()
         heightUndeterminedPositions.clear()
@@ -85,7 +99,7 @@ class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart
                     getVisibleItemOffset(i)
                 } else {
                     heightUndeterminedPositions += i
-                    guessItemOffset
+                    guessItemOffsetAt(i) ?: oneItemOffset
                 }
             }
         }
@@ -108,9 +122,10 @@ class ItemHeightsObserver(list: RecyclerView, private val measureAllItemsOnStart
                 heightUndeterminedPositions[i] += itemCount
             }
         }
-        // getVisibleItemOffset(i) can't get accurate result here, so we always use guessItemOffset().
-        val guessItemOffset = guessItemOffset() ?: 0
+        val oneItemOffset = _itemHeights.firstOrNull { it > 0 } ?: 0
         for (i in positionStart until positionStart + itemCount) {
+            // getVisibleItemOffset(i) can't get accurate result here, so we can only guess.
+            val guessItemOffset = guessItemOffsetAt(i) ?: oneItemOffset
             _itemHeights.add(i, guessItemOffset)
             itemHeightsSum += guessItemOffset
             heightUndeterminedPositions += i
