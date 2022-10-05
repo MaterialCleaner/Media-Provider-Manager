@@ -33,7 +33,7 @@ import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.module.BinderViewModel
 import java.util.*
 
@@ -103,9 +103,9 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         val end = timeInMillis
         loadRecords(
             binderViewModel, start, end,
-            ModulePreferences.isHideQuery,
-            ModulePreferences.isHideInsert,
-            ModulePreferences.isHideDelete
+            RootPreferences.isHideQuery,
+            RootPreferences.isHideInsert,
+            RootPreferences.isHideDelete
         )
     }
 

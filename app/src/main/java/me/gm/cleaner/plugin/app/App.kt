@@ -26,7 +26,7 @@ import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
 import me.gm.cleaner.plugin.BuildConfig
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 @HiltAndroidApp
@@ -48,7 +48,7 @@ class App : Application() {
                 Analytics::class.java, Crashes::class.java
             )
         }
-        ModulePreferences.init(createDeviceProtectedStorageContext())
+        RootPreferences.init(createDeviceProtectedStorageContext())
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         DynamicColors.applyToActivitiesIfAvailable(this)
     }

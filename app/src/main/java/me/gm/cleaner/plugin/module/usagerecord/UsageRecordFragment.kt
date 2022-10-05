@@ -29,7 +29,7 @@ import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
@@ -97,8 +97,8 @@ class UsageRecordFragment : ModuleFragment() {
             supportActionBar?.subtitle = null
         }
 
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
+        RootPreferences.addOnPreferenceChangeListener(object :
+            RootPreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
                 viewModel.reloadRecords(binderViewModel)
@@ -145,9 +145,9 @@ class UsageRecordFragment : ModuleFragment() {
             }
         })
 
-        menu.findItem(R.id.menu_hide_query).isChecked = ModulePreferences.isHideQuery
-        menu.findItem(R.id.menu_hide_insert).isChecked = ModulePreferences.isHideInsert
-        menu.findItem(R.id.menu_hide_delete).isChecked = ModulePreferences.isHideDelete
+        menu.findItem(R.id.menu_hide_query).isChecked = RootPreferences.isHideQuery
+        menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsert
+        menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDelete
         arrayOf(menu.findItem(R.id.menu_header_hide)).forEach {
             it.title = requireContext().buildStyledTitle(it.title!!)
         }
@@ -171,17 +171,17 @@ class UsageRecordFragment : ModuleFragment() {
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
-                ModulePreferences.isHideQuery = isHideQuery
+                RootPreferences.isHideQuery = isHideQuery
             }
             R.id.menu_hide_insert -> {
                 val isHideInsert = !item.isChecked
                 item.isChecked = isHideInsert
-                ModulePreferences.isHideInsert = isHideInsert
+                RootPreferences.isHideInsert = isHideInsert
             }
             R.id.menu_hide_delete -> {
                 val isHideDelete = !item.isChecked
                 item.isChecked = isHideDelete
-                ModulePreferences.isHideDelete = isHideDelete
+                RootPreferences.isHideDelete = isHideDelete
             }
             R.id.menu_clear -> {
                 binderViewModel.clearAllTables()

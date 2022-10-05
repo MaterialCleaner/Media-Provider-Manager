@@ -30,7 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.FilesHeaderBinding
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
@@ -114,7 +114,7 @@ open class FilesAdapter(private val fragment: Fragment) :
     }
 
     open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel>? =
-        if (ModulePreferences.sortMediaBy == ModulePreferences.SORT_BY_PATH) {
+        if (RootPreferences.sortMediaBy == RootPreferences.SORT_BY_PATH) {
             val groupedList = mutableListOf<MediaStoreModel>()
             var lastRelativePath = ""
             list.forEach {

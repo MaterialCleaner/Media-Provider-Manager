@@ -32,7 +32,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.transition.platform.MaterialFadeOutIn
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.zhanghai.android.fastscroll.PopupTextProvider
@@ -111,8 +111,8 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
         return DateUtils.formatDateTime(context, timeMillis, flags)
     }
 
-    override fun getPopupText(position: Int) = when (ModulePreferences.sortMediaBy) {
-        ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE ->
+    override fun getPopupText(position: Int) = when (RootPreferences.sortMediaBy) {
+        RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
             formatDateTime(getItem(position).dateTaken)
         else -> ""
     }

@@ -26,7 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.module.ModuleFragment
@@ -98,8 +98,8 @@ class AppListFragment : ModuleFragment() {
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
             viewModel.updateApps(binderViewModel)
         }
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
+        RootPreferences.addOnPreferenceChangeListener(object :
+            RootPreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
                 viewModel.updateApps(binderViewModel)
@@ -146,14 +146,14 @@ class AppListFragment : ModuleFragment() {
             }
         })
 
-        when (ModulePreferences.sortBy) {
-            ModulePreferences.SORT_BY_APP_NAME ->
+        when (RootPreferences.sortBy) {
+            RootPreferences.SORT_BY_APP_NAME ->
                 menu.findItem(R.id.menu_sort_by_app_name).isChecked = true
-            ModulePreferences.SORT_BY_UPDATE_TIME ->
+            RootPreferences.SORT_BY_UPDATE_TIME ->
                 menu.findItem(R.id.menu_sort_by_update_time).isChecked = true
         }
-        menu.findItem(R.id.menu_rule_count).isChecked = ModulePreferences.ruleCount
-        menu.findItem(R.id.menu_hide_system_app).isChecked = ModulePreferences.isHideSystemApp
+        menu.findItem(R.id.menu_rule_count).isChecked = RootPreferences.ruleCount
+        menu.findItem(R.id.menu_hide_system_app).isChecked = RootPreferences.isHideSystemApp
         arrayOf(
             menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
         ).forEach {
@@ -165,21 +165,21 @@ class AppListFragment : ModuleFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_app_name -> {
                 item.isChecked = true
-                ModulePreferences.sortBy = ModulePreferences.SORT_BY_APP_NAME
+                RootPreferences.sortBy = RootPreferences.SORT_BY_APP_NAME
             }
             R.id.menu_sort_by_update_time -> {
                 item.isChecked = true
-                ModulePreferences.sortBy = ModulePreferences.SORT_BY_UPDATE_TIME
+                RootPreferences.sortBy = RootPreferences.SORT_BY_UPDATE_TIME
             }
             R.id.menu_rule_count -> {
                 val ruleCount = !item.isChecked
                 item.isChecked = ruleCount
-                ModulePreferences.ruleCount = ruleCount
+                RootPreferences.ruleCount = ruleCount
             }
             R.id.menu_hide_system_app -> {
                 val isHideSystemApp = !item.isChecked
                 item.isChecked = isHideSystemApp
-                ModulePreferences.isHideSystemApp = isHideSystemApp
+                RootPreferences.isHideSystemApp = isHideSystemApp
             }
             else -> return super.onOptionsItemSelected(item)
         }

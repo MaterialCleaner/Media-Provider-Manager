@@ -29,7 +29,7 @@ import android.provider.MediaStore
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 
 class ImagesViewModel(application: Application) :
@@ -86,10 +86,10 @@ class ImagesViewModel(application: Application) :
              * Sort order to use. This can also be null, which will use the default sort
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
-            val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
+            val sortOrder = when (RootPreferences.sortMediaBy) {
+                RootPreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
                         MediaStore.Files.FileColumns.DISPLAY_NAME
-                ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+                RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
                 else -> throw IllegalArgumentException()
             }
 

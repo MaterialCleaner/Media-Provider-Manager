@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.app.InfoDialog
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.mediastore.audio.AudioFragment
@@ -140,8 +140,8 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 )
             }
         }
-        ModulePreferences.addOnPreferenceChangeListener(object :
-            ModulePreferences.PreferencesChangeListener {
+        RootPreferences.addOnPreferenceChangeListener(object :
+            RootPreferences.PreferencesChangeListener {
             override val lifecycle = getLifecycle()
             override fun onPreferencesChanged() {
                 PermissionUtils.requestPermissions(
@@ -275,7 +275,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         override fun dispatchRequestPermissions(
             permissions: Array<String>, savedInstanceState: Bundle?
         ) {
-            if (ModulePreferences.isShowAllMediaFiles) {
+            if (RootPreferences.isShowAllMediaFiles) {
                 super.dispatchRequestPermissions(permissions, savedInstanceState)
             } else {
                 if (requiredPermissions.any {
@@ -326,7 +326,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.mediastore_toolbar, menu)
-        menu.findItem(R.id.menu_show_all).isChecked = ModulePreferences.isShowAllMediaFiles
+        menu.findItem(R.id.menu_show_all).isChecked = RootPreferences.isShowAllMediaFiles
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -339,7 +339,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         R.id.menu_show_all -> {
             val isShowAllMediaFiles = !item.isChecked
             item.isChecked = isShowAllMediaFiles
-            ModulePreferences.isShowAllMediaFiles = isShowAllMediaFiles
+            RootPreferences.isShowAllMediaFiles = isShowAllMediaFiles
             true
         }
         else -> super.onOptionsItemSelected(item)

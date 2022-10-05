@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
@@ -75,11 +75,11 @@ open class FilesViewModel(application: Application) :
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
-            val sortOrder = when (ModulePreferences.sortMediaBy) {
-                ModulePreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
+            val sortOrder = when (RootPreferences.sortMediaBy) {
+                RootPreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
                         MediaStore.Files.FileColumns.DISPLAY_NAME
-                ModulePreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
-                ModulePreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
+                RootPreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
+                RootPreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
                 else -> throw IllegalArgumentException()
             }
 

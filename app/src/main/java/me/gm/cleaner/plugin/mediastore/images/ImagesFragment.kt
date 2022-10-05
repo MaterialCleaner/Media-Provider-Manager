@@ -28,7 +28,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.PermissionUtils
@@ -51,7 +51,7 @@ class ImagesFragment : MediaStoreFragment() {
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         val layoutManager =
-            LayoutCompleteAwareGridLayoutManager(requireContext(), ModulePreferences.spanCount)
+            LayoutCompleteAwareGridLayoutManager(requireContext(), RootPreferences.spanCount)
         list.layoutManager = layoutManager
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)
@@ -127,10 +127,10 @@ class ImagesFragment : MediaStoreFragment() {
         }
         inflater.inflate(R.menu.images_toolbar, menu)
 
-        when (ModulePreferences.sortMediaBy) {
-            ModulePreferences.SORT_BY_PATH ->
+        when (RootPreferences.sortMediaBy) {
+            RootPreferences.SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
-            ModulePreferences.SORT_BY_DATE_TAKEN, ModulePreferences.SORT_BY_SIZE ->
+            RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
@@ -142,11 +142,11 @@ class ImagesFragment : MediaStoreFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_path -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
+                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_PATH
             }
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_DATE_TAKEN
             }
             else -> return super.onOptionsItemSelected(item)
         }

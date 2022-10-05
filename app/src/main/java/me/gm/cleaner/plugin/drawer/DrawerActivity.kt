@@ -35,7 +35,7 @@ import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseActivity
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.DrawerActivityBinding
 import me.gm.cleaner.plugin.ktx.getObjectField
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
@@ -62,17 +62,17 @@ abstract class DrawerActivity : BaseActivity() {
         val action = intent.action
         val shouldAlterStartDestination = savedInstanceState == null &&
                 (action != Intent.ACTION_MAIN ||
-                        ModulePreferences.startDestination in topLevelDestinationIds)
+                        RootPreferences.startDestination in topLevelDestinationIds)
         if (shouldAlterStartDestination) {
             when (action) {
                 "me.gm.cleaner.plugin.intent.action.AUDIO" ->
-                    ModulePreferences.startDestination = R.id.audio_fragment
+                    RootPreferences.startDestination = R.id.audio_fragment
                 "me.gm.cleaner.plugin.intent.action.FILES" ->
-                    ModulePreferences.startDestination = R.id.files_fragment
+                    RootPreferences.startDestination = R.id.files_fragment
                 "me.gm.cleaner.plugin.intent.action.IMAGES" ->
-                    ModulePreferences.startDestination = R.id.images_fragment
+                    RootPreferences.startDestination = R.id.images_fragment
                 "me.gm.cleaner.plugin.intent.action.VIDEO" ->
-                    ModulePreferences.startDestination = R.id.video_fragment
+                    RootPreferences.startDestination = R.id.video_fragment
             }
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
                 val startDestId = if (action == Intent.ACTION_VIEW) {
@@ -84,7 +84,7 @@ abstract class DrawerActivity : BaseActivity() {
                         else -> throw IllegalArgumentException(intent.type)
                     }
                 } else {
-                    ModulePreferences.startDestination
+                    RootPreferences.startDestination
                 }
                 setStartDestination(startDestId)
             }
@@ -100,7 +100,7 @@ abstract class DrawerActivity : BaseActivity() {
         }
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id in topLevelDestinationIds) {
-                ModulePreferences.startDestination = destination.id
+                RootPreferences.startDestination = destination.id
 
                 supportFragmentManager.findFragmentById(R.id.nav_host)
                     ?.childFragmentManager?.fragments?.forEach {
@@ -118,7 +118,7 @@ abstract class DrawerActivity : BaseActivity() {
         navView.setupWithNavController(navController)
         customizeNavViewStyle(navView)
         if (shouldAlterStartDestination) {
-            navView.setCheckedItem(ModulePreferences.startDestination)
+            navView.setCheckedItem(RootPreferences.startDestination)
         }
 
         navView.getHeaderView(0).findViewById<TextView>(R.id.status).setText(

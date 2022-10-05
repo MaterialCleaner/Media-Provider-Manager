@@ -23,7 +23,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.module.BinderViewModel
 import java.text.Collator
 
@@ -49,7 +49,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                 is SourceState.Loading -> SourceState.Loading(source.progress)
                 is SourceState.Done -> {
                     var sequence = source.list.asSequence()
-                    if (ModulePreferences.isHideSystemApp) {
+                    if (RootPreferences.isHideSystemApp) {
                         sequence = sequence.filter {
                             it.packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0
                         }
@@ -61,19 +61,19 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                                     it.packageInfo.packageName.lowercase().contains(lowerQuery)
                         }
                     }
-                    sequence = when (ModulePreferences.sortBy) {
-                        ModulePreferences.SORT_BY_APP_NAME -> {
+                    sequence = when (RootPreferences.sortBy) {
+                        RootPreferences.SORT_BY_APP_NAME -> {
                             val collator = Collator.getInstance()
                             sequence.sortedWith { o1, o2 ->
                                 collator.compare(o1?.label, o2?.label)
                             }
                         }
-                        ModulePreferences.SORT_BY_UPDATE_TIME -> sequence.sortedBy {
+                        RootPreferences.SORT_BY_UPDATE_TIME -> sequence.sortedBy {
                             -it.packageInfo.lastUpdateTime
                         }
                         else -> throw IllegalArgumentException()
                     }
-                    if (ModulePreferences.ruleCount) {
+                    if (RootPreferences.ruleCount) {
                         sequence = sequence.sortedBy {
                             -it.ruleCount
                         }

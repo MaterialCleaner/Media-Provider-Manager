@@ -26,7 +26,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
 
-object ModulePreferences {
+object RootPreferences {
     const val SORT_BY_APP_NAME = 0
     const val SORT_BY_UPDATE_TIME = 1
     const val SORT_BY_PATH = 0

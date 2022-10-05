@@ -23,7 +23,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.PermissionUtils
@@ -92,12 +92,12 @@ open class FilesFragment : MediaStoreFragment() {
             }
         })
 
-        when (ModulePreferences.sortMediaBy) {
-            ModulePreferences.SORT_BY_PATH ->
+        when (RootPreferences.sortMediaBy) {
+            RootPreferences.SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
-            ModulePreferences.SORT_BY_DATE_TAKEN ->
+            RootPreferences.SORT_BY_DATE_TAKEN ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
-            ModulePreferences.SORT_BY_SIZE ->
+            RootPreferences.SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_size).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
@@ -109,15 +109,15 @@ open class FilesFragment : MediaStoreFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_path -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_PATH
+                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_PATH
             }
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_DATE_TAKEN
+                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_DATE_TAKEN
             }
             R.id.menu_sort_by_size -> {
                 item.isChecked = true
-                ModulePreferences.sortMediaBy = ModulePreferences.SORT_BY_SIZE
+                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_SIZE
             }
             R.id.menu_validation -> viewModel.rescanFiles()
             else -> return super.onOptionsItemSelected(item)

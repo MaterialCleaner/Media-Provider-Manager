@@ -26,7 +26,7 @@ import androidx.core.math.MathUtils.clamp
 import androidx.recyclerview.widget.ProgressionGridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.animation.AnimationUtils
-import me.gm.cleaner.plugin.dao.ModulePreferences
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import kotlin.math.abs
 
@@ -83,7 +83,7 @@ class ScaleGestureListener(
                 // use animator to animate progress to 1F
                 animateProgress(progress, if (moveToSpan) 1F else 0F) {
                     if (moveToSpan) {
-                        ModulePreferences.spanCount = layoutManager.spanCount
+                        RootPreferences.spanCount = layoutManager.spanCount
                     } else {
                         layoutManager.spanCount = prevSpanCount
                         layoutManager.progress = 1F
