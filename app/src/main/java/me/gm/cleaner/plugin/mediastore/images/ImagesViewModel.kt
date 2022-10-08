@@ -96,8 +96,8 @@ class ImagesViewModel(application: Application) :
             getApplication<Application>().contentResolver.query(
                 uri,
                 projection,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 sortOrder
             )?.use { cursor ->
 

@@ -86,8 +86,8 @@ open class FilesViewModel(application: Application) :
             getApplication<Application>().contentResolver.query(
                 uri,
                 projection,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 sortOrder
             )?.use { cursor ->
 
