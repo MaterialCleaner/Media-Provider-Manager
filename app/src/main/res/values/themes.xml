@@ -20,7 +20,7 @@
 
     <style name="Base.AppTheme" parent="Theme.Material3.DayNight">
         <item name="android:windowLightStatusBar">?isLightTheme</item>
-        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">?isLightTheme</item>
         <!-- android:windowTranslucentNavigation conflicts with android:navigationBarColor,
           ~ so we don't use it, but alter systemUiVisibility programmatically instead.
