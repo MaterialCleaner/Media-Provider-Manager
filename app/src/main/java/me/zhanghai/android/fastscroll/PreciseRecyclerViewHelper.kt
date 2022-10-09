@@ -37,12 +37,12 @@ internal class PreciseRecyclerViewHelper(
     override fun getScrollRange() = list.paddingTop + observer.itemHeightsSum + list.paddingBottom
 
     override fun getScrollOffset(): Int {
-        val firstItemPosition = layoutManager.findFirstVisibleItemPosition()
+        val firstItemPosition = layoutManager.getPosition(list.getChildAt(0))
         if (firstItemPosition == RecyclerView.NO_POSITION) {
             return 0
         }
         var sum = 0
-        for (i in 0 until firstItemPosition - 1) {
+        for (i in 0 until firstItemPosition) {
             sum += observer.itemHeights[i]
         }
         val firstItemTop = getFirstItemOffset()
