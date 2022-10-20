@@ -18,7 +18,6 @@ package me.gm.cleaner.plugin.module.settings.preference
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.core.view.forEach
 import androidx.preference.EditTextPreference
@@ -33,7 +32,6 @@ import java.io.File
 class PathListPreferenceAdapter(
     private val fragment: PathListPreferenceFragmentCompat
 ) : ListAdapter<String, PathListPreferenceAdapter.ViewHolder>(CALLBACK) {
-    private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(PathListItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -52,26 +50,20 @@ class PathListPreferenceAdapter(
             }
             preference?.performClick()
         }
-        binding.root.setOnLongClickListener {
-            selectedHolder = holder
-            false
-        }
         binding.root.setOnCreateContextMenuListener { menu, _, _ ->
             fragment.requireActivity().menuInflater.inflate(R.menu.item_delete, menu)
             menu.setHeaderTitle(path.substring(path.lastIndexOf(File.separator) + 1))
-            menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
+            menu.forEach {
+                it.setOnMenuItemClickListener { item ->
+                    if (item.itemId == R.id.menu_delete) {
+                        fragment.newValues -= path
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
         }
-    }
-
-    private fun onContextItemSelected(item: MenuItem): Boolean {
-        if (!::selectedHolder.isInitialized) return false
-        val position = selectedHolder.bindingAdapterPosition
-        val path = getItem(position)!!
-        if (item.itemId == R.id.menu_delete) {
-            fragment.newValues -= path
-            return true
-        }
-        return false
     }
 
     class ViewHolder(val binding: PathListItemBinding) : RecyclerView.ViewHolder(binding.root)

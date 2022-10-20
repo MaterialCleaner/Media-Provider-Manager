@@ -88,7 +88,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 StorageStrategy.createLongStorage()
             )
             .withSelectionPredicate(object : SelectionPredicate<Long>() {
-                override fun canSetStateForKey(key: Long, nextState: Boolean) =
+                override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean =
                     viewModel.medias.any { it.id == key }
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
@@ -100,7 +100,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     return currentList.isEmpty() || currentList[position] !is MediaStoreFilesHeader
                 }
 
-                override fun canSelectMultiple() = true
+                override fun canSelectMultiple(): Boolean = true
             })
             .build()
         selectionTracker.onRestoreInstanceState(savedInstanceState)

@@ -17,7 +17,6 @@
 package me.gm.cleaner.plugin.module.settings
 
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.forEach
@@ -79,7 +78,6 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
     ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
     private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
-    private lateinit var selectedHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(TemplatesItemBinding.inflate(LayoutInflater.from(parent.context)))
@@ -87,51 +85,50 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val binding = holder.binding
         val item = getItem(position)
-        binding.title.text = item.templateName
-        binding.summary.text =
-            fragment.getString(R.string.applied_app_count, item.applyToApp?.size ?: 0)
-        binding.root.transitionName = item.templateName
+        val templateName = item.templateName
+        binding.title.text = templateName
+        binding.summary.text = fragment.getString(
+            R.string.applied_app_count, item.applyToApp?.size ?: 0
+        )
+        binding.root.transitionName = templateName
         binding.root.setOnClickListener {
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
-            fragment.lastTemplateName = item.templateName
+            fragment.lastTemplateName = templateName
             fragment.exitTransition = Hold().apply {
                 duration = fragment.requireContext().mediumAnimTime
             }
             fragment.setExitSharedElementCallback(null)
 
             val direction =
-                TemplatesFragmentDirections.actionTemplatesToCreateTemplate(item.templateName)
+                TemplatesFragmentDirections.actionTemplatesToCreateTemplate(templateName)
             val extras = FragmentNavigatorExtras(it to it.transitionName)
             navController.navigate(direction, extras)
         }
-        binding.root.setOnLongClickListener {
-            selectedHolder = holder
-            false
-        }
         binding.root.setOnCreateContextMenuListener { menu, _, _ ->
             activity.menuInflater.inflate(R.menu.item_delete, menu)
-            menu.setHeaderTitle(item.templateName)
-            menu.forEach { it.setOnMenuItemClickListener(::onContextItemSelected) }
+            menu.setHeaderTitle(templateName)
+            menu.forEach {
+                it.setOnMenuItemClickListener { item ->
+                    if (item.itemId == R.id.menu_delete) {
+                        val modified =
+                            Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
+                                .values.filterNot { it.templateName == templateName }
+                        fragment.binderViewModel.writeSp(
+                            R.xml.template_preferences, Gson().toJson(modified)
+                        )
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
         }
 
-        if (fragment.lastTemplateName == item.templateName) {
+        if (fragment.lastTemplateName == templateName) {
             fragment.startPostponedEnterTransition()
         }
-    }
-
-    private fun onContextItemSelected(item: MenuItem): Boolean {
-        if (!::selectedHolder.isInitialized) return false
-        if (item.itemId == R.id.menu_delete) {
-            val position = selectedHolder.bindingAdapterPosition
-            val templateToRemove = getItem(position).templateName
-            val modified = Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
-                .values.filterNot { it.templateName == templateToRemove }
-            fragment.binderViewModel.writeSp(R.xml.template_preferences, Gson().toJson(modified))
-            return true
-        }
-        return false
     }
 
     class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)

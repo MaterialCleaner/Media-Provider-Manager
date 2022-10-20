@@ -51,7 +51,7 @@ class PathListPreference @JvmOverloads constructor(
         summaryProvider = instance
     }
 
-    override fun getDialogLayoutResource() = R.layout.path_list_dialog
+    override fun getDialogLayoutResource(): Int = R.layout.path_list_dialog
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
         val defaultValues = a.getTextArray(index)
@@ -64,7 +64,7 @@ class PathListPreference @JvmOverloads constructor(
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        values = getPersistedStringSet(defaultValue as? Set<String>)
+        values = getPersistedStringSet(defaultValue as Set<String>?)
     }
 
     override fun onSaveInstanceState(): Parcelable? {
