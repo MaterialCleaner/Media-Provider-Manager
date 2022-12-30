@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/list_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

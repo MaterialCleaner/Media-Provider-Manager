@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,4 +42,4 @@
         android:layout_gravity="center"
         android:indeterminate="false"
         app:hideAnimationBehavior="outward" />
-</me.gm.cleaner.plugin.widget.FitsTopInsertsCoordinatorLayout>
+</me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout>

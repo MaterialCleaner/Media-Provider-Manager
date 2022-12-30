@@ -23,7 +23,7 @@ import android.view.WindowInsets
 import androidx.annotation.AttrRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 
-class FitsTopInsertsCoordinatorLayout @JvmOverloads constructor(
+class FitsTopInsetsCoordinatorLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
 ) : CoordinatorLayout(context, attrs, defStyleAttr) {
     private val mPaddingStart = paddingStart
