@@ -37,10 +37,10 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.app.ConfirmDialog
 import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
@@ -283,13 +283,14 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                 PackageManager.PERMISSION_GRANTED
                     }
                 ) {
-                    dialog = MaterialAlertDialogBuilder(requireContext())
-                        .setMessage(R.string.revoke_self_permission)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            PermissionUtils.startDetailsSettings(requireContext())
+                    ConfirmDialog
+                        .newInstance(getString(R.string.revoke_self_permission))
+                        .apply {
+                            addOnPositiveButtonClickListener {
+                                PermissionUtils.startDetailsSettings(requireContext())
+                            }
                         }
-                        .show()
+                        .show(childFragmentManager, null)
                 }
                 onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
             }
@@ -300,21 +301,25 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             haveAskedUser: Boolean, savedInstanceState: Bundle?
         ) {
             if (shouldShowRationale.isNotEmpty()) {
-                dialog = MaterialAlertDialogBuilder(requireContext())
-                    .setMessage(R.string.rationale_shouldShowRationale)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
+                ConfirmDialog
+                    .newInstance(getString(R.string.rationale_shouldShowRationale))
+                    .apply {
+                        addOnPositiveButtonClickListener {
+                            onRequestPermissions(
+                                shouldShowRationale.toTypedArray(), savedInstanceState
+                            )
+                        }
                     }
-                    .show()
+                    .show(childFragmentManager, null)
             } else if (permanentlyDenied.isNotEmpty()) {
-                dialog = MaterialAlertDialogBuilder(requireContext())
-                    .setMessage(R.string.rationale_permanentlyDenied)
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        PermissionUtils.startDetailsSettings(requireContext())
+                ConfirmDialog
+                    .newInstance(getString(R.string.rationale_permanentlyDenied))
+                    .apply {
+                        addOnPositiveButtonClickListener {
+                            PermissionUtils.startDetailsSettings(requireContext())
+                        }
                     }
-                    .show()
+                    .show(childFragmentManager, null)
             }
         }
     }

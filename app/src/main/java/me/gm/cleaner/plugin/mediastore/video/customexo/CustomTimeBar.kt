@@ -55,7 +55,7 @@ class CustomTimeBar @JvmOverloads constructor(
     private var labelInAnimator: ValueAnimator? = null
     private var labelOutAnimator: ValueAnimator? = null
 
-    private val trackTop = resources.getDimensionPixelOffset(R.dimen.mtrl_slider_track_top)
+    private val widgetHeight = resources.getDimensionPixelOffset(R.dimen.mtrl_slider_widget_height)
     private val thumbRadius = dpToPx(density, DEFAULT_BAR_HEIGHT_DP) / 2
     private val labelPadding = resources.getDimensionPixelSize(R.dimen.mtrl_slider_label_padding)
     private var trackWidth = 0
@@ -183,7 +183,7 @@ class CustomTimeBar @JvmOverloads constructor(
     private fun setValueForLabel(label: TooltipDrawable, value: Float) {
         val left =
             (scrubberPadding + normalizeValue(value) * (trackWidth - 2 * scrubberPadding)).toInt() - label.intrinsicWidth / 2
-        val top = trackTop - (labelPadding + thumbRadius)
+        val top = widgetHeight / 2 - (labelPadding + thumbRadius)
         label.setBounds(left, top - label.intrinsicHeight, left + label.intrinsicWidth, top)
 
         // Calculate the difference between the bounds of this view and the bounds of the root view to

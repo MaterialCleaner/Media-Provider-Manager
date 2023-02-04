@@ -31,12 +31,12 @@
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
-        <item name="radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
-        <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
+        <item name="checkboxStyle">@style/MaterialCheckBox</item>
+        <item name="radioButtonStyle">@style/MaterialRadioButton</item>
+        <item name="switchStyle">@style/MaterialSwitch</item>
         <item name="overlapAnchor">false</item>
 
-<!--        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>-->
+        <!--        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>-->
 
         <!-- Preference Theme -->
         <item name="preferenceTheme">@style/PreferenceTheme</item>
@@ -47,4 +47,18 @@
 
     <style name="Theme" parent="Base.AppTheme" />
 
+    <style name="MaterialCheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="enforceMaterialTheme">true</item>
+        <item name="useMaterialThemeColors">true</item>
+    </style>
+
+    <style name="MaterialRadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="enforceMaterialTheme">true</item>
+        <item name="useMaterialThemeColors">true</item>
+    </style>
+
+    <style name="MaterialSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="enforceMaterialTheme">true</item>
+        <item name="useMaterialThemeColors">true</item>
+    </style>
 </resources>

@@ -17,12 +17,8 @@
 package me.gm.cleaner.plugin.app
 
 import android.content.pm.ActivityInfo
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
@@ -35,32 +31,6 @@ abstract class BaseFragment : Fragment() {
         get() = (requireActivity() as AppCompatActivity).supportActionBar
     val appBarLayout: AppBarLayout
         get() = requireActivity().findViewById(R.id.toolbar_container)
-
-    lateinit var dialog: AlertDialog
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        savedInstanceState?.run {
-            if (::dialog.isInitialized && getBoolean(SAVED_SHOWS_DIALOG, false)) {
-                dialog.show()
-            }
-        }
-        return container
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        if (::dialog.isInitialized) {
-            outState.putBoolean(SAVED_SHOWS_DIALOG, dialog.isShowing)
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (::dialog.isInitialized && dialog.isShowing) {
-            dialog.dismiss()
-        }
-    }
 
     // @see https://developer.android.com/training/system-ui/immersive#EnableFullscreen
     fun toggleAppBar(isShow: Boolean) {
@@ -102,9 +72,5 @@ abstract class BaseFragment : Fragment() {
         }
         toggleAppBar(true)
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-    }
-
-    companion object {
-        private const val SAVED_SHOWS_DIALOG = "android:showsDialog"
     }
 }

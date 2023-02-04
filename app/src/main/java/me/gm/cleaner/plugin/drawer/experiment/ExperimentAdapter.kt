@@ -29,10 +29,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.behavior.SwipeDismissBehavior
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.divider.MaterialDivider
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.app.ConfirmDialog
 import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
 import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
@@ -123,14 +123,15 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                         viewModel.actions.put(item.id, deferred)
                         if (item.needsNetwork && !fragment.requireContext().hasWifiTransport) {
                             button.toggle()
-                            fragment.dialog = MaterialAlertDialogBuilder(fragment.requireContext())
-                                .setMessage(R.string.no_wifi)
-                                .setNegativeButton(android.R.string.cancel, null)
-                                .setPositiveButton(android.R.string.ok) { _, _ ->
-                                    button.toggle()
-                                    startAction(deferred)
+                            ConfirmDialog
+                                .newInstance(fragment.getString(R.string.no_wifi))
+                                .apply {
+                                    addOnPositiveButtonClickListener {
+                                        button.toggle()
+                                        startAction(deferred)
+                                    }
                                 }
-                                .show()
+                                .show(fragment.childFragmentManager, null)
                         } else {
                             startAction(deferred)
                         }
