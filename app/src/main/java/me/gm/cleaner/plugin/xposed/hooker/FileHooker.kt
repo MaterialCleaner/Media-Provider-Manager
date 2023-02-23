@@ -30,8 +30,8 @@ class FileHooker : XC_MethodHook() {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         val file = param.thisObject as File
-        if (FileUtils.startsWith(FileUtils.externalStorageDirPath, file) &&
-            standardParents.none { FileUtils.startsWith(it, file) }
+        if (FileUtils.contains(FileUtils.externalStorageDirPath, file) &&
+            standardParents.none { FileUtils.contains(it, file) }
         ) {
             XposedBridge.log("rejected ${param.method.name}: $file")
             param.result = false

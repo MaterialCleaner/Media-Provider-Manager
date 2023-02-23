@@ -21,10 +21,10 @@ import android.os.Environment
 import java.io.File
 
 object FileUtils {
-    fun startsWith(parent: File, child: File) = startsWith(parent.path, child.path)
-    fun startsWith(parent: String, child: File) = startsWith(parent, child.path)
-    fun startsWith(parent: File, child: String) = startsWith(parent.path, child)
-    fun startsWith(parent: String, child: String): Boolean {
+    fun contains(parent: File, child: File): Boolean = contains(parent.path, child.path)
+    fun contains(parent: String, child: File): Boolean = contains(parent, child.path)
+    fun contains(parent: File, child: String): Boolean = contains(parent.path, child)
+    fun contains(parent: String, child: String): Boolean {
         val lowerParent = parent.lowercase()
         val lowerChild = child.lowercase()
         return lowerChild == lowerParent || lowerParent == File.separator ||

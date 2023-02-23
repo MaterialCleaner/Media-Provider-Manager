@@ -62,7 +62,7 @@ class Templates(json: String?) {
                 .any { template ->
                     MimeUtils.resolveMediaType(mimeType) !in
                             (template.permittedMediaTypes ?: emptyList()) ||
-                            template.filterPath?.any { FileUtils.startsWith(it, data) } == true
+                            template.filterPath?.any { FileUtils.contains(it, data) } == true
                 }
         }
 }
