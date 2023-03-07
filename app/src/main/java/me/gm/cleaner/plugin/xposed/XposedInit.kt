@@ -39,7 +39,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
                 } catch (e: XposedHelpers.ClassNotFoundError) {
                     return
                 }
-
                 // only save MediaProvider's classLoader
                 classLoader = lpparam.classLoader
                 XposedHelpers.findAndHookMethod(
@@ -62,6 +61,11 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
                         }
                     }
                 )
+                try {
+                    System.loadLibrary("plugin")
+                } catch (e: Throwable) {
+                    XposedBridge.log(e)
+                }
             }
             "com.android.providers.downloads" -> {
                 XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())

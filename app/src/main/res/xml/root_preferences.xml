@@ -43,6 +43,13 @@
             app:summary="@string/usage_record_summary"
             app:title="@string/usage_record_title" />
 
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:enabled="false"
+            app:iconSpaceReserved="false"
+            app:key="@string/bpf_hook_key"
+            app:title="@string/bpf_hook_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

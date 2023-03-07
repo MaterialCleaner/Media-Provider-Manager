@@ -11,7 +11,8 @@ def sdk = 33
 
 android {
     compileSdk sdk
-    buildToolsVersion '33.0.0'
+    buildToolsVersion '33.0.2'
+    ndkVersion '25.2.9519653'
 
     defaultConfig {
         applicationId 'me.gm.cleaner.plugin'
@@ -22,6 +23,11 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
         resConfigs 'en', 'zh-rCN', 'zh-rTW'
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
     }
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
@@ -51,6 +57,12 @@ android {
         checkDependencies true
     }
     namespace 'me.gm.cleaner.plugin'
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
 }
 
 def optimizeReleaseRes() {

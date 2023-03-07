@@ -28,7 +28,9 @@
 
     <application
         android:name=".app.App"
+        android:extractNativeLibs="false"
         android:label="@string/app_name"
+        android:multiArch="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
