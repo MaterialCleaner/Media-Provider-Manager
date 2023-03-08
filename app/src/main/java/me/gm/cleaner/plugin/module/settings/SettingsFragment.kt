@@ -40,10 +40,6 @@ class SettingsFragment : AbsSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        val scanForObsoleteInsert = getString(R.string.scan_for_obsolete_insert_key)
-        findPreference<SwitchPreferenceCompat>(scanForObsoleteInsert)?.isChecked =
-            remoteSp.getBoolean(scanForObsoleteInsert, true)
-
         val usageRecord = getString(R.string.usage_record_key)
         findPreference<SwitchPreferenceCompat>(usageRecord)?.isChecked =
             remoteSp.getBoolean(usageRecord, true)

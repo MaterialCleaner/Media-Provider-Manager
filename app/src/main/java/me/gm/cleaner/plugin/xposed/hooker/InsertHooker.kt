@@ -25,7 +25,6 @@ import android.os.FileUtils
 import android.provider.MediaStore
 import android.text.TextUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
@@ -35,7 +34,6 @@ import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     private val fileUtilsCls: Class<*> by lazy {
@@ -87,40 +85,6 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             .applyTemplates(listOf(data), listOf(mimeType)).first()
         if (shouldIntercept) {
             param.result = null
-        }
-
-        /** SCAN */
-        if (!shouldIntercept && !wasPathEmpty && service.rootSp.getBoolean(
-                service.resources.getString(R.string.scan_for_obsolete_insert_key), true
-            )
-        ) {
-            scheduler.schedule({
-                val file = File(data)
-                XposedBridge.log("scan for obsolete insert: $data")
-                val scanResult = if (file.exists()) {
-                    // 我知道你很急，但是你先别急
-                    scanFile(param.thisObject, file)
-                } else {
-                    null
-                }
-                XposedBridge.log("scan result: $scanResult")
-                if (scanResult == null) {
-                    val ob = FileCreationObserver(file) { scheduler }
-                    if (pendingScan.putIfAbsent(data, ob) == null) {
-                        ob.setOnMaybeFileCreatedListener { retryTimes ->
-                            XposedBridge.log("scan for obsolete insert: $data")
-                            val firstResult = scanFile(param.thisObject, file)
-                            XposedBridge.log("scan result: $firstResult")
-                            if (firstResult != null || retryTimes >= 1) {
-                                pendingScan.remove(data)
-                                true
-                            } else {
-                                false
-                            }
-                        }.startWatching()
-                    }
-                }
-            }, 1, TimeUnit.SECONDS)
         }
 
         /** RECORD */

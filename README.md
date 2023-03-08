@@ -28,7 +28,6 @@ As with native storage, Android does not offer a fine-grained management scheme 
 - Filter data returned from the media store to protect your privacy.
 - Prevent apps from freewheelingly writing files through the media store.
 - Provide usage record to help you aware whether the application uses media store and whether there is any abuse.
-- Scan file when it's inserted using obsolete API. If you have modified the file hierarchy in the mount namespace of the application processes (~~aka storage redirect~~), this feature allows the media store to be updated in time.
 - Prevent 💩 ROM's download manager from creating non-standard files.
 - Material Design 3, easy to use.
 - Open source.
