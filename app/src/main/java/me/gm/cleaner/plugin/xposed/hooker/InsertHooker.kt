@@ -48,6 +48,9 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
+        if (param.isFuseThread) {
+            return
+        }
         /** ARGUMENTS */
         val match = (
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] else param.args[1]

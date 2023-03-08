@@ -45,6 +45,9 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
 
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
+        if (param.isFuseThread) {
+            return
+        }
         /** ARGUMENTS */
         val uri = param.args[0] as Uri
         val projection = param.args[1] as? Array<String>?

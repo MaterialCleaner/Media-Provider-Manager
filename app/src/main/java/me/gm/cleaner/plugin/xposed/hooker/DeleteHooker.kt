@@ -36,6 +36,9 @@ import java.io.File
 class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
+        if (param.isFuseThread) {
+            return
+        }
         /** ARGUMENTS */
         val uri = param.args[0] as Uri
         val extras = param.args[1] as? Bundle ?: Bundle.EMPTY

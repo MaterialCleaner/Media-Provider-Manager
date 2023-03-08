@@ -25,6 +25,16 @@ interface MediaProviderHooker {
         require(method.declaringClass.name == "com.android.providers.media.MediaProvider")
     }
 
+    val XC_MethodHook.MethodHookParam.isFuseThread: Boolean
+        get() = try {
+            val fuseDaemonCls = XposedHelpers.findClass(
+                "com.android.providers.media.fuse.FuseDaemon", thisObject.javaClass.classLoader
+            )
+            XposedHelpers.callStaticMethod(fuseDaemonCls, "native_is_fuse_thread") as Boolean
+        } catch (e: XposedHelpers.ClassNotFoundError) {
+            false
+        }
+
     val XC_MethodHook.MethodHookParam.callingPackage: String
         get() {
             ensureMediaProvider()
