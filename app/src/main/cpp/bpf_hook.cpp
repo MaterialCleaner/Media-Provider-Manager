@@ -44,14 +44,24 @@ bool new_StartsWith(std::string_view s, std::string_view prefix) {
 }
 
 namespace bpf_hook {
-    static bool isFuse() {
+
+    int GetApiLevel() {
+        char buf[PROP_VALUE_MAX] = {0};
+        __system_property_get("ro.build.version.sdk", buf);
+        return atoi(buf);
+    }
+
+    bool IsFuse() {
         char prop[PROP_VALUE_MAX] = {0};
         __system_property_get("persist.sys.fuse", prop);
         return !strcmp(prop, "true");
     }
 
     void Hook(void *handle, HookFunType hook_func) {
-        if (!isFuse()) {
+        if (GetApiLevel() < 31) {
+            return;
+        }
+        if (!IsFuse()) {
             return;
         }
         auto startsWith = dlsym(handle,
