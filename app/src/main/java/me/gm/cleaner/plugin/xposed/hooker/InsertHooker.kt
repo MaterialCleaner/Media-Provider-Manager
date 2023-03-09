@@ -211,34 +211,7 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         }
     }
 
-    private fun scanFile(thisObject: Any, file: File): Uri? = try {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> XposedHelpers.callMethod(
-                thisObject, "scanFileAsMediaProvider",
-                file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
-            )
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.R -> {
-                val mediaScanner = XposedHelpers.getObjectField(thisObject, "mMediaScanner")
-                XposedHelpers.callMethod(
-                    mediaScanner, "scanFile", file, MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND
-                )
-            }
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-                val mediaScanner = XposedHelpers.findClass(
-                    "com.android.providers.media.scan.MediaScanner", service.classLoader
-                )
-                val instance =
-                    XposedHelpers.callStaticMethod(mediaScanner, "instance", service.context)
-                XposedHelpers.callMethod(instance, "scanFile", file)
-            }
-            else -> throw UnsupportedOperationException()
-        } as Uri?
-    } catch (e: XposedHelpers.InvocationTargetError) {
-        null
-    }
-
     companion object {
         private const val DIRECTORY_THUMBNAILS = ".thumbnails"
-        const val MEDIA_PROVIDER_SCAN_OCCURRED__REASON__DEMAND = 2
     }
 }
