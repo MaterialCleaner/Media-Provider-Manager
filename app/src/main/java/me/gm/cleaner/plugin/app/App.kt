@@ -21,11 +21,7 @@ import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
 import dagger.hilt.android.HiltAndroidApp
-import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.dao.RootPreferences
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
@@ -42,12 +38,6 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if (!BuildConfig.DEBUG && !AppCenter.isConfigured()) {
-            AppCenter.start(
-                this, "274b837f-ed2e-43ec-b36d-b08328b353ca",
-                Analytics::class.java, Crashes::class.java
-            )
-        }
         RootPreferences.init(createDeviceProtectedStorageContext())
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         DynamicColors.applyToActivitiesIfAvailable(this)
