@@ -30,20 +30,10 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
-import me.gm.cleaner.plugin.xposed.util.FileCreationObserver
 import java.io.File
 import java.util.*
-import java.util.concurrent.Executors
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val fileUtilsCls: Class<*> by lazy {
-        XposedHelpers.findClass("com.android.providers.media.util.FileUtils", service.classLoader)
-    }
-    private val scheduler = Executors.newSingleThreadScheduledExecutor()
-    private val pendingScan = Collections.synchronizedMap(
-        mutableMapOf<String, FileCreationObserver>()
-    )
-
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         if (param.isFuseThread) {
@@ -168,18 +158,21 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 thisObject, "getVolumePath", resolvedVolumeName
             ) as File
 
+            val fileUtilsClass = XposedHelpers.findClass(
+                "com.android.providers.media.util.FileUtils", service.classLoader
+            )
             val isFuseThread = XposedHelpers.callMethod(thisObject, "isFuseThread")
                     as Boolean
             XposedHelpers.callStaticMethod(
-                fileUtilsCls, "sanitizeValues", values, !isFuseThread
+                fileUtilsClass, "sanitizeValues", values, !isFuseThread
             )
             XposedHelpers.callStaticMethod(
-                fileUtilsCls, "computeDataFromValues", values, volumePath, isFuseThread
+                fileUtilsClass, "computeDataFromValues", values, volumePath, isFuseThread
             )
 
             var res = File(values.getAsString(MediaStore.MediaColumns.DATA))
             res = XposedHelpers.callStaticMethod(
-                fileUtilsCls, "buildUniqueFile", res.parentFile, mimeType, res.name
+                fileUtilsClass, "buildUniqueFile", res.parentFile, mimeType, res.name
             ) as File
 
             values.put(MediaStore.MediaColumns.DATA, res.absolutePath)

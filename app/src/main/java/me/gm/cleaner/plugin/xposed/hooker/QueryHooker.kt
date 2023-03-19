@@ -39,10 +39,6 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
-    private val databaseUtilsCls: Class<*> = XposedHelpers.findClass(
-        "com.android.providers.media.util.DatabaseUtils", service.classLoader
-    )
-
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
         if (param.isFuseThread) {
@@ -65,8 +61,11 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val query = Bundle(queryArgs)
         query.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs = ArraySet<String>()
+        val databaseUtilsClass = XposedHelpers.findClass(
+            "com.android.providers.media.util.DatabaseUtils", service.classLoader
+        )
         XposedHelpers.callStaticMethod(
-            databaseUtilsCls, "resolveQueryArgs", query, object : Consumer<String> {
+            databaseUtilsClass, "resolveQueryArgs", query, object : Consumer<String> {
                 override fun accept(t: String) {
                     honoredArgs.add(t)
                 }

@@ -41,7 +41,7 @@ class ConfirmDialog : AppCompatDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
         MaterialAlertDialogBuilder(requireContext(), theme)
-            .setMessage(requireArguments().getString(KEY_MESSAGE))
+            .setMessage(requireArguments().getCharSequence(KEY_MESSAGE))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.onPositiveButtonClickListeners.forEach { listener ->
                     listener.accept(null)
@@ -92,7 +92,7 @@ class ConfirmDialog : AppCompatDialogFragment() {
 
     companion object {
         private const val KEY_MESSAGE = "me.gm.cleaner.key.message"
-        fun newInstance(message: String) = ConfirmDialog().apply {
+        fun newInstance(message: CharSequence) = ConfirmDialog().apply {
             arguments = bundleOf(KEY_MESSAGE to message)
         }
     }
