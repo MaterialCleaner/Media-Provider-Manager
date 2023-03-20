@@ -31,9 +31,9 @@
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="checkboxStyle">@style/MaterialCheckBox</item>
-        <item name="radioButtonStyle">@style/MaterialRadioButton</item>
-        <item name="switchStyle">@style/MaterialSwitch</item>
+        <item name="checkboxStyle">@style/CheckBox</item>
+        <item name="radioButtonStyle">@style/RadioButton</item>
+        <item name="switchStyle">@style/Switch</item>
         <item name="overlapAnchor">false</item>
 
         <!--        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>-->
@@ -47,18 +47,25 @@
 
     <style name="Theme" parent="Base.AppTheme" />
 
-    <style name="MaterialCheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+    <style name="CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
         <item name="enforceMaterialTheme">true</item>
         <item name="useMaterialThemeColors">true</item>
+        <item name="buttonTint">@color/m3_checkbox_button_tint</item>
+        <item name="buttonIconTint">@color/m3_checkbox_button_icon_tint</item>
+        <item name="buttonIcon">@null</item>
     </style>
 
-    <style name="MaterialRadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+    <style name="RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="enforceMaterialTheme">true</item>
         <item name="useMaterialThemeColors">true</item>
+        <item name="buttonTint">@color/m3_radiobutton_button_tint</item>
     </style>
 
-    <style name="MaterialSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+    <style name="Switch" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="enforceMaterialTheme">true</item>
         <item name="useMaterialThemeColors">true</item>
+        <item name="thumbTint">@color/m3_switch_thumb_tint</item>
+        <item name="trackTint">@color/m3_switch_track_tint</item>
+        <item name="trackTintMode">src_in</item>
     </style>
 </resources>
