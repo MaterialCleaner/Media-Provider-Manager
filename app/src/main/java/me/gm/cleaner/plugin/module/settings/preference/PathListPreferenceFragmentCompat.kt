@@ -156,11 +156,11 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     override fun onDisplayPreferenceDialog(preference: Preference) {
         val f = when (preference) {
             is EditTextPreference ->
-                EditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey())
+                MaterialEditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey())
             is ListPreference ->
                 ListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
             is MultiSelectListPreference ->
-                MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
+                MaterialMultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey())
             else -> throw IllegalArgumentException(
                 "Cannot display dialog for an unknown Preference type: "
                         + preference.javaClass.simpleName
