@@ -99,7 +99,7 @@ class UsageRecordFragment : ModuleFragment() {
 
         RootPreferences.addOnPreferenceChangeListener(object :
             RootPreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
+            override val lifecycle = this@UsageRecordFragment.lifecycle
             override fun onPreferencesChanged() {
                 viewModel.reloadRecords(binderViewModel)
             }

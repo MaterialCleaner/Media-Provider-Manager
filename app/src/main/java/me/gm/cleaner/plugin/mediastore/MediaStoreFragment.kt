@@ -142,7 +142,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
         RootPreferences.addOnPreferenceChangeListener(object :
             RootPreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
+            override val lifecycle = this@MediaStoreFragment.lifecycle
             override fun onPreferencesChanged() {
                 PermissionUtils.requestPermissions(
                     childFragmentManager, MediaPermissionRequesterFragment()

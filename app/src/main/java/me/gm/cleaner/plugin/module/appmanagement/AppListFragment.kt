@@ -100,7 +100,7 @@ class AppListFragment : ModuleFragment() {
         }
         RootPreferences.addOnPreferenceChangeListener(object :
             RootPreferences.PreferencesChangeListener {
-            override val lifecycle = getLifecycle()
+            override val lifecycle = this@AppListFragment.lifecycle
             override fun onPreferencesChanged() {
                 viewModel.updateApps(binderViewModel)
             }
