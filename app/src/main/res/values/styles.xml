@@ -24,8 +24,15 @@
         <item name="android:windowIsFloating">false</item>
     </style>
 
-    <!-- Remove scrollbars. -->
     <style name="PreferenceTheme" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">
+            @style/Preference.SwitchPreferenceCompat.Material3
+        </item>
+        <!-- Remove scrollbars. -->
         <item name="android:scrollbars">none</item>
+    </style>
+
+    <style name="Preference.SwitchPreferenceCompat.Material3" parent="Preference.SwitchPreferenceCompat.Material">
+        <item name="android:widgetLayout">@layout/preference_widget_material_switch</item>
     </style>
 </resources>
