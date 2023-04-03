@@ -28,7 +28,7 @@ import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.PermissionUtils
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
-import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupStyle
@@ -46,7 +46,7 @@ open class FilesFragment : MediaStoreFragment() {
             .setPopupStyle(PopupStyle.MD3)
             .setViewHelper(PreciseRecyclerViewHelper(list))
             .build()
-        list.fitsSystemWindowInsetBottom(fastScroller)
+        list.fitsSystemWindowInsets(fastScroller)
 
         viewModel.requeryFlow.asLiveData().observe(viewLifecycleOwner) {
             if (!isInActionMode()) {

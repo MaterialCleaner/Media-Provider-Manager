@@ -34,7 +34,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 import java.text.Collator
@@ -135,7 +134,6 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         val preference = object : EditTextPreference(requireContext()) {
             override fun getPreferenceManager() = object : PreferenceManager(requireContext()) {
                 init {

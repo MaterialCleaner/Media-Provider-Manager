@@ -210,37 +210,20 @@ class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
     }
 }
 
-fun RecyclerView.addLiftOnScrollListener(callback: (isLifted: Boolean) -> Unit) {
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-        override fun onScrolled(list: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(list, dx, dy)
-            callback(adapter?.itemCount != 0 && !isItemCompletelyVisible(0))
-        }
-    })
-    (layoutManager as? LayoutCompleteAwareGridLayoutManager)?.addOnLayoutCompletedListener {
-        callback(adapter?.itemCount != 0 && !isItemCompletelyVisible(0))
-    }
-}
-
-// ViewCompat's ApplyWindowInsetsListener has issue of the search view.
-// ViewCompat.setOnApplyWindowInsetsListener(list) { view, insets ->
-//     val systemBarsBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-//     view.setPaddingRelative(
-//         paddingStart, paddingTop, paddingEnd, paddingBottom + systemBarsBottom
-//     )
-//     fastScroller.setPadding(0, 0, 0, systemBarsBottom)
-//     insets
-// }
-fun View.fitsSystemWindowInsetBottom(fastScroller: FastScroller? = null) {
-    val paddingStart = paddingStart
+fun View.fitsSystemWindowInsets(fastScroller: FastScroller? = null) {
+    val paddingLeft = paddingLeft
     val paddingTop = paddingTop
-    val paddingEnd = paddingEnd
+    val paddingRight = paddingRight
     val paddingBottom = paddingBottom
     setOnApplyWindowInsetsListener { view, insets ->
-        view.setPaddingRelative(
-            paddingStart, paddingTop, paddingEnd, paddingBottom + insets.systemWindowInsetBottom
+        view.setPadding(
+            paddingLeft, paddingTop + insets.systemWindowInsetTop,
+            paddingRight, paddingBottom + insets.systemWindowInsetBottom
         )
-        fastScroller?.setPadding(0, 0, 0, insets.systemWindowInsetBottom)
+        fastScroller?.setPadding(
+            0, paddingTop + insets.systemWindowInsetTop,
+            0, paddingBottom + insets.systemWindowInsetBottom
+        )
         insets
     }
 }

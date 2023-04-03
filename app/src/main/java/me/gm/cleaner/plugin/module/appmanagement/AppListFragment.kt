@@ -53,6 +53,7 @@ class AppListFragment : ModuleFragment() {
 
         val adapter = AppListAdapter(this)
         val list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapter
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
@@ -61,8 +62,7 @@ class AppListFragment : ModuleFragment() {
             .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemWindowInsetBottom(fastScroller)
+        list.fitsSystemWindowInsets(fastScroller)
         binding.listContainer.setOnRefreshListener {
             viewModel.loadApps(binderViewModel, null)
         }

@@ -30,7 +30,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
 import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
-import me.gm.cleaner.plugin.ktx.addLiftOnScrollListener
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
@@ -45,12 +45,13 @@ class ExperimentFragment : BaseFragment() {
 
         val adapter = ExperimentAdapter(this)
         val list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
+        list.fitsSystemWindowInsets()
         list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             private var dividerHeight = resources.getDimensionPixelSize(R.dimen.card_margin)
 

@@ -77,6 +77,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             setHasStableIds(true)
         }
         list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapter
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
@@ -115,7 +116,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         })
         adapter.selectionTracker = selectionTracker
         onBindView(binding)
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
 
         findNavController().addOnExitListener { _, destination, _ ->
             actionMode?.finish()

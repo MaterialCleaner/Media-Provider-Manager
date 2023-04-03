@@ -27,7 +27,7 @@ import me.gm.cleaner.plugin.ktx.colorPrimary
 import me.gm.cleaner.plugin.ktx.colorSurface
 
 @SuppressLint("PrivateResource")
-class ThemedSwipeRefreshLayout @JvmOverloads constructor(
+open class ThemedSwipeRefreshLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : SwipeRefreshLayout(context, attrs) {
 

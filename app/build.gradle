@@ -19,7 +19,7 @@ android {
         minSdk 29
         targetSdk sdk
         versionCode gitCommitCount
-        versionName 'beta4'
+        versionName 'beta5'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
         resConfigs 'en', 'zh-rCN', 'zh-rTW'
@@ -56,13 +56,18 @@ android {
     lint {
         checkDependencies true
     }
-    namespace 'me.gm.cleaner.plugin'
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
             version '3.22.1'
         }
     }
+    packagingOptions {
+        jniLibs {
+            excludes += ['**/liblog.so']
+        }
+    }
+    namespace 'me.gm.cleaner.plugin'
 }
 
 def optimizeReleaseRes() {

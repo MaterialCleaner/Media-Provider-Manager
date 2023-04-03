@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Green Mushroom
+ * Copyright 2023 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import android.view.WindowInsets
 import androidx.annotation.AttrRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 
-class FitsTopInsetsCoordinatorLayout @JvmOverloads constructor(
+class FitsHorizontalInsetsCoordinatorLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0
 ) : CoordinatorLayout(context, attrs, defStyleAttr) {
-    private val mPaddingStart = paddingStart
+    private val mPaddingLeft = paddingLeft
     private val mPaddingTop = paddingTop
-    private val mPaddingEnd = paddingEnd
+    private val mPaddingRight = paddingRight
     private val mPaddingBottom = paddingBottom
 
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
@@ -40,6 +40,9 @@ class FitsTopInsetsCoordinatorLayout @JvmOverloads constructor(
     }
 
     private fun applyInsets(insets: Rect) {
-        setPaddingRelative(mPaddingStart, mPaddingTop + insets.top, mPaddingEnd, mPaddingBottom)
+        setPadding(
+            mPaddingLeft + insets.left, mPaddingTop,
+            mPaddingRight + insets.right, mPaddingBottom
+        )
     }
 }

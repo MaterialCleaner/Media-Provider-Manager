@@ -59,6 +59,7 @@ class UsageRecordFragment : ModuleFragment() {
             stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
         val list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapter
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
@@ -67,8 +68,7 @@ class UsageRecordFragment : ModuleFragment() {
             .build()
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemWindowInsetBottom(fastScroller)
+        list.fitsSystemWindowInsets(fastScroller)
 
         viewModel.recordsFlow.asLiveData().observe(viewLifecycleOwner) { records ->
             when (records) {

@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?actionBarSize">
@@ -26,8 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:fadeScrollbars="true"
-        android:fitsSystemWindows="true"
         android:scrollbarStyle="insideOverlay"
-        android:scrollbars="vertical" />
-</me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout>
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</FrameLayout>

@@ -30,7 +30,7 @@ import io.noties.markwon.image.ImagesPlugin
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.AboutFragmentBinding
-import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 
 @AndroidEntryPoint
 class AboutFragment : BaseFragment() {
@@ -41,10 +41,8 @@ class AboutFragment : BaseFragment() {
     ): View {
         val binding = AboutFragmentBinding.inflate(layoutInflater)
 
-        binding.listContainer.fitsSystemWindowInsetBottom()
-        binding.listContainer.setOnScrollChangeListener { v, _, scrollY, _, _ ->
-            appBarLayout.isLifted = v.canScrollVertically(-1) || scrollY > 0
-        }
+        liftOnScrollTargetView = binding.listContainer
+        binding.listContainer.fitsSystemWindowInsets()
 
         lifecycleScope.launch {
             val rawReadme = viewModel.getRawReadmeAsync().await()

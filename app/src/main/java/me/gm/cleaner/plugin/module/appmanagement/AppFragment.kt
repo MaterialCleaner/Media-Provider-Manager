@@ -61,12 +61,12 @@ class AppFragment : ModuleFragment() {
             AppHeaderAdapter(this), templatesAdapter, templatesFooterAdapter
         )
         val list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
         list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -77,7 +77,15 @@ class AppFragment : ModuleFragment() {
                 }
             }
         })
-        list.fitsSystemWindowInsetBottom()
+        binding.root.fitsSystemWindowInsets()
+        // Don't add systemWindowInsetTop to RecyclerView for a better SharedElementTransition.
+        list.setOnApplyWindowInsetsListener { view, insets ->
+            view.setPadding(
+                view.paddingLeft, view.paddingTop,
+                view.paddingRight, view.paddingBottom + insets.systemWindowInsetBottom
+            )
+            insets
+        }
         list.addItemDecoration(DividerDecoration(list).apply {
             setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
             setAllowDividerAfterLastItem(false)

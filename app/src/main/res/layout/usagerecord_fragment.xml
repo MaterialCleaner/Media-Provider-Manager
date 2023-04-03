@@ -16,24 +16,26 @@
   ~ limitations under the License.
   -->
 
-<me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?actionBarSize">
+    android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:fitsSystemWindows="true" />
+        android:paddingTop="?actionBarSize"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="?actionBarSize"
+        android:fitsSystemWindows="true"
         android:indeterminate="true"
         android:visibility="invisible"
         app:hideAnimationBehavior="outward" />
-</me.gm.cleaner.plugin.widget.FitsTopInsetsCoordinatorLayout>
+</FrameLayout>

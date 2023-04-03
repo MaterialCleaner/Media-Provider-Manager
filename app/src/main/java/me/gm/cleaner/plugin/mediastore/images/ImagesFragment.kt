@@ -33,7 +33,7 @@ import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.PermissionUtils
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
-import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsetBottom
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
@@ -59,7 +59,7 @@ class ImagesFragment : MediaStoreFragment() {
             .setPopupStyle(PopupStyle.MD3)
             .setViewHelper(NoInterceptionRecyclerViewHelper(list, null))
             .build()
-        list.fitsSystemWindowInsetBottom(fastScroller)
+        list.fitsSystemWindowInsets(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
 
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->

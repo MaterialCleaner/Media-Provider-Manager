@@ -54,13 +54,13 @@ class TemplatesFragment : ModuleFragment() {
         val templatesAdapter = TemplatesAdapter(this)
         val adapters = ConcatAdapter(TemplatesHeaderAdapter(this), templatesAdapter)
         val list = binding.list
+        liftOnScrollTargetView = list
         list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        list.addLiftOnScrollListener { appBarLayout.isLifted = it }
-        list.fitsSystemWindowInsetBottom()
+        list.fitsSystemWindowInsets()
         list.addItemDecoration(DividerDecoration(list).apply {
             setDivider(resources.getDrawable(R.drawable.list_divider_material, null))
             setAllowDividerAfterLastItem(false)
