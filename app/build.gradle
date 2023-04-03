@@ -72,7 +72,6 @@ def optimizeReleaseRes() {
     def cmd = exec {
         commandLine aapt2, 'optimize',
                 '--collapse-resource-names',
-                '--enable-sparse-encoding',
                 '-o', optimized, zip
         ignoreExitValue false
     }
