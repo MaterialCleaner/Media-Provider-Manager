@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textAppearance="?textAppearanceBody2"
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 
@@ -64,6 +64,6 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textAppearance="?textAppearanceBody2"
         android:textColor="?android:textColorSecondary" />
 </LinearLayout>

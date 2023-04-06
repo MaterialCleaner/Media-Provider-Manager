@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        android:textAppearance="?textAppearanceTitleLarge" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/not_active"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textAppearance="?textAppearanceBody2"
             android:textColor="?android:textColorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
