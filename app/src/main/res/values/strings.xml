@@ -15,7 +15,7 @@
     <string name="files">Files</string>
     <string name="images">Images</string>
     <string name="video">Video</string>
-    <string name="experiment">Experiment</string>
+    <string name="playground">Playground</string>
     <string name="about">About</string>
 
     <!-- Module -->
@@ -119,13 +119,13 @@
         Please revoke the permission in app info manually.</string>
     <string name="unsupported_delete_in_bulk">Delete in bulk through the media store is not possible on Android Q.</string>
 
-    <!-- Experiment -->
-    <string name="experiment_header">Here are some experiments on media storage,
+    <!-- Playground -->
+    <string name="playground_header">Here are some experiments on media storage,
         through which you can learn about media storage and test module functions.</string>
     <string name="no_wifi">No wifi transport yet. Would you like to start the experiment which will consume your data?</string>
     <string name="start">START</string>
 
-    <string name="experiment_title_insert">Insert</string>
+    <string name="playground_title_insert">Insert</string>
     <string name="unsplash_download_manager_title">Get 10 random pictures from Unsplash through the download manager</string>
     <string name="unsplash_download_manager_summary">Downloading files through the download manager does not require storage permissions,
         and the downloaded files are attributed to the requesting app,
@@ -136,7 +136,7 @@
         The main distinction is that the contributor of the images is different,
         which can be seen in the usage record.</string>
 
-    <string name="experiment_title_intercept">Intercept</string>
+    <string name="playground_title_intercept">Intercept</string>
     <string name="intercept_insert_title">Intercept insert</string>
     <string name="intercept_insert_summary">First write the interception rule. Find this application in the App Management page,
         click Create template, remove Query from Hook operation, and remove Image from Permitted media types.
@@ -155,7 +155,7 @@
         click Create template, remove Insert from Hook operation, and remove Image from Permitted media types.
         Click Start can add this rule directly.\nThen switch to the Images page and the Files page to see if you can see the image.</string>
 
-    <!--    <string name="experiment_title_do_it_yourself">Do It Yourself</string>-->
+    <!--    <string name="playground_title_do_it_yourself">Do It Yourself</string>-->
     <!--    <string name="do_it_yourself_title"></string>-->
     <!--    <string name="do_it_yourself_summary"></string>-->
 </resources>

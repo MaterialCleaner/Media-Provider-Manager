@@ -14,7 +14,7 @@
     <string name="files">文件</string>
     <string name="images">图片</string>
     <string name="video">视频</string>
-    <string name="experiment">实验</string>
+    <string name="playground">实验</string>
     <string name="about">关于</string>
 
     <!-- 模块 -->
@@ -89,17 +89,17 @@
     <string name="unsupported_delete_in_bulk">安卓 Q 的媒体存储不支持批量删除</string>
 
     <!-- 实验 -->
-    <string name="experiment_header">这里有一些关于媒体存储的实验，您可以通过它们了解媒体存储和测试模块功能。</string>
+    <string name="playground_header">这里有一些关于媒体存储的实验，您可以通过它们了解媒体存储和测试模块功能。</string>
     <string name="no_wifi">当前没有连接到 wifi 网络，此实验将会消耗您的数据流量，是否继续？</string>
     <string name="start">开始</string>
 
-    <string name="experiment_title_insert">插入</string>
+    <string name="playground_title_insert">插入</string>
     <string name="unsplash_download_manager_title">通过下载管理程序下载 10 张来自 Unsplash 的随机图片</string>
     <string name="unsplash_download_manager_summary">通过下载管理程序下载文件无需存储权限，且下载的文件归因于发起请求的应用（应用访问这些文件无需存储权限）。\n您可以撤销本应用的存储权限，点击开始，然后切换到图片页面并取消工具栏更多选项中的勾选，观察是否能看到下载的图片。</string>
     <string name="unsplash_insert_title">通过媒体存储插入 10 张来自 Unsplash 的随机图片</string>
     <string name="unsplash_insert_summary">效果与使用下载管理程序相似，主要区别在于插入图片的应用不同（使用记录中可以看到）。</string>
 
-    <string name="experiment_title_intercept">拦截</string>
+    <string name="playground_title_intercept">拦截</string>
     <string name="intercept_insert_title">拦截插入</string>
     <string name="intercept_insert_summary">首先编写拦截规则。在应用管理中找到本应用，点击创建模板，挂钩操作去掉查询，允许的媒体类型去掉图片。点击开始可以快速添加此规则。\n然后点击实验二的开始，切换到图片页面，观察是否能看到图片。最后用文件管理器打开 Pictures/MPM/，观察是否能看到图片。</string>
     <string name="intercept_download_manager_title">拦截下载管理程序</string>

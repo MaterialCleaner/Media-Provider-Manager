@@ -167,7 +167,7 @@
     <fragment
         android:id="@+id/experiment_fragment"
         android:name="me.gm.cleaner.plugin.drawer.experiment.ExperimentFragment"
-        android:label="@string/experiment">
+        android:label="@string/playground">
         <action
             android:id="@+id/action_experiment_to_create_template"
             app:destination="@id/create_template_fragment" />

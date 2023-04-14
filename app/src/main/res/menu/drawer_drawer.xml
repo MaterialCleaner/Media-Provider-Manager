@@ -70,7 +70,7 @@
         <item
             android:id="@+id/experiment_fragment"
             android:icon="@drawable/ic_outline_science_24"
-            android:title="@string/experiment" />
+            android:title="@string/playground" />
         <item
             android:id="@+id/about_fragment"
             android:icon="@drawable/ic_outline_info_24"
