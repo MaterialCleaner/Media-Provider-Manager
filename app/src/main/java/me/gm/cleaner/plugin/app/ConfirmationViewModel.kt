@@ -20,7 +20,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import java.util.function.Consumer
 
-class ConfirmViewModel(application: Application) : AndroidViewModel(application) {
-    val onPositiveButtonClickListeners = mutableSetOf<Consumer<Void?>>()
-    val onNegativeButtonClickListeners = mutableSetOf<Consumer<Void?>>()
+class ConfirmationViewModel(application: Application) : AndroidViewModel(application) {
+    val onPositiveButtonClickListeners = mutableSetOf<Consumer<ConfirmationDialog>>()
+    val onNegativeButtonClickListeners = mutableSetOf<Consumer<ConfirmationDialog>>()
 }

@@ -163,7 +163,7 @@ abstract class DrawerActivity : BaseActivity() {
             R.id.files_fragment,
             R.id.images_fragment,
             R.id.video_fragment,
-            R.id.experiment_fragment,
+            R.id.playground_fragment,
             R.id.about_fragment,
         )
     }

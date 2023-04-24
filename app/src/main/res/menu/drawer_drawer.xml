@@ -68,7 +68,7 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/experiment_fragment"
+            android:id="@+id/playground_fragment"
             android:icon="@drawable/ic_outline_science_24"
             android:title="@string/playground" />
         <item

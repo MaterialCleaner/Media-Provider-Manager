@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.drawer.experiment
+package me.gm.cleaner.plugin.drawer.playground
 
 import android.annotation.SuppressLint
 import android.app.DownloadManager
@@ -37,44 +37,44 @@ import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.data.unsplash.UnsplashPhoto
 import me.gm.cleaner.plugin.data.unsplash.UnsplashRepository
-import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
-import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findItemById
+import me.gm.cleaner.plugin.drawer.playground.PlaygroundContentItems.findIndexById
+import me.gm.cleaner.plugin.drawer.playground.PlaygroundContentItems.findItemById
 import java.io.File
 import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
-class ExperimentViewModel @Inject constructor(private val repository: UnsplashRepository) :
+class PlaygroundViewModel @Inject constructor(private val repository: UnsplashRepository) :
     ViewModel() {
-    val dismissedCard = mutableListOf<Int>()
+    val dismissedCards = mutableListOf<Int>()
 
     @SuppressLint("RestrictedApi")
-    fun prepareContentItems(fragment: ExperimentFragment, adapter: ExperimentAdapter) {
+    fun prepareContentItems(fragment: PlaygroundFragment, adapter: PlaygroundAdapter) {
         val activity = fragment.requireActivity()
         val menu = MenuBuilder(activity)
-        activity.menuInflater.inflate(R.menu.experiment_content, menu)
-        val items = ExperimentContentItems.forMenuBuilder(menu)
-        dismissedCard.asSequence()
+        activity.menuInflater.inflate(R.menu.playground_content, menu)
+        val items = PlaygroundContentItems.forMenuBuilder(menu)
+        dismissedCards.asSequence()
             .map { id -> items.findIndexById(id) }
             .sortedDescending()
             .forEach { indexOfSubHeader ->
                 if (indexOfSubHeader + 1 <= items.size &&
-                    items[indexOfSubHeader + 1] is ExperimentContentSeparatorItem
+                    items[indexOfSubHeader + 1] is PlaygroundContentSeparatorItem
                 ) {
                     items.removeAt(indexOfSubHeader + 1)
                 }
                 items.removeAt(indexOfSubHeader)
             }
 
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_download_manager).action =
+        items.findItemById<PlaygroundContentActionItem>(R.id.unsplash_download_manager).action =
             unsplashDownloadManager(activity)
-        items.findItemById<ExperimentContentActionItem>(R.id.unsplash_insert).action =
+        items.findItemById<PlaygroundContentActionItem>(R.id.unsplash_insert).action =
             unsplashInsert(activity)
-        items.findItemById<ExperimentContentActionItem>(R.id.intercept_insert).action =
+        items.findItemById<PlaygroundContentActionItem>(R.id.intercept_insert).action =
             interceptInsert(fragment)
-        items.findItemById<ExperimentContentActionItem>(R.id.intercept_download_manager).action =
+        items.findItemById<PlaygroundContentActionItem>(R.id.intercept_download_manager).action =
             interceptDownloadManager(fragment)
-        items.findItemById<ExperimentContentActionItem>(R.id.intercept_query).action =
+        items.findItemById<PlaygroundContentActionItem>(R.id.intercept_query).action =
             interceptQuery(fragment)
 
         adapter.submitList(items)
@@ -99,25 +99,27 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         }
         return {
-            val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
-            else repository.fetchUnsplashPhotoList()
+            val unsplashPhotoListResult = withContext(Dispatchers.IO) {
+                if (unsplashPhotos.isSuccess) unsplashPhotos
+                else repository.fetchUnsplashPhotoList()
+            }
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
-                repeat(10) {
-                    ensureActive()
-                    val unsplashPhoto = unsplashPhotos.random()
-                    val request = DownloadManager
-                        .Request(unsplashPhoto.getPhotoUrl(width).toUri())
-                        .setDestinationInExternalPublicDir(
-                            Environment.DIRECTORY_PICTURES,
-                            File.separator + "MPM" + File.separator + unsplashPhoto.filename
-                        )
-                    val id = downloadManager.enqueue(request)
+                withContext(Dispatchers.IO) {
+                    repeat(10) {
+                        ensureActive()
+                        val unsplashPhoto = unsplashPhotos.random()
+                        val request = DownloadManager
+                            .Request(unsplashPhoto.getPhotoUrl(width).toUri())
+                            .setDestinationInExternalPublicDir(
+                                Environment.DIRECTORY_PICTURES,
+                                File.separator + "MPM" + File.separator + unsplashPhoto.filename
+                            )
+                        val id = downloadManager.enqueue(request)
+                    }
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
             unsplashPhotos = unsplashPhotoListResult
         }
@@ -128,50 +130,52 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
             width = context.resources.displayMetrics.widthPixels
         }
         return {
-            val unsplashPhotoListResult = if (unsplashPhotos.isSuccess) unsplashPhotos
-            else repository.fetchUnsplashPhotoList()
+            val unsplashPhotoListResult = withContext(Dispatchers.IO) {
+                if (unsplashPhotos.isSuccess) unsplashPhotos
+                else repository.fetchUnsplashPhotoList()
+            }
             unsplashPhotoListResult.onSuccess { unsplashPhotos ->
-                val resolver = context.contentResolver
-                repeat(10) {
-                    ensureActive()
-                    val unsplashPhoto = unsplashPhotos.random()
-                    val imageDetails = ContentValues().apply {
-                        put(
-                            MediaStore.MediaColumns.RELATIVE_PATH,
-                            Environment.DIRECTORY_PICTURES + File.separator + "MPM"
-                        )
-                        put(MediaStore.MediaColumns.DISPLAY_NAME, unsplashPhoto.filename)
-                        put(
-                            MediaStore.MediaColumns.MIME_TYPE,
-                            "image/${unsplashPhoto.filename.substringAfterLast('.')}"
-                        )
-                        put(MediaStore.Audio.Media.IS_PENDING, 1)
+                withContext(Dispatchers.IO) {
+                    val resolver = context.contentResolver
+                    repeat(10) {
+                        ensureActive()
+                        val unsplashPhoto = unsplashPhotos.random()
+                        val imageDetails = ContentValues().apply {
+                            put(
+                                MediaStore.MediaColumns.RELATIVE_PATH,
+                                Environment.DIRECTORY_PICTURES + File.separator + "MPM"
+                            )
+                            put(MediaStore.MediaColumns.DISPLAY_NAME, unsplashPhoto.filename)
+                            put(
+                                MediaStore.MediaColumns.MIME_TYPE,
+                                "image/${unsplashPhoto.filename.substringAfterLast('.')}"
+                            )
+                            put(MediaStore.Audio.Media.IS_PENDING, 1)
+                        }
+                        val imageUri = resolver.insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageDetails
+                        ) ?: return@repeat
+                        runCatching {
+                            val `is` = URL(unsplashPhoto.getPhotoUrl(width)).openStream()
+                            val os = resolver.openOutputStream(imageUri, "w") ?: return@runCatching
+                            FileUtils.copy(`is`, os)
+                        }
+                        imageDetails.clear()
+                        imageDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
+                        resolver.update(imageUri, imageDetails, null, null)
                     }
-                    val imageUri = resolver.insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageDetails
-                    ) ?: return@repeat
-                    runCatching {
-                        val `is` = URL(unsplashPhoto.getPhotoUrl(width)).openStream()
-                        val os = resolver.openOutputStream(imageUri, "w") ?: return@runCatching
-                        FileUtils.copy(`is`, os)
-                    }
-                    imageDetails.clear()
-                    imageDetails.put(MediaStore.Audio.Media.IS_PENDING, 0)
-                    resolver.update(imageUri, imageDetails, null, null)
                 }
             }.onFailure { e ->
                 e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
             unsplashPhotos = unsplashPhotoListResult
         }
     }
 
-    private fun interceptInsert(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+    private fun interceptInsert(fragment: PlaygroundFragment): suspend CoroutineScope.() -> Unit {
         return {
-            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+            val direction = PlaygroundFragmentDirections.actionPlaygroundToCreateTemplate(
                 templateName = fragment.getString(R.string.intercept_insert_title),
                 hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
                         fragment.getString(R.string.hook_operation_query),
@@ -179,15 +183,13 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
                         fragment.getString(R.string.media_type_image),
             )
-            withContext(Dispatchers.Main.immediate) {
-                fragment.findNavController().navigate(direction)
-            }
+            fragment.findNavController().navigate(direction)
         }
     }
 
-    private fun interceptDownloadManager(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+    private fun interceptDownloadManager(fragment: PlaygroundFragment): suspend CoroutineScope.() -> Unit {
         return {
-            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+            val direction = PlaygroundFragmentDirections.actionPlaygroundToCreateTemplate(
                 templateName = fragment.getString(R.string.intercept_download_manager_title),
                 hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
                         fragment.getString(R.string.hook_operation_query),
@@ -195,15 +197,13 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
                         fragment.getString(R.string.media_type_image),
             )
-            withContext(Dispatchers.Main.immediate) {
-                fragment.findNavController().navigate(direction)
-            }
+            fragment.findNavController().navigate(direction)
         }
     }
 
-    private fun interceptQuery(fragment: ExperimentFragment): suspend CoroutineScope.() -> Unit {
+    private fun interceptQuery(fragment: PlaygroundFragment): suspend CoroutineScope.() -> Unit {
         return {
-            val direction = ExperimentFragmentDirections.actionExperimentToCreateTemplate(
+            val direction = PlaygroundFragmentDirections.actionPlaygroundToCreateTemplate(
                 templateName = fragment.getString(R.string.intercept_query_title),
                 hookOperation = fragment.resources.getStringArray(R.array.hook_operation_entryValues) -
                         fragment.getString(R.string.hook_operation_insert),
@@ -211,9 +211,7 @@ class ExperimentViewModel @Inject constructor(private val repository: UnsplashRe
                 permittedMediaTypes = fragment.resources.getStringArray(R.array.media_types_entryValues) -
                         fragment.getString(R.string.media_type_image),
             )
-            withContext(Dispatchers.Main.immediate) {
-                fragment.findNavController().navigate(direction)
-            }
+            fragment.findNavController().navigate(direction)
         }
     }
 }

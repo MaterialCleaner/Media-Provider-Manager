@@ -19,7 +19,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/experiment_header"
+        android:id="@+id/playground_header"
         android:checkable="true"
         android:title="@string/playground_header" />
 
@@ -58,7 +58,7 @@
         </menu>
     </item>
 
-    <!--    <item android:title="@string/experiment_title_do_it_yourself">-->
+    <!--    <item android:title="@string/playground_title_do_it_yourself">-->
     <!--        <menu>-->
     <!--            <item-->
     <!--                android:id="@+id/do_it_yourself"-->

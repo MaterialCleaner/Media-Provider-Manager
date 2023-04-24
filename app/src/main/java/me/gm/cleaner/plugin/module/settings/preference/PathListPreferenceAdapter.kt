@@ -69,11 +69,12 @@ class PathListPreferenceAdapter(
     class ViewHolder(val binding: PathListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<String> =
-            object : DiffUtil.ItemCallback<String>() {
-                override fun areItemsTheSame(oldItem: String, newItem: String) = oldItem == newItem
-                override fun areContentsTheSame(oldItem: String, newItem: String) =
-                    oldItem == newItem
-            }
+        private val CALLBACK = object : DiffUtil.ItemCallback<String>() {
+            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean =
+                oldItem == newItem
+
+            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean =
+                oldItem == newItem
+        }
     }
 }

@@ -26,7 +26,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isInvisible
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -36,7 +36,7 @@ import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
  * A fragment for displaying an image.
  */
 class ImagePagerItem : BaseFragment() {
-    private val viewModel by lazy { ViewModelProvider(requireParentFragment())[ImagePagerViewModel::class.java] }
+    private val viewModel: ImagePagerViewModel by viewModels({ requireParentFragment() })
     private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
     private val isMediaStoreUri by lazy { requireArguments().getBoolean(KEY_IS_MEDIA_STORE_URI) }
 

@@ -40,7 +40,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.app.ConfirmDialog
+import me.gm.cleaner.plugin.app.ConfirmationDialog
 import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
@@ -283,11 +283,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                 PackageManager.PERMISSION_GRANTED
                     }
                 ) {
-                    ConfirmDialog
+                    ConfirmationDialog
                         .newInstance(getString(R.string.revoke_self_permission))
                         .apply {
                             addOnPositiveButtonClickListener {
-                                PermissionUtils.startDetailsSettings(requireContext())
+                                PermissionUtils.startDetailsSettings(it.requireContext())
                             }
                         }
                         .show(childFragmentManager, null)
@@ -301,7 +301,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             haveAskedUser: Boolean, savedInstanceState: Bundle?
         ) {
             if (shouldShowRationale.isNotEmpty()) {
-                ConfirmDialog
+                ConfirmationDialog
                     .newInstance(getString(R.string.rationale_shouldShowRationale))
                     .apply {
                         addOnPositiveButtonClickListener {
@@ -312,11 +312,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     }
                     .show(childFragmentManager, null)
             } else if (permanentlyDenied.isNotEmpty()) {
-                ConfirmDialog
+                ConfirmationDialog
                     .newInstance(getString(R.string.rationale_permanentlyDenied))
                     .apply {
                         addOnPositiveButtonClickListener {
-                            PermissionUtils.startDetailsSettings(requireContext())
+                            PermissionUtils.startDetailsSettings(it.requireContext())
                         }
                     }
                     .show(childFragmentManager, null)

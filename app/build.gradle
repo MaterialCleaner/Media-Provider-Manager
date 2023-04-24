@@ -42,12 +42,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     packagingOptions {
         resources {
             excludes += ['/META-INF/**', '/kotlin/**', '/okhttp3/**']
+        }
+        jniLibs {
+            excludes += ['**/liblog.so']
         }
     }
     buildFeatures {
@@ -61,11 +64,6 @@ android {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
             version '3.22.1'
-        }
-    }
-    packagingOptions {
-        jniLibs {
-            excludes += ['**/liblog.so']
         }
     }
     namespace 'me.gm.cleaner.plugin'

@@ -79,15 +79,12 @@ class AppListAdapter(private val fragment: AppListFragment) :
     class ViewHolder(val binding: ApplistItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<AppListModel> =
-            object : DiffUtil.ItemCallback<AppListModel>() {
-                override fun areItemsTheSame(
-                    oldItem: AppListModel, newItem: AppListModel
-                ) = oldItem.packageInfo.packageName == newItem.packageInfo.packageName
+        private val CALLBACK = object : DiffUtil.ItemCallback<AppListModel>() {
+            override fun areItemsTheSame(oldItem: AppListModel, newItem: AppListModel): Boolean =
+                oldItem.packageInfo.packageName == newItem.packageInfo.packageName
 
-                override fun areContentsTheSame(
-                    oldItem: AppListModel, newItem: AppListModel
-                ) = oldItem == newItem
-            }
+            override fun areContentsTheSame(oldItem: AppListModel, newItem: AppListModel): Boolean =
+                oldItem == newItem
+        }
     }
 }

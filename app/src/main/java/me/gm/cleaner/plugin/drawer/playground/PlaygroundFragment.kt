@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.drawer.experiment
+package me.gm.cleaner.plugin.drawer.playground
 
 import android.graphics.Rect
 import android.os.Bundle
@@ -28,22 +28,24 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.databinding.ExperimentFragmentBinding
-import me.gm.cleaner.plugin.drawer.experiment.ExperimentContentItems.findIndexById
+import me.gm.cleaner.plugin.databinding.PlaygroundFragmentBinding
+import me.gm.cleaner.plugin.drawer.playground.PlaygroundContentItems.findIndexById
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import rikka.recyclerview.fixEdgeEffect
 
 @AndroidEntryPoint
-class ExperimentFragment : BaseFragment() {
-    private val viewModel: ExperimentViewModel by viewModels()
+class PlaygroundFragment : BaseFragment() {
+    private val viewModel: PlaygroundViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val binding = ExperimentFragmentBinding.inflate(layoutInflater)
+        val binding = PlaygroundFragmentBinding.inflate(layoutInflater)
 
-        val adapter = ExperimentAdapter(this)
+        val adapter = PlaygroundAdapter(this, viewModel).apply {
+            setHasStableIds(true)
+        }
         val list = binding.list
         liftOnScrollTargetView = list
         list.adapter = adapter

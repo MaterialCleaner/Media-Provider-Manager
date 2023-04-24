@@ -24,8 +24,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.function.Consumer
 
-class ConfirmDialog : AppCompatDialogFragment() {
-    private val viewModel: ConfirmViewModel by viewModels()
+class ConfirmationDialog : AppCompatDialogFragment() {
+    private val viewModel: ConfirmationViewModel by viewModels()
     private val pendingViewModelActions = mutableListOf<Runnable>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,12 +44,12 @@ class ConfirmDialog : AppCompatDialogFragment() {
             .setMessage(requireArguments().getCharSequence(KEY_MESSAGE))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.onPositiveButtonClickListeners.forEach { listener ->
-                    listener.accept(null)
+                    listener.accept(this)
                 }
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
                 viewModel.onNegativeButtonClickListeners.forEach { listener ->
-                    listener.accept(null)
+                    listener.accept(this)
                 }
             }
             .create()
@@ -62,12 +62,12 @@ class ConfirmDialog : AppCompatDialogFragment() {
         }
     }
 
-    fun addOnPositiveButtonClickListener(onPositiveButtonClickListener: Consumer<Void?>) =
+    fun addOnPositiveButtonClickListener(onPositiveButtonClickListener: Consumer<ConfirmationDialog>) =
         handleAction {
             viewModel.onPositiveButtonClickListeners.add(onPositiveButtonClickListener)
         }
 
-    fun removeOnPositiveButtonClickListener(onPositiveButtonClickListener: Consumer<Void?>) =
+    fun removeOnPositiveButtonClickListener(onPositiveButtonClickListener: Consumer<ConfirmationDialog>) =
         handleAction {
             viewModel.onPositiveButtonClickListeners.remove(onPositiveButtonClickListener)
         }
@@ -76,12 +76,12 @@ class ConfirmDialog : AppCompatDialogFragment() {
         viewModel.onPositiveButtonClickListeners.clear()
     }
 
-    fun addOnNegativeButtonClickListener(onNegativeButtonClickListener: Consumer<Void?>) =
+    fun addOnNegativeButtonClickListener(onNegativeButtonClickListener: Consumer<ConfirmationDialog>) =
         handleAction {
             viewModel.onNegativeButtonClickListeners.add(onNegativeButtonClickListener)
         }
 
-    fun removeOnNegativeButtonClickListener(onNegativeButtonClickListener: Consumer<Void?>) =
+    fun removeOnNegativeButtonClickListener(onNegativeButtonClickListener: Consumer<ConfirmationDialog>) =
         handleAction {
             viewModel.onNegativeButtonClickListeners.remove(onNegativeButtonClickListener)
         }
@@ -91,8 +91,9 @@ class ConfirmDialog : AppCompatDialogFragment() {
     }
 
     companion object {
-        private const val KEY_MESSAGE = "me.gm.cleaner.key.message"
-        fun newInstance(message: CharSequence) = ConfirmDialog().apply {
+        private const val KEY_MESSAGE: String = "me.gm.cleaner.key.message"
+
+        fun newInstance(message: CharSequence): ConfirmationDialog = ConfirmationDialog().apply {
             arguments = bundleOf(KEY_MESSAGE to message)
         }
     }

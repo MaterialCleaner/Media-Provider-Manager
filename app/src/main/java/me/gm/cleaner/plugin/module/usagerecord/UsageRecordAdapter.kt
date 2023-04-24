@@ -102,15 +102,14 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
     class ViewHolder(val binding: UsagerecordItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<MediaProviderRecord> =
-            object : DiffUtil.ItemCallback<MediaProviderRecord>() {
-                override fun areItemsTheSame(
-                    oldItem: MediaProviderRecord, newItem: MediaProviderRecord
-                ) = oldItem.timeMillis == newItem.timeMillis
+        private val CALLBACK = object : DiffUtil.ItemCallback<MediaProviderRecord>() {
+            override fun areItemsTheSame(
+                oldItem: MediaProviderRecord, newItem: MediaProviderRecord
+            ): Boolean = oldItem.timeMillis == newItem.timeMillis
 
-                override fun areContentsTheSame(
-                    oldItem: MediaProviderRecord, newItem: MediaProviderRecord
-                ) = oldItem == newItem
-            }
+            override fun areContentsTheSame(
+                oldItem: MediaProviderRecord, newItem: MediaProviderRecord
+            ): Boolean = oldItem == newItem
+        }
     }
 }

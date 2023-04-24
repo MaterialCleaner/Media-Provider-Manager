@@ -134,13 +134,12 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
     class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<Template> =
-            object : DiffUtil.ItemCallback<Template>() {
-                override fun areItemsTheSame(oldItem: Template, newItem: Template) =
-                    oldItem.templateName == newItem.templateName
+        private val CALLBACK = object : DiffUtil.ItemCallback<Template>() {
+            override fun areItemsTheSame(oldItem: Template, newItem: Template): Boolean =
+                oldItem.templateName == newItem.templateName
 
-                override fun areContentsTheSame(oldItem: Template, newItem: Template) =
-                    oldItem == newItem
-            }
+            override fun areContentsTheSame(oldItem: Template, newItem: Template): Boolean =
+                oldItem == newItem
+        }
     }
 }

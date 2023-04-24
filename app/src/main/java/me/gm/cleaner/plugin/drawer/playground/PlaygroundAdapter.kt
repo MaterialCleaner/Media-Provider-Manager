@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.drawer.experiment
+package me.gm.cleaner.plugin.drawer.playground
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -32,51 +31,56 @@ import com.google.android.material.behavior.SwipeDismissBehavior
 import com.google.android.material.divider.MaterialDivider
 import kotlinx.coroutines.*
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.app.ConfirmDialog
-import me.gm.cleaner.plugin.databinding.ExperimentCardActionBinding
-import me.gm.cleaner.plugin.databinding.ExperimentCardHeaderBinding
-import me.gm.cleaner.plugin.databinding.ExperimentCardSubheaderBinding
+import me.gm.cleaner.plugin.app.ConfirmationDialog
+import me.gm.cleaner.plugin.databinding.PlaygroundCardActionBinding
+import me.gm.cleaner.plugin.databinding.PlaygroundCardHeaderBinding
+import me.gm.cleaner.plugin.databinding.PlaygroundCardSubheaderBinding
 import me.gm.cleaner.plugin.ktx.hasWifiTransport
 
 @SuppressLint("PrivateResource")
-class ExperimentAdapter(private val fragment: ExperimentFragment) :
-    ListAdapter<ExperimentContentItem, RecyclerView.ViewHolder>(CALLBACK) {
-    private val viewModel: ExperimentViewModel by fragment.viewModels()
+class PlaygroundAdapter(
+    private val fragment: PlaygroundFragment, private val viewModel: PlaygroundViewModel
+) : ListAdapter<PlaygroundContentItem, RecyclerView.ViewHolder>(CALLBACK) {
 
-    override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is ExperimentContentSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
-        is ExperimentContentHeaderItem -> R.layout.experiment_card_header
-        is ExperimentContentSubHeaderItem -> R.layout.experiment_card_subheader
-        is ExperimentContentActionItem -> R.layout.experiment_card_action
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
+        is PlaygroundContentSeparatorItem -> com.google.android.material.R.layout.design_navigation_item_separator
+        is PlaygroundContentHeaderItem -> R.layout.playground_card_header
+        is PlaygroundContentSubHeaderItem -> R.layout.playground_card_subheader
+        is PlaygroundContentActionItem -> R.layout.playground_card_action
         else -> throw IndexOutOfBoundsException()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        com.google.android.material.R.layout.design_navigation_item_separator -> SeparatorViewHolder(
-            parent.context
-        )
-        R.layout.experiment_card_header -> HeaderCardViewHolder(
-            ExperimentCardHeaderBinding.inflate(LayoutInflater.from(parent.context))
-        )
-        R.layout.experiment_card_subheader -> SubHeaderCardViewHolder(
-            ExperimentCardSubheaderBinding.inflate(LayoutInflater.from(parent.context))
-        )
-        R.layout.experiment_card_action -> ActionCardViewHolder(
-            ExperimentCardActionBinding.inflate(LayoutInflater.from(parent.context))
-        )
-        else -> throw IndexOutOfBoundsException()
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+        when (viewType) {
+            com.google.android.material.R.layout.design_navigation_item_separator ->
+                SeparatorViewHolder(parent.context)
+
+            R.layout.playground_card_header -> HeaderCardViewHolder(
+                PlaygroundCardHeaderBinding.inflate(LayoutInflater.from(parent.context))
+            )
+
+            R.layout.playground_card_subheader -> SubHeaderCardViewHolder(
+                PlaygroundCardSubheaderBinding.inflate(LayoutInflater.from(parent.context))
+            )
+
+            R.layout.playground_card_action -> ActionCardViewHolder(
+                PlaygroundCardActionBinding.inflate(LayoutInflater.from(parent.context))
+            )
+
+            else -> throw IndexOutOfBoundsException()
+        }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is HeaderCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentContentHeaderItem
+                val item = getItem(position) as PlaygroundContentHeaderItem
                 binding.title.text = item.title
             }
+
             is SubHeaderCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentContentSubHeaderItem
+                val item = getItem(position) as PlaygroundContentSubHeaderItem
                 binding.cardContextText.text = item.content
                 val card = binding.card
                 val swipeDismissBehavior = SwipeDismissBehavior<View>().apply {
@@ -86,22 +90,24 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                             when (state) {
                                 SwipeDismissBehavior.STATE_DRAGGING,
                                 SwipeDismissBehavior.STATE_SETTLING -> card.isDragged = true
+
                                 SwipeDismissBehavior.STATE_IDLE -> card.isDragged = false
                             }
                         }
 
                         override fun onDismiss(view: View) {
-                            viewModel.dismissedCard.add(item.id)
-                            viewModel.prepareContentItems(fragment, this@ExperimentAdapter)
+                            viewModel.dismissedCards.add(item.id)
+                            viewModel.prepareContentItems(fragment, this@PlaygroundAdapter)
                         }
                     })
                 }
                 val coordinatorParams = card.layoutParams as CoordinatorLayout.LayoutParams
                 coordinatorParams.behavior = swipeDismissBehavior
             }
+
             is ActionCardViewHolder -> {
                 val binding = holder.binding
-                val item = getItem(position) as ExperimentContentActionItem
+                val item = getItem(position) as PlaygroundContentActionItem
                 binding.title.text = item.title
                 binding.summary.text = item.summary
                 val button = binding.button
@@ -117,17 +123,16 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
                 button.setOnClickListener {
                     var deferred = viewModel.actions[item.id] as? Deferred<Unit>
                     if (deferred == null || !deferred.isActive) {
-                        deferred = viewModel.viewModelScope.async(
-                            Dispatchers.IO, CoroutineStart.LAZY, item.action!!
-                        )
+                        deferred = viewModel.viewModelScope
+                            .async(Dispatchers.Main.immediate, CoroutineStart.LAZY) {
+                                item.action!!()
+                            }
                         viewModel.actions.put(item.id, deferred)
                         if (item.needsNetwork && !fragment.requireContext().hasWifiTransport) {
-                            button.toggle()
-                            ConfirmDialog
+                            ConfirmationDialog
                                 .newInstance(fragment.getString(R.string.no_wifi))
                                 .apply {
                                     addOnPositiveButtonClickListener {
-                                        button.toggle()
                                         startAction(deferred)
                                     }
                                 }
@@ -143,9 +148,11 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
         }
     }
 
-    private fun startAction(deferred: Deferred<Unit>) = viewModel.viewModelScope.launch {
+    private fun startAction(deferred: Deferred<Unit>): Job = viewModel.viewModelScope.launch {
         deferred.await()
     }
+
+    override fun getItemId(position: Int): Long = getItem(position).id.toLong()
 
     class SeparatorViewHolder(context: Context) :
         RecyclerView.ViewHolder(FrameLayout(context).apply {
@@ -157,26 +164,25 @@ class ExperimentAdapter(private val fragment: ExperimentFragment) :
             setPaddingRelative(0, cardMargin, 0, 0)
         })
 
-    class HeaderCardViewHolder(val binding: ExperimentCardHeaderBinding) :
+    class HeaderCardViewHolder(val binding: PlaygroundCardHeaderBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    class SubHeaderCardViewHolder(val binding: ExperimentCardSubheaderBinding) :
+    class SubHeaderCardViewHolder(val binding: PlaygroundCardSubheaderBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    class ActionCardViewHolder(val binding: ExperimentCardActionBinding) :
+    class ActionCardViewHolder(val binding: PlaygroundCardActionBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     companion object {
-        private val CALLBACK: DiffUtil.ItemCallback<ExperimentContentItem> =
-            object : DiffUtil.ItemCallback<ExperimentContentItem>() {
-                override fun areItemsTheSame(
-                    oldItem: ExperimentContentItem, newItem: ExperimentContentItem
-                ) = oldItem.id == newItem.id
+        private val CALLBACK = object : DiffUtil.ItemCallback<PlaygroundContentItem>() {
+            override fun areItemsTheSame(
+                oldItem: PlaygroundContentItem, newItem: PlaygroundContentItem
+            ): Boolean = oldItem.id == newItem.id
 
-                @SuppressLint("DiffUtilEquals")
-                override fun areContentsTheSame(
-                    oldItem: ExperimentContentItem, newItem: ExperimentContentItem
-                ) = oldItem == newItem
-            }
+            @SuppressLint("DiffUtilEquals")
+            override fun areContentsTheSame(
+                oldItem: PlaygroundContentItem, newItem: PlaygroundContentItem
+            ): Boolean = oldItem == newItem
+        }
     }
 }

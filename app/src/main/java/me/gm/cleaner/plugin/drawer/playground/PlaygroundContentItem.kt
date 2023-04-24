@@ -14,72 +14,74 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.drawer.experiment
+package me.gm.cleaner.plugin.drawer.playground
 
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.appcompat.view.menu.MenuBuilder
 import kotlinx.coroutines.CoroutineScope
 
-/** Unified data model for all sorts of experiment content items. */
-abstract class ExperimentContentItem(
+/** Unified data model for all sorts of playground content items. */
+abstract class PlaygroundContentItem(
     open val id: Int
 )
 
 /** Separator items. */
-data class ExperimentContentSeparatorItem(
+data class PlaygroundContentSeparatorItem(
     override val id: Int = View.generateViewId()
-) : ExperimentContentItem(id)
+) : PlaygroundContentItem(id)
 
 /** Normal or header items. */
-data class ExperimentContentHeaderItem(
+data class PlaygroundContentHeaderItem(
     override val id: Int,
     var title: CharSequence?
-) : ExperimentContentItem(id)
+) : PlaygroundContentItem(id)
 
 /** Normal or subheader items. */
-data class ExperimentContentSubHeaderItem(
+data class PlaygroundContentSubHeaderItem(
     override val id: Int,
     var content: CharSequence?,
     var dismissed: Boolean
-) : ExperimentContentItem(id)
+) : PlaygroundContentItem(id)
 
 /** Action items. */
-data class ExperimentContentActionItem(
+data class PlaygroundContentActionItem(
     override val id: Int,
     var title: CharSequence?,
     var summary: CharSequence?,
     var action: (suspend CoroutineScope.() -> Unit)? = null,
     var needsNetwork: Boolean
-) : ExperimentContentItem(id)
+) : PlaygroundContentItem(id)
 
-object ExperimentContentItems {
+object PlaygroundContentItems {
 
-    /** Convert MenuItemImpl to ExperimentMenuItem. */
-    fun forMenuBuilder(menu: MenuBuilder): MutableList<ExperimentContentItem> {
-        val items = mutableListOf<ExperimentContentItem>()
+    /** Convert MenuItemImpl to PlaygroundMenuItem. */
+    fun forMenuBuilder(menu: MenuBuilder): MutableList<PlaygroundContentItem> {
+        val items = mutableListOf<PlaygroundContentItem>()
         convertTo(items, menu)
         return items
     }
 
     @SuppressLint("RestrictedApi")
-    private fun convertTo(items: MutableList<ExperimentContentItem>, menu: MenuBuilder) {
+    private fun convertTo(items: MutableList<PlaygroundContentItem>, menu: MenuBuilder) {
         menu.visibleItems.forEach { menuItemImpl ->
             when {
                 menuItemImpl.hasSubMenu() -> {
                     if (items.isNotEmpty()) {
-                        items.add(ExperimentContentSeparatorItem())
+                        items.add(PlaygroundContentSeparatorItem())
                     }
-                    items.add(ExperimentContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
+                    items.add(PlaygroundContentHeaderItem(menuItemImpl.itemId, menuItemImpl.title))
                     convertTo(items, menuItemImpl.subMenu as MenuBuilder)
                 }
+
                 menuItemImpl.isCheckable -> items.add(
-                    ExperimentContentSubHeaderItem(
+                    PlaygroundContentSubHeaderItem(
                         menuItemImpl.itemId, menuItemImpl.title, menuItemImpl.isChecked
                     )
                 )
+
                 else -> items.add(
-                    ExperimentContentActionItem(
+                    PlaygroundContentActionItem(
                         menuItemImpl.itemId,
                         menuItemImpl.title,
                         menuItemImpl.titleCondensed,
@@ -90,9 +92,8 @@ object ExperimentContentItems {
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : ExperimentContentItem> Collection<ExperimentContentItem>.findItemById(id: Int) =
+    inline fun <reified T : PlaygroundContentItem> Collection<PlaygroundContentItem>.findItemById(id: Int) =
         first { id == it.id } as T
 
-    fun Collection<ExperimentContentItem>.findIndexById(id: Int) = indexOfFirst { id == it.id }
+    fun Collection<PlaygroundContentItem>.findIndexById(id: Int) = indexOfFirst { id == it.id }
 }
