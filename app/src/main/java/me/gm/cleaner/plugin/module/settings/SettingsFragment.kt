@@ -33,7 +33,6 @@ class SettingsFragment : AbsSettingsFragment() {
     override val who: Int
         get() = R.xml.root_preferences
 
-    private val navController by lazy { findNavController() }
     var enterKey: String? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -64,7 +63,7 @@ class SettingsFragment : AbsSettingsFragment() {
             getString(R.string.template_management_key) -> {
                 itemView.transitionName = preference.key
                 itemView.setOnClickListener {
-                    if (navController.currentDestination?.id != R.id.settings_fragment) {
+                    if ( findNavController().currentDestination?.id != R.id.settings_fragment) {
                         return@setOnClickListener
                     }
                     enterKey = preference.key
@@ -74,7 +73,7 @@ class SettingsFragment : AbsSettingsFragment() {
 
                     val direction = SettingsFragmentStubDirections.actionSettingsToTemplates()
                     val extras = FragmentNavigatorExtras(it to it.transitionName)
-                    navController.navigate(direction, extras)
+                    findNavController().navigate(direction, extras)
                 }
                 parentFragment?.startPostponedEnterTransition()
             }

@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -47,7 +48,7 @@ import rikka.recyclerview.fixEdgeEffect
 abstract class DrawerActivity : BaseActivity() {
     private val viewModel: BinderViewModel by viewModels()
     private lateinit var drawerLayout: DrawerLayout
-    private val navController by lazy { findNavController(R.id.nav_host) }
+    private lateinit var navController: NavController
     private val appBarConfiguration by lazy {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -58,6 +59,7 @@ abstract class DrawerActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         val binding = DrawerActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        navController = findNavController(R.id.nav_host)
         // NavController's backend
         val action = intent.action
         val shouldAlterStartDestination = savedInstanceState == null &&
@@ -67,10 +69,13 @@ abstract class DrawerActivity : BaseActivity() {
             when (action) {
                 "me.gm.cleaner.plugin.intent.action.AUDIO" ->
                     RootPreferences.startDestination = R.id.audio_fragment
+
                 "me.gm.cleaner.plugin.intent.action.FILES" ->
                     RootPreferences.startDestination = R.id.files_fragment
+
                 "me.gm.cleaner.plugin.intent.action.IMAGES" ->
                     RootPreferences.startDestination = R.id.images_fragment
+
                 "me.gm.cleaner.plugin.intent.action.VIDEO" ->
                     RootPreferences.startDestination = R.id.video_fragment
             }
@@ -146,6 +151,7 @@ abstract class DrawerActivity : BaseActivity() {
                         ?.childFragmentManager?.fragments?.first()?.let {
                             it !is ToolbarActionModeIndicator || !it.isInActionMode()
                         } == true -> super.onSupportNavigateUp()
+
             else -> super.onBackPressed()
         }
     }

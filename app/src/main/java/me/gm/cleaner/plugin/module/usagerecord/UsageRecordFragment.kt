@@ -40,7 +40,6 @@ import java.util.*
 
 class UsageRecordFragment : ModuleFragment() {
     private val viewModel: UsageRecordViewModel by viewModels()
-    private val navController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +92,7 @@ class UsageRecordFragment : ModuleFragment() {
             viewModel.reloadRecords(binderViewModel)
             viewModel.registerMediaChangeObserver(binderViewModel)
         }
-        navController.addOnExitListener { _, _, _ ->
+        findNavController().addOnExitListener { _, _, _ ->
             supportActionBar?.subtitle = null
         }
 

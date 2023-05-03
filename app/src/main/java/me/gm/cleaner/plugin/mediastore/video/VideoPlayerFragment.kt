@@ -49,7 +49,6 @@ import kotlin.math.max
 class VideoPlayerFragment : BaseFragment() {
     private val viewModel: VideoPlayerViewModel by viewModels()
     private val args: VideoPlayerFragmentArgs by navArgs()
-    private val navController by lazy { findNavController() }
     private lateinit var trackSelectionParameters: DefaultTrackSelector.Parameters
     private var startItemIndex = 0
     private var startPosition = 0L
@@ -82,7 +81,7 @@ class VideoPlayerFragment : BaseFragment() {
             trackSelectionParameters = ParametersBuilder(requireContext()).build()
         }
 
-        navController.addOnExitListener { _, destination, _ ->
+        findNavController().addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
             requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
                 .removeInterceptTouchEventListener(forbidDrawerGestureListener)

@@ -54,7 +54,6 @@ import me.gm.cleaner.plugin.ktx.mediumAnimTime
 class ImagePagerFragment : BaseFragment() {
     private val viewModel: ImagePagerViewModel by viewModels()
     private val args: ImagePagerFragmentArgs by navArgs()
-    private val navController by lazy { findNavController() }
     private val lastPosition by lazy { bundleOf(KEY_POSITION to args.initialPosition) }
     private lateinit var viewPager: ViewPager2
 
@@ -105,7 +104,7 @@ class ImagePagerFragment : BaseFragment() {
                 }
             }
         })
-        navController.addOnExitListener { _, destination, _ ->
+        findNavController().addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
         }
 
@@ -150,7 +149,7 @@ class ImagePagerFragment : BaseFragment() {
                 val ssiv: SubsamplingScaleImageView =
                     view.findViewById(R.id.subsampling_scale_image_view)
                 if (names.isNotEmpty()) {
-                    if (navController.currentDestination?.id != R.id.image_pager_fragment &&
+                    if (findNavController().currentDestination?.id != R.id.image_pager_fragment &&
                         imageView.isInvisible
                     ) {
                         // Change the registered shared element for a better exit transition.
@@ -184,6 +183,7 @@ class ImagePagerFragment : BaseFragment() {
             }
             true
         }
+
         R.id.menu_info -> {
             lifecycleScope.launch {
                 val result = viewModel.queryImageInfoAsync(args.uris[viewPager.currentItem]).await()
@@ -192,12 +192,13 @@ class ImagePagerFragment : BaseFragment() {
             }
             true
         }
+
         else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (navController.currentDestination?.id == R.id.image_pager_fragment) {
+        if ( findNavController().currentDestination?.id == R.id.image_pager_fragment) {
             // Restore AppBar state.
             viewModel.isFirstEntrance = true
         }

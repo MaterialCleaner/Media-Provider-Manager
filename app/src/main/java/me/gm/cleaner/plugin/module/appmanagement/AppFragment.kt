@@ -46,7 +46,6 @@ import java.text.Collator
 
 class AppFragment : ModuleFragment() {
     private val args: AppFragmentArgs by navArgs()
-    private val navController by lazy { findNavController() }
     var lastTemplateName: String? = null
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -73,7 +72,7 @@ class AppFragment : ModuleFragment() {
                 supportActionBar?.title = if (recyclerView.isItemCompletelyInvisible(0)) {
                     args.label
                 } else {
-                    navController.currentDestination?.label
+                    findNavController().currentDestination?.label
                 }
             }
         })
