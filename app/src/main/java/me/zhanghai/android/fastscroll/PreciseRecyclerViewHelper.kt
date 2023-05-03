@@ -25,28 +25,28 @@ internal class PreciseRecyclerViewHelper(
     private val list: RecyclerView, popupTextProvider: PopupTextProvider? = null,
     measureAllItemsOnStart: Boolean = true
 ) : NoInterceptionRecyclerViewHelper(list, popupTextProvider) {
-    private val observer = ItemHeightsObserver(list, measureAllItemsOnStart)
-    private val adapter = list.adapter!!
-    private val layoutManager = list.layoutManager as LinearLayoutManager
-    private val mTempRect = Rect()
+    private val observer: ItemHeightsObserver = ItemHeightsObserver(list, measureAllItemsOnStart)
+    private val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> = list.adapter!!
+    private val layoutManager: LinearLayoutManager = list.layoutManager as LinearLayoutManager
+    private val mTempRect: Rect = Rect()
 
     init {
         adapter.registerAdapterDataObserver(observer)
     }
 
-    override fun getScrollRange() = list.paddingTop + observer.itemHeightsSum + list.paddingBottom
+    override fun getScrollRange(): Int =
+        list.paddingTop + observer.itemHeights.sum() + list.paddingBottom
 
     override fun getScrollOffset(): Int {
         val firstItemPosition = layoutManager.getPosition(list.getChildAt(0))
-        if (firstItemPosition == RecyclerView.NO_POSITION) {
+        if (firstItemPosition == RecyclerView.NO_POSITION ||
+            firstItemPosition >= observer.itemHeights.size
+        ) {
             return 0
         }
-        var sum = 0
-        for (i in 0 until firstItemPosition) {
-            sum += observer.itemHeights[i]
-        }
+        val itemHeightsSum = observer.itemHeights.query(0, firstItemPosition)
         val firstItemTop = getFirstItemOffset()
-        return list.paddingTop + sum - firstItemTop
+        return list.paddingTop + itemHeightsSum - firstItemTop
     }
 
     private fun getFirstItemOffset(): Int {
