@@ -17,8 +17,12 @@
 package me.gm.cleaner.plugin.xposed
 
 import android.content.ContentProvider
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.ProviderInfo
 import android.content.res.AssetManager
 import android.content.res.Resources
+import android.provider.MediaStore
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import me.gm.cleaner.plugin.xposed.hooker.DeleteHooker
@@ -28,50 +32,61 @@ import me.gm.cleaner.plugin.xposed.hooker.QueryHooker
 import java.io.File
 
 class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteInit {
+
+    @Throws(Throwable::class)
+    private fun onMediaProviderLoaded(lpparam: LoadPackageParam, context: Context) {
+        val mediaProvider = try {
+            XposedHelpers.findClass(
+                "com.android.providers.media.MediaProvider", lpparam.classLoader
+            )
+        } catch (e: XposedHelpers.ClassNotFoundError) {
+            return
+        }
+        // only save MediaProvider's classLoader
+        classLoader = lpparam.classLoader
+        onCreate(context)
+        XposedBridge.hookAllMethods(
+            mediaProvider, "queryInternal", QueryHooker(this@XposedInit)
+        )
+        XposedBridge.hookAllMethods(
+            mediaProvider, "insertFile", InsertHooker(this@XposedInit)
+        )
+        XposedBridge.hookAllMethods(
+            mediaProvider, "deleteInternal", DeleteHooker(this@XposedInit)
+        )
+        try {
+            System.loadLibrary("plugin")
+        } catch (e: Throwable) {
+            XposedBridge.log(e)
+        }
+    }
+
+    @Throws(Throwable::class)
+    private fun onDownloadManagerLoaded(lpparam: LoadPackageParam, context: Context) {
+        XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())
+        XposedHelpers.findAndHookMethod(File::class.java, "mkdirs", FileHooker())
+    }
+
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
-        when (lpparam.packageName) {
-            "com.android.providers.media", "com.android.providers.media.module" -> {
-                val mediaProvider = try {
-                    XposedHelpers.findClass(
-                        "com.android.providers.media.MediaProvider", lpparam.classLoader
-                    )
-                } catch (e: XposedHelpers.ClassNotFoundError) {
-                    return
-                }
-                // only save MediaProvider's classLoader
-                classLoader = lpparam.classLoader
-                XposedHelpers.findAndHookMethod(
-                    mediaProvider, "onCreate", object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            onCreate((param.thisObject as ContentProvider).context!!)
-
-                            XposedBridge.hookAllMethods(
-                                mediaProvider, "queryInternal", QueryHooker(this@XposedInit)
-                            )
-
-                            XposedBridge.hookAllMethods(
-                                mediaProvider, "insertFile", InsertHooker(this@XposedInit)
-                            )
-
-                            XposedBridge.hookAllMethods(
-                                mediaProvider, "deleteInternal", DeleteHooker(this@XposedInit)
-                            )
-                        }
-                    }
-                )
-                try {
-                    System.loadLibrary("plugin")
-                } catch (e: Throwable) {
-                    XposedBridge.log(e)
-                }
-            }
-            "com.android.providers.downloads" -> {
-                XposedHelpers.findAndHookMethod(File::class.java, "mkdir", FileHooker())
-                XposedHelpers.findAndHookMethod(File::class.java, "mkdirs", FileHooker())
-            }
+        if (lpparam.appInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
+            return
         }
+        XposedHelpers.findAndHookMethod(
+            ContentProvider::class.java, "attachInfo",
+            Context::class.java, ProviderInfo::class.java, object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val context = param.args[0] as Context
+                    val providerInfo = param.args[1] as ProviderInfo
+
+                    when (providerInfo.authority) {
+                        MediaStore.AUTHORITY -> onMediaProviderLoaded(lpparam, context)
+                        Downloads_Impl_AUTHORITY -> onDownloadManagerLoaded(lpparam, context)
+                    }
+                }
+            }
+        )
     }
 
     @Throws(Throwable::class)
@@ -79,5 +94,9 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
         val assetManager = AssetManager::class.java.newInstance()
         XposedHelpers.callMethod(assetManager, "addAssetPath", startupParam.modulePath)
         resources = Resources(assetManager, null, null)
+    }
+
+    companion object {
+        const val Downloads_Impl_AUTHORITY = "downloads"
     }
 }

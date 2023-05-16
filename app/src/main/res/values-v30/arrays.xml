@@ -16,9 +16,10 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <array name="recommend_package">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <array name="recommend_package" tools:ignore="InconsistentArrays">
         <item>com.android.providers.media.module</item>
         <item>com.android.providers.downloads</item>
+        <item>com.google.android.providers.media.module</item><!-- StagOS 13.1 -->
     </array>
 </resources>

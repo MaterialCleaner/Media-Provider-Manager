@@ -44,7 +44,7 @@ open class FilesFragment : MediaStoreFragment() {
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setPopupStyle(PopupStyle.MD3)
-            .setViewHelper(PreciseRecyclerViewHelper(list))
+            .setViewHelper(PreciseRecyclerViewHelper(list, measureAllItemsOnStart = false))
             .build()
         list.fitsSystemWindowInsets(fastScroller)
 
@@ -95,8 +95,10 @@ open class FilesFragment : MediaStoreFragment() {
         when (RootPreferences.sortMediaBy) {
             RootPreferences.SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
+
             RootPreferences.SORT_BY_DATE_TAKEN ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
+
             RootPreferences.SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_size).isChecked = true
         }
@@ -111,14 +113,17 @@ open class FilesFragment : MediaStoreFragment() {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_PATH
             }
+
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_DATE_TAKEN
             }
+
             R.id.menu_sort_by_size -> {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_SIZE
             }
+
             R.id.menu_validation -> viewModel.rescanFiles()
             else -> return super.onOptionsItemSelected(item)
         }
