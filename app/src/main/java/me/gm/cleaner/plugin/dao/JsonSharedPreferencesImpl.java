@@ -55,7 +55,6 @@ public class JsonSharedPreferencesImpl implements SharedPreferences {
         if (TextUtils.isEmpty(json)) {
             mStore = new JSONObject();
         } else {
-            assert json != null;
             mStore = new JSONObject(json);
         }
     }
