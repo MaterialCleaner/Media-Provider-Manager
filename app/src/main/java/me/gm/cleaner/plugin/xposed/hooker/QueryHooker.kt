@@ -61,19 +61,22 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         val query = Bundle(queryArgs)
         query.remove(INCLUDED_DEFAULT_DIRECTORIES)
         val honoredArgs = ArraySet<String>()
-        val databaseUtilsClass = XposedHelpers.findClass(
-            "com.android.providers.media.util.DatabaseUtils", service.classLoader
-        )
-        XposedHelpers.callStaticMethod(
-            databaseUtilsClass, "resolveQueryArgs", query, object : Consumer<String> {
-                override fun accept(t: String) {
-                    honoredArgs.add(t)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val databaseUtilsClass = XposedHelpers.findClass(
+                "com.android.providers.media.util.DatabaseUtils", service.classLoader
+            )
+            XposedHelpers.callStaticMethod(
+                databaseUtilsClass, "resolveQueryArgs", query, object : Consumer<String> {
+                    override fun accept(t: String) {
+                        honoredArgs.add(t)
+                    }
+                }, object : Function<String, String> {
+                    override fun apply(t: String) = XposedHelpers.callMethod(
+                        param.thisObject, "ensureCustomCollator", t
+                    ) as String
                 }
-            }, object : Function<String, String> {
-                override fun apply(t: String) =
-                    XposedHelpers.callMethod(param.thisObject, "ensureCustomCollator", t) as String
-            }
-        )
+            )
+        }
         if (isClientQuery(param.callingPackage, uri)) {
             param.result = handleClientQuery(projection, query)
             return
@@ -94,9 +97,11 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                     }
                 }
             )
+
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                 param.thisObject, "getQueryBuilder", TYPE_QUERY, uri, table, query
             )
+
             else -> throw UnsupportedOperationException()
         }
 
@@ -105,6 +110,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
                     qb, "query", helper, dataProjection, query, signal
                 )
+
                 Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
                     val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
                     val selectionArgs =
@@ -130,6 +136,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                         signal
                     )
                 }
+
                 else -> throw UnsupportedOperationException()
             } as Cursor
         } catch (e: XposedHelpers.InvocationTargetError) {

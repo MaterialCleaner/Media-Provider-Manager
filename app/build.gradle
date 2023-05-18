@@ -19,7 +19,7 @@ android {
         minSdk 29
         targetSdk sdk
         versionCode gitCommitCount
-        versionName 'beta5'
+        versionName 'beta6'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
         resConfigs 'en', 'zh-rCN', 'zh-rTW'
