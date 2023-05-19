@@ -54,11 +54,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
         XposedBridge.hookAllMethods(
             mediaProvider, "deleteInternal", DeleteHooker(this@XposedInit)
         )
-        try {
-            System.loadLibrary("plugin")
-        } catch (e: Throwable) {
-            XposedBridge.log(e)
-        }
     }
 
     @Throws(Throwable::class)
@@ -71,6 +66,11 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
     override fun handleLoadPackage(lpparam: LoadPackageParam) {
         if (lpparam.appInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
             return
+        }
+        try {
+            System.loadLibrary("plugin")
+        } catch (e: Throwable) {
+            XposedBridge.log(e)
         }
         XposedHelpers.findAndHookMethod(
             ContentProvider::class.java, "attachInfo",
