@@ -50,11 +50,10 @@ abstract class ManagerService : IManagerService.Stub() {
         this.context = context
         database = Room
             .databaseBuilder(
-                context.applicationContext,
+                context,
                 MediaProviderRecordDatabase::class.java,
                 MEDIA_PROVIDER_USAGE_RECORD_DATABASE_NAME
             )
-            .enableMultiInstanceInvalidation()
             .addMigrations(MIGRATION_1_2)
             .build()
         dao = database.mediaProviderRecordDao()
