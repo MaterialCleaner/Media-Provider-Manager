@@ -218,10 +218,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
                         R.id.menu_delete -> when {
                             medias.size == 1 -> viewModel.deleteMedia(medias.first())
-                            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
+
+                            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog
                                 // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
-                                getString(R.string.unsupported_delete_in_bulk)
-                            ).show(childFragmentManager, null)
+                                .newInstance(getString(R.string.unsupported_delete_in_bulk))
+                                .show(childFragmentManager, null)
 
                             else -> viewModel.deleteMedias(medias.toTypedArray())
                         }

@@ -20,7 +20,12 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
@@ -39,7 +44,6 @@ import com.google.android.material.transition.platform.MaterialContainerTransfor
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
-import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.colorSurface
@@ -187,7 +191,8 @@ class ImagePagerFragment : BaseFragment() {
         R.id.menu_info -> {
             lifecycleScope.launch {
                 val result = viewModel.queryImageInfoAsync(args.uris[viewPager.currentItem]).await()
-                InfoDialog.newInstance(result.getOrElse { it.stackTraceToString() })
+                TextSelectableInfoDialog
+                    .newInstance(result.getOrElse { it.stackTraceToString() })
                     .show(childFragmentManager, null)
             }
             true
@@ -198,7 +203,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if ( findNavController().currentDestination?.id == R.id.image_pager_fragment) {
+        if (findNavController().currentDestination?.id == R.id.image_pager_fragment) {
             // Restore AppBar state.
             viewModel.isFirstEntrance = true
         }

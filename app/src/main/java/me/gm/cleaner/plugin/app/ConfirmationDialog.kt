@@ -16,8 +16,8 @@
 
 package me.gm.cleaner.plugin.app
 
-import android.app.Dialog
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -26,7 +26,7 @@ import java.util.function.Consumer
 
 class ConfirmationDialog : AppCompatDialogFragment() {
     private val viewModel: ConfirmationViewModel by viewModels()
-    private val pendingViewModelActions = mutableListOf<Runnable>()
+    private val pendingViewModelActions: MutableList<Runnable> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +39,7 @@ class ConfirmationDialog : AppCompatDialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog =
         MaterialAlertDialogBuilder(requireContext(), theme)
             .setMessage(requireArguments().getCharSequence(KEY_MESSAGE))
             .setPositiveButton(android.R.string.ok) { _, _ ->
