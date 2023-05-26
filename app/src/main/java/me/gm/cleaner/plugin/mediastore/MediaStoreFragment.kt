@@ -16,7 +16,6 @@
 
 package me.gm.cleaner.plugin.mediastore
 
-import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -57,10 +56,13 @@ import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import rikka.recyclerview.fixEdgeEffect
 
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
-    abstract val viewModel: MediaStoreViewModel<*>
+    protected abstract val viewModel: MediaStoreViewModel<*>
+    protected abstract val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment>
     protected lateinit var list: RecyclerView
     protected lateinit var selectionTracker: SelectionTracker<Long>
-    private val detector by lazy { SelectionDetector(requireContext(), LongPressingListener()) }
+    private val detector: SelectionDetector by lazy {
+        SelectionDetector(requireContext(), LongPressingListener())
+    }
     private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -129,6 +131,15 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
             }
         }
+        viewModel.isPermissionsGrantedLiveData.observe(viewLifecycleOwner) { isPermissionsGranted ->
+            if (!isPermissionsGranted) {
+                PermissionUtils.requestPermissions(
+                    childFragmentManager, requesterFragmentClass.newInstance()
+                )
+            } else {
+                viewModel.loadMedias()
+            }
+        }
         viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
             intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
@@ -144,9 +155,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             RootPreferences.PreferencesChangeListener {
             override val lifecycle = this@MediaStoreFragment.lifecycle
             override fun onPreferencesChanged() {
-                PermissionUtils.requestPermissions(
-                    childFragmentManager, MediaPermissionRequesterFragment()
-                )
+                viewModel.isPermissionsGranted = false
             }
         })
         return binding.root
@@ -183,6 +192,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                     medias.all { MimeUtils.isVideoMimeType((it as MediaStoreFiles).mimeType) } -> "video/*"
                                     else -> "*/*"
                                 }
+
                                 else -> throw UnsupportedOperationException()
                             }
                             val sendIntent = if (medias.size == 1) {
@@ -205,14 +215,17 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                     .show()
                             }
                         }
+
                         R.id.menu_delete -> when {
                             medias.size == 1 -> viewModel.deleteMedia(medias.first())
                             Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog.newInstance(
                                 // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
                                 getString(R.string.unsupported_delete_in_bulk)
                             ).show(childFragmentManager, null)
+
                             else -> viewModel.deleteMedias(medias.toTypedArray())
                         }
+
                         else -> return false
                     }
                     return true
@@ -250,26 +263,22 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
     }
 
-    override fun isInActionMode() = actionMode != null
+    override fun isInActionMode(): Boolean = actionMode != null
 
-    class MediaPermissionRequesterFragment : RequesterFragment() {
-        private val viewModel by lazy { (parentFragment as MediaStoreFragment).viewModel }
-
-        override val requiredPermissions =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-                )
-            } else {
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
+    abstract class MediaPermissionsRequesterFragment : RequesterFragment() {
+        private val parentFragment: MediaStoreFragment by lazy {
+            requireParentFragment() as MediaStoreFragment
+        }
+        private val viewModel: MediaStoreViewModel<*> by lazy {
+            parentFragment.viewModel
+        }
 
         override fun onRequestPermissionsSuccess(
             permissions: Set<String>, savedInstanceState: Bundle?
         ) {
-            savedInstanceState ?: viewModel.loadMedias()
+            if (savedInstanceState == null) {
+                viewModel.isPermissionsGranted = true
+            }
         }
 
         override fun dispatchRequestPermissions(
@@ -334,19 +343,19 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         menu.findItem(R.id.menu_show_all).isChecked = RootPreferences.isShowAllMediaFiles
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.menu_refresh -> {
-            PermissionUtils.requestPermissions(
-                childFragmentManager, MediaPermissionRequesterFragment()
-            )
+            viewModel.isPermissionsGranted = false
             true
         }
+
         R.id.menu_show_all -> {
             val isShowAllMediaFiles = !item.isChecked
             item.isChecked = isShowAllMediaFiles
             RootPreferences.isShowAllMediaFiles = isShowAllMediaFiles
             true
         }
+
         else -> super.onOptionsItemSelected(item)
     }
 

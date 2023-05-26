@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.mediastore.files
 
+import android.Manifest
+import android.os.Build
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -26,7 +28,6 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
-import me.gm.cleaner.plugin.ktx.PermissionUtils
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
@@ -36,8 +37,10 @@ import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 
 open class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
+    override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
+        FilesPermissionsRequesterFragment::class.java
 
-    override fun onCreateAdapter() = FilesAdapter(this)
+    override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this)
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
@@ -48,13 +51,24 @@ open class FilesFragment : MediaStoreFragment() {
             .build()
         list.fitsSystemWindowInsets(fastScroller)
 
-        viewModel.requeryFlow.asLiveData().observe(viewLifecycleOwner) {
-            if (!isInActionMode()) {
-                PermissionUtils.requestPermissions(
-                    childFragmentManager, MediaPermissionRequesterFragment()
-                )
+        viewModel.queryFlow.asLiveData().observe(viewLifecycleOwner) {
+            if (!isInActionMode() && viewModel.isPermissionsGranted) {
+                viewModel.isPermissionsGranted = true
             }
         }
+    }
+
+    class FilesPermissionsRequesterFragment : MediaPermissionsRequesterFragment() {
+        override val requiredPermissions: Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

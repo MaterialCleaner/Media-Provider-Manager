@@ -27,6 +27,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
@@ -38,19 +39,20 @@ import me.gm.cleaner.plugin.xposed.util.MimeUtils
 open class FilesViewModel(application: Application) :
     MediaStoreViewModel<MediaStoreFiles>(application) {
     override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
-    private val _isSearchingFlow = MutableStateFlow(false)
+
+    private val _isSearchingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearchingFlow.value
         set(value) {
             _isSearchingFlow.value = value
         }
-    private val _queryTextFlow = MutableStateFlow("")
+    private val _queryTextFlow: MutableStateFlow<String> = MutableStateFlow("")
     var queryText: String
         get() = _queryTextFlow.value
         set(value) {
             _queryTextFlow.value = value
         }
-    val requeryFlow = combine(_isSearchingFlow, _queryTextFlow) { isSearching, _ ->
+    val queryFlow: Flow<Unit> = combine(_isSearchingFlow, _queryTextFlow) { isSearching, _ ->
         if (isSearching) delay(500L)
     }
 

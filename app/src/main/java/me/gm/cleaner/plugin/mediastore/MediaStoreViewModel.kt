@@ -34,6 +34,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,17 +43,24 @@ import java.util.concurrent.TimeUnit
 
 abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application) :
     AndroidViewModel(application) {
-    abstract val uri: Uri
+    protected abstract val uri: Uri
+    private val _isPermissionsGrantedLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isPermissionsGrantedLiveData: LiveData<Boolean> = _isPermissionsGrantedLiveData
+    var isPermissionsGranted: Boolean
+        get() = _isPermissionsGrantedLiveData.value!!
+        set(value) {
+            _isPermissionsGrantedLiveData.postValue(value)
+        }
 
-    private val _mediasFlow = MutableStateFlow<List<M>>(emptyList())
-    val mediasFlow = _mediasFlow.asStateFlow()
+    private val _mediasFlow: MutableStateFlow<List<M>> = MutableStateFlow(emptyList())
+    val mediasFlow: StateFlow<List<M>> = _mediasFlow.asStateFlow()
     val medias: List<M>
         get() = _mediasFlow.value
 
     private var contentObserver: ContentObserver? = null
 
     private var pendingDeleteMedia: MediaStoreModel? = null
-    private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
+    private val _permissionNeededForDelete: MutableLiveData<IntentSender?> = MutableLiveData()
     internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
     /**

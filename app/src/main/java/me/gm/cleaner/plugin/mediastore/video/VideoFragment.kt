@@ -16,11 +16,24 @@
 
 package me.gm.cleaner.plugin.mediastore.video
 
+import android.Manifest
+import android.os.Build
 import androidx.fragment.app.viewModels
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 
 class VideoFragment : FilesFragment() {
     override val viewModel: VideoViewModel by viewModels()
+    override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
+        FilesPermissionsRequesterFragment::class.java
 
-    override fun onCreateAdapter() = VideoAdapter(this)
+    override fun onCreateAdapter(): VideoAdapter = VideoAdapter(this)
+
+    class VideoPermissionsRequesterFragment : MediaPermissionsRequesterFragment() {
+        override val requiredPermissions: Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(Manifest.permission.READ_MEDIA_VIDEO)
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+    }
 }

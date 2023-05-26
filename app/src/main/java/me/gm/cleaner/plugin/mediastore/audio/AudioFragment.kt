@@ -16,11 +16,24 @@
 
 package me.gm.cleaner.plugin.mediastore.audio
 
+import android.Manifest
+import android.os.Build
 import androidx.fragment.app.viewModels
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 
 class AudioFragment : FilesFragment() {
     override val viewModel: AudioViewModel by viewModels()
+    override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
+        AudioPermissionsRequesterFragment::class.java
 
 //    override fun onCreateAdapter() = AudioAdapter(this)
+
+    class AudioPermissionsRequesterFragment : MediaPermissionsRequesterFragment() {
+        override val requiredPermissions: Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(Manifest.permission.READ_MEDIA_AUDIO)
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+    }
 }

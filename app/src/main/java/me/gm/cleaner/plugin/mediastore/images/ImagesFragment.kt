@@ -16,7 +16,8 @@
 
 package me.gm.cleaner.plugin.mediastore.images
 
-import android.os.Bundle
+import android.Manifest
+import android.os.Build
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -31,7 +32,6 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
-import me.gm.cleaner.plugin.ktx.PermissionUtils
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
@@ -44,7 +44,9 @@ import me.zhanghai.android.fastscroll.PopupStyle
 
 class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
-    var lastPosition = 0
+    override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
+        ImagesPermissionsRequesterFragment::class.java
+    var lastPosition: Int = 0
 
     override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
         ImagesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
@@ -68,13 +70,6 @@ class ImagesFragment : MediaStoreFragment() {
             postponeEnterTransition()
             scrollToPosition(list, lastPosition)
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        savedInstanceState ?: PermissionUtils.requestPermissions(
-            childFragmentManager, MediaPermissionRequesterFragment()
-        )
     }
 
     /**
@@ -120,6 +115,15 @@ class ImagesFragment : MediaStoreFragment() {
         }
     }
 
+    class ImagesPermissionsRequesterFragment : MediaPermissionsRequesterFragment() {
+        override val requiredPermissions: Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         if (selectionTracker.hasSelection()) {
@@ -130,6 +134,7 @@ class ImagesFragment : MediaStoreFragment() {
         when (RootPreferences.sortMediaBy) {
             RootPreferences.SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
+
             RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
         }
@@ -144,10 +149,12 @@ class ImagesFragment : MediaStoreFragment() {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_PATH
             }
+
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_DATE_TAKEN
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
         return true
