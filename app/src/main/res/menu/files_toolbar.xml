@@ -51,8 +51,4 @@
             </group>
         </menu>
     </item>
-    <item
-        android:id="@+id/menu_validation"
-        android:title="@string/validation"
-        app:showAsAction="never" />
 </menu>

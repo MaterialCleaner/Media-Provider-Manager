@@ -21,6 +21,7 @@ import android.app.Application
 import android.app.RecoverableSecurityException
 import android.content.IntentSender
 import android.database.ContentObserver
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -172,6 +173,11 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         SimpleDateFormat("dd.MM.yyyy").let { formatter ->
             TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
         }
+
+    fun rescanFiles() {
+        val paths = medias.map { it.data }.toTypedArray()
+        MediaScannerConnection.scanFile(getApplication(), paths, null, null)
+    }
 
     /**
      * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`

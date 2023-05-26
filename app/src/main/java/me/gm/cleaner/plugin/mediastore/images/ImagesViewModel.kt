@@ -59,9 +59,10 @@ class ImagesViewModel(application: Application) :
              * subset of columns.
              */
             val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.DATA,
+                MediaStore.MediaColumns.DATE_TAKEN,
             )
 
             /**
@@ -72,7 +73,7 @@ class ImagesViewModel(application: Application) :
              * Note that we've included a `?` in our selection. This stands in for a variable
              * which will be provided by the next variable.
              */
-            val selection = "${MediaStore.Images.Media.DATE_TAKEN} >= ?"
+            val selection = "${MediaStore.MediaColumns.DATE_TAKEN} >= ?"
 
             /**
              * The `selectionArgs` is a list of values that will be filled in for each `?`
@@ -87,10 +88,10 @@ class ImagesViewModel(application: Application) :
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
             val sortOrder = when (RootPreferences.sortMediaBy) {
-                RootPreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
-                        MediaStore.Files.FileColumns.DISPLAY_NAME
+                RootPreferences.SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
+                        MediaStore.MediaColumns.DISPLAY_NAME
 
-                RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE -> "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+                RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -119,11 +120,12 @@ class ImagesViewModel(application: Application) :
                  * In either case, while this method isn't slow, we'll want to cache the results
                  * to avoid having to look them up for each row.
                  */
-                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val displayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
                 val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_TAKEN)
 
                 Log.i(TAG, "Found ${cursor.count} images")
                 while (cursor.moveToNext()) {
@@ -131,6 +133,7 @@ class ImagesViewModel(application: Application) :
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
                     val displayName = cursor.getString(displayNameColumn)
+                    val data = cursor.getString(dataColumn)
                     val dateTaken = cursor.getLong(dateTakenColumn)
 
                     /**
@@ -150,7 +153,7 @@ class ImagesViewModel(application: Application) :
                         id
                     )
 
-                    val image = MediaStoreImage(id, contentUri, displayName, dateTaken)
+                    val image = MediaStoreImage(id, contentUri, displayName, data, dateTaken)
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.

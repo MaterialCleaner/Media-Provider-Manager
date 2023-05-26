@@ -62,26 +62,27 @@ open class FilesViewModel(application: Application) :
         withContext(Dispatchers.IO) {
 
             val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DATA,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                MediaStore.Files.FileColumns.MIME_TYPE,
-                MediaStore.Files.FileColumns.DATE_TAKEN,
-                MediaStore.Files.FileColumns.SIZE,
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DATA,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.RELATIVE_PATH,
+                MediaStore.MediaColumns.MIME_TYPE,
+                MediaStore.MediaColumns.DATE_TAKEN,
+                MediaStore.MediaColumns.SIZE,
             )
 
-            val selection = "${MediaStore.Files.FileColumns.DATE_TAKEN} >= ?"
+            val selection = "${MediaStore.MediaColumns.DATE_TAKEN} >= ?"
 
             val selectionArgs = arrayOf(
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
             val sortOrder = when (RootPreferences.sortMediaBy) {
-                RootPreferences.SORT_BY_PATH -> MediaStore.Files.FileColumns.RELATIVE_PATH + ", " +
-                        MediaStore.Files.FileColumns.DISPLAY_NAME
-                RootPreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.Files.FileColumns.DATE_TAKEN} DESC"
-                RootPreferences.SORT_BY_SIZE -> "${MediaStore.Files.FileColumns.SIZE} DESC"
+                RootPreferences.SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
+                        MediaStore.MediaColumns.DISPLAY_NAME
+
+                RootPreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
+                RootPreferences.SORT_BY_SIZE -> "${MediaStore.MediaColumns.SIZE} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -93,17 +94,16 @@ open class FilesViewModel(application: Application) :
                 sortOrder
             )?.use { cursor ->
 
-                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val displayNameColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
                 val relativePathColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.RELATIVE_PATH)
-                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                val mimeTypeColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE)
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
                 val dateTakenColumn =
-                    cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_TAKEN)
-                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_TAKEN)
+                val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
 
                 Log.i(TAG, "Found ${cursor.count} files")
                 while (cursor.moveToNext()) {
@@ -165,10 +165,5 @@ open class FilesViewModel(application: Application) :
         )
 
         super.deleteMedias(partition.second.toTypedArray())
-    }
-
-    fun rescanFiles() {
-        val paths = medias.map { it.data }.toTypedArray()
-        MediaScannerConnection.scanFile(getApplication(), paths, null, null)
     }
 }

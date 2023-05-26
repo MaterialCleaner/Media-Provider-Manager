@@ -137,8 +137,6 @@ open class FilesFragment : MediaStoreFragment() {
                 item.isChecked = true
                 RootPreferences.sortMediaBy = RootPreferences.SORT_BY_SIZE
             }
-
-            R.id.menu_validation -> viewModel.rescanFiles()
             else -> return super.onOptionsItemSelected(item)
         }
         return true

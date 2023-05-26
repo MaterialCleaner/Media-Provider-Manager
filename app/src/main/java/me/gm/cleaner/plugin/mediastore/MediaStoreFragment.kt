@@ -349,6 +349,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             true
         }
 
+        R.id.menu_validation -> {
+            viewModel.rescanFiles()
+            true
+        }
+
         R.id.menu_show_all -> {
             val isShowAllMediaFiles = !item.isChecked
             item.isChecked = isShowAllMediaFiles

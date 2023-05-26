@@ -23,11 +23,12 @@ abstract class MediaStoreModel(
     open val id: Long,
     open val contentUri: Uri,
     open val displayName: String,
+    open val data: String,
 ) {
     companion object {
         fun <M : MediaStoreModel> createCallback() = object : DiffUtil.ItemCallback<M>() {
-            override fun areItemsTheSame(oldItem: M, newItem: M) = oldItem.id == newItem.id
-            override fun areContentsTheSame(oldItem: M, newItem: M) = oldItem == newItem
+            override fun areItemsTheSame(oldItem: M, newItem: M): Boolean = oldItem.id == newItem.id
+            override fun areContentsTheSame(oldItem: M, newItem: M): Boolean = oldItem == newItem
         }
     }
 }

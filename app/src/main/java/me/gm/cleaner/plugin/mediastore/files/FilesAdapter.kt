@@ -52,6 +52,7 @@ open class FilesAdapter(private val fragment: Fragment) :
         R.layout.files_header -> HeaderViewHolder(
             FilesHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
+
         R.layout.files_item -> ItemViewHolder(FilesItemBinding.inflate(LayoutInflater.from(parent.context)))
         else -> throw IndexOutOfBoundsException()
     }
@@ -64,6 +65,7 @@ open class FilesAdapter(private val fragment: Fragment) :
                 val item = getItem(position) as MediaStoreFilesHeader
                 binding.title.text = item.displayName
             }
+
             is ItemViewHolder -> {
                 val binding = holder.binding
                 val item = getItem(position) as MediaStoreFiles
@@ -142,11 +144,10 @@ open class FilesAdapter(private val fragment: Fragment) :
         }
     }
 
-    class HeaderViewHolder(val binding: FilesHeaderBinding) :
-        MediaStoreAdapter.ViewHolder(binding.root)
+    class HeaderViewHolder(val binding: FilesHeaderBinding) : ViewHolder(binding.root)
 
-    class ItemViewHolder(val binding: FilesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
+    class ItemViewHolder(val binding: FilesItemBinding) : ViewHolder(binding.root)
 }
 
 class MediaStoreFilesHeader(override val displayName: String) :
-    MediaStoreModel(displayName.hashCode().toLong(), Uri.EMPTY, displayName)
+    MediaStoreModel(displayName.hashCode().toLong(), Uri.EMPTY, displayName, displayName)
