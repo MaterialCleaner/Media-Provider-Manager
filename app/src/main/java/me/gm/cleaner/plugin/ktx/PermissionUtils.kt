@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commitNow
 import me.gm.cleaner.plugin.app.BaseFragment
 
 object PermissionUtils {
@@ -18,22 +19,14 @@ object PermissionUtils {
     fun requestPermissions(
         fragmentManager: FragmentManager, requesterFragment: RequesterFragment
     ) {
-        findOrAddRequesterFragment(fragmentManager, requesterFragment)
-            .dispatchRequestPermissions(requesterFragment.requiredPermissions, null)
-    }
-
-    fun findOrAddRequesterFragment(
-        fragmentManager: FragmentManager, requesterFragment: RequesterFragment
-    ): RequesterFragment {
-        val existedFragment = fragmentManager.findFragmentByTag(TAG)
-        return if (existedFragment != null) {
-            existedFragment as RequesterFragment
-        } else {
-            fragmentManager.beginTransaction()
-                .add(requesterFragment, TAG)
-                .commitNow()
-            requesterFragment
+        fragmentManager.commitNow {
+            val existingFragment = fragmentManager.findFragmentByTag(TAG)
+            if (existingFragment != null) {
+                remove(existingFragment)
+            }
+            add(requesterFragment, TAG)
         }
+        requesterFragment.dispatchRequestPermissions(requesterFragment.requiredPermissions, null)
     }
 
     fun startDetailsSettings(context: Context) {
