@@ -17,18 +17,27 @@
 package me.gm.cleaner.plugin.module.appmanagement
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
-import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.submitListKeepPosition
 import me.gm.cleaner.plugin.module.ModuleFragment
 import me.gm.cleaner.plugin.widget.FixQueryChangeSearchView
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
@@ -55,7 +64,7 @@ class AppListFragment : ModuleFragment() {
         val list = binding.list
         liftOnScrollTargetView = list
         list.adapter = adapter
-        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()

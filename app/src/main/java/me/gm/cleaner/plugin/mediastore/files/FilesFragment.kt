@@ -24,10 +24,10 @@ import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
+import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
-import me.gm.cleaner.plugin.ktx.LayoutCompleteAwareGridLayoutManager
 import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
@@ -43,7 +43,7 @@ open class FilesFragment : MediaStoreFragment() {
     override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this)
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
-        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setPopupStyle(PopupStyle.MD3)

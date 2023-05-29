@@ -19,11 +19,17 @@ package me.gm.cleaner.plugin.module.usagerecord
 import android.icu.text.DateFormat
 import android.icu.util.TimeZone
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
@@ -31,12 +37,16 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
-import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.module.ModuleFragment
 import me.gm.cleaner.plugin.widget.FixQueryChangeSearchView
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class UsageRecordFragment : ModuleFragment() {
     private val viewModel: UsageRecordViewModel by viewModels()
@@ -60,7 +70,7 @@ class UsageRecordFragment : ModuleFragment() {
         val list = binding.list
         liftOnScrollTargetView = list
         list.adapter = adapter
-        list.layoutManager = LayoutCompleteAwareGridLayoutManager(requireContext(), 1)
+        list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()

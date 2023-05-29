@@ -16,16 +16,17 @@
 
 package me.gm.cleaner.plugin.ktx
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.forEach
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import me.zhanghai.android.fastscroll.FastScroller
-import java.util.function.Consumer
 
 private val rect = Rect()
 
@@ -175,39 +176,6 @@ fun RecyclerView.isItemCompletelyInvisible(position: Int): Boolean {
     val layoutManager = layoutManager!!
     return !layoutManager.isViewPartiallyVisible(vh.itemView, true, true) &&
             !layoutManager.isViewPartiallyVisible(vh.itemView, false, false)
-}
-
-/**
- * A [GridLayoutManager] used to listen to layout completed event, which is helpful to know when
- * [RecyclerView.LayoutManager.scrollToPosition] or [LinearLayoutManager.scrollToPositionWithOffset] is called.
- */
-class LayoutCompleteAwareGridLayoutManager @JvmOverloads constructor(
-    context: Context, spanCount: Int,
-    @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
-    reverseLayout: Boolean = false
-) : ProgressionGridLayoutManager(context, spanCount, orientation, reverseLayout) {
-    // Create anyway because this is the only feature of LayoutCompleteAwareGridLayoutManager.
-    private val onLayoutCompletedListeners = mutableListOf<Consumer<RecyclerView.State>>()
-
-    fun addOnLayoutCompletedListener(l: Consumer<RecyclerView.State>): LayoutCompleteAwareGridLayoutManager {
-        onLayoutCompletedListeners.add(l)
-        return this
-    }
-
-    fun removeOnLayoutCompletedListener(l: Consumer<RecyclerView.State>) {
-        onLayoutCompletedListeners.remove(l)
-    }
-
-    fun clearOnLayoutCompletedListeners() {
-        onLayoutCompletedListeners.clear()
-    }
-
-    override fun onLayoutCompleted(state: RecyclerView.State) {
-        super.onLayoutCompleted(state)
-        onLayoutCompletedListeners.asReversed().forEach {
-            it.accept(state)
-        }
-    }
 }
 
 fun View.fitsSystemWindowInsets(fastScroller: FastScroller? = null) {
