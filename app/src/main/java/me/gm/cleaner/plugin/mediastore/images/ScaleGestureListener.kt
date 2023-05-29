@@ -23,7 +23,6 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.core.animation.doOnEnd
 import androidx.core.math.MathUtils.clamp
-import androidx.recyclerview.widget.ProgressionGridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.animation.AnimationUtils
 import me.gm.cleaner.plugin.dao.RootPreferences
@@ -36,31 +35,37 @@ class ScaleGestureListener(
     private var scaleEndAnimator: ValueAnimator? = null
     private val gestureDetector =
         ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            var prevSpanCount = layoutManager.spanCount
+            private var prevSpanCount = layoutManager.spanCount
+            private var isNewSpanCountSet = false
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 val scaleFactor = detector.scaleFactor
 
-                layoutManager.spanCount = when {
-                    scaleFactor > 1F -> {
-                        // zoom in
-                        if (prevSpanCount - spanCountInterval < minSpanCount ||
-                            layoutManager.spanCount == minSpanCount && layoutManager.progress == 1F
-                        ) {
-                            return true
+                if (!isNewSpanCountSet) {
+                    layoutManager.spanCount = when {
+                        scaleFactor > 1F -> {
+                            // zoom in
+                            if (prevSpanCount - spanCountInterval < minSpanCount ||
+                                layoutManager.spanCount == minSpanCount && layoutManager.progress == 1F
+                            ) {
+                                return true
+                            }
+                            prevSpanCount - spanCountInterval
                         }
-                        prevSpanCount - spanCountInterval
-                    }
-                    scaleFactor < 1F -> {
-                        // zoom out
-                        if (prevSpanCount + spanCountInterval > maxSpanCount ||
-                            layoutManager.spanCount == maxSpanCount && layoutManager.progress == 1F
-                        ) {
-                            return true
+
+                        scaleFactor < 1F -> {
+                            // zoom out
+                            if (prevSpanCount + spanCountInterval > maxSpanCount ||
+                                layoutManager.spanCount == maxSpanCount && layoutManager.progress == 1F
+                            ) {
+                                return true
+                            }
+                            prevSpanCount + spanCountInterval
                         }
-                        prevSpanCount + spanCountInterval
+
+                        else -> return false
                     }
-                    else -> return false
+                    isNewSpanCountSet = true
                 }
 
                 val rawProgress = when {
@@ -73,21 +78,17 @@ class ScaleGestureListener(
             }
 
             override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                if (scaleEndAnimator?.isRunning == true) {
+                    return false
+                }
                 prevSpanCount = layoutManager.spanCount
+                isNewSpanCountSet = false
                 return true
             }
 
             override fun onScaleEnd(detector: ScaleGestureDetector) {
-                val progress = layoutManager.progress
-                val moveToSpan = progress >= 0.4F
-                // use animator to animate progress to 1F
-                animateProgress(progress, if (moveToSpan) 1F else 0F) {
-                    if (moveToSpan) {
-                        RootPreferences.spanCount = layoutManager.spanCount
-                    } else {
-                        layoutManager.spanCount = prevSpanCount
-                        layoutManager.progress = 1F
-                    }
+                animateProgress(layoutManager.progress, 1F) {
+                    RootPreferences.spanCount = layoutManager.spanCount
                 }
             }
         })

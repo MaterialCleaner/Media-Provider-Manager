@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.recyclerview.widget;
+package me.gm.cleaner.plugin.mediastore.images;
 
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Rect;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -28,6 +27,10 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.function.Consumer;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementation that lays out items in a grid,
@@ -57,20 +60,39 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         super(context, spanCount, orientation, reverseLayout);
     }
 
-    void layoutInfoSnapshot(SparseArray<Rect> layoutInfo) {
+    private static class VisibleChild {
+        final int index;
+        final View child;
+
+        private VisibleChild(int index, View child) {
+            this.index = index;
+            this.child = child;
+        }
+    }
+
+    private void forEachIndexed(Consumer<VisibleChild> action) {
         final int fromIndex = findFirstVisibleItemPosition();
         if (fromIndex == RecyclerView.NO_POSITION) {
             return;
         }
         final int toIndex = findLastVisibleItemPosition();
-        layoutInfo.clear();
         for (int i = fromIndex; i <= toIndex; i++) {
             final View child = findViewByPosition(i);
             assert child != null;
+            action.accept(new VisibleChild(i, child));
+        }
+    }
+
+    void layoutInfoSnapshot(SparseArray<Rect> layoutInfo) {
+        layoutInfo.clear();
+        forEachIndexed(visibleChild -> {
+            final int i = visibleChild.index;
+            final View child = visibleChild.child;
+
             final Rect rect = new Rect();
             child.getHitRect(rect);
             layoutInfo.put(i, rect);
-        }
+        });
     }
 
     @Override
@@ -81,6 +103,7 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         if (mLastLayoutInfo == mCurLayoutInfo || mLastSpanCount == DEFAULT_SPAN_COUNT) {
             mCurLayoutInfo = new SparseArray<>();
             layoutInfoSnapshot(mCurLayoutInfo);
+            setProgress(0F);
         }
     }
 
@@ -112,10 +135,12 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         if (spanCount == getSpanCount()) {
             return;
         }
-        Log.d(TAG, "setSpanCount: " + spanCount);
+        if (getProgress() != 1F && getSpanCount() != DEFAULT_SPAN_COUNT) {
+            throw new IllegalStateException(
+                    "Must finish the previous animation first before setting a new span count");
+        }
         mLastSpanCount = getSpanCount();
         mLastLayoutInfo = mCurLayoutInfo;
-        mProgress = 0F;
         super.setSpanCount(spanCount);
     }
 
@@ -127,24 +152,28 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         if (progress == mProgress) {
             return;
         }
+        if (mLastSpanCount == DEFAULT_SPAN_COUNT) {
+            // Cached LayoutInfo is not yet ready on the initial layout.
+            return;
+        }
         mProgress = progress;
 
-        final int fromIndex = findFirstVisibleItemPosition();
-        final int toIndex = findLastVisibleItemPosition();
-        for (int i = fromIndex; i <= toIndex; i++) {
+        forEachIndexed(visibleChild -> {
+            final int i = visibleChild.index;
+            final View child = visibleChild.child;
+
             final Rect last = mLastLayoutInfo.get(i);
             if (last != null) {
-                final View child = findViewByPosition(i);
-                assert child != null;
                 final Rect cur = mCurLayoutInfo.get(i);
                 assert cur != null;
                 mockLayout(child, cur.left, cur.top, cur.right, cur.bottom,
                         last.left, last.top, last.right, last.bottom
                 );
             } else {
-                // TODO: 2023/5/30 alpha
+                final float interpolatedProgress = getInterpolatedProgress();
+                child.setAlpha(interpolatedProgress);
             }
-        }
+        });
     }
 
     public TimeInterpolator getInterpolator() {
