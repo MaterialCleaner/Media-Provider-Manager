@@ -107,6 +107,12 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         }
     }
 
+    @Override
+    public boolean canScrollVertically() {
+        // TODO: how to disable FastScroller elegantly?
+        return getProgress() == 1F && super.canScrollVertically();
+    }
+
     private float getInterpolatedProgress() {
         return mInterpolator.getInterpolation(mProgress);
     }
