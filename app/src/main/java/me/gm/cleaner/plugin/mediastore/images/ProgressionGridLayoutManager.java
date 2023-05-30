@@ -42,7 +42,8 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
     private static final String TAG = "ProgressionGridLayoutManager";
 
     int mLastSpanCount;
-    SparseArray<Rect> mLastLayoutInfo;
+    boolean mLayoutInfoStale = false;
+    SparseArray<Rect> mLastLayoutInfo = new SparseArray<>();
     SparseArray<Rect> mCurLayoutInfo = new SparseArray<>();
 
     @FloatRange(from = 0F, to = 1F)
@@ -96,14 +97,26 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
     }
 
     @Override
+    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        // Note that this method is not just called when spanCount change.
+        // We shall check the state carefully.
+        if (mLayoutInfoStale) {
+            layoutInfoSnapshot(mLastLayoutInfo);
+        }
+        super.onLayoutChildren(recycler, state);
+    }
+
+    @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         // Note that this method is not just called when spanCount change.
         // We shall check the state carefully.
-        if (mLastLayoutInfo == mCurLayoutInfo || mLastSpanCount == DEFAULT_SPAN_COUNT) {
-            mCurLayoutInfo = new SparseArray<>();
+        if (mLayoutInfoStale) {
             layoutInfoSnapshot(mCurLayoutInfo);
-            setProgress(0F);
+            mLayoutInfoStale = false;
+            if (mLastSpanCount != DEFAULT_SPAN_COUNT) {
+                setProgress(0F);
+            }
         }
     }
 
@@ -114,7 +127,7 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
     }
 
     private float getInterpolatedProgress() {
-        return mInterpolator.getInterpolation(mProgress);
+        return mInterpolator.getInterpolation(getProgress());
     }
 
     void mockLayout(@NonNull View child, int left, int top, int right, int bottom,
@@ -142,11 +155,12 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
             return;
         }
         if (getProgress() != 1F && getSpanCount() != DEFAULT_SPAN_COUNT) {
+            // ensure not called by the constructor
             throw new IllegalStateException(
                     "Must finish the previous animation first before setting a new span count");
         }
         mLastSpanCount = getSpanCount();
-        mLastLayoutInfo = mCurLayoutInfo;
+        mLayoutInfoStale = true;
         super.setSpanCount(spanCount);
     }
 
@@ -158,8 +172,7 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         if (progress == mProgress) {
             return;
         }
-        if (mLastSpanCount == DEFAULT_SPAN_COUNT) {
-            // Cached LayoutInfo is not yet ready on the initial layout.
+        if (mLayoutInfoStale) {
             return;
         }
         mProgress = progress;
