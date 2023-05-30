@@ -157,6 +157,7 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
             return;
         }
         mProgress = progress;
+        final boolean setAlphaNeeded = mLastSpanCount < getSpanCount();
 
         forEachIndexed(visibleChild -> {
             final int i = visibleChild.index;
@@ -169,7 +170,7 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
                 mockLayout(child, cur.left, cur.top, cur.right, cur.bottom,
                         last.left, last.top, last.right, last.bottom
                 );
-            } else {
+            } else if (setAlphaNeeded) {
                 final float interpolatedProgress = getInterpolatedProgress();
                 child.setAlpha(interpolatedProgress);
             }
