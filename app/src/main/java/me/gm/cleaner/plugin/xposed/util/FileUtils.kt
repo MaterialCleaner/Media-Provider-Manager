@@ -24,12 +24,9 @@ object FileUtils {
     fun contains(parent: File, child: File): Boolean = contains(parent.path, child.path)
     fun contains(parent: String, child: File): Boolean = contains(parent, child.path)
     fun contains(parent: File, child: String): Boolean = contains(parent.path, child)
-    fun contains(parent: String, child: String): Boolean {
-        val lowerParent = parent.lowercase()
-        val lowerChild = child.lowercase()
-        return lowerChild == lowerParent || lowerParent == File.separator ||
-                lowerChild.startsWith(lowerParent + File.separator)
-    }
+    fun contains(parent: String, child: String): Boolean =
+        child.equals(parent, true) || parent.equals(File.separator, true) ||
+                child.startsWith(parent + File.separator, true)
 
     val externalStorageDirPath: String = Environment.getExternalStorageDirectory().path
     val androidDir = File(externalStorageDirPath, "Android")
