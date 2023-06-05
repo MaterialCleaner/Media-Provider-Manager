@@ -42,9 +42,9 @@ abstract class BaseFragment : Fragment() {
     }
 
     // @see https://developer.android.com/training/system-ui/immersive#EnableFullscreen
-    fun toggleAppBar(isShow: Boolean) {
+    fun toggleAppBar(show: Boolean) {
         val decorView = requireActivity().window.decorView
-        if (isShow) {
+        if (show) {
             supportActionBar?.show()
             // Shows the system bars by removing all the flags
             // except for the ones that make the content appear under the system bars.

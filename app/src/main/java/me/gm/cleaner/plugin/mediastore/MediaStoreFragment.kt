@@ -153,7 +153,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
         RootPreferences.addOnPreferenceChangeListener(object :
             RootPreferences.PreferencesChangeListener {
-            override val lifecycle = this@MediaStoreFragment.lifecycle
+            override val lifecycle = viewLifecycleOwner.lifecycle
             override fun onPreferencesChanged() {
                 viewModel.isPermissionsGranted = false
             }
