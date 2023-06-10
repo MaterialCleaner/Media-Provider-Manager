@@ -166,9 +166,11 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             c.close()
         } else {
             c.moveToFirst()
-            val filter = shouldIntercept.mapIndexedNotNull { index, b ->
-                if (!b) index else null
-            }.toIntArray()
+            val filter = shouldIntercept
+                .mapIndexedNotNull { index, b ->
+                    if (!b) index else null
+                }
+                .toIntArray()
             param.result = FilteredCursor.createUsingFilter(c, filter)
         }
 
