@@ -55,10 +55,9 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                         }
                     }
                     if (isSearching) {
-                        val lowerQuery = queryText.lowercase()
                         sequence = sequence.filter {
-                            it.label.lowercase().contains(lowerQuery) ||
-                                    it.packageInfo.packageName.lowercase().contains(lowerQuery)
+                            it.label.contains(queryText, true) ||
+                                    it.packageInfo.packageName.contains(queryText, true)
                         }
                     }
                     sequence = when (RootPreferences.sortBy) {

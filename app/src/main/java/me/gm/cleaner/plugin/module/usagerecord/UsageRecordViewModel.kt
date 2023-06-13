@@ -35,7 +35,7 @@ import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.module.BinderViewModel
-import java.util.*
+import java.util.Calendar
 
 class UsageRecordViewModel(application: Application) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
@@ -60,11 +60,10 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
                 is SourceState.Done -> withContext(Dispatchers.Default) {
                     var sequence = source.list.asSequence()
                     if (isSearching) {
-                        val lowerQuery = queryText.lowercase()
                         sequence = sequence.filter {
-                            it.data.any { data -> data.lowercase().contains(lowerQuery) } ||
-                                    it.label?.lowercase()?.contains(lowerQuery) == true ||
-                                    it.packageName.lowercase().contains(lowerQuery)
+                            it.data.any { data -> data.contains(queryText, true) } ||
+                                    it.label?.contains(queryText, true) == true ||
+                                    it.packageName.contains(queryText, true)
                         }
                     }
                     SourceState.Done(sequence.toList())

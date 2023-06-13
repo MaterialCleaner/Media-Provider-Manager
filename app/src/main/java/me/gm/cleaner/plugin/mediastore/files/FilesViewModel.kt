@@ -127,8 +127,7 @@ open class FilesViewModel(application: Application) :
                     )
 
                     if (isSearching) {
-                        val lowerQuery = queryText.lowercase()
-                        if (!data.lowercase().contains(lowerQuery)) {
+                        if (!data.contains(queryText, true)) {
                             continue
                         }
                     }
