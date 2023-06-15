@@ -122,7 +122,6 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
 
     @Override
     public boolean canScrollVertically() {
-        // TODO: how to disable FastScroller elegantly?
         return getProgress() == 1F && super.canScrollVertically();
     }
 
@@ -154,8 +153,9 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
         if (spanCount == getSpanCount()) {
             return;
         }
-        if (getProgress() != 1F && getSpanCount() != DEFAULT_SPAN_COUNT) {
-            // ensure not called by the constructor
+        if (getProgress() != 1F &&
+                // ensure not called by the constructor
+                getSpanCount() != DEFAULT_SPAN_COUNT) {
             throw new IllegalStateException(
                     "Must finish the previous animation first before setting a new span count");
         }
@@ -185,7 +185,9 @@ public class ProgressionGridLayoutManager extends GridLayoutManager {
             final Rect last = mLastLayoutInfo.get(i);
             if (last != null) {
                 final Rect cur = mCurLayoutInfo.get(i);
-                assert cur != null;
+                if (cur == null) {
+                    throw new IllegalStateException("Are you scrolling?");
+                }
                 mockLayout(child, cur.left, cur.top, cur.right, cur.bottom,
                         last.left, last.top, last.right, last.bottom
                 );
