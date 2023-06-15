@@ -110,7 +110,7 @@ class ScaleGestureListener(
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(e)
-        return gestureDetector.isInProgress
+        return gestureDetector.isInProgress || scaleEndAnimator?.isRunning == true
     }
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
