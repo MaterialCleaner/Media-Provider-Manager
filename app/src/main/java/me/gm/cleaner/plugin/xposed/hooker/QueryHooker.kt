@@ -105,6 +105,31 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             else -> throw UnsupportedOperationException()
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val targetSdkVersion = XposedHelpers.callMethod(
+                param.thisObject, "getCallingPackageTargetSdkVersion"
+            ) as Int
+            val databaseUtilsClass = XposedHelpers.findClass(
+                "com.android.providers.media.util.DatabaseUtils", service.classLoader
+            )
+            if (targetSdkVersion < Build.VERSION_CODES.R) {
+                // Some apps are abusing "ORDER BY" clauses to inject "LIMIT"
+                // clauses; gracefully lift them out.
+                XposedHelpers.callStaticMethod(databaseUtilsClass, "recoverAbusiveSortOrder", query)
+
+                // Some apps are abusing the Uri query parameters to inject LIMIT
+                // clauses; gracefully lift them out.
+                XposedHelpers.callStaticMethod(
+                    databaseUtilsClass, "recoverAbusiveLimit", uri, query
+                )
+            }
+            if (targetSdkVersion < Build.VERSION_CODES.Q) {
+                // Some apps are abusing the "WHERE" clause by injecting "GROUP BY"
+                // clauses; gracefully lift them out.
+                XposedHelpers.callStaticMethod(databaseUtilsClass, "recoverAbusiveSelection", query)
+            }
+        }
+
         val c = try {
             when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
@@ -143,7 +168,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             // IllegalArgumentException that thrown from the media provider. Nothing I can do.
             return
         }
-        if (c.isAfterLast) {
+        if (c.count == 0) {
             // querying nothing.
             c.close()
             return
