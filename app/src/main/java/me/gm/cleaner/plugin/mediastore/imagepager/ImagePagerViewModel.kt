@@ -17,15 +17,15 @@
 package me.gm.cleaner.plugin.mediastore.imagepager
 
 import android.app.Application
-import android.graphics.PointF
+import android.graphics.RectF
 import android.net.Uri
 import android.provider.MediaStore
 import android.text.format.DateUtils
 import android.text.format.Formatter
-import android.util.Size
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -33,12 +33,9 @@ import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
 class ImagePagerViewModel(application: Application) : AndroidViewModel(application) {
-    var isFirstEntrance = true
-
-    val size by lazy {
-        val displayMetrics = getApplication<Application>().resources.displayMetrics
-        Size(displayMetrics.widthPixels, displayMetrics.heightPixels)
-    }
+    private val _isOverlayingLiveData = MutableLiveData(false)
+    val isOverlayingLiveData: LiveData<Boolean>
+        get() = _isOverlayingLiveData
     private val top by lazy {
         val res = getApplication<Application>().resources
         val actionBarSize =
@@ -46,13 +43,12 @@ class ImagePagerViewModel(application: Application) : AndroidViewModel(applicati
         val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
         res.getDimensionPixelSize(resourceId) + actionBarSize
     }
-    private val vTarget = PointF()
-    fun isOverlay(subsamplingScaleImageView: SubsamplingScaleImageView): Boolean {
-        if (!subsamplingScaleImageView.isReady) {
-            return false
-        }
-        subsamplingScaleImageView.sourceToViewCoord(0F, 0F, vTarget)
-        return vTarget.y - top < 0
+
+    fun isOverlaying(displayRect: RectF?): Boolean {
+        displayRect ?: return false
+        val isOverlaying = displayRect.top < top
+        _isOverlayingLiveData.postValue(isOverlaying)
+        return isOverlaying
     }
 
     fun queryImageInfoAsync(uri: Uri) = viewModelScope.async {

@@ -26,20 +26,20 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.annotation.Px
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
+import androidx.core.view.get
 import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
@@ -73,6 +73,20 @@ class ImagePagerFragment : BaseFragment() {
         val size = args.uris.size
         val initialPosition = args.initialPosition
 
+        var isNotifyingActive = true
+        var isFirstTimeEntry = true
+        viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
+            appBarLayout.isLifted = isOverlaying
+            // LiveData will notify us when the lifecycle starts to become active,
+            // but as for toggleAppBar it is not needed, so ignore it.
+            if (isNotifyingActive) {
+                isNotifyingActive = false
+            } else if (savedInstanceState == null && isFirstTimeEntry) {
+                isFirstTimeEntry = false
+                toggleAppBar(!isOverlaying)
+            }
+        }
+
         viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) =
@@ -90,16 +104,15 @@ class ImagePagerFragment : BaseFragment() {
             }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(
-                position: Int, positionOffset: Float, @Px positionOffsetPixels: Int
-            ) {
-                lastPosition.putInt(KEY_POSITION, position)
-                val ssiv: SubsamplingScaleImageView =
-                    viewPager.findViewById(R.id.subsampling_scale_image_view)
-                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
-            }
-
             override fun onPageSelected(position: Int) {
+                lastPosition.putInt(KEY_POSITION, position)
+
+                val photoView = (viewPager[0] as RecyclerView)
+                    .findViewHolderForAdapterPosition(position)!!
+                    .itemView
+                    .findViewById<PhotoView>(R.id.photo_view)
+                viewModel.isOverlaying(photoView.displayRect)
+
                 supportActionBar?.apply {
                     title = args.displayNames[position]
                     if (args.isMediaStoreUri) {
@@ -149,22 +162,10 @@ class ImagePagerFragment : BaseFragment() {
                     childFragmentManager.findFragmentByTag("f${lastPosition.getInt(KEY_POSITION)}")
                 val view = currentFragment?.view ?: return
 
-                val imageView: ImageView = view.findViewById(R.id.image_view)
-                val ssiv: SubsamplingScaleImageView =
-                    view.findViewById(R.id.subsampling_scale_image_view)
+                val photoView = view.findViewById<PhotoView>(R.id.photo_view)
                 if (names.isNotEmpty()) {
-                    if (findNavController().currentDestination?.id != R.id.image_pager_fragment &&
-                        imageView.isInvisible
-                    ) {
-                        // Change the registered shared element for a better exit transition.
-                        // Note that this is not the perfect solution but much better than don't.
-                        ssiv.transitionName = imageView.transitionName
-                        imageView.transitionName = null
-                        sharedElements[names[0]] = ssiv
-                    } else {
-                        // Map the first shared element name to the child ImageView.
-                        sharedElements[names[0]] = imageView
-                    }
+                    // Map the first shared element name to the child ImageView.
+                    sharedElements[names[0]] = photoView
                 }
             }
         })
@@ -201,15 +202,29 @@ class ImagePagerFragment : BaseFragment() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (findNavController().currentDestination?.id == R.id.image_pager_fragment) {
-            // Restore AppBar state.
-            viewModel.isFirstEntrance = true
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putCharSequence(SAVED_TITLE, supportActionBar?.title)
+        outState.putCharSequence(SAVED_SUBTITLE, supportActionBar?.subtitle)
+        outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        appBarLayout.setLiftOnScrollTargetView(null)
+        savedInstanceState?.run {
+            supportActionBar?.apply {
+                title = getCharSequence(SAVED_TITLE)
+                subtitle = getCharSequence(SAVED_SUBTITLE)
+            }
+            toggleAppBar(getBoolean(SAVED_SHOWS_APPBAR))
         }
     }
 
     companion object {
         const val KEY_POSITION = "me.gm.cleaner.plugin.key.position"
+        private const val SAVED_TITLE = "android:title"
+        private const val SAVED_SUBTITLE = "android:subtitle"
+        private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
     }
 }

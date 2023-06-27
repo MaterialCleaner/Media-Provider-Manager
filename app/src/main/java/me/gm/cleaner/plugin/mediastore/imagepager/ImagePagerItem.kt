@@ -17,7 +17,8 @@
 
 package me.gm.cleaner.plugin.mediastore.imagepager
 
-import android.graphics.PointF
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,10 +26,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.core.view.isInvisible
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
 
@@ -45,92 +52,58 @@ class ImagePagerItem : BaseFragment() {
     ): View {
         val binding = ImagePagerItemBinding.inflate(inflater)
 
-        val imageView = binding.imageView
+        val photoView = binding.photoView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        imageView.transitionName = uri.toString()
-        try {
-            // Setting thumbnail on an invisible image view to figure out the image's size for a better transition.
-            if (viewModel.isFirstEntrance) {
-                imageView.setImageBitmap(
-                    requireContext().contentResolver.loadThumbnail(uri, viewModel.size, null)
-                )
-            }
-        } catch (e: Throwable) {
-            Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
-            parentFragment?.startPostponedEnterTransition()
-            return binding.root
+        photoView.transitionName = uri.toString()
+        photoView.setScaleLevels(1F, 3F, 9F)
+        photoView.setOnScaleChangeListener { _, _, _ ->
+            viewModel.isOverlaying(photoView.displayRect)
         }
-        val ssiv = binding.subsamplingScaleImageView
-        ssiv.orientation = SubsamplingScaleImageView.ORIENTATION_USE_EXIF
-        ssiv.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
-            override fun onImageLoaded() {
-                if (viewModel.isFirstEntrance) {
-                    viewModel.isFirstEntrance = false
-                    val isOverlay = viewModel.isOverlay(ssiv)
-                    appBarLayout.isLifted = isOverlay
-                    toggleAppBar(savedInstanceState?.getBoolean(SAVED_SHOWS_APPBAR) ?: !isOverlay)
-                }
-                imageView.isInvisible = true
-            }
-
-            override fun onImageLoadError(e: Exception?) {
-                viewModel.isFirstEntrance = false
-                imageView.isInvisible = false
-                Glide.with(this@ImagePagerItem)
-                    .load(uri)
-                    .into(imageView)
-            }
-
-            override fun onReady() {}
-            override fun onPreviewLoadError(e: Exception?) {}
-            override fun onTileLoadError(e: Exception?) {}
-            override fun onPreviewReleased() {}
-        })
-        ssiv.setOnClickListener {
+        photoView.setOnClickListener {
             toggleAppBar(supportActionBar?.isShowing == false)
         }
-        ssiv.setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
-            override fun onScaleChanged(newScale: Float, origin: Int) {
-                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
-            }
+        Glide.with(this)
+            .load(uri)
+            .listener(object : RequestListener<Drawable?> {
+                override fun onLoadFailed(
+                    e: GlideException?, model: Any?, target: Target<Drawable?>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Toast
+                        .makeText(requireContext(), e?.message.toString(), Toast.LENGTH_SHORT)
+                        .show()
+                    return false
+                }
 
-            override fun onCenterChanged(newCenter: PointF?, origin: Int) {
-                appBarLayout.isLifted = viewModel.isOverlay(ssiv)
-            }
-        })
-        if (savedInstanceState == null) {
-            if (isMediaStoreUri) {
-                ssiv.setImageUri(uri)
-            } else {
-                ssiv.decodeImageUri(uri)
-            }
+                override fun onResourceReady(
+                    resource: Drawable?, model: Any?, target: Target<Drawable?>?,
+                    dataSource: DataSource?, isFirstResource: Boolean
+                ): Boolean {
+                    photoView.doOnPreDraw {
+                        viewModel.isOverlaying(photoView.displayRect)
+                    }
+                    if (resource is BitmapDrawable) {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            requireContext().contentResolver.openFileDescriptor(uri, "r")
+                                .use { pfd ->
+                                    photoView.setupTilesProvider(pfd)
+                                }
+                        }
+                    }
+                    return false
+                }
+            })
+            .into(photoView)
+        if (savedInstanceState != null) {
+            // TODO: restore photoView state
         }
+        // TODO: maybe move to Glide listener
         parentFragment?.startPostponedEnterTransition()
         return binding.root
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
-        outState.putCharSequence(SAVED_TITLE, supportActionBar?.title)
-        outState.putCharSequence(SAVED_SUBTITLE, supportActionBar?.subtitle)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        savedInstanceState?.run {
-            supportActionBar?.apply {
-                title = getCharSequence(SAVED_TITLE)
-                subtitle = getCharSequence(SAVED_SUBTITLE)
-            }
-        }
-    }
-
     companion object {
-        private const val SAVED_TITLE = "android:title"
-        private const val SAVED_SUBTITLE = "android:subtitle"
-        private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
         private const val KEY_IS_MEDIA_STORE_URI = "me.gm.cleaner.plugin.key.isMediaStoreUri"
         fun newInstance(uri: Uri, isMediaStoreUri: Boolean) = ImagePagerItem().apply {

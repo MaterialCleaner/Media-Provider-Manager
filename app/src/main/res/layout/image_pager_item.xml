@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2021 Green Mushroom
+  ~ Copyright 2023 Green Mushroom
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,15 +21,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="false">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:adjustViewBounds="true" />
-
-    <me.gm.cleaner.plugin.widget.NestedScrollableSubsamplingScaleImageView
-        android:id="@+id/subsampling_scale_image_view"
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photo_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
