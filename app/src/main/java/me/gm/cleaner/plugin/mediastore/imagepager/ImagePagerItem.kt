@@ -17,6 +17,7 @@
 
 package me.gm.cleaner.plugin.mediastore.imagepager
 
+import android.graphics.Matrix
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -25,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.graphics.values
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
@@ -34,6 +36,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
@@ -46,13 +49,14 @@ import kotlin.math.max
 class ImagePagerItem : BaseFragment() {
     private val viewModel: ImagePagerViewModel by viewModels({ requireParentFragment() })
     private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
+    private lateinit var photoView: PhotoView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImagePagerItemBinding.inflate(inflater)
 
-        val photoView = binding.photoView
+        photoView = binding.photoView
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         photoView.transitionName = uri.toString()
@@ -61,6 +65,9 @@ class ImagePagerItem : BaseFragment() {
         }
         photoView.setOnClickListener {
             toggleAppBar(supportActionBar?.isShowing == false)
+            appBarLayout.post {
+                viewModel.isOverlaying(photoView.displayRect)
+            }
         }
         Glide.with(this)
             .load(uri)
@@ -81,7 +88,6 @@ class ImagePagerItem : BaseFragment() {
                 ): Boolean {
                     photoView.doOnPreDraw {
                         val displayRect = photoView.displayRect
-                        viewModel.isOverlaying(displayRect)
                         var midScale = max(
                             photoView.width / displayRect.width(),
                             photoView.height / displayRect.height()
@@ -91,7 +97,17 @@ class ImagePagerItem : BaseFragment() {
                         }
                         val maxScale = max(3 * midScale, 9F)
                         photoView.setScaleLevels(1F, midScale, maxScale)
+
+                        if (savedInstanceState != null) {
+                            val matrix = Matrix()
+                            matrix.setValues(savedInstanceState.getFloatArray(KEY_MATRIX))
+                            photoView.setSuppMatrix(matrix)
+                        }
+
+                        // Get the displayRect again because it may change due to restoring state.
+                        viewModel.isOverlaying(photoView.displayRect)
                     }
+
                     if (resource is BitmapDrawable) {
                         lifecycleScope.launch(Dispatchers.IO) {
                             requireContext().contentResolver.openFileDescriptor(uri, "r")
@@ -104,16 +120,23 @@ class ImagePagerItem : BaseFragment() {
                 }
             })
             .into(photoView)
-        if (savedInstanceState != null) {
-            // TODO: restore photoView state
-        }
         // TODO: maybe move to Glide listener
         parentFragment?.startPostponedEnterTransition()
         return binding.root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::photoView.isInitialized) {
+            val matrix = Matrix()
+            photoView.getSuppMatrix(matrix)
+            outState.putFloatArray(KEY_MATRIX, matrix.values())
+        }
+    }
+
     companion object {
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
+        private const val KEY_MATRIX = "me.gm.cleaner.plugin.key.matrix"
         fun newInstance(uri: Uri): ImagePagerItem = ImagePagerItem().apply {
             arguments = bundleOf(KEY_IMAGE_URI to uri)
         }
