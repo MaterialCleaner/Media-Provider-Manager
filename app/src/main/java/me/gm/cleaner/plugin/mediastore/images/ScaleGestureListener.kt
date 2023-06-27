@@ -35,32 +35,32 @@ class ScaleGestureListener(
     private var scaleEndAnimator: ValueAnimator? = null
     private val gestureDetector =
         ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            private var prevSpanCount = layoutManager.spanCount
+            private var prevProgress = 0F
             private var isNewSpanCountSet = false
 
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 val scaleFactor = detector.scaleFactor
 
-                if (!isNewSpanCountSet) {
+                if (!isNewSpanCountSet && layoutManager.progress == 1F) {
                     layoutManager.spanCount = when {
                         scaleFactor > 1F -> {
                             // zoom in
-                            if (prevSpanCount - spanCountInterval < minSpanCount ||
+                            if (layoutManager.spanCount - spanCountInterval < minSpanCount ||
                                 layoutManager.spanCount == minSpanCount && layoutManager.progress == 1F
                             ) {
                                 return true
                             }
-                            prevSpanCount - spanCountInterval
+                            layoutManager.spanCount - spanCountInterval
                         }
 
                         scaleFactor < 1F -> {
                             // zoom out
-                            if (prevSpanCount + spanCountInterval > maxSpanCount ||
+                            if (layoutManager.spanCount + spanCountInterval > maxSpanCount ||
                                 layoutManager.spanCount == maxSpanCount && layoutManager.progress == 1F
                             ) {
                                 return true
                             }
-                            prevSpanCount + spanCountInterval
+                            layoutManager.spanCount + spanCountInterval
                         }
 
                         else -> return false
@@ -68,12 +68,16 @@ class ScaleGestureListener(
                     isNewSpanCountSet = true
                 }
 
-                val rawProgress = when {
+                val newProgress = when {
                     scaleFactor > 1F -> abs(1F - scaleFactor) / SCALE_FACTOR
                     scaleFactor < 1F -> abs(1F - 1 / scaleFactor) / SCALE_FACTOR
                     else -> 0F
                 }
-                layoutManager.progress = clamp(rawProgress, 0F, 1F)
+                if (layoutManager.progress == 1F) {
+                    prevProgress = newProgress
+                    isNewSpanCountSet = false
+                }
+                layoutManager.progress = clamp(newProgress - prevProgress, 0F, 1F)
                 return false
             }
 
@@ -81,7 +85,7 @@ class ScaleGestureListener(
                 if (scaleEndAnimator?.isRunning == true) {
                     return false
                 }
-                prevSpanCount = layoutManager.spanCount
+                prevProgress = 0F
                 isNewSpanCountSet = false
                 return true
             }
