@@ -88,7 +88,7 @@ class ImagePagerViewModel(application: Application) : AndroidViewModel(applicati
                 val height = cursor.getLong(heightColumn)
                 val resolution = "$width x $height"
 
-                val infos = listOf(
+                val info = listOf(
                     context.getString(
                         R.string.info_item, context.getString(R.string.menu_sort_by_path_title),
                         data
@@ -108,11 +108,10 @@ class ImagePagerViewModel(application: Application) : AndroidViewModel(applicati
                         Formatter.formatFileSize(context, size)
                     ),
                     context.getString(
-                        R.string.info_item, context.getString(R.string.resolution),
-                        resolution
+                        R.string.info_item, context.getString(R.string.resolution), resolution
                     ),
                 )
-                return@withContext Result.success(infos.joinToString("\n"))
+                return@withContext Result.success(info.joinToString("\n"))
             }
         }
         Result.failure(FileNotFoundException())

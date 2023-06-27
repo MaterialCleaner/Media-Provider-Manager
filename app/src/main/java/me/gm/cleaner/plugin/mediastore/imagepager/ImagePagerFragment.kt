@@ -90,7 +90,7 @@ class ImagePagerFragment : BaseFragment() {
         viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) =
-                ImagePagerItem.newInstance(args.uris[position], args.isMediaStoreUri)
+                ImagePagerItem.newInstance(args.uris[position])
 
             override fun getItemCount() = size
         }

@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
+import kotlin.math.max
 
 /**
  * A fragment for displaying an image.
@@ -45,7 +46,6 @@ import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
 class ImagePagerItem : BaseFragment() {
     private val viewModel: ImagePagerViewModel by viewModels({ requireParentFragment() })
     private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
-    private val isMediaStoreUri by lazy { requireArguments().getBoolean(KEY_IS_MEDIA_STORE_URI) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -56,7 +56,6 @@ class ImagePagerItem : BaseFragment() {
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         photoView.transitionName = uri.toString()
-        photoView.setScaleLevels(1F, 3F, 9F)
         photoView.setOnScaleChangeListener { _, _, _ ->
             viewModel.isOverlaying(photoView.displayRect)
         }
@@ -81,7 +80,17 @@ class ImagePagerItem : BaseFragment() {
                     dataSource: DataSource?, isFirstResource: Boolean
                 ): Boolean {
                     photoView.doOnPreDraw {
-                        viewModel.isOverlaying(photoView.displayRect)
+                        val displayRect = photoView.displayRect
+                        viewModel.isOverlaying(displayRect)
+                        var midScale = max(
+                            photoView.width / displayRect.width(),
+                            photoView.height / displayRect.height()
+                        )
+                        if (midScale == 1F) {
+                            midScale = 3F
+                        }
+                        val maxScale = max(3 * midScale, 9F)
+                        photoView.setScaleLevels(1F, midScale, maxScale)
                     }
                     if (resource is BitmapDrawable) {
                         lifecycleScope.launch(Dispatchers.IO) {
@@ -105,12 +114,8 @@ class ImagePagerItem : BaseFragment() {
 
     companion object {
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
-        private const val KEY_IS_MEDIA_STORE_URI = "me.gm.cleaner.plugin.key.isMediaStoreUri"
-        fun newInstance(uri: Uri, isMediaStoreUri: Boolean) = ImagePagerItem().apply {
-            arguments = bundleOf(
-                KEY_IMAGE_URI to uri,
-                KEY_IS_MEDIA_STORE_URI to isMediaStoreUri
-            )
+        fun newInstance(uri: Uri): ImagePagerItem = ImagePagerItem().apply {
+            arguments = bundleOf(KEY_IMAGE_URI to uri)
         }
     }
 }
