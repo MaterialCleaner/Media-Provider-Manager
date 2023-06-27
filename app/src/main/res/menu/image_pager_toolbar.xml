@@ -28,6 +28,16 @@
         android:id="@+id/menu_info"
         android:icon="@drawable/ic_outline_info_24"
         android:title="@string/info"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_outline_share_24"
+        android:title="@string/share"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_outline_delete_24"
+        android:title="@string/delete"
+        app:showAsAction="never" />
 
 </menu>
