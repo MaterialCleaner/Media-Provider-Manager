@@ -22,15 +22,18 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.graphics.values
 import androidx.core.os.bundleOf
+import androidx.core.transition.doOnEnd
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -39,6 +42,7 @@ import com.bumptech.glide.request.target.Target
 import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerItemBinding
 import kotlin.math.max
@@ -79,6 +83,8 @@ class ImagePagerItem : BaseFragment() {
                     Toast
                         .makeText(requireContext(), e?.message.toString(), Toast.LENGTH_SHORT)
                         .show()
+
+                    parentFragment?.startPostponedEnterTransition()
                     return false
                 }
 
@@ -106,23 +112,37 @@ class ImagePagerItem : BaseFragment() {
 
                         // Get the displayRect again because it may change due to restoring state.
                         viewModel.isOverlaying(photoView.displayRect)
+
+                        parentFragment?.startPostponedEnterTransition()
                     }
 
                     if (resource is BitmapDrawable) {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            requireContext().contentResolver.openFileDescriptor(uri, "r")
-                                .use { pfd ->
-                                    photoView.setupTilesProvider(pfd)
-                                }
+                        if (savedInstanceState == null &&
+                            findNavController().previousBackStackEntry?.destination?.id == R.id.images_fragment
+                        ) {
+                            (parentFragment?.sharedElementEnterTransition as TransitionSet).doOnEnd {
+                                setupTilesProvider()
+                            }
+                        } else {
+                            setupTilesProvider()
                         }
                     }
                     return false
                 }
             })
             .into(photoView)
-        // TODO: maybe move to Glide listener
-        parentFragment?.startPostponedEnterTransition()
         return binding.root
+    }
+
+    private fun setupTilesProvider() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // runCatching is needed because the loaded resource may be from Glide cache.
+            runCatching {
+                requireContext().contentResolver.openFileDescriptor(uri, "r").use { pfd ->
+                    photoView.setupTilesProvider(pfd)
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

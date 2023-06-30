@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.Manifest
 import android.os.Build
+import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -63,10 +64,10 @@ class ImagesFragment : MediaStoreFragment() {
         list.fitsSystemWindowInsets(fastScroller)
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
 
+        prepareTransitions()
+        postponeEnterTransition()
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
-            prepareTransitions()
-            postponeEnterTransition()
             scrollToPosition(list, lastPosition)
         }
     }
@@ -76,6 +77,9 @@ class ImagesFragment : MediaStoreFragment() {
      * that affect the flow.
      */
     private fun prepareTransitions() {
+        exitTransition = TransitionInflater.from(context)
+            .inflateTransition(R.transition.grid_exit_transition)
+
         // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(

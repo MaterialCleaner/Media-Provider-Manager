@@ -21,9 +21,10 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.transition.TransitionInflater
+import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -34,9 +35,7 @@ import android.widget.Toast
 import androidx.core.app.SharedElementCallback
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
-import androidx.core.transition.doOnEnd
 import androidx.core.view.get
-import androidx.core.view.isInvisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -46,14 +45,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.github.chrisbanes.photoview.PhotoView
-import com.google.android.material.transition.platform.MaterialContainerTransform
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.colorSurface
-import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 /**
  * A fragment for displaying a series of images in a [ViewPager2].
@@ -146,8 +142,6 @@ class ImagePagerFragment : BaseFragment() {
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
         if (savedInstanceState == null && args.isMediaStoreUri) {
             postponeEnterTransition()
-        } else {
-            viewPager.isInvisible = false
         }
         return binding.root
     }
@@ -187,15 +181,9 @@ class ImagePagerFragment : BaseFragment() {
     private fun prepareSharedElementTransition() {
         setFragmentResult(ImagePagerFragment::class.java.name, lastPosition)
 
-        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
-            setAllContainerColors(requireContext().colorSurface)
-            scrimColor = Color.TRANSPARENT
-            fadeMode = MaterialContainerTransform.FADE_MODE_CROSS
-            duration = requireContext().mediumAnimTime
-            doOnEnd {
-                viewPager.isInvisible = false
-            }
-        }
+        sharedElementEnterTransition = (TransitionInflater.from(requireContext())
+            .inflateTransition(R.transition.grid_pager_transition) as TransitionSet)
+            .addTransition(CustomChangeImageTransform())
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(object : SharedElementCallback() {

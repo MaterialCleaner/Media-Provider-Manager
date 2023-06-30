@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
 import android.text.format.DateUtils
+import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -30,7 +31,6 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.google.android.material.transition.platform.MaterialFadeOutIn
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
@@ -81,7 +81,10 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
                 return@setOnClickListener
             }
             fragment.lastPosition = holder.bindingAdapterPosition
-            fragment.exitTransition = MaterialFadeOutIn()
+
+            // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
+            // instead of fading out with the rest to prevent an overlapping animation of fade and move).
+            (fragment.exitTransition as TransitionSet).excludeTarget(binding.card, true)
 
             val images = viewModel.medias
             val direction = ImagesFragmentDirections.actionImagesToImagePager(
@@ -114,6 +117,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) :
     override fun getPopupText(position: Int) = when (RootPreferences.sortMediaBy) {
         RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
             formatDateTime(getItem(position).dateTaken)
+
         else -> ""
     }
 
