@@ -65,10 +65,10 @@ class ImagesFragment : MediaStoreFragment() {
         list.addOnItemTouchListener(ScaleGestureListener(requireContext(), layoutManager))
 
         prepareTransitions()
-        postponeEnterTransition()
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             scrollToPosition(list, lastPosition)
+            postponeEnterTransition()
         }
     }
 
