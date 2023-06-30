@@ -74,11 +74,12 @@ class ImagePagerFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImagePagerFragmentBinding.inflate(inflater)
+        val initialPosition = args.initialPosition
         if (savedInstanceState == null) {
             uris += args.uris
             displayNames += args.displayNames
 
-            updateTitle(args.initialPosition, uris.size)
+            updateTitle(initialPosition, uris.size)
         } else {
             uris += BundleCompat.getParcelableArrayList(
                 savedInstanceState, SAVED_URIS, Uri::class.java
@@ -103,8 +104,15 @@ class ImagePagerFragment : BaseFragment() {
 
         viewPager = binding.viewPager
         viewPager.adapter = object : FragmentStateAdapter(this) {
+            val initialItemId = if (savedInstanceState == null) {
+                uris[initialPosition].hashCode().toLong()
+            } else {
+                // uri.toString() can't be empty string, so we can use 0 as invalid hashCode safely.
+                0
+            }
+
             override fun createFragment(position: Int): ImagePagerItem =
-                ImagePagerItem.newInstance(uris[position])
+                ImagePagerItem.newInstance(uris[position], initialItemId == getItemId(position))
 
             override fun getItemCount(): Int = uris.size
 
@@ -116,7 +124,7 @@ class ImagePagerFragment : BaseFragment() {
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(args.initialPosition, false)
+        viewPager.setCurrentItem(initialPosition, false)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 lastPosition.putInt(KEY_POSITION, position)

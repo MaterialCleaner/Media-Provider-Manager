@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.graphics.values
+import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
 import androidx.core.view.doOnPreDraw
@@ -52,7 +53,9 @@ import kotlin.math.max
  */
 class ImagePagerItem : BaseFragment() {
     private val viewModel: ImagePagerViewModel by viewModels({ requireParentFragment() })
-    private val uri by lazy { requireArguments().getParcelable<Uri>(KEY_IMAGE_URI)!! }
+    private val uri: Uri by lazy {
+        BundleCompat.getParcelable(requireArguments(), KEY_IMAGE_URI, Uri::class.java)!!
+    }
     private lateinit var photoView: PhotoView
 
     override fun onCreateView(
@@ -117,7 +120,8 @@ class ImagePagerItem : BaseFragment() {
                     }
 
                     if (resource is BitmapDrawable) {
-                        if (savedInstanceState == null &&
+                        val initialEntry = requireArguments().getBoolean(KEY_INITIAL_ENTRY)
+                        if (savedInstanceState == null && initialEntry &&
                             findNavController().previousBackStackEntry?.destination?.id == R.id.images_fragment
                         ) {
                             (parentFragment?.sharedElementEnterTransition as TransitionSet).doOnEnd {
@@ -156,9 +160,13 @@ class ImagePagerItem : BaseFragment() {
 
     companion object {
         private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
+        private const val KEY_INITIAL_ENTRY = "me.gm.cleaner.plugin.key.initialEntry"
         private const val KEY_MATRIX = "me.gm.cleaner.plugin.key.matrix"
-        fun newInstance(uri: Uri): ImagePagerItem = ImagePagerItem().apply {
-            arguments = bundleOf(KEY_IMAGE_URI to uri)
+        fun newInstance(uri: Uri, initialEntry: Boolean): ImagePagerItem = ImagePagerItem().apply {
+            arguments = bundleOf(
+                KEY_IMAGE_URI to uri,
+                KEY_INITIAL_ENTRY to initialEntry
+            )
         }
     }
 }
