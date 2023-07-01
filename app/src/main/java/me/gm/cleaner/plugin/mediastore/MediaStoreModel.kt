@@ -23,7 +23,9 @@ abstract class MediaStoreModel(
     open val id: Long,
     open val contentUri: Uri,
     open val displayName: String,
+    open val relativePath: String,
     open val data: String,
+    open val dateTaken: Long,
 ) {
     companion object {
         fun <M : MediaStoreModel> createCallback() = object : DiffUtil.ItemCallback<M>() {

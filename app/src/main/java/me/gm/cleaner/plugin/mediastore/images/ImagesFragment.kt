@@ -27,6 +27,7 @@ import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
@@ -36,7 +37,7 @@ import me.gm.cleaner.plugin.ktx.buildStyledTitle
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
-import me.gm.cleaner.plugin.mediastore.MediaStoreModel
+import me.gm.cleaner.plugin.mediastore.MediaStoreHeader
 import me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.NoInterceptionRecyclerViewHelper
@@ -46,14 +47,25 @@ class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
     override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
         ImagesPermissionsRequesterFragment::class.java
+    private lateinit var adapter: ImagesAdapter
     var lastPosition: Int = 0
 
-    override fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *> =
-        ImagesAdapter(this) as MediaStoreAdapter<MediaStoreModel, *>
+    override fun onCreateAdapter(): MediaStoreAdapter = ImagesAdapter(this).also {
+        adapter = it
+    }
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         val layoutManager =
-            ProgressionGridLayoutManager(requireContext(), RootPreferences.spanCount)
+            ProgressionGridLayoutManager(requireContext(), RootPreferences.spanCount).apply {
+                spanSizeLookup = object : SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int =
+                        if (adapter.currentList[position] is MediaStoreHeader) {
+                            spanCount
+                        } else {
+                            1
+                        }
+                }
+            }
         list.layoutManager = layoutManager
         // Build FastScroller after SelectionTracker so that we can intercept SelectionTracker's OnItemTouchListener.
         val fastScroller = FastScrollerBuilder(list)
@@ -67,8 +79,10 @@ class ImagesFragment : MediaStoreFragment() {
         prepareTransitions()
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
-            scrollToPosition(list, lastPosition)
             postponeEnterTransition()
+            list.post {
+                scrollToPosition(list, adapter.getHolderPositionForUriPosition(lastPosition))
+            }
         }
     }
 
@@ -86,8 +100,9 @@ class ImagesFragment : MediaStoreFragment() {
                 names: List<String>, sharedElements: MutableMap<String, View>
             ) {
                 // Locate the ViewHolder for the clicked position.
-                val selectedViewHolder =
-                    list.findViewHolderForAdapterPosition(lastPosition) ?: return
+                val selectedViewHolder = list.findViewHolderForAdapterPosition(
+                    adapter.getHolderPositionForUriPosition(lastPosition)
+                ) ?: return
 
                 // Map the first shared element name to the child ImageView.
                 sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image)

@@ -17,7 +17,6 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
-import android.text.format.DateUtils
 import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -35,91 +34,142 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
-import me.zhanghai.android.fastscroll.PopupTextProvider
+import me.gm.cleaner.plugin.mediastore.MediaStoreHeader
+import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 
-class ImagesAdapter(private val fragment: ImagesFragment) :
-    MediaStoreAdapter<MediaStoreImage, ImagesAdapter.ViewHolder>(), PopupTextProvider {
-    private val context = fragment.requireContext()
+class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fragment) {
     private val viewModel: ImagesViewModel by fragment.viewModels()
-    private val navController by lazy { fragment.findNavController() }
+    private val uriPositionMap: MutableList<Int> = mutableListOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolder(ImagesItemBinding.inflate(LayoutInflater.from(parent.context)))
+    fun getHolderPositionForUriPosition(position: Int): Int = uriPositionMap[position]
+
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
+        is MediaStoreImage -> R.layout.images_item
+        else -> super.getItemViewType(position)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
+        when (viewType) {
+            R.layout.images_item -> ItemViewHolder(
+                ImagesItemBinding.inflate(LayoutInflater.from(parent.context)), 0
+            )
+
+            else -> super.onCreateViewHolder(parent, viewType)
+        }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val binding = holder.binding
-        val item = getItem(position)
-        // Load the image with Glide to prevent OOM error when the image drawables are very large.
-        Glide.with(fragment)
-            .load(item.contentUri)
-            .listener(object : RequestListener<Drawable?> {
-                override fun onLoadFailed(
-                    e: GlideException?, model: Any?, target: Target<Drawable?>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    if (fragment.lastPosition == holder.bindingAdapterPosition) {
-                        fragment.startPostponedEnterTransition()
+        when (holder) {
+            is ItemViewHolder -> {
+                val binding = holder.binding
+                holder.uriPosition = uriPositionMap.binarySearch(position)
+                val item = getItem(position)
+                // Load the image with Glide to prevent OOM error when the image drawables are very large.
+                Glide.with(fragment)
+                    .load(item.contentUri)
+                    .listener(object : RequestListener<Drawable?> {
+                        override fun onLoadFailed(
+                            e: GlideException?, model: Any?, target: Target<Drawable?>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            if (fragment.lastPosition == holder.uriPosition) {
+                                fragment.startPostponedEnterTransition()
+                            }
+                            return false
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable?, model: Any?, target: Target<Drawable?>?,
+                            dataSource: DataSource?, isFirstResource: Boolean
+                        ): Boolean {
+                            if (fragment.lastPosition == holder.uriPosition) {
+                                fragment.startPostponedEnterTransition()
+                            }
+                            return false
+                        }
+                    })
+                    .centerCrop()
+                    .into(binding.image)
+                binding.image.transitionName = item.contentUri.toString()
+                binding.card.setOnClickListener {
+                    val navController = fragment.findNavController()
+                    if (fragment.isInActionMode() ||
+                        navController.currentDestination?.id != R.id.images_fragment
+                    ) {
+                        return@setOnClickListener
                     }
-                    return false
+                    fragment.lastPosition = holder.uriPosition
+
+                    // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
+                    // instead of fading out with the rest to prevent an overlapping animation of fade and move).
+                    (fragment.exitTransition as TransitionSet).excludeTarget(binding.card, true)
+
+                    val images = viewModel.medias
+                    val direction = ImagesFragmentDirections.actionImagesToImagePager(
+                        initialPosition = holder.uriPosition,
+                        isMediaStoreUri = true,
+                        uris = images.map { it.contentUri }.toTypedArray(),
+                        displayNames = images.map { it.displayName }.toTypedArray()
+                    )
+                    val extras = FragmentNavigatorExtras(
+                        binding.image to binding.image.transitionName
+                    )
+                    navController.navigate(direction, extras)
                 }
 
-                override fun onResourceReady(
-                    resource: Drawable?, model: Any?, target: Target<Drawable?>?,
-                    dataSource: DataSource?, isFirstResource: Boolean
-                ): Boolean {
-                    if (fragment.lastPosition == holder.bindingAdapterPosition) {
-                        fragment.startPostponedEnterTransition()
-                    }
-                    return false
+                holder.details = object : ItemDetails<Long>() {
+                    override fun getPosition(): Int = holder.bindingAdapterPosition
+                    override fun getSelectionKey(): Long = item.id
+                    override fun inSelectionHotspot(e: MotionEvent): Boolean = false
+                    override fun inDragRegion(e: MotionEvent): Boolean = true
                 }
-            })
-            .centerCrop()
-            .into(binding.image)
-        binding.image.transitionName = item.contentUri.toString()
-        binding.card.setOnClickListener {
-            if (navController.currentDestination?.id != R.id.images_fragment || fragment.isInActionMode()) {
-                return@setOnClickListener
+                if (selectionTrackerInitialized) {
+                    binding.card.isChecked = selectionTracker.isSelected(item.id)
+                }
             }
-            fragment.lastPosition = holder.bindingAdapterPosition
 
-            // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
-            // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-            (fragment.exitTransition as TransitionSet).excludeTarget(binding.card, true)
-
-            val images = viewModel.medias
-            val direction = ImagesFragmentDirections.actionImagesToImagePager(
-                initialPosition = holder.bindingAdapterPosition,
-                isMediaStoreUri = true,
-                uris = images.map { it.contentUri }.toTypedArray(),
-                displayNames = images.map { it.displayName }.toTypedArray()
-            )
-            val extras = FragmentNavigatorExtras(binding.image to binding.image.transitionName)
-            navController.navigate(direction, extras)
-        }
-
-        holder.details = object : ItemDetails<Long>() {
-            override fun getPosition() = holder.bindingAdapterPosition
-            override fun getSelectionKey() = item.id
-            override fun inSelectionHotspot(e: MotionEvent) = false
-            override fun inDragRegion(e: MotionEvent) = true
-        }
-        if (selectionTrackerInitialized) {
-            binding.card.isChecked = selectionTracker.isSelected(item.id)
+            else -> super.onBindViewHolder(holder, position)
         }
     }
 
-    private fun formatDateTime(timeMillis: Long): String {
-        val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_DATE
-        return DateUtils.formatDateTime(context, timeMillis, flags)
+    override fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> {
+        uriPositionMap.clear()
+        return when (RootPreferences.sortMediaBy) {
+            RootPreferences.SORT_BY_PATH -> {
+                val groupedList = mutableListOf<MediaStoreModel>()
+                var lastHeader = ""
+                list.forEach { model ->
+                    val header = model.relativePath
+                    if (lastHeader != header) {
+                        lastHeader = header
+                        groupedList += MediaStoreHeader(header)
+                    }
+                    uriPositionMap += groupedList.size
+                    groupedList += model
+                }
+                groupedList
+            }
+
+            RootPreferences.SORT_BY_DATE_TAKEN -> {
+                val groupedList = mutableListOf<MediaStoreModel>()
+                var lastHeader = ""
+                list.forEach { model ->
+                    val header = formatDateTime(model.dateTaken)
+                    if (lastHeader != header) {
+                        lastHeader = header
+                        groupedList += MediaStoreHeader(header)
+                    }
+                    uriPositionMap += groupedList.size
+                    groupedList += model
+                }
+                groupedList
+            }
+
+            else -> {
+                list
+            }
+        }
     }
 
-    override fun getPopupText(position: Int) = when (RootPreferences.sortMediaBy) {
-        RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
-            formatDateTime(getItem(position).dateTaken)
-
-        else -> ""
-    }
-
-    class ViewHolder(val binding: ImagesItemBinding) : MediaStoreAdapter.ViewHolder(binding.root)
+    class ItemViewHolder(val binding: ImagesItemBinding, var uriPosition: Int) :
+        ViewHolder(binding.root)
 }

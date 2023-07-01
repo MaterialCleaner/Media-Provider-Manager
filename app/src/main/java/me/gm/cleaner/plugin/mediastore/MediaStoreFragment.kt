@@ -48,7 +48,6 @@ import me.gm.cleaner.plugin.mediastore.audio.AudioFragment
 import me.gm.cleaner.plugin.mediastore.downloads.DownloadsFragment
 import me.gm.cleaner.plugin.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
-import me.gm.cleaner.plugin.mediastore.files.MediaStoreFilesHeader
 import me.gm.cleaner.plugin.mediastore.images.*
 import me.gm.cleaner.plugin.mediastore.video.VideoFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
@@ -100,7 +99,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     }
                     val currentList = adapter.currentList
                     // empty onConfigurationChanged
-                    return currentList.isEmpty() || currentList[position] !is MediaStoreFilesHeader
+                    return currentList.isEmpty() || currentList[position] !is MediaStoreHeader
                 }
 
                 override fun canSelectMultiple(): Boolean = true
@@ -161,7 +160,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         return binding.root
     }
 
-    abstract fun onCreateAdapter(): MediaStoreAdapter<MediaStoreModel, *>
+    abstract fun onCreateAdapter(): MediaStoreAdapter
 
     open fun onBindView(binding: MediaStoreFragmentBinding) {}
 

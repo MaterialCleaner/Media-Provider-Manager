@@ -29,6 +29,7 @@ data class MediaStoreImage(
     override val id: Long,
     override val contentUri: Uri,
     override val displayName: String,
+    override val relativePath: String,
     override val data: String,
-    val dateTaken: Long,
-) : MediaStoreModel(id, contentUri, displayName, data)
+    override val dateTaken: Long,
+) : MediaStoreModel(id, contentUri, displayName, relativePath, data, dateTaken)

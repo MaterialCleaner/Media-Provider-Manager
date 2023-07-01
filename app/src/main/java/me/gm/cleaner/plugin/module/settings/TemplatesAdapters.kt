@@ -37,7 +37,6 @@ import me.gm.cleaner.plugin.model.Templates
 
 class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
     RecyclerView.Adapter<TemplatesHeaderAdapter.ViewHolder>() {
-    private val navController by lazy { fragment.findNavController() }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
@@ -46,6 +45,7 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
         val binding = holder.binding
         binding.root.transitionName = CreateTemplateFragment.NULL_TEMPLATE_NAME
         binding.root.setOnClickListener {
+            val navController = fragment.findNavController()
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }
@@ -76,7 +76,6 @@ class TemplatesHeaderAdapter(private val fragment: TemplatesFragment) :
 
 class TemplatesAdapter(private val fragment: TemplatesFragment) :
     ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
-    private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -92,6 +91,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
         )
         binding.root.transitionName = templateName
         binding.root.setOnClickListener {
+            val navController = fragment.findNavController()
             if (navController.currentDestination?.id != R.id.templates_fragment) {
                 return@setOnClickListener
             }

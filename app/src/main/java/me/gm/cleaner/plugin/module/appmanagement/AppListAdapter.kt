@@ -33,7 +33,6 @@ import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 class AppListAdapter(private val fragment: AppListFragment) :
     ListAdapter<AppListModel, AppListAdapter.ViewHolder>(CALLBACK) {
-    private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -55,6 +54,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
         }
         binding.root.transitionName = model.packageInfo.packageName
         binding.root.setOnClickListener {
+            val navController = fragment.findNavController()
             if (navController.currentDestination?.id != R.id.applist_fragment) {
                 return@setOnClickListener
             }

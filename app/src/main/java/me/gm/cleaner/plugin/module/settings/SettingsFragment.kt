@@ -63,7 +63,8 @@ class SettingsFragment : AbsSettingsFragment() {
             getString(R.string.template_management_key) -> {
                 itemView.transitionName = preference.key
                 itemView.setOnClickListener {
-                    if ( findNavController().currentDestination?.id != R.id.settings_fragment) {
+                    val navController = findNavController()
+                    if (navController.currentDestination?.id != R.id.settings_fragment) {
                         return@setOnClickListener
                     }
                     enterKey = preference.key
@@ -73,7 +74,7 @@ class SettingsFragment : AbsSettingsFragment() {
 
                     val direction = SettingsFragmentStubDirections.actionSettingsToTemplates()
                     val extras = FragmentNavigatorExtras(it to it.transitionName)
-                    findNavController().navigate(direction, extras)
+                    navController.navigate(direction, extras)
                 }
                 parentFragment?.startPostponedEnterTransition()
             }

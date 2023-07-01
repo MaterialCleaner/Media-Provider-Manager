@@ -66,8 +66,8 @@ open class FilesViewModel(application: Application) :
                 MediaStore.MediaColumns.DATA,
                 MediaStore.MediaColumns.DISPLAY_NAME,
                 MediaStore.MediaColumns.RELATIVE_PATH,
-                MediaStore.MediaColumns.MIME_TYPE,
                 MediaStore.MediaColumns.DATE_TAKEN,
+                MediaStore.MediaColumns.MIME_TYPE,
                 MediaStore.MediaColumns.SIZE,
             )
 
@@ -100,9 +100,9 @@ open class FilesViewModel(application: Application) :
                 val relativePathColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
-                val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
                 val dateTakenColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_TAKEN)
+                val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
                 val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
 
                 Log.i(TAG, "Found ${cursor.count} files")
@@ -112,8 +112,8 @@ open class FilesViewModel(application: Application) :
                     val displayName = cursor.getString(displayNameColumn)
                     val relativePath = cursor.getString(relativePathColumn)
                     val data = cursor.getString(dataColumn)
+                    val dateTaken = cursor.getLong(dateTakenColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
-                    val timeMillis = cursor.getLong(dateTakenColumn)
                     val size = cursor.getLong(sizeColumn)
                     val contentUri = ContentUris.withAppendedId(
                         when (MimeUtils.resolveMediaType(mimeType)) {
@@ -132,7 +132,7 @@ open class FilesViewModel(application: Application) :
                         }
                     }
                     val file = MediaStoreFiles(
-                        id, contentUri, displayName, relativePath, data, mimeType, timeMillis, size
+                        id, contentUri, displayName, relativePath, data, dateTaken, mimeType, size
                     )
                     files += file
 

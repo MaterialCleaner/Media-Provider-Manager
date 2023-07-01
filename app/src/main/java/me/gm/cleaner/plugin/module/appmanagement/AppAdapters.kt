@@ -102,7 +102,6 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
 
 class TemplatesAdapter(private val fragment: AppFragment) :
     ListAdapter<Template, TemplatesAdapter.ViewHolder>(CALLBACK) {
-    private val navController by lazy { fragment.findNavController() }
     private val activity = fragment.requireActivity() as AppCompatActivity
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -118,6 +117,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
         )
         binding.root.transitionName = templateName
         binding.root.setOnClickListener {
+            val navController = fragment.findNavController()
             if (navController.currentDestination?.id != R.id.app_fragment) {
                 return@setOnClickListener
             }
@@ -172,7 +172,6 @@ class TemplatesAdapter(private val fragment: AppFragment) :
 class TemplatesFooterAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<TemplatesFooterAdapter.ViewHolder>() {
     private val args: AppFragmentArgs by fragment.navArgs()
-    private val navController by lazy { fragment.findNavController() }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
@@ -181,6 +180,7 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
         val binding = holder.binding
         binding.root.transitionName = args.label
         binding.root.setOnClickListener {
+            val navController = fragment.findNavController()
             if (navController.currentDestination?.id != R.id.app_fragment) {
                 return@setOnClickListener
             }

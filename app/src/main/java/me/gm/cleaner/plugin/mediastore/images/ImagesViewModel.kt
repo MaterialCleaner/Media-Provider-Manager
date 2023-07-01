@@ -61,6 +61,7 @@ class ImagesViewModel(application: Application) :
             val projection = arrayOf(
                 MediaStore.MediaColumns._ID,
                 MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.RELATIVE_PATH,
                 MediaStore.MediaColumns.DATA,
                 MediaStore.MediaColumns.DATE_TAKEN,
             )
@@ -123,6 +124,8 @@ class ImagesViewModel(application: Application) :
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                val relativePathColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
                 val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
                 val dateTakenColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_TAKEN)
@@ -133,6 +136,7 @@ class ImagesViewModel(application: Application) :
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
                     val displayName = cursor.getString(displayNameColumn)
+                    val relativePath = cursor.getString(relativePathColumn)
                     val data = cursor.getString(dataColumn)
                     val dateTaken = cursor.getLong(dateTakenColumn)
 
@@ -153,7 +157,9 @@ class ImagesViewModel(application: Application) :
                         id
                     )
 
-                    val image = MediaStoreImage(id, contentUri, displayName, data, dateTaken)
+                    val image = MediaStoreImage(
+                        id, contentUri, displayName, relativePath, data, dateTaken
+                    )
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.

@@ -24,7 +24,6 @@ import me.gm.cleaner.plugin.mediastore.files.MediaStoreFiles
 
 class VideoAdapter(private val fragment: VideoFragment) : FilesAdapter(fragment) {
     private val viewModel: VideoViewModel by fragment.viewModels()
-    private val navController by lazy { fragment.findNavController() }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
@@ -33,6 +32,7 @@ class VideoAdapter(private val fragment: VideoFragment) : FilesAdapter(fragment)
                 val binding = holder.binding
                 val item = getItem(position) as MediaStoreFiles
                 binding.card.setOnClickListener {
+                    val navController = fragment.findNavController()
                     if (navController.currentDestination?.id != R.id.video_fragment) {
                         return@setOnClickListener
                     }
