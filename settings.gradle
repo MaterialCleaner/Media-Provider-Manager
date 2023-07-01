@@ -1,2 +1,5 @@
 include ':app'
 rootProject.name = "Media Provider Manager"
+
+include ':photoview'
+project(':photoview').projectDir = new File('PhotoView/photoview')
