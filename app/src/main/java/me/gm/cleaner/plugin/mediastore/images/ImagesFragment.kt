@@ -23,6 +23,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.setFragmentResultListener
@@ -104,7 +105,9 @@ class ImagesFragment : MediaStoreFragment() {
                 ) ?: return
 
                 // Map the first shared element name to the child ImageView.
-                sharedElements[names[0]] = selectedViewHolder.itemView.findViewById(R.id.image)
+                val image = selectedViewHolder.itemView.findViewById<ImageView>(R.id.image)
+                    ?: return
+                sharedElements[names[0]] = image
             }
         })
     }

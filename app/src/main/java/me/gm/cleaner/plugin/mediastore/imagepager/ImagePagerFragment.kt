@@ -129,7 +129,7 @@ class ImagePagerFragment : BaseFragment() {
             override fun onPageSelected(position: Int) {
                 lastPosition.putInt(KEY_POSITION, position)
 
-                val photoView = findPhotoViewForAdapterPosition(position)
+                val photoView = findPhotoViewForAdapterPosition(position)!!
                 viewModel.isOverlaying(photoView.displayRect)
 
                 updateTitle(position, uris.size)
@@ -163,11 +163,11 @@ class ImagePagerFragment : BaseFragment() {
         }
     }
 
-    private fun findPhotoViewForAdapterPosition(position: Int): PhotoView =
+    private fun findPhotoViewForAdapterPosition(position: Int): PhotoView? =
         (viewPager[0] as RecyclerView)
-            .findViewHolderForAdapterPosition(position)!!
-            .itemView
-            .findViewById(R.id.photo_view)
+            .findViewHolderForAdapterPosition(position)
+            ?.itemView
+            ?.findViewById(R.id.photo_view)
 
     private fun deleteCurrentImage() {
         lifecycleScope.launch {
@@ -202,7 +202,7 @@ class ImagePagerFragment : BaseFragment() {
                 // visible). To locate the fragment, call instantiateItem with the selection position.
                 // At this stage, the method will simply return the fragment at the position and will
                 // not create a new one.
-                val photoView = findPhotoViewForAdapterPosition(viewPager.currentItem)
+                val photoView = findPhotoViewForAdapterPosition(viewPager.currentItem) ?: return
                 if (names.isNotEmpty()) {
                     // Map the first shared element name to the child ImageView.
                     sharedElements[names[0]] = photoView
