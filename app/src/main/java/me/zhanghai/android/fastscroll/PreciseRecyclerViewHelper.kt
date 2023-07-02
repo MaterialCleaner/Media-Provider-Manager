@@ -21,32 +21,71 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-internal class PreciseRecyclerViewHelper(
-    private val list: RecyclerView, popupTextProvider: PopupTextProvider? = null,
-    measureAllItemsOnStart: Boolean = true
+open class PreciseRecyclerViewHelper(
+    private val list: RecyclerView,
+    popupTextProvider: PopupTextProvider? = null,
+    measureAllItemsOnStart: Boolean = true,
+    val observer: ItemsHeightsObserver = ItemsHeightsObserver(list, measureAllItemsOnStart)
 ) : NoInterceptionRecyclerViewHelper(list, popupTextProvider) {
-    private val observer: ItemHeightsObserver = ItemHeightsObserver(list, measureAllItemsOnStart)
-    private val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> = list.adapter!!
     private val layoutManager: LinearLayoutManager = list.layoutManager as LinearLayoutManager
     private val mTempRect: Rect = Rect()
+    private val isGridLayoutManager: Boolean =
+        layoutManager is GridLayoutManager && layoutManager.spanCount > 1
 
     init {
-        adapter.registerAdapterDataObserver(observer)
+        list.adapter!!.registerAdapterDataObserver(observer)
     }
 
-    override fun getScrollRange(): Int =
-        list.paddingTop + observer.itemHeights.sum() + list.paddingBottom
+    private fun calcPrefixSumForGridLayoutManager(
+        requestSize: Int, prefixSum: MutableList<Int> = mutableListOf()
+    ): MutableList<Int> {
+        val spanSizeLookup = (layoutManager as GridLayoutManager).spanSizeLookup
+        val spanCount = layoutManager.spanCount
+        val chunkHeights = mutableListOf<Int>()
+        while (prefixSum.size < requestSize) {
+            chunkHeights.clear()
+            var remainingSpan = spanCount
+            while (true) {
+                val position = prefixSum.size + chunkHeights.size
+                if (position >= observer.itemsHeights.size) {
+                    break
+                }
+                val spanSize = spanSizeLookup.getSpanSize(position)
+                remainingSpan -= spanSize
+                if (remainingSpan < 0) {
+                    break // item did not fit into this row or column
+                }
+                val itemHeight = observer.itemsHeights[position]
+                chunkHeights.add(itemHeight)
+            }
+            val newSum = (prefixSum.lastOrNull() ?: 0) + chunkHeights.max()
+            repeat(chunkHeights.size) { // possibly more than requestSize
+                prefixSum.add(newSum)
+            }
+        }
+        return prefixSum
+    }
+
+    override fun getScrollRange(): Int = list.paddingTop + list.paddingBottom +
+            if (!isGridLayoutManager) {
+                observer.itemsHeights.sum()
+            } else {
+                calcPrefixSumForGridLayoutManager(observer.itemsHeights.size).lastOrNull() ?: 0
+            }
 
     override fun getScrollOffset(): Int {
         val firstItemPosition = layoutManager.getPosition(list.getChildAt(0))
         if (firstItemPosition == RecyclerView.NO_POSITION ||
-            firstItemPosition >= observer.itemHeights.size
+            firstItemPosition >= observer.itemsHeights.size
         ) {
             return 0
         }
-        val itemHeightsSum = observer.itemHeights.query(0, firstItemPosition)
-        val firstItemTop = getFirstItemOffset()
-        return list.paddingTop + itemHeightsSum - firstItemTop
+        val itemsHeightsSum = if (!isGridLayoutManager) {
+            observer.itemsHeights.query(0, firstItemPosition)
+        } else {
+            calcPrefixSumForGridLayoutManager(firstItemPosition).lastOrNull() ?: 0
+        }
+        return list.paddingTop - getFirstItemOffset() + itemsHeightsSum
     }
 
     private fun getFirstItemOffset(): Int {
@@ -64,20 +103,28 @@ internal class PreciseRecyclerViewHelper(
         val offset = offset - list.paddingTop
         var sum = 0
         var firstItemPosition = 0
-        for (i in 0 until adapter.itemCount) {
-            val next = sum + observer.itemHeights[i]
-            if (next > offset) break
-            sum = next
-            firstItemPosition++
+        if (!isGridLayoutManager) {
+            for (i in 0 until observer.itemsHeights.size) {
+                val next = sum + observer.itemsHeights[i]
+                if (next > offset) break
+                sum = next
+                firstItemPosition++
+            }
+        } else {
+            val prefixSum = mutableListOf<Int>()
+            for (i in 0 until observer.itemsHeights.size) {
+                val next = calcPrefixSumForGridLayoutManager(firstItemPosition + 1, prefixSum)
+                    .lastOrNull() ?: 0
+                if (next > offset) break
+                sum = next
+                firstItemPosition++
+            }
         }
         val firstItemTop = sum - offset
         scrollToPositionWithOffset(firstItemPosition, firstItemTop)
     }
 
     private fun scrollToPositionWithOffset(position: Int, offset: Int) {
-        if (layoutManager is GridLayoutManager && layoutManager.spanCount > 1) {
-            throw UnsupportedOperationException("GridLayoutManager is not supported yet.")
-        }
         // LinearLayoutManager actually takes offset from paddingTop instead of top of RecyclerView.
         val offset = offset - list.paddingTop
         layoutManager.scrollToPositionWithOffset(position, offset)

@@ -27,10 +27,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.animation.AnimationUtils
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
+import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import kotlin.math.abs
 
 class ScaleGestureListener(
-    private val context: Context, private val layoutManager: ProgressionGridLayoutManager
+    private val context: Context,
+    private val layoutManager: ProgressionGridLayoutManager,
+    private val viewHelper: MediaStoreFragment.MediaStoreRecyclerViewHelper
 ) : RecyclerView.SimpleOnItemTouchListener() {
     private var scaleEndAnimator: ValueAnimator? = null
     private val gestureDetector =
@@ -93,6 +96,8 @@ class ScaleGestureListener(
             override fun onScaleEnd(detector: ScaleGestureDetector) {
                 animateProgress(layoutManager.progress, 1F) {
                     RootPreferences.spanCount = layoutManager.spanCount
+                    // manually invalidate itemsHeights
+                    viewHelper.observer.onChanged()
                 }
             }
         })

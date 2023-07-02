@@ -52,7 +52,10 @@ import me.gm.cleaner.plugin.mediastore.images.*
 import me.gm.cleaner.plugin.mediastore.video.VideoFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
+import me.zhanghai.android.fastscroll.ItemsHeightsObserver
+import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
+import java.util.function.Supplier
 
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     protected abstract val viewModel: MediaStoreViewModel<*>
@@ -163,6 +166,22 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     abstract fun onCreateAdapter(): MediaStoreAdapter
 
     open fun onBindView(binding: MediaStoreFragmentBinding) {}
+
+    class MediaStoreRecyclerViewHelper(
+        list: RecyclerView, currentListSupplier: Supplier<List<MediaStoreModel>>
+    ) : PreciseRecyclerViewHelper(
+        list, null, false, object : ItemsHeightsObserver(list, false) {
+            override fun guessItemOffsetAt(position: Int): Int? = try {
+                if (currentListSupplier.get()[position] is MediaStoreHeader) {
+                    itemsHeights[0]
+                } else {
+                    itemsHeights[1]
+                }
+            } catch (e: IndexOutOfBoundsException) {
+                super.guessItemOffsetAt(position)
+            }
+        }
+    )
 
     fun startActionMode() {
         if (!isInActionMode()) {

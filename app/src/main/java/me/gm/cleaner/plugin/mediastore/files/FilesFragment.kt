@@ -33,21 +33,23 @@ import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupStyle
-import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 
 open class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
     override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
         FilesPermissionsRequesterFragment::class.java
+    private lateinit var adapter: FilesAdapter
 
-    override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this)
+    override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this).also {
+        adapter = it
+    }
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         val fastScroller = FastScrollerBuilder(list)
             .useMd2Style()
             .setPopupStyle(PopupStyle.MD3)
-            .setViewHelper(PreciseRecyclerViewHelper(list, measureAllItemsOnStart = false))
+            .setViewHelper(MediaStoreRecyclerViewHelper(list) { adapter.currentList })
             .build()
         list.fitsSystemWindowInsets(fastScroller)
 
