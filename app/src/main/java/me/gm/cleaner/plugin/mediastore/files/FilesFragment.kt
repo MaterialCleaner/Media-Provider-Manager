@@ -38,11 +38,8 @@ open class FilesFragment : MediaStoreFragment() {
     override val viewModel: FilesViewModel by viewModels()
     override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
         FilesPermissionsRequesterFragment::class.java
-    private lateinit var adapter: FilesAdapter
 
-    override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this).also {
-        adapter = it
-    }
+    override fun onCreateAdapter(): FilesAdapter = FilesAdapter(this)
 
     override fun onBindView(binding: MediaStoreFragmentBinding) {
         list.layoutManager = GridLayoutManager(requireContext(), 1)

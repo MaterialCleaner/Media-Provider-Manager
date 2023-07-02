@@ -60,6 +60,7 @@ import java.util.function.Supplier
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     protected abstract val viewModel: MediaStoreViewModel<*>
     protected abstract val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment>
+    protected lateinit var adapter: MediaStoreAdapter
     protected lateinit var list: RecyclerView
     protected lateinit var selectionTracker: SelectionTracker<Long>
     private val detector: SelectionDetector by lazy {
@@ -77,7 +78,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     ): View? {
         val binding = MediaStoreFragmentBinding.inflate(inflater)
 
-        val adapter = onCreateAdapter().apply {
+        adapter = onCreateAdapter().apply {
             setHasStableIds(true)
         }
         list = binding.list
