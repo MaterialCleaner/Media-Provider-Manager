@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 import java.util.*
@@ -53,7 +54,23 @@ open class FilesAdapter(private val fragment: Fragment) : MediaStoreAdapter(frag
         then.timeInMillis = timeMillis
         now.timeInMillis = System.currentTimeMillis()
         val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_TIME
+                DateUtils.FORMAT_ABBREV_ALL or when {
+            RootPreferences.sortMediaBy == RootPreferences.SORT_BY_DATE_TAKEN -> {
+                DateUtils.FORMAT_SHOW_TIME
+            }
+
+            then[Calendar.YEAR] != now[Calendar.YEAR] -> {
+                DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_DATE
+            }
+
+            then[Calendar.DAY_OF_YEAR] != now[Calendar.DAY_OF_YEAR] -> {
+                DateUtils.FORMAT_SHOW_DATE
+            }
+
+            else -> {
+                DateUtils.FORMAT_SHOW_TIME
+            }
+        }
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
