@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.mediastore.images
 
 import android.animation.Animator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -36,8 +37,8 @@ class ScaleGestureListener(
     private val viewHelper: MediaStoreFragment.MediaStoreRecyclerViewHelper
 ) : RecyclerView.SimpleOnItemTouchListener() {
     private var scaleEndAnimator: ValueAnimator? = null
-    private val gestureDetector =
-        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private val gestureDetector: ScaleGestureDetector = ScaleGestureDetector(
+        context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             private var prevProgress = 0F
             private var isNewSpanCountSet = false
 
@@ -100,8 +101,10 @@ class ScaleGestureListener(
                     viewHelper.observer.onChanged()
                 }
             }
-        })
+        }
+    )
 
+    @SuppressLint("RestrictedApi")
     fun animateProgress(from: Float, to: Float, doOnEnd: ((animator: Animator) -> Unit)? = null) {
         scaleEndAnimator?.cancel()
         scaleEndAnimator = ValueAnimator.ofFloat(from, to).apply {
@@ -118,18 +121,38 @@ class ScaleGestureListener(
     }
 
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-        gestureDetector.onTouchEvent(e)
-        return gestureDetector.isInProgress || scaleEndAnimator?.isRunning == true
+        if (scaleEndAnimator?.isRunning == true) {
+            // Disable fastScroller.
+            return true
+        } else {
+            scaleEndAnimator = null
+        }
+        return e.pointerCount >= 2
     }
 
     override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-        gestureDetector.onTouchEvent(e)
+        val scaleEndAnimator = scaleEndAnimator
+        when {
+            scaleEndAnimator == null -> {
+                gestureDetector.onTouchEvent(e)
+            }
+
+            scaleEndAnimator.isRunning -> {
+                // Request intercept SelectionTracker's OnItemTouchListener.
+                rv.requestDisallowInterceptTouchEvent(true)
+            }
+
+            !scaleEndAnimator.isRunning -> {
+                // TODO: I don't know what to do.
+                //  rv.requestDisallowInterceptTouchEvent(false)
+            }
+        }
     }
 
     companion object {
-        const val SCALE_FACTOR = 1F
-        const val minSpanCount = 1
-        const val maxSpanCount = 5
-        const val spanCountInterval = 1
+        const val SCALE_FACTOR: Float = 1F
+        const val minSpanCount: Int = 1
+        const val maxSpanCount: Int = 5
+        const val spanCountInterval: Int = 1
     }
 }
