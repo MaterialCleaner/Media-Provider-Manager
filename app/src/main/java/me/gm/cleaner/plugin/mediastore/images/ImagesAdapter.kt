@@ -43,6 +43,9 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
 
     fun getHolderPositionForUriPosition(position: Int): Int = uriPositionMap[position]
 
+    private fun getUriPositionForAdapterPosition(position: Int) =
+        uriPositionMap.binarySearch(position)
+
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is MediaStoreImage -> R.layout.images_item
         else -> super.getItemViewType(position)
@@ -51,7 +54,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         when (viewType) {
             R.layout.images_item -> ItemViewHolder(
-                ImagesItemBinding.inflate(LayoutInflater.from(parent.context)), 0
+                ImagesItemBinding.inflate(LayoutInflater.from(parent.context))
             )
 
             else -> super.onCreateViewHolder(parent, viewType)
@@ -61,7 +64,6 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
         when (holder) {
             is ItemViewHolder -> {
                 val binding = holder.binding
-                holder.uriPosition = uriPositionMap.binarySearch(position)
                 val item = getItem(position)
                 // Load the image with Glide to prevent OOM error when the image drawables are very large.
                 Glide.with(fragment)
@@ -71,7 +73,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                             e: GlideException?, model: Any?, target: Target<Drawable?>?,
                             isFirstResource: Boolean
                         ): Boolean {
-                            if (fragment.lastPosition == holder.uriPosition) {
+                            if (fragment.lastPosition == getUriPositionForAdapterPosition(holder.bindingAdapterPosition)) {
                                 fragment.startPostponedEnterTransition()
                             }
                             return false
@@ -81,7 +83,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                             resource: Drawable?, model: Any?, target: Target<Drawable?>?,
                             dataSource: DataSource?, isFirstResource: Boolean
                         ): Boolean {
-                            if (fragment.lastPosition == holder.uriPosition) {
+                            if (fragment.lastPosition == getUriPositionForAdapterPosition(holder.bindingAdapterPosition)) {
                                 fragment.startPostponedEnterTransition()
                             }
                             return false
@@ -97,7 +99,10 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     ) {
                         return@setOnClickListener
                     }
-                    fragment.lastPosition = holder.uriPosition
+                    val uriPosition = getUriPositionForAdapterPosition(
+                        holder.bindingAdapterPosition
+                    )
+                    fragment.lastPosition = uriPosition
 
                     // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
                     // instead of fading out with the rest to prevent an overlapping animation of fade and move).
@@ -105,7 +110,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
 
                     val images = viewModel.medias
                     val direction = ImagesFragmentDirections.actionImagesToImagePager(
-                        initialPosition = holder.uriPosition,
+                        initialPosition = uriPosition,
                         isMediaStoreUri = true,
                         uris = images.map { it.contentUri }.toTypedArray(),
                         displayNames = images.map { it.displayName }.toTypedArray()
@@ -170,6 +175,5 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
         }
     }
 
-    class ItemViewHolder(val binding: ImagesItemBinding, var uriPosition: Int) :
-        ViewHolder(binding.root)
+    class ItemViewHolder(val binding: ImagesItemBinding) : ViewHolder(binding.root)
 }

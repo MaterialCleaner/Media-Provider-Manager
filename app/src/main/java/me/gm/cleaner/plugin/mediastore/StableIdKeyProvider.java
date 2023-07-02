@@ -75,7 +75,7 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
     public int getPosition(@NonNull Long key) {
         var holder = mRecyclerView.findViewHolderForItemId(key);
         if (holder != null) {
-            return holder.getLayoutPosition();
+            return holder.getBindingAdapterPosition();
         } else {
             for (int i = 0, itemCount = mAdapter.getItemCount(); i < itemCount; i++) {
                 if (key == mAdapter.getItemId(i)) {
