@@ -46,8 +46,6 @@ class ImagesFragment : MediaStoreFragment() {
     override val viewModel: ImagesViewModel by viewModels()
     override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
         ImagesPermissionsRequesterFragment::class.java
-    private val imagesAdapter: ImagesAdapter
-        get() = adapter as ImagesAdapter
     var lastPosition: Int = 0
 
     override fun onCreateAdapter(): MediaStoreAdapter = ImagesAdapter(this)
@@ -82,7 +80,7 @@ class ImagesFragment : MediaStoreFragment() {
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             postponeEnterTransition()
             list.post {
-                scrollToPosition(list, imagesAdapter.getHolderPositionForUriPosition(lastPosition))
+                scrollToPosition(list, adapter.getHolderPositionForUriPosition(lastPosition))
             }
         }
     }
@@ -102,7 +100,7 @@ class ImagesFragment : MediaStoreFragment() {
             ) {
                 // Locate the ViewHolder for the clicked position.
                 val selectedViewHolder = list.findViewHolderForAdapterPosition(
-                    imagesAdapter.getHolderPositionForUriPosition(lastPosition)
+                    adapter.getHolderPositionForUriPosition(lastPosition)
                 ) ?: return
 
                 // Map the first shared element name to the child ImageView.

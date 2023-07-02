@@ -83,8 +83,14 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
         return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
     }
 
-    open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> =
-        when (RootPreferences.sortMediaBy) {
+    private val uriPositionMap: MutableList<Int> = mutableListOf()
+    fun getHolderPositionForUriPosition(position: Int): Int = uriPositionMap[position]
+    protected fun getUriPositionForAdapterPosition(position: Int) =
+        uriPositionMap.binarySearch(position)
+
+    protected open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> {
+        uriPositionMap.clear()
+        return when (RootPreferences.sortMediaBy) {
             RootPreferences.SORT_BY_PATH -> {
                 val groupedList = mutableListOf<MediaStoreModel>()
                 var lastHeader = ""
@@ -94,6 +100,7 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
                         lastHeader = header
                         groupedList += MediaStoreHeader(header)
                     }
+                    uriPositionMap += groupedList.size
                     groupedList += model
                 }
                 groupedList
@@ -108,15 +115,20 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
                         lastHeader = header
                         groupedList += MediaStoreHeader(header)
                     }
+                    uriPositionMap += groupedList.size
                     groupedList += model
                 }
                 groupedList
             }
 
             else -> {
+                repeat(list.size) { position ->
+                    uriPositionMap += position
+                }
                 list
             }
         }
+    }
 
     override fun submitList(list: List<MediaStoreModel>?) {
         submitList(list, null)

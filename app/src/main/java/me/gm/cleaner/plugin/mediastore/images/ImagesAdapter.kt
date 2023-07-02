@@ -31,20 +31,11 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import me.gm.cleaner.plugin.R
-import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
-import me.gm.cleaner.plugin.mediastore.MediaStoreHeader
-import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 
 class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fragment) {
     private val viewModel: ImagesViewModel by fragment.viewModels()
-    private val uriPositionMap: MutableList<Int> = mutableListOf()
-
-    fun getHolderPositionForUriPosition(position: Int): Int = uriPositionMap[position]
-
-    private fun getUriPositionForAdapterPosition(position: Int) =
-        uriPositionMap.binarySearch(position)
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is MediaStoreImage -> R.layout.images_item
@@ -133,45 +124,6 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
             }
 
             else -> super.onBindViewHolder(holder, position)
-        }
-    }
-
-    override fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> {
-        uriPositionMap.clear()
-        return when (RootPreferences.sortMediaBy) {
-            RootPreferences.SORT_BY_PATH -> {
-                val groupedList = mutableListOf<MediaStoreModel>()
-                var lastHeader = ""
-                list.forEach { model ->
-                    val header = model.relativePath
-                    if (lastHeader != header) {
-                        lastHeader = header
-                        groupedList += MediaStoreHeader(header)
-                    }
-                    uriPositionMap += groupedList.size
-                    groupedList += model
-                }
-                groupedList
-            }
-
-            RootPreferences.SORT_BY_DATE_TAKEN -> {
-                val groupedList = mutableListOf<MediaStoreModel>()
-                var lastHeader = ""
-                list.forEach { model ->
-                    val header = formatDateTime(model.dateTaken)
-                    if (lastHeader != header) {
-                        lastHeader = header
-                        groupedList += MediaStoreHeader(header)
-                    }
-                    uriPositionMap += groupedList.size
-                    groupedList += model
-                }
-                groupedList
-            }
-
-            else -> {
-                list
-            }
         }
     }
 
