@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ActivityCompat
+import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -172,11 +173,24 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list: RecyclerView, currentListSupplier: Supplier<List<MediaStoreModel>>
     ) : PreciseRecyclerViewHelper(
         list, null, false, object : ItemsHeightsObserver(list, false) {
+            private fun guessItemOffset(isHeader: Boolean): Int? {
+                for (child in list.children) {
+                    val vh = list.getChildViewHolder(child)
+                    val position = vh.bindingAdapterPosition
+                    if (isHeader && currentListSupplier.get()[position] is MediaStoreHeader ||
+                        !isHeader && currentListSupplier.get()[position] !is MediaStoreHeader
+                    ) {
+                        return child.measuredHeight
+                    }
+                }
+                return null
+            }
+
             override fun guessItemOffsetAt(position: Int): Int? = try {
                 if (currentListSupplier.get()[position] is MediaStoreHeader) {
-                    itemsHeights[0]
+                    guessItemOffset(true)
                 } else {
-                    itemsHeights[1]
+                    guessItemOffset(false)
                 }
             } catch (e: IndexOutOfBoundsException) {
                 super.guessItemOffsetAt(position)
