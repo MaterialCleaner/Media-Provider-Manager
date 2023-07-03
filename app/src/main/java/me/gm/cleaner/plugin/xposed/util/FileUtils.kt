@@ -29,7 +29,7 @@ object FileUtils {
                 child.startsWith(parent + File.separator, true)
 
     val externalStorageDirPath: String = Environment.getExternalStorageDirectory().path
-    val androidDir = File(externalStorageDirPath, "Android")
+    val androidDir: File = File(externalStorageDirPath, "Android")
     val standardDirs: Array<String>
         @Suppress("UNCHECKED_CAST")
         @SuppressLint("SoonBlockedPrivateApi")

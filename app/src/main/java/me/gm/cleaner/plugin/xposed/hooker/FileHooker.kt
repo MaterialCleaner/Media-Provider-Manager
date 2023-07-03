@@ -23,7 +23,7 @@ import me.gm.cleaner.plugin.xposed.util.FileUtils
 import java.io.File
 
 class FileHooker : XC_MethodHook() {
-    private val standardParents =
+    private val standardParents: List<File> =
         FileUtils.standardDirs.map { type -> Environment.getExternalStoragePublicDirectory(type) } +
                 FileUtils.androidDir
 

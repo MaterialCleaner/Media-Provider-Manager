@@ -111,27 +111,34 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             AUDIO_MEDIA, AUDIO_MEDIA_ID -> {
                 defaultPrimary = Environment.DIRECTORY_MUSIC
             }
+
             VIDEO_MEDIA, VIDEO_MEDIA_ID -> {
                 defaultPrimary = Environment.DIRECTORY_MOVIES
             }
+
             IMAGES_MEDIA, IMAGES_MEDIA_ID -> {
                 defaultPrimary = Environment.DIRECTORY_PICTURES
             }
+
             AUDIO_ALBUMART, AUDIO_ALBUMART_ID -> {
                 defaultPrimary = Environment.DIRECTORY_MUSIC
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
+
             VIDEO_THUMBNAILS, VIDEO_THUMBNAILS_ID -> {
                 defaultPrimary = Environment.DIRECTORY_MOVIES
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
+
             IMAGES_THUMBNAILS, IMAGES_THUMBNAILS_ID -> {
                 defaultPrimary = Environment.DIRECTORY_PICTURES
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
+
             AUDIO_PLAYLISTS, AUDIO_PLAYLISTS_ID -> {
                 defaultPrimary = Environment.DIRECTORY_MUSIC
             }
+
             DOWNLOADS, DOWNLOADS_ID -> {
                 defaultPrimary = Environment.DIRECTORY_DOWNLOADS
             }

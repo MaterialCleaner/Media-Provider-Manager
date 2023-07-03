@@ -46,6 +46,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> extras?.getString(
                 QUERY_ARG_SQL_SELECTION
             )
+
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> param.args[1] as? String
             else -> throw UnsupportedOperationException()
         }
@@ -53,6 +54,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> extras?.getStringArray(
                 QUERY_ARG_SQL_SELECTION_ARGS
             )
+
             Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> param.args[2] as? Array<String>
             else -> throw UnsupportedOperationException()
         }
@@ -68,6 +70,7 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
                             param.thisObject, "enforceCallingPermission", uri, extras, true
                         )
+
                         Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                             param.thisObject, "enforceCallingPermission", uri, true
                         )
@@ -85,9 +88,11 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         param.thisObject, "getQueryBuilder", TYPE_DELETE, match, uri,
                         extras, null
                     )
+
                     Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                         param.thisObject, "getQueryBuilder", TYPE_DELETE, uri, match, null
                     )
+
                     else -> throw UnsupportedOperationException()
                 }
                 val helper = XposedHelpers.callMethod(param.thisObject, "getDatabaseForUri", uri)
@@ -104,13 +109,15 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                         qb, "query", helper, projection, userWhere, userWhereArgs,
                         null, null, null, null, null
                     )
+
                     Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
                         qb, "query", XposedHelpers.callMethod(helper, "getWritableDatabase"),
                         projection, userWhere, userWhereArgs, null, null, null, null, null
                     )
+
                     else -> throw UnsupportedOperationException()
                 } as Cursor
-                if (c.isAfterLast) {
+                if (c.count == 0) {
                     // deleting nothing.
                     c.close()
                     return
@@ -121,10 +128,12 @@ class DeleteHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 }
                 c.close()
             }
+
             FILES -> if (userWhereArgs != null) {
                 data += userWhereArgs
                 data.mapTo(mimeType) { MimeUtils.resolveMimeType(File(it)) }
             }
+
             else -> return // We don't care about these data, just ignore.
         }
 
