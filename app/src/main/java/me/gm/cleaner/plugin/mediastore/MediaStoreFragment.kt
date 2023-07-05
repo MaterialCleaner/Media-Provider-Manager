@@ -81,6 +81,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
         adapter = onCreateAdapter().apply {
             setHasStableIds(true)
+            stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
         list = binding.list
         liftOnScrollTargetView = list
