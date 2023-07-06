@@ -23,6 +23,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
+import androidx.core.math.MathUtils.clamp
 import androidx.core.view.ViewCompat
 import com.google.android.exoplayer2.ui.TimeBar
 import com.google.android.exoplayer2.util.Util
@@ -181,8 +182,13 @@ class CustomTimeBar @JvmOverloads constructor(
     }
 
     private fun setValueForLabel(label: TooltipDrawable, value: Float) {
-        val left =
+        var left =
             (scrubberPadding + normalizeValue(value) * (trackWidth - 2 * scrubberPadding)).toInt() - label.intrinsicWidth / 2
+        left = clamp(
+            left,
+            2 * scrubberPadding - label.intrinsicWidth / 2,
+            trackWidth - 2 * scrubberPadding - label.intrinsicWidth / 2
+        )
         val top = widgetHeight / 2 - (labelPadding + thumbRadius)
         label.setBounds(left, top - label.intrinsicHeight, left + label.intrinsicWidth, top)
 
