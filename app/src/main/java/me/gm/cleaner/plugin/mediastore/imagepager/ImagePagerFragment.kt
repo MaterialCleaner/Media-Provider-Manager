@@ -33,6 +33,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.SharedElementCallback
+import androidx.core.math.MathUtils.clamp
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.get
@@ -180,7 +181,7 @@ class ImagePagerFragment : BaseFragment() {
                     findNavController().navigateUp()
                 } else {
                     viewPager.adapter!!.notifyItemRemoved(position)
-                    updateTitle(position, uris.size)
+                    updateTitle(clamp(position, 0, uris.size - 1), uris.size)
                 }
             }
         }
