@@ -36,10 +36,10 @@ import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
 class ImagePagerViewModel(application: Application) : AndroidViewModel(application) {
-    private val _isOverlayingLiveData = MutableLiveData(false)
+    private val _isOverlayingLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
     val isOverlayingLiveData: LiveData<Boolean>
         get() = _isOverlayingLiveData
-    private val top by lazy {
+    private val top: Int by lazy {
         val res = getApplication<Application>().resources
         val actionBarSize =
             res.getDimensionPixelSize(com.google.android.material.R.dimen.m3_appbar_size_compact)

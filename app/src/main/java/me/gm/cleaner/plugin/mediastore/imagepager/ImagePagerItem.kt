@@ -159,9 +159,9 @@ class ImagePagerItem : BaseFragment() {
     }
 
     companion object {
-        private const val KEY_IMAGE_URI = "me.gm.cleaner.plugin.key.imageUri"
-        private const val KEY_INITIAL_ENTRY = "me.gm.cleaner.plugin.key.initialEntry"
-        private const val KEY_MATRIX = "me.gm.cleaner.plugin.key.matrix"
+        private const val KEY_IMAGE_URI: String = "me.gm.cleaner.plugin.key.imageUri"
+        private const val KEY_INITIAL_ENTRY: String = "me.gm.cleaner.plugin.key.initialEntry"
+        private const val KEY_MATRIX: String = "me.gm.cleaner.plugin.key.matrix"
         fun newInstance(uri: Uri, initialEntry: Boolean): ImagePagerItem = ImagePagerItem().apply {
             arguments = bundleOf(
                 KEY_IMAGE_URI to uri,

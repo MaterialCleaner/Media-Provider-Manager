@@ -18,7 +18,7 @@
   -->
 
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@android:integer/config_shortAnimTime"
+    android:duration="@integer/design_tab_indicator_anim_duration_ms"
     android:interpolator="@android:interpolator/fast_out_slow_in">
     <fade>
         <targets android:targetId="@id/image" />
