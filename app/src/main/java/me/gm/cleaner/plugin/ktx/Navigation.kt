@@ -21,8 +21,19 @@ import androidx.navigation.NavController
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavDestination
 
-fun NavController.addOnExitListener(action: (controller: NavController, destination: NavDestination, arguments: Bundle?) -> Unit) =
-    addOnDestinationChangedListener(OneShotDestinationChangedListener(this, action))
+private val destinationToListener: MutableMap<NavDestination, OneShotDestinationChangedListener> =
+    mutableMapOf()
+
+fun NavController.addOnExitListener(action: (controller: NavController, destination: NavDestination, arguments: Bundle?) -> Unit) {
+    val currentDestination = currentDestination!!
+    val oldListener = destinationToListener[currentDestination]
+    if (oldListener != null) {
+        removeOnDestinationChangedListener(oldListener)
+    }
+    val newListener = OneShotDestinationChangedListener(this, action)
+    destinationToListener[currentDestination] = newListener
+    addOnDestinationChangedListener(newListener)
+}
 
 class OneShotDestinationChangedListener(
     navController: NavController,
@@ -34,6 +45,7 @@ class OneShotDestinationChangedListener(
         controller: NavController, destination: NavDestination, arguments: Bundle?
     ) {
         if (destination != callerDestination) {
+            destinationToListener.remove(callerDestination)
             controller.removeOnDestinationChangedListener(this)
             action(controller, destination, arguments)
         }
