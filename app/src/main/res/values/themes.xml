@@ -34,7 +34,6 @@
         <item name="checkboxStyle">@style/CheckBox</item>
         <item name="radioButtonStyle">@style/RadioButton</item>
         <item name="switchStyle">@style/Switch</item>
-        <item name="overlapAnchor">false</item>
 
         <!--        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?colorSurface</item>-->
 
