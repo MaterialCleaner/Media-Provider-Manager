@@ -172,17 +172,21 @@ class ImagePagerFragment : BaseFragment() {
 
     private fun deleteCurrentImage() {
         lifecycleScope.launch {
-            val position = viewPager.currentItem
-            val isSuccessfullyDeleted = viewModel.deleteImageAsync(uris[position]).await()
-            if (isSuccessfullyDeleted) {
-                uris.removeAt(position)
-                displayNames.removeAt(position)
-                if (uris.isEmpty()) {
-                    findNavController().navigateUp()
-                } else {
-                    viewPager.adapter!!.notifyItemRemoved(position)
-                    updateTitle(clamp(position, 0, uris.size - 1), uris.size)
+            try {
+                val position = viewPager.currentItem
+                val isSuccessfullyDeleted = viewModel.deleteImageAsync(uris[position]).await()
+                if (isSuccessfullyDeleted) {
+                    uris.removeAt(position)
+                    displayNames.removeAt(position)
+                    if (uris.isEmpty()) {
+                        findNavController().navigateUp()
+                    } else {
+                        viewPager.adapter!!.notifyItemRemoved(position)
+                        updateTitle(clamp(position, 0, uris.size - 1), uris.size)
+                    }
                 }
+            } catch (e: SecurityException) {
+                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
