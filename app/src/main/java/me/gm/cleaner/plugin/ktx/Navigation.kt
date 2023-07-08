@@ -25,13 +25,11 @@ private val destinationToListener: MutableMap<NavDestination, OneShotDestination
     mutableMapOf()
 
 fun NavController.addOnExitListener(action: (controller: NavController, destination: NavDestination, arguments: Bundle?) -> Unit) {
-    val currentDestination = currentDestination!!
-    val oldListener = destinationToListener[currentDestination]
+    val newListener = OneShotDestinationChangedListener(this, action)
+    val oldListener = destinationToListener.put(currentDestination!!, newListener)
     if (oldListener != null) {
         removeOnDestinationChangedListener(oldListener)
     }
-    val newListener = OneShotDestinationChangedListener(this, action)
-    destinationToListener[currentDestination] = newListener
     addOnDestinationChangedListener(newListener)
 }
 
