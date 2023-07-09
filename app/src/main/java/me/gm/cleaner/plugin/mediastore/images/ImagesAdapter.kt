@@ -17,6 +17,7 @@
 package me.gm.cleaner.plugin.mediastore.images
 
 import android.graphics.drawable.Drawable
+import android.transition.TransitionInflater
 import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -95,9 +96,12 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     )
                     fragment.lastPosition = uriPosition
 
+                    val exitTransition = TransitionInflater.from(fragment.requireContext())
+                        .inflateTransition(R.transition.grid_exit_transition)
                     // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
                     // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-                    (fragment.exitTransition as TransitionSet).excludeTarget(binding.card, true)
+                    (exitTransition as TransitionSet).excludeTarget(binding.card, true)
+                    fragment.exitTransition = exitTransition
 
                     val images = viewModel.medias
                     val direction = ImagesFragmentDirections.actionImagesToImagePager(
