@@ -26,6 +26,6 @@ data class MediaStoreFiles(
     override val relativePath: String,
     override val data: String,
     override val dateTaken: Long,
-    val mimeType: String,
+    val mimeType: String?,
     val size: Long,
 ) : MediaStoreModel(id, contentUri, displayName, relativePath, data, dateTaken)
