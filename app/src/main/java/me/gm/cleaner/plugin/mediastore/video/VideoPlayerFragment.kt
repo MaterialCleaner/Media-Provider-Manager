@@ -54,10 +54,10 @@ class VideoPlayerFragment : BaseFragment() {
     private val viewModel: VideoPlayerViewModel by viewModels()
     private val args: VideoPlayerFragmentArgs by navArgs()
     private lateinit var trackSelectionParameters: DefaultTrackSelector.Parameters
-    private var startItemIndex = 0
-    private var startPosition = 0L
-    private var isPlaying = true
-    private var playbackSpeed = 1F
+    private var startItemIndex: Int = 0
+    private var startPosition: Long = 0L
+    private var isPlaying: Boolean = true
+    private var playbackSpeed: Float = 1F
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -82,8 +82,9 @@ class VideoPlayerFragment : BaseFragment() {
             isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, isPlaying)
             playbackSpeed = savedInstanceState.getFloat(KEY_SPEED, playbackSpeed)
         } else {
-            trackSelectionParameters =
-                DefaultTrackSelector.ParametersBuilder(requireContext()).build()
+            trackSelectionParameters = DefaultTrackSelector
+                .ParametersBuilder(requireContext())
+                .build()
         }
 
         findNavController().addOnExitListener { _, destination, _ ->
@@ -122,7 +123,7 @@ class VideoPlayerFragment : BaseFragment() {
     inner class PlayerEventListener : Player.Listener {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
             super.onVideoSizeChanged(videoSize)
-            if (viewModel.isFirstTimeEntry && videoSize != VideoSize.UNKNOWN) {
+            if (videoSize != VideoSize.UNKNOWN) {
                 viewModel.isFirstTimeEntry = false
                 requireActivity().requestedOrientation = if (videoSize.width > videoSize.height) {
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -147,7 +148,9 @@ class VideoPlayerFragment : BaseFragment() {
             .setTrackSelector(trackSelector)
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
-                player.addListener(PlayerEventListener())
+                if (viewModel.isFirstTimeEntry) {
+                    player.addListener(PlayerEventListener())
+                }
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.seekTo(startItemIndex, startPosition)
                 player.playWhenReady = isPlaying
@@ -165,7 +168,7 @@ class VideoPlayerFragment : BaseFragment() {
                 player.trackSelectionParameters as DefaultTrackSelector.Parameters
             startItemIndex = player.currentMediaItemIndex
             startPosition = max(0, player.contentPosition)
-            isPlaying = player.isPlaying
+            isPlaying = player.playWhenReady
             playbackSpeed = player.playbackParameters.speed
         }
     }
