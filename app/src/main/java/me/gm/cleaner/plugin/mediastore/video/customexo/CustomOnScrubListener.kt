@@ -20,18 +20,19 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
-import com.google.android.exoplayer2.ui.R
-import com.google.android.exoplayer2.ui.StyledPlayerControlView
-import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.exoplayer2.ui.TimeBar
-import com.google.android.exoplayer2.util.Util
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
+import androidx.media3.ui.PlayerControlView
+import androidx.media3.ui.PlayerView
+import androidx.media3.ui.TimeBar
+import me.gm.cleaner.plugin.R
 import java.util.*
 
-open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
-    TimeBar.OnScrubListener {
-    private val scrubbingField = StyledPlayerControlView::class.java.getDeclaredField("scrubbing")
+@UnstableApi
+open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.OnScrubListener {
+    private val scrubbingField = PlayerControlView::class.java.getDeclaredField("scrubbing")
         .apply { isAccessible = true }
-    private lateinit var controller: StyledPlayerControlView
+    private lateinit var controller: PlayerControlView
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
     private lateinit var seekDelta: TextView
@@ -44,10 +45,11 @@ open class CustomOnScrubListener(private val playerView: StyledPlayerView) :
         if (::controller.isInitialized) {
             return
         }
-        controller = playerView.findViewById(R.id.exo_controller)
-        controlsBackground = playerView.findViewById(R.id.exo_controls_background)
-        centerControls = playerView.findViewById(R.id.exo_center_controls)
-        seekDelta = playerView.findViewById(me.gm.cleaner.plugin.R.id.seek_delta)
+        controller = playerView.findViewById(androidx.media3.ui.R.id.exo_controller)
+        controlsBackground =
+            playerView.findViewById(androidx.media3.ui.R.id.exo_controls_background)
+        centerControls = playerView.findViewById(androidx.media3.ui.R.id.exo_center_controls)
+        seekDelta = playerView.findViewById(R.id.seek_delta)
     }
 
     private fun getDeltaString(timeMs: Long): String {

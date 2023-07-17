@@ -120,7 +120,8 @@ dependencies {
     def glideVersion = '4.15.1'
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.2' //TODO: migrate to AndroidX media
+    implementation 'androidx.media3:media3-exoplayer:1.1.0'
+    implementation 'androidx.media3:media3-ui:1.1.0'
 
     implementation 'com.google.code.gson:gson:2.10.1'
     def retrofitVersion = '2.9.0'

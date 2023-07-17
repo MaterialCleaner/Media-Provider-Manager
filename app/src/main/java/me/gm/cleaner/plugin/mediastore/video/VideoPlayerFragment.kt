@@ -22,18 +22,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.SeekParameters
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.PlayerControlView
+import androidx.media3.ui.PlayerControlViewLayoutManagerAccessor
+import androidx.media3.ui.PlayerView
+import androidx.media3.ui.TimeBar
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.ParametersBuilder
-import com.google.android.exoplayer2.ui.StyledPlayerControlView
-import com.google.android.exoplayer2.ui.StyledPlayerControlViewLayoutManagerAccessor
-import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.exoplayer2.ui.TimeBar
-import com.google.android.exoplayer2.util.EventLogger
-import com.google.android.exoplayer2.video.VideoSize
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
@@ -46,6 +49,7 @@ import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.math.max
 
+@UnstableApi
 class VideoPlayerFragment : BaseFragment() {
     private val viewModel: VideoPlayerViewModel by viewModels()
     private val args: VideoPlayerFragmentArgs by navArgs()
@@ -56,7 +60,7 @@ class VideoPlayerFragment : BaseFragment() {
     private var playbackSpeed = 1F
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
-    private var playerView: StyledPlayerView? = null
+    private var playerView: PlayerView? = null
     private val forbidDrawerGestureListener = View.OnGenericMotionListener { _, _ ->
         true
     }
@@ -78,7 +82,8 @@ class VideoPlayerFragment : BaseFragment() {
             isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, isPlaying)
             playbackSpeed = savedInstanceState.getFloat(KEY_SPEED, playbackSpeed)
         } else {
-            trackSelectionParameters = ParametersBuilder(requireContext()).build()
+            trackSelectionParameters =
+                DefaultTrackSelector.ParametersBuilder(requireContext()).build()
         }
 
         findNavController().addOnExitListener { _, destination, _ ->
@@ -89,16 +94,16 @@ class VideoPlayerFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun customizePlayerViewBehavior(playerView: StyledPlayerView) {
+    private fun customizePlayerViewBehavior(playerView: PlayerView) {
         val controller =
-            playerView.findViewById<StyledPlayerControlView>(com.google.android.exoplayer2.ui.R.id.exo_controller)!!
+            playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
         val timeBar = controller.getObjectField<TimeBar>() as CustomTimeBar
         val listeners =
             timeBar.getObjectField<CopyOnWriteArraySet<TimeBar.OnScrubListener>>(DefaultTimeBar::class.java)
         listeners.clear()
         timeBar.addListener(timeBar)
 
-        val controlViewLayoutManager = StyledPlayerControlViewLayoutManagerAccessor(controller)
+        val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
         timeBar.addListener(object : CustomOnScrubListener(playerView) {
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
                 (playerView.player as? ExoPlayer)?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
@@ -117,8 +122,8 @@ class VideoPlayerFragment : BaseFragment() {
     inner class PlayerEventListener : Player.Listener {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
             super.onVideoSizeChanged(videoSize)
-            if (viewModel.isFirstEntrance && videoSize != VideoSize.UNKNOWN) {
-                viewModel.isFirstEntrance = false
+            if (viewModel.isFirstTimeEntry && videoSize != VideoSize.UNKNOWN) {
+                viewModel.isFirstTimeEntry = false
                 requireActivity().requestedOrientation = if (videoSize.width > videoSize.height) {
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else {
@@ -143,7 +148,6 @@ class VideoPlayerFragment : BaseFragment() {
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
                 player.addListener(PlayerEventListener())
-                player.addAnalyticsListener(EventLogger(trackSelector))
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.seekTo(startItemIndex, startPosition)
                 player.playWhenReady = isPlaying

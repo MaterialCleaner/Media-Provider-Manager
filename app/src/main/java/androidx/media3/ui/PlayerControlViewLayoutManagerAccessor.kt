@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.ui
+package androidx.media3.ui
 
 import me.gm.cleaner.plugin.ktx.getObjectField
 
-class StyledPlayerControlViewLayoutManagerAccessor(controller: StyledPlayerControlView) {
+class PlayerControlViewLayoutManagerAccessor(controller: PlayerControlView) {
     internal val controlViewLayoutManager =
-        controller.getObjectField<StyledPlayerControlViewLayoutManager>()
+        controller.getObjectField<PlayerControlViewLayoutManager>()
 
     fun removeHideCallbacks() {
         controlViewLayoutManager.removeHideCallbacks()

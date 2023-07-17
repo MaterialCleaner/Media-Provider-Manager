@@ -25,8 +25,9 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import androidx.core.math.MathUtils.clamp
 import androidx.core.view.ViewCompat
-import com.google.android.exoplayer2.ui.TimeBar
-import com.google.android.exoplayer2.util.Util
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
+import androidx.media3.ui.TimeBar
 import com.google.android.material.R
 import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.internal.DescendantOffsetUtils
@@ -36,6 +37,7 @@ import me.gm.cleaner.plugin.ktx.isRtl
 import me.gm.cleaner.plugin.ktx.shortAnimTime
 import kotlin.math.max
 
+@UnstableApi
 @SuppressLint("RestrictedApi")
 class CustomTimeBar @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0,

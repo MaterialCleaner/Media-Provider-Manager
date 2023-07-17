@@ -38,12 +38,12 @@ import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ui.R;
-import com.google.android.exoplayer2.ui.TimeBar;
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
+import androidx.media3.common.C;
+import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
+import androidx.media3.ui.R;
+import androidx.media3.ui.TimeBar;
 
 import java.util.Collections;
 import java.util.Formatter;
@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Change all modifiers of private methods to protected.
  */
+@UnstableApi
 public class DefaultTimeBar extends View implements TimeBar {
 
   /**
