@@ -24,12 +24,12 @@ As with native storage, Android does not offer a fine-grained management scheme 
 
 ## Features
 
-- Media file manager (no root or Xposed needed, only requires [READ_EXTERNAL_STORAGE][3] permission)
+- Media file manager built with only media store API.
 - Filter data returned from the media store to protect your privacy.
-- Prevent apps from freewheelingly writing files through the media store.
-- Provide usage record to help you aware whether the application uses media store and whether there is any abuse.
+- Prevent apps from freewheelingly writing files via the media store.
+- Provide a usage record feature to help you be aware of how applications use the media store.
 - Prevent 💩 ROM's download manager from creating non-standard files.
-- Material Design 3, easy to use.
+- Material 3.
 - Open source.
 
 ## Source code
@@ -46,4 +46,3 @@ As with native storage, Android does not offer a fine-grained management scheme 
 
 [1]: https://developer.android.com/reference/android/provider/MediaStore
 [2]: https://developer.android.com/training/data-storage/use-cases#handle-media-files
-[3]: https://developer.android.com/reference/android/Manifest.permission.html#READ_EXTERNAL_STORAGE
