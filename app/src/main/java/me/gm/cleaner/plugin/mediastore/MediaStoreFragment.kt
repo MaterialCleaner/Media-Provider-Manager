@@ -210,10 +210,13 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
                 override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
                 override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-                    val medias = selectionTracker.selection.map { selection ->
-                        viewModel.medias.first { it.id == selection }
+                    val medias = selectionTracker.selection.mapNotNull { selection ->
+                        viewModel.medias.firstOrNull { it.id == selection }
                     }
                     actionMode?.finish()
+                    if (medias.isEmpty()) {
+                        return true
+                    }
                     when (item.itemId) {
                         R.id.menu_share -> {
                             val mimeType = when (this@MediaStoreFragment) {
