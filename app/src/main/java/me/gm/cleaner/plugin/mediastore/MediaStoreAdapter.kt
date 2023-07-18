@@ -84,8 +84,7 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
     }
 
     private val uriPositionMap: MutableList<Int> = mutableListOf()
-    fun getHolderPositionForUriPosition(position: Int): Int =
-        uriPositionMap.getOrElse(position) { -1 }
+    fun getHolderPositionForUriPosition(position: Int): Int? = uriPositionMap.getOrNull(position)
 
     protected fun getUriPositionForAdapterPosition(position: Int): Int =
         uriPositionMap.binarySearch(position)

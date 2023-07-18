@@ -80,7 +80,12 @@ class ImagesFragment : MediaStoreFragment() {
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             postponeEnterTransition()
             list.post {
-                scrollToPosition(list, adapter.getHolderPositionForUriPosition(lastPosition))
+                val lastUriPosition = adapter.getHolderPositionForUriPosition(lastPosition)
+                if (lastUriPosition != null) {
+                    scrollToPosition(list, lastUriPosition)
+                } else {
+                    startPostponedEnterTransition()
+                }
             }
         }
     }
@@ -96,9 +101,10 @@ class ImagesFragment : MediaStoreFragment() {
                 names: List<String>, sharedElements: MutableMap<String, View>
             ) {
                 // Locate the ViewHolder for the clicked position.
-                val selectedViewHolder = list.findViewHolderForAdapterPosition(
-                    adapter.getHolderPositionForUriPosition(lastPosition)
-                ) ?: return
+                val lastUriPosition = adapter.getHolderPositionForUriPosition(lastPosition)
+                    ?: return
+                val selectedViewHolder = list.findViewHolderForAdapterPosition(lastUriPosition)
+                    ?: return
 
                 // Map the first shared element name to the child ImageView.
                 val image = selectedViewHolder.itemView.findViewById<ImageView>(R.id.image)
