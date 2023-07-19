@@ -124,4 +124,10 @@ object RootPreferences {
     var spanCount: Int
         get() = defaultSp.getInt(resources.getString(R.string.span_count_key), 3)
         set(value) = putInt(resources.getString(R.string.span_count_key), value)
+
+    var playbackSpeed: Float
+        get() = defaultSp.getFloat(resources.getString(R.string.playback_speed_key), 1F)
+        set(value) = defaultSp.edit {
+            putFloat(resources.getString(R.string.playback_speed_key), value)
+        }
 }

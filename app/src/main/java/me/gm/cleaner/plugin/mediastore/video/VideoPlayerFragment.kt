@@ -41,6 +41,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ktx.isRtl
@@ -58,7 +59,7 @@ class VideoPlayerFragment : BaseFragment() {
     private var startItemIndex: Int = 0
     private var startPosition: Long = 0L
     private var isPlaying: Boolean = true
-    private var playbackSpeed: Float = 1F
+    private var playbackSpeed: Float = RootPreferences.playbackSpeed
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -297,8 +298,13 @@ class VideoPlayerFragment : BaseFragment() {
         outState.putFloat(KEY_SPEED, playbackSpeed)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        RootPreferences.playbackSpeed = playbackSpeed
+    }
+
     companion object {
-        private const val SCRUB_FACTOR: Int = 150
+        private const val SCRUB_FACTOR: Int = 100
 
         // Saved instance state keys.
         private const val KEY_TRACK_SELECTION_PARAMETERS: String = "track_selection_parameters"
