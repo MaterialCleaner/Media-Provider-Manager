@@ -10,7 +10,7 @@
 
 -keepnames class * extends me.gm.cleaner.plugin.dao.MediaProviderRecord
 
--keepclassmembernames class com.google.android.exoplayer2.ui.StyledPlayerControlView {
+-keepclassmembernames class androidx.media3.ui.PlayerControlView {
     private boolean scrubbing;
 }
 
