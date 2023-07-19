@@ -309,7 +309,7 @@ class VideoPlayerFragment : BaseFragment() {
     }
 
     companion object {
-        private const val SCRUB_FACTOR: Int = 100
+        private const val SCRUB_FACTOR: Int = 125
 
         // Saved instance state keys.
         private const val KEY_TRACK_SELECTION_PARAMETERS: String = "track_selection_parameters"

@@ -64,7 +64,7 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
     override fun onScrubStart(timeBar: TimeBar, position: Long) {
         prepareViews()
         scrubbingField[controller] = true
-        playingOnScrubStart = playerView.player?.isPlaying == true
+        playingOnScrubStart = playerView.player?.playWhenReady == true
         playerView.player?.pause()
         startingPosition = playerView.player?.currentPosition ?: 0L
         controlsBackground.isVisible = false
