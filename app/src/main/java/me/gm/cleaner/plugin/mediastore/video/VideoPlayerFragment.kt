@@ -138,7 +138,9 @@ class VideoPlayerFragment : BaseFragment() {
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })
-        val customOnVerticalScrubListener = CustomOnVerticalScrubListener(playerView)
+        val customOnVerticalScrubListener = CustomOnVerticalScrubListener(
+            requireActivity().window, playerView
+        )
         val detector = VideoGestureDetector(
             requireContext(), object : VideoGestureDetector.OnVideoGestureListener {
                 private val density: Float = resources.displayMetrics.density
@@ -170,7 +172,7 @@ class VideoPlayerFragment : BaseFragment() {
                 }
 
                 override fun onVerticalScrubStart(initialMotionX: Float, initialMotionY: Float) {
-                    customOnVerticalScrubListener.onScrubStart(initialMotionX)
+                    customOnVerticalScrubListener.onScrubStart(initialMotionX, initialMotionY)
                 }
 
                 override fun onVerticalScrubMove(dy: Float): Boolean {

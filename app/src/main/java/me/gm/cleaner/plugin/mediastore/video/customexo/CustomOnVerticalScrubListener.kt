@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.mediastore.video.customexo
 
+import android.view.Window
 import android.widget.TextView
 import androidx.core.math.MathUtils.clamp
 import androidx.core.view.children
@@ -29,15 +30,25 @@ import me.gm.cleaner.plugin.ktx.isRtl
 import kotlin.math.roundToInt
 
 @UnstableApi
-open class CustomOnVerticalScrubListener(private val playerView: PlayerView) {
+open class CustomOnVerticalScrubListener(
+    private val window: Window, private val playerView: PlayerView
+) {
     private lateinit var controller: PlayerControlView
     private lateinit var seekDelta: TextView
     private lateinit var deviceInfo: DeviceInfo
 
     private val density: Float = playerView.resources.displayMetrics.density
     private val isRtl: Boolean = playerView.resources.configuration.isRtl
+    private var isActive: Boolean = true
     private var atLeftHalfScreen: Boolean = true
+    private var screenBrightness: Float = 0F
     private var currentVolume: Float = 0F
+
+    private val top: Int by lazy {
+        val res = playerView.resources
+        val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
+        res.getDimensionPixelSize(resourceId)
+    }
 
     private fun prepare() {
         if (::seekDelta.isInitialized) {
@@ -62,24 +73,44 @@ open class CustomOnVerticalScrubListener(private val playerView: PlayerView) {
         controller.hideImmediately()
     }
 
+    private fun getBrightnessString(brightness: Float): String = "${(100 * brightness).toInt()} %"
+
     private fun getVolumeString(deviceVolume: Int): String {
         val fraction =
             100 * (deviceVolume - deviceInfo.minVolume) / (deviceInfo.maxVolume - deviceInfo.minVolume)
         return "$fraction %"
     }
 
-    fun onScrubStart(initialMotionX: Float) {
+    fun onScrubStart(initialMotionX: Float, initialMotionY: Float) {
+        if (initialMotionY < top) {
+            isActive = false
+            return
+        } else {
+            isActive = true
+        }
         val player = playerView.player ?: return
         prepare()
         setOnlyTextVisible()
         atLeftHalfScreen = initialMotionX < playerView.width / 2
+        screenBrightness = window.attributes.screenBrightness
         currentVolume = player.deviceVolume.toFloat()
     }
 
     fun onScrubMove(dy: Float) {
+        if (!isActive) {
+            return
+        }
         val player = playerView.player ?: return
         if (!isRtl && atLeftHalfScreen || isRtl && !atLeftHalfScreen) {
-
+            screenBrightness = clamp(
+                screenBrightness - dy / density / (deviceInfo.maxVolume - deviceInfo.minVolume),
+                0F,
+                1F
+            )
+            seekDelta.text = getBrightnessString(screenBrightness)
+            val attributes = window.attributes
+            attributes.screenBrightness = screenBrightness
+            window.attributes = attributes
         } else {
             currentVolume = clamp(
                 currentVolume - dy / density,
@@ -93,6 +124,9 @@ open class CustomOnVerticalScrubListener(private val playerView: PlayerView) {
     }
 
     fun onScrubStop() {
+        if (!isActive) {
+            return
+        }
         hideController()
     }
 }
