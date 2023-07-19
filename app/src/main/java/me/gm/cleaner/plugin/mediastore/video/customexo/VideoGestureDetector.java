@@ -102,6 +102,7 @@ public class VideoGestureDetector {
                         mLastMotionY = y - mInitialMotionY > 0 ? mInitialMotionY + mTouchSlop :
                                 mInitialMotionY - mTouchSlop;
                         mIsVerticallyScrubbing = true;
+                        mListener.onVerticalScrubStart(mInitialMotionX, mInitialMotionY);
                     }
                 }
                 // Not else! Note that mIsBeingDragged can be set above.
@@ -117,8 +118,7 @@ public class VideoGestureDetector {
                     final int activePointerIndex = ev.findPointerIndex(mActivePointerId);
                     final float x = ev.getX(activePointerIndex);
                     final float y = ev.getY(activePointerIndex);
-                    handled |= mListener.onVerticalScrubMove(
-                            mInitialMotionX, mInitialMotionY, y - mLastMotionY);
+                    handled |= mListener.onVerticalScrubMove(y - mLastMotionY);
                     mLastMotionX = x;
                     mLastMotionY = y;
                 }
@@ -152,6 +152,10 @@ public class VideoGestureDetector {
                     handled = true;
                     mListener.onHorizontalScrubEnd();
                 }
+                if (mIsVerticallyScrubbing) {
+                    handled = true;
+                    mListener.onVerticalScrubEnd();
+                }
                 resetTouch();
                 break;
             }
@@ -172,7 +176,11 @@ public class VideoGestureDetector {
 
         void onHorizontalScrubEnd();
 
-        boolean onVerticalScrubMove(float initialMotionX, float initialMotionY, float dy);
+        void onVerticalScrubStart(float initialMotionX, float initialMotionY);
+
+        boolean onVerticalScrubMove(float dy);
+
+        void onVerticalScrubEnd();
 
         void onDoubleTap(@NonNull MotionEvent ev);
     }

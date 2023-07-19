@@ -44,8 +44,8 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.isRtl
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnScrubListener
+import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnVerticalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
 import me.gm.cleaner.plugin.mediastore.video.customexo.VideoGestureDetector
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
@@ -138,6 +138,7 @@ class VideoPlayerFragment : BaseFragment() {
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })
+        val customOnVerticalScrubListener = CustomOnVerticalScrubListener(playerView)
         val detector = VideoGestureDetector(
             requireContext(), object : VideoGestureDetector.OnVideoGestureListener {
                 private val density: Float = resources.displayMetrics.density
@@ -168,16 +169,17 @@ class VideoPlayerFragment : BaseFragment() {
                     }
                 }
 
-                override fun onVerticalScrubMove(
-                    initialMotionX: Float, initialMotionY: Float, dy: Float
-                ): Boolean {
-                    val player = player ?: return false
-                    val atLeftHalfScreen = initialMotionX < playerView.width / 2
-                    // TODO
-                    if (!resources.configuration.isRtl) {
+                override fun onVerticalScrubStart(initialMotionX: Float, initialMotionY: Float) {
+                    customOnVerticalScrubListener.onScrubStart(initialMotionX)
+                }
 
-                    }
+                override fun onVerticalScrubMove(dy: Float): Boolean {
+                    customOnVerticalScrubListener.onScrubMove(dy)
                     return true
+                }
+
+                override fun onVerticalScrubEnd() {
+                    customOnVerticalScrubListener.onScrubStop()
                 }
 
                 override fun onDoubleTap(ev: MotionEvent) {
@@ -224,6 +226,7 @@ class VideoPlayerFragment : BaseFragment() {
         player = ExoPlayer.Builder(context)
             .setRenderersFactory(renderersFactory)
             .setTrackSelector(trackSelector)
+            .setDeviceVolumeControlEnabled(true)
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
                 if (viewModel.isFirstTimeEntry) {
