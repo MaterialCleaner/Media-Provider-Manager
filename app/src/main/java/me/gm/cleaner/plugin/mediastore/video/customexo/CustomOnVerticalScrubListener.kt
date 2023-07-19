@@ -16,7 +16,9 @@
 
 package me.gm.cleaner.plugin.mediastore.video.customexo
 
+import android.provider.Settings
 import android.view.Window
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.math.MathUtils.clamp
 import androidx.core.view.children
@@ -41,7 +43,7 @@ open class CustomOnVerticalScrubListener(
     private val isRtl: Boolean = playerView.resources.configuration.isRtl
     private var isActive: Boolean = true
     private var atLeftHalfScreen: Boolean = true
-    private var screenBrightness: Float = 0F
+    private var screenBrightness: Float = window.attributes.screenBrightness
     private var currentVolume: Float = 0F
 
     private val top: Int by lazy {
@@ -92,7 +94,12 @@ open class CustomOnVerticalScrubListener(
         prepare()
         setOnlyTextVisible()
         atLeftHalfScreen = initialMotionX < playerView.width / 2
-        screenBrightness = window.attributes.screenBrightness
+        if (screenBrightness == WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE) {
+            val SCREEN_BRIGHTNESS_FLOAT = "screen_brightness_float"
+            screenBrightness = Settings.System.getFloat(
+                playerView.context.contentResolver, SCREEN_BRIGHTNESS_FLOAT
+            )
+        }
         currentVolume = player.deviceVolume.toFloat()
     }
 
