@@ -37,7 +37,7 @@ open class CustomOnVerticalScrubListener(
     private lateinit var seekDelta: TextView
     private lateinit var deviceInfo: DeviceInfo
 
-    private val density: Float = playerView.resources.displayMetrics.density
+    private val density: Float = playerView.resources.displayMetrics.density * 2
     private val isRtl: Boolean = playerView.resources.configuration.isRtl
     private var isActive: Boolean = true
     private var atLeftHalfScreen: Boolean = true
@@ -82,7 +82,7 @@ open class CustomOnVerticalScrubListener(
     }
 
     fun onScrubStart(initialMotionX: Float, initialMotionY: Float) {
-        if (initialMotionY < top) {
+        if (initialMotionY <= top) {
             isActive = false
             return
         } else {
