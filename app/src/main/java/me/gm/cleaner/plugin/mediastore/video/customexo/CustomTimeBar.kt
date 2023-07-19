@@ -69,6 +69,7 @@ class CustomTimeBar @JvmOverloads constructor(
     }
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
+        scrubPosition = position
         label.text = Util.getStringForTime(formatBuilder, formatter, position)
         ensureLabelAdded()
     }

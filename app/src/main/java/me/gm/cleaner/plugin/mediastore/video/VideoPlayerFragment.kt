@@ -19,8 +19,10 @@ package me.gm.cleaner.plugin.mediastore.video
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.postDelayed
 import androidx.fragment.app.viewModels
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
@@ -41,12 +43,11 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.getObjectField
+import me.gm.cleaner.plugin.ktx.isRtl
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
-import me.gm.cleaner.plugin.mediastore.video.customexo.DefaultTimeBar
+import me.gm.cleaner.plugin.mediastore.video.customexo.VideoGestureDetector
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
-import java.util.concurrent.CopyOnWriteArraySet
 import kotlin.math.max
 
 @UnstableApi
@@ -98,10 +99,7 @@ class VideoPlayerFragment : BaseFragment() {
     private fun customizePlayerViewBehavior(playerView: PlayerView) {
         val controller =
             playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
-        val timeBar = controller.getObjectField<TimeBar>() as CustomTimeBar
-        val listeners =
-            timeBar.getObjectField<CopyOnWriteArraySet<TimeBar.OnScrubListener>>(DefaultTimeBar::class.java)
-        listeners.clear()
+        val timeBar = controller.findViewById<CustomTimeBar>(androidx.media3.ui.R.id.exo_progress)
         timeBar.addListener(timeBar)
 
         val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
@@ -118,6 +116,85 @@ class VideoPlayerFragment : BaseFragment() {
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })
+
+        val listeners = arrayOf(timeBar, object : CustomOnScrubListener(playerView) {
+            // TODO: Maybe we can implement a scheme to seek fast and exact. Please refer to
+            //  https://github.com/google/ExoPlayer/issues/7025
+
+            private var isVisibleOnScrubStart: Boolean = false
+
+            override fun onScrubStart(timeBar: TimeBar, position: Long) {
+                super.onScrubStart(timeBar, position)
+                isVisibleOnScrubStart = controller.isFullyVisible
+                controlViewLayoutManager.removeHideCallbacks()
+            }
+
+            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
+                super.onScrubStop(timeBar, position, canceled)
+                if (!isVisibleOnScrubStart) {
+                    controller.hideImmediately()
+                }
+                controlViewLayoutManager.resetHideCallbacks()
+            }
+        })
+        val detector = VideoGestureDetector(
+            requireContext(), object : VideoGestureDetector.OnVideoGestureListener {
+                private val density: Float = resources.displayMetrics.density
+
+                override fun onHorizontalScrubStart(
+                    initialMotionX: Float, initialMotionY: Float
+                ) {
+                    val player = player ?: return
+                    for (listener in listeners) {
+                        listener.onScrubStart(timeBar, player.currentPosition)
+                    }
+                }
+
+                override fun onHorizontalScrubMove(dx: Float): Boolean {
+                    val player = player ?: return false
+                    val newPositionMs =
+                        player.currentPosition + (SCRUB_FACTOR * dx / density).toLong()
+                    for (listener in listeners) {
+                        listener.onScrubMove(timeBar, newPositionMs)
+                    }
+                    return true
+                }
+
+                override fun onHorizontalScrubEnd() {
+                    val player = player ?: return
+                    for (listener in listeners) {
+                        listener.onScrubStop(timeBar, player.currentPosition, false)
+                    }
+                }
+
+                override fun onVerticalScrubMove(
+                    initialMotionX: Float, initialMotionY: Float, dy: Float
+                ): Boolean {
+                    val player = player ?: return false
+                    val atLeftHalfScreen = initialMotionX < playerView.width / 2
+                    // TODO
+                    if (!resources.configuration.isRtl) {
+
+                    }
+                    return true
+                }
+
+                override fun onDoubleTap(ev: MotionEvent) {
+                    val player = player ?: return
+                    playerView.useController = false
+                    playerView.isClickable = true
+                    player.playWhenReady = !player.playWhenReady
+                    val DURATION_FOR_HIDING_ANIMATION_MS = 250L
+                    controller.postDelayed(DURATION_FOR_HIDING_ANIMATION_MS) {
+                        playerView.useController = true
+                    }
+                }
+            }
+        )
+        //noinspection ClickableViewAccessibility
+        playerView.setOnTouchListener { _, event ->
+            detector.onTouchEvent(event)
+        }
     }
 
     inner class PlayerEventListener : Player.Listener {
@@ -221,11 +298,13 @@ class VideoPlayerFragment : BaseFragment() {
     }
 
     companion object {
+        private const val SCRUB_FACTOR: Int = 150
+
         // Saved instance state keys.
-        private const val KEY_TRACK_SELECTION_PARAMETERS = "track_selection_parameters"
-        private const val KEY_ITEM_INDEX = "item_index"
-        private const val KEY_POSITION = "position"
-        private const val KEY_IS_PLAYING = "is_playing"
-        private const val KEY_SPEED = "speed"
+        private const val KEY_TRACK_SELECTION_PARAMETERS: String = "track_selection_parameters"
+        private const val KEY_ITEM_INDEX: String = "item_index"
+        private const val KEY_POSITION: String = "position"
+        private const val KEY_IS_PLAYING: String = "is_playing"
+        private const val KEY_SPEED: String = "speed"
     }
 }

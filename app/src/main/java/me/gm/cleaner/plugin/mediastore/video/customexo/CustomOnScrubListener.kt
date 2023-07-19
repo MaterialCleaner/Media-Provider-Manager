@@ -26,20 +26,24 @@ import androidx.media3.ui.PlayerControlView
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.TimeBar
 import me.gm.cleaner.plugin.R
-import java.util.*
+import java.lang.reflect.Field
+import java.util.Formatter
+import java.util.Locale
 
 @UnstableApi
 open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.OnScrubListener {
-    private val scrubbingField = PlayerControlView::class.java.getDeclaredField("scrubbing")
+    private val scrubbingField: Field = PlayerControlView::class.java
+        .getDeclaredField("scrubbing")
         .apply { isAccessible = true }
     private lateinit var controller: PlayerControlView
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
     private lateinit var seekDelta: TextView
 
-    private var startingPosition = 0L
-    private val formatBuilder = StringBuilder()
-    private val formatter = Formatter(formatBuilder, Locale.getDefault())
+    private var playingOnScrubStart: Boolean = true
+    private var startingPosition: Long = 0L
+    private val formatBuilder: StringBuilder = StringBuilder()
+    private val formatter: Formatter = Formatter(formatBuilder, Locale.getDefault())
 
     private fun prepareViews() {
         if (::controller.isInitialized) {
@@ -60,6 +64,7 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
     override fun onScrubStart(timeBar: TimeBar, position: Long) {
         prepareViews()
         scrubbingField[controller] = true
+        playingOnScrubStart = playerView.player?.isPlaying == true
         playerView.player?.pause()
         startingPosition = playerView.player?.currentPosition ?: 0L
         controlsBackground.isVisible = false
@@ -80,7 +85,9 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
         centerControls.isVisible = true
         seekDelta.isVisible = false
         playerView.player?.seekTo(position)
-        playerView.player?.play()
+        if (playingOnScrubStart) {
+            playerView.player?.play()
+        }
     }
 
     val isScrubbing: Boolean
