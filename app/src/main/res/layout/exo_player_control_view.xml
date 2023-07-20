@@ -126,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/exo_styled_progress_layout_height"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="@dimen/exo_styled_progress_margin_bottom" />
+        android:layout_marginBottom="38dp" />
 
     <LinearLayout
         android:id="@id/exo_minimal_controls"

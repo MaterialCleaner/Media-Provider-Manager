@@ -32,7 +32,8 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeWidth="0dp">
+        app:strokeColor="?android:colorBackground"
+        app:strokeWidth="1dp">
 
         <ImageView
             android:id="@+id/image"
