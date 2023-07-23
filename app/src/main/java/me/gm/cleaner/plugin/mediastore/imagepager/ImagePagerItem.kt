@@ -23,7 +23,9 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.transition.TransitionSet
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -70,12 +72,34 @@ class ImagePagerItem : BaseFragment() {
         photoView.setOnScaleChangeListener { _, _, _ ->
             viewModel.isOverlaying(photoView.displayRect)
         }
-        photoView.setOnClickListener {
-            toggleAppBar(supportActionBar?.isShowing == false)
-            appBarLayout.post {
-                viewModel.isOverlaying(photoView.displayRect)
+        photoView.setOnDoubleTapListener(object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                toggleAppBar(supportActionBar?.isShowing == false)
+                appBarLayout.post {
+                    viewModel.isOverlaying(photoView.displayRect)
+                }
+                return true
             }
-        }
+
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                try {
+                    val scale = photoView.scale
+                    val x = e.x
+                    val y = e.y
+                    if (scale < photoView.mediumScale) {
+                        photoView.setScale(photoView.mediumScale, x, y, true)
+                        toggleAppBar(false)
+                    } else if (scale >= photoView.mediumScale && scale < photoView.maximumScale) {
+                        photoView.setScale(photoView.maximumScale, x, y, true)
+                    } else {
+                        photoView.setScale(photoView.minimumScale, x, y, true)
+                    }
+                } catch (e: ArrayIndexOutOfBoundsException) {
+                    // Can sometimes happen when getX() and getY() is called
+                }
+                return true
+            }
+        })
         Glide.with(this)
             .load(uri)
             .listener(object : RequestListener<Drawable?> {
