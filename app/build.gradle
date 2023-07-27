@@ -22,7 +22,7 @@ android {
         versionName 'beta8'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         multiDexEnabled false
-        resConfigs 'en', 'zh-rCN', 'zh-rTW'
+        resourceConfigurations += ['en', 'zh-rCN', 'zh-rTW']
         externalNativeBuild {
             cmake {
                 cppFlags ''
@@ -51,6 +51,7 @@ android {
         }
         jniLibs {
             excludes += ['**/liblog.so']
+            useLegacyPackaging false
         }
     }
     buildFeatures {

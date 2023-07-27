@@ -82,7 +82,6 @@ abstract class DrawerActivity : BaseActivity() {
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph).apply {
                 val startDestId = if (action == Intent.ACTION_VIEW) {
                     when {
-                        // TODO
                         MimeUtils.isAudioMimeType(intent.type) -> R.id.audio_fragment
                         MimeUtils.isImageMimeType(intent.type) -> R.id.image_pager_fragment
                         MimeUtils.isVideoMimeType(intent.type) -> R.id.video_player_fragment
