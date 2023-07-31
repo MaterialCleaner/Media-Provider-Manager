@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.core.math.MathUtils.clamp
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.media3.common.DeviceInfo
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerControlView
@@ -134,6 +135,18 @@ open class CustomOnVerticalScrubListener(
         if (!isActive) {
             return
         }
-        hideController()
+        if (controller.isFullyVisible) {
+            hideController()
+        } else {
+            // The controller is animating show.
+            // We defer setting hide until the animator finishes.
+            controller.postDelayed(DURATION_FOR_SHOWING_ANIMATION_MS) {
+                hideController()
+            }
+        }
+    }
+
+    companion object {
+        private const val DURATION_FOR_SHOWING_ANIMATION_MS: Long = 250L
     }
 }

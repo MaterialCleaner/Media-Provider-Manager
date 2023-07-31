@@ -122,19 +122,13 @@ class VideoPlayerFragment : BaseFragment() {
             // TODO: Maybe we can implement a scheme to seek fast and exact. Please refer to
             //  https://github.com/google/ExoPlayer/issues/7025
 
-            private var isVisibleOnScrubStart: Boolean = false
-
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
                 super.onScrubStart(timeBar, position)
-                isVisibleOnScrubStart = controller.isFullyVisible
                 controlViewLayoutManager.removeHideCallbacks()
             }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
                 super.onScrubStop(timeBar, position, canceled)
-                if (!isVisibleOnScrubStart) {
-                    controller.hideImmediately()
-                }
                 controlViewLayoutManager.resetHideCallbacks()
             }
         })

@@ -20,6 +20,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.ui.PlayerControlView
@@ -41,6 +42,7 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
     private lateinit var seekDelta: TextView
 
     private var playingOnScrubStart: Boolean = true
+    private var controllerVisibleOnScrubStart: Boolean = false
     private var startingPosition: Long = 0L
     private val formatBuilder: StringBuilder = StringBuilder()
     private val formatter: Formatter = Formatter(formatBuilder, Locale.getDefault())
@@ -65,6 +67,7 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
         prepareViews()
         scrubbingField[controller] = true
         playingOnScrubStart = playerView.player?.playWhenReady == true
+        controllerVisibleOnScrubStart = controller.isFullyVisible
         playerView.player?.pause()
         startingPosition = playerView.player?.currentPosition ?: 0L
         controlsBackground.isVisible = false
@@ -88,8 +91,23 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
         if (playingOnScrubStart) {
             playerView.player?.play()
         }
+        if (!controllerVisibleOnScrubStart) {
+            if (controller.isFullyVisible) {
+                controller.hideImmediately()
+            } else {
+                // The controller is animating show.
+                // We defer setting hide until the animator finishes.
+                controller.postDelayed(DURATION_FOR_SHOWING_ANIMATION_MS) {
+                    controller.hideImmediately()
+                }
+            }
+        }
     }
 
     val isScrubbing: Boolean
         get() = ::controller.isInitialized && scrubbingField[controller] as Boolean
+
+    companion object {
+        private const val DURATION_FOR_SHOWING_ANIMATION_MS: Long = 250L
+    }
 }
