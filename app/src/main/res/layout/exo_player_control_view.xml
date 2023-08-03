@@ -181,11 +181,9 @@
         android:gravity="center"
         android:padding="@dimen/exo_styled_controls_padding"
         android:shadowColor="@android:color/black"
-        android:shadowDx="0.0"
-        android:shadowDy="1.0"
-        android:shadowRadius="5.0"
+        android:shadowRadius="10.0"
         android:textColor="@android:color/white"
-        android:textSize="16sp"
+        android:textSize="22sp"
         android:visibility="gone" />
 
 </merge>
