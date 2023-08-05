@@ -1,9 +1,9 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
-        kotlinVersion = '1.8.20'
-        navigationVersion = '2.5.2'
-        hiltVersion = '2.44'
+        kotlinVersion = '1.9.0'
+        navigationVersion = '2.5.3'
+        hiltVersion = '2.46.1'
     }
     repositories {
         jcenter()
@@ -16,6 +16,10 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
     }
+}
+
+plugins {
+    id 'com.google.devtools.ksp' version '1.9.0-1.0.13' apply false
 }
 
 allprojects {
