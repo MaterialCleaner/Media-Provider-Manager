@@ -180,9 +180,9 @@ class VideoPlayerFragment : BaseFragment() {
 
                 override fun onDoubleTap(ev: MotionEvent) {
                     val player = player ?: return
+                    player.playWhenReady = !player.playWhenReady
                     playerView.useController = false
                     playerView.isClickable = true
-                    player.playWhenReady = !player.playWhenReady
                     val DURATION_FOR_HIDING_ANIMATION_MS = 250L
                     controller.postDelayed(DURATION_FOR_HIDING_ANIMATION_MS) {
                         playerView.useController = true

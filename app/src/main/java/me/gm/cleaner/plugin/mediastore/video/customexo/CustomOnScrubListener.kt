@@ -78,6 +78,10 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
     }
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
+        if (!playingOnScrubStart) {
+            controlsBackground.isVisible = false
+            centerControls.isVisible = false
+        }
         playerView.player?.seekTo(position)
         seekDelta.text = getDeltaString(position - startingPosition)
     }
@@ -92,7 +96,13 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
             playerView.player?.play()
         }
         if (!controllerVisibleOnScrubStart) {
-            if (controller.isFullyVisible) {
+            if (!playingOnScrubStart) {
+                playerView.useController = false
+                playerView.isClickable = true
+                controller.postDelayed(3 * DURATION_FOR_SHOWING_ANIMATION_MS) {
+                    playerView.useController = true
+                }
+            } else if (controller.isFullyVisible) {
                 controller.hideImmediately()
             } else {
                 // The controller is animating show.
