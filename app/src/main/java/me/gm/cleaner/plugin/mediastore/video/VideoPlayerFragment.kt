@@ -74,6 +74,10 @@ class VideoPlayerFragment : BaseFragment() {
         playerView = binding.playerView
         customizePlayerViewBehavior(playerView!!)
 
+        viewModel.screenOrientationLiveData.observe(viewLifecycleOwner) { orientation ->
+            requireActivity().requestedOrientation = orientation
+        }
+
         if (savedInstanceState != null) {
             // Restore as DefaultTrackSelector.Parameters in case ExoPlayer specific parameters were set.
             trackSelectionParameters = DefaultTrackSelector.Parameters.CREATOR.fromBundle(
@@ -200,8 +204,7 @@ class VideoPlayerFragment : BaseFragment() {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
             super.onVideoSizeChanged(videoSize)
             if (videoSize != VideoSize.UNKNOWN) {
-                viewModel.isFirstTimeEntry = false
-                requireActivity().requestedOrientation = if (videoSize.width > videoSize.height) {
+                viewModel.screenOrientation = if (videoSize.width > videoSize.height) {
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 } else {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -225,7 +228,7 @@ class VideoPlayerFragment : BaseFragment() {
             .setDeviceVolumeControlEnabled(true)
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
-                if (viewModel.isFirstTimeEntry) {
+                if (viewModel.screenOrientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
                     player.addListener(PlayerEventListener())
                 }
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)

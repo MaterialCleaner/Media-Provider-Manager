@@ -17,20 +17,32 @@
 package me.gm.cleaner.plugin.mediastore.video
 
 import android.app.Application
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.MediaStore
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
 class VideoPlayerViewModel(application: Application) : AndroidViewModel(application) {
-    var isFirstTimeEntry = true
+    private val _screenOrientationFlow: MutableStateFlow<Int> =
+        MutableStateFlow(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+    val screenOrientationLiveData: LiveData<Int>
+        get() = _screenOrientationFlow.asLiveData()
+    var screenOrientation: Int
+        get() = _screenOrientationFlow.value
+        set(value) {
+            _screenOrientationFlow.tryEmit(value)
+        }
 
     fun queryVideoInfoAsync(uri: Uri) = viewModelScope.async {
         queryVideoInfo(uri)
