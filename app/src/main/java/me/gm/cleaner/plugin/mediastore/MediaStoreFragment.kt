@@ -20,9 +20,11 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -389,6 +391,14 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
 
         R.id.menu_validation -> {
             viewModel.rescanFiles()
+            true
+        }
+
+        R.id.menu_scan_external_storage -> {
+            MediaScannerConnection.scanFile(
+                requireContext(), arrayOf(Environment.getExternalStorageDirectory().path),
+                null, null
+            )
             true
         }
 

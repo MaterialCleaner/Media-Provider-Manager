@@ -29,6 +29,10 @@
         android:title="@string/validation"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_scan_external_storage"
+        android:title="@string/scan_external_storage"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_show_all"
         android:checkable="true"
         android:title="@string/menu_show_all_title"
