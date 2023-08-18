@@ -68,6 +68,8 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
         val data = values.getAsString(MediaStore.MediaColumns.DATA)
         if (mimeType.isNullOrEmpty()) {
             mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
+            // Restore to support apps not targeting sdk R or higher
+            values.remove(MediaStore.MediaColumns.MIME_TYPE)
         }
         if (wasPathEmpty) {
             // Restore to allow mkdir
