@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.xposed.hooker
 
+import android.content.ClipDescription
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
@@ -30,6 +31,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
+import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
 import java.util.*
 
@@ -57,13 +59,16 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 ) as Int
 
         /** PARSE */
-        val mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE) ?: ""
+        var mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
         val wasPathEmpty = wasPathEmpty(values)
         if (wasPathEmpty) {
             // Generate path when undefined
             ensureUniqueFileColumns(param.thisObject, match, uri, values, mimeType)
         }
         val data = values.getAsString(MediaStore.MediaColumns.DATA)
+        if (mimeType.isNullOrEmpty()) {
+            mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
+        }
         if (wasPathEmpty) {
             // Restore to allow mkdir
             values.remove(MediaStore.MediaColumns.DATA)
@@ -103,39 +108,47 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
                 || values.getAsString(MediaStore.MediaColumns.DATA).isEmpty()
 
     private fun ensureUniqueFileColumns(
-        thisObject: Any, match: Int, uri: Uri, values: ContentValues, mimeType: String
+        thisObject: Any, match: Int, uri: Uri, values: ContentValues, mimeType: String?
     ) {
+        var defaultMimeType = ClipDescription.MIMETYPE_UNKNOWN
         var defaultPrimary = Environment.DIRECTORY_DOWNLOADS
         var defaultSecondary: String? = null
         when (match) {
             AUDIO_MEDIA, AUDIO_MEDIA_ID -> {
+                defaultMimeType = "audio/mpeg"
                 defaultPrimary = Environment.DIRECTORY_MUSIC
             }
 
             VIDEO_MEDIA, VIDEO_MEDIA_ID -> {
+                defaultMimeType = "video/mp4"
                 defaultPrimary = Environment.DIRECTORY_MOVIES
             }
 
             IMAGES_MEDIA, IMAGES_MEDIA_ID -> {
+                defaultMimeType = "image/jpeg"
                 defaultPrimary = Environment.DIRECTORY_PICTURES
             }
 
             AUDIO_ALBUMART, AUDIO_ALBUMART_ID -> {
+                defaultMimeType = "image/jpeg"
                 defaultPrimary = Environment.DIRECTORY_MUSIC
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
 
             VIDEO_THUMBNAILS, VIDEO_THUMBNAILS_ID -> {
+                defaultMimeType = "image/jpeg"
                 defaultPrimary = Environment.DIRECTORY_MOVIES
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
 
             IMAGES_THUMBNAILS, IMAGES_THUMBNAILS_ID -> {
+                defaultMimeType = "image/jpeg"
                 defaultPrimary = Environment.DIRECTORY_PICTURES
                 defaultSecondary = DIRECTORY_THUMBNAILS
             }
 
             AUDIO_PLAYLISTS, AUDIO_PLAYLISTS_ID -> {
+                defaultMimeType = "audio/mpegurl"
                 defaultPrimary = Environment.DIRECTORY_MUSIC
             }
 
@@ -208,6 +221,21 @@ class InsertHooker(private val service: ManagerService) : XC_MethodHook(), Media
             ) as File
 
             values.put(MediaStore.MediaColumns.DATA, res.absolutePath)
+        }
+
+        val displayName = values.getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+        val mimeTypeFromExt = if (TextUtils.isEmpty(displayName)) null
+        else MimeUtils.resolveMimeType(File(displayName))
+        if (TextUtils.isEmpty(values.getAsString(MediaStore.MediaColumns.MIME_TYPE))) {
+            // Extract the MIME type from the display name if we couldn't resolve it from the
+            // raw path
+            if (mimeTypeFromExt != null) {
+                values.put(MediaStore.MediaColumns.MIME_TYPE, mimeTypeFromExt)
+            } else {
+                // We couldn't resolve mimeType, it means that both display name and MIME type
+                // were missing in values, so we use defaultMimeType.
+                values.put(MediaStore.MediaColumns.MIME_TYPE, defaultMimeType)
+            }
         }
     }
 
