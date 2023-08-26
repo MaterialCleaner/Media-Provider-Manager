@@ -43,7 +43,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textAppearance="?android:textAppearanceMedium"
             android:textColor="?android:textColorPrimary" />
 
         <TextView
@@ -53,7 +53,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textAppearance="?textAppearanceBody2"
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 </LinearLayout>

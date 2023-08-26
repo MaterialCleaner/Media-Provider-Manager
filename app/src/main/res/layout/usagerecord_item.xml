@@ -45,7 +45,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textAppearance="?android:textAppearanceMedium"
             android:textColor="?android:textColorPrimary" />
 
         <TextView
@@ -57,13 +57,31 @@
             android:textColor="?android:textColorSecondary" />
     </LinearLayout>
 
-    <me.gm.cleaner.plugin.widget.CustomSuffixTextView
-        android:id="@+id/record"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textAlignment="viewStart"
-        android:textAppearance="?textAppearanceBody2"
-        android:textColor="?android:textColorSecondary" />
+        android:layout_marginTop="@dimen/card_margin"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="?textAppearanceBody2"
+            android:textColor="?android:textColorSecondary" />
+
+        <TextView
+            android:id="@+id/suffix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="?textAppearanceBody2"
+            android:textColor="?android:textColorSecondary" />
+    </LinearLayout>
 </LinearLayout>

@@ -39,6 +39,6 @@
         android:layout_marginStart="@dimen/m3_compound_button_preferred_margin"
         android:text="@string/create_template_title"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textAppearance="?android:textAppearanceMedium"
         android:textColor="?android:textColorPrimary" />
 </LinearLayout>

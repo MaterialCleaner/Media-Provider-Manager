@@ -40,7 +40,7 @@
             android:paddingHorizontal="@dimen/screen_edge"
             android:paddingTop="@dimen/card_margin"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
+            android:textAppearance="?textAppearanceBody2" />
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.progressindicator.CircularProgressIndicator

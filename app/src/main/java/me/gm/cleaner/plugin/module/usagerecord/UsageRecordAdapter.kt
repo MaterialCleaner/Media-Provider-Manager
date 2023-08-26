@@ -66,9 +66,8 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             buildSpannedString { strikeThrough { append(operation) } } else operation
         val more = record.data.size - 1
         val hasMore = more > 0
-        binding.record.setTextAndSuffix(
-            record.data.first(), if (hasMore) fragment.getString(R.string.and_more, more) else null
-        )
+        binding.text.text = record.data.first()
+        binding.suffix.text = if (hasMore) fragment.getString(R.string.and_more, more) else null
         binding.root.setOnClickListener {
             val adapter = ArrayAdapter(
                 context, R.layout.usagerecord_popup_item,

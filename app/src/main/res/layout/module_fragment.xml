@@ -30,6 +30,6 @@
         android:padding="@dimen/screen_edge"
         android:text="@string/guide_active"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        android:textAppearance="?textAppearanceBody2"
         app:drawableTopCompat="@drawable/ic_outline_error_outline_48" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
