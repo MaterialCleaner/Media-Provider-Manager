@@ -45,7 +45,7 @@ import rikka.recyclerview.fixEdgeEffect
 import java.text.Collator
 
 class AppFragment : ModuleFragment() {
-    private val args: AppFragmentArgs by navArgs()
+    val args: AppFragmentArgs by navArgs()
     var lastTemplateName: String? = null
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -55,9 +55,13 @@ class AppFragment : ModuleFragment() {
         val binding = AppFragmentBinding.inflate(layoutInflater)
 
         val templatesAdapter = TemplatesAdapter(this)
-        val templatesFooterAdapter = TemplatesFooterAdapter(this)
+        val createTemplateAdapter = CreateTemplateAdapter(this)
+        val addToExistingTemplateAdapter = AddToExistingTemplateAdapter(this)
         val adapters = ConcatAdapter(
-            AppHeaderAdapter(this), templatesAdapter, templatesFooterAdapter
+            AppHeaderAdapter(this),
+            templatesAdapter,
+            createTemplateAdapter,
+            addToExistingTemplateAdapter
         )
         val list = binding.list
         liftOnScrollTargetView = list
@@ -92,23 +96,27 @@ class AppFragment : ModuleFragment() {
 
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
             val currentList = prepareCurrentList()
-            templatesAdapter.submitList(currentList)
-            if (currentList.any { it.templateName == args.label }) {
-                adapters.removeAdapter(templatesFooterAdapter)
+            templatesAdapter.submitList(currentList.first)
+            addToExistingTemplateAdapter.submitList(currentList.second)
+            if (currentList.first.any { it.templateName == args.label }) {
+                adapters.removeAdapter(createTemplateAdapter)
             } else {
-                adapters.addAdapter(templatesFooterAdapter)
+                adapters.addAdapter(
+                    adapters.adapters.indexOfFirst { it is TemplatesAdapter } + 1,
+                    createTemplateAdapter
+                )
             }
         }
 
         prepareSharedElementTransition(list)
         setFragmentResultListener(CreateTemplateFragment::class.java.name) { _, bundle ->
             lastTemplateName = bundle.getString(CreateTemplateFragment.KEY_TEMPLATE_NAME)
-            var position = prepareCurrentList().indexOfFirst { it.templateName == lastTemplateName }
-            if (position != -1) {
-                position++
-            } else {
-                position = adapters.itemCount - templatesFooterAdapter.itemCount
-                lastTemplateName = CreateTemplateFragment.NULL_TEMPLATE_NAME
+            val currentList = prepareCurrentList()
+            var position = 1 +
+                    currentList.first.indexOfFirst { it.templateName == lastTemplateName }
+            if (position == 0) {
+                position = 1 + currentList.first.size + 1 +
+                        currentList.second.indexOfFirst { it.templateName == lastTemplateName }
             }
             prepareTransitions(list, position)
             postponeEnterTransition()
@@ -117,11 +125,11 @@ class AppFragment : ModuleFragment() {
         return binding.root
     }
 
-    private fun prepareCurrentList(): List<Template> {
+    private fun prepareCurrentList(): Pair<List<Template>, List<Template>> {
         val collator = Collator.getInstance()
         return Templates(binderViewModel.readSp(R.xml.template_preferences)).values
-            .filter { it.applyToApp?.contains(args.packageInfo.packageName) == true }
             .sortedWith { o1, o2 -> collator.compare(o1?.templateName, o2?.templateName) }
+            .partition { it.applyToApp?.contains(args.packageInfo.packageName) == true }
     }
 
     private fun prepareTransitions(list: RecyclerView, position: Int) {

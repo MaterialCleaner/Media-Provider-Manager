@@ -169,8 +169,8 @@ class TemplatesAdapter(private val fragment: AppFragment) :
     }
 }
 
-class TemplatesFooterAdapter(private val fragment: AppFragment) :
-    RecyclerView.Adapter<TemplatesFooterAdapter.ViewHolder>() {
+class CreateTemplateAdapter(private val fragment: AppFragment) :
+    RecyclerView.Adapter<CreateTemplateAdapter.ViewHolder>() {
     private val args: AppFragmentArgs by fragment.navArgs()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -208,6 +208,52 @@ class TemplatesFooterAdapter(private val fragment: AppFragment) :
     class ViewHolder(val binding: TemplatesHeaderBinding) : DividerViewHolder(binding.root) {
         init {
             isDividerAllowedAbove = true
+        }
+    }
+}
+
+class AddToExistingTemplateAdapter(private val fragment: AppFragment) :
+    ListAdapter<Template, AddToExistingTemplateAdapter.ViewHolder>(CALLBACK) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        val item = getItem(position)
+        val templateName = item.templateName
+        binding.title.text = fragment.getString(
+            R.string.add_to_existing_template_title, templateName
+        )
+        binding.root.transitionName = templateName
+        binding.root.setOnClickListener {
+            val modified = Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
+                .values.toMutableList()
+            val oldTemplateIndex = modified.indexOfFirst { it.templateName == templateName }
+            val oldTemplate = modified[oldTemplateIndex]
+            modified[oldTemplateIndex] = oldTemplate.copy(
+                applyToApp = mutableListOf(fragment.args.packageInfo.packageName) +
+                        (oldTemplate.applyToApp ?: emptyList())
+            )
+            fragment.binderViewModel.writeSp(
+                R.xml.template_preferences, Gson().toJson(modified)
+            )
+        }
+
+        if (fragment.lastTemplateName == templateName) {
+            fragment.startPostponedEnterTransition()
+        }
+    }
+
+    class ViewHolder(val binding: TemplatesHeaderBinding) : RecyclerView.ViewHolder(binding.root)
+
+    companion object {
+        private val CALLBACK = object : DiffUtil.ItemCallback<Template>() {
+            override fun areItemsTheSame(oldItem: Template, newItem: Template): Boolean =
+                oldItem.templateName == newItem.templateName
+
+            override fun areContentsTheSame(oldItem: Template, newItem: Template): Boolean =
+                oldItem == newItem
         }
     }
 }
