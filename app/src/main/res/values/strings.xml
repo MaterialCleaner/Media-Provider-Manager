@@ -35,6 +35,7 @@
     <string name="and_more"> and %d more</string>
     <string name="copied">Copied: %s</string>
     <string name="add_to_existing_template_title">Add to existing template: %s</string>
+    <string name="remove_from_template">Remove this app from the template</string>
 
     <!-- Menu -->
     <string name="search">Search</string>

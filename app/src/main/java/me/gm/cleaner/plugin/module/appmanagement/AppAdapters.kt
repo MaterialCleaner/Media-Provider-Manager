@@ -132,20 +132,41 @@ class TemplatesAdapter(private val fragment: AppFragment) :
             navController.navigate(direction, extras)
         }
         binding.root.setOnCreateContextMenuListener { menu, _, _ ->
-            activity.menuInflater.inflate(R.menu.item_delete, menu)
+            activity.menuInflater.inflate(R.menu.app_item, menu)
             menu.setHeaderTitle(templateName)
             menu.forEach {
                 it.setOnMenuItemClickListener { item ->
-                    if (item.itemId == R.id.menu_delete) {
-                        val modified =
-                            Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
-                                .values.filterNot { it.templateName == templateName }
-                        fragment.binderViewModel.writeSp(
-                            R.xml.template_preferences, Gson().toJson(modified)
-                        )
-                        true
-                    } else {
-                        false
+                    when (item.itemId) {
+                        R.id.menu_remove_from_template -> {
+                            val modified =
+                                Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
+                                    .values.toMutableList()
+                            val oldTemplateIndex =
+                                modified.indexOfFirst { it.templateName == templateName }
+                            val oldTemplate = modified[oldTemplateIndex]
+                            modified[oldTemplateIndex] = oldTemplate.copy(
+                                applyToApp = (oldTemplate.applyToApp ?: emptyList()) -
+                                        fragment.args.packageInfo.packageName
+                            )
+                            fragment.binderViewModel.writeSp(
+                                R.xml.template_preferences, Gson().toJson(modified)
+                            )
+                            true
+                        }
+
+                        R.id.menu_delete -> {
+                            val modified =
+                                Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
+                                    .values.filterNot { it.templateName == templateName }
+                            fragment.binderViewModel.writeSp(
+                                R.xml.template_preferences, Gson().toJson(modified)
+                            )
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
                     }
                 }
             }

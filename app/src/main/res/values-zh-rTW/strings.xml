@@ -34,6 +34,7 @@
     <string name="and_more">更多 %d 項</string>
     <string name="copied">已複製：%s</string>
     <string name="add_to_existing_template_title">添加到已有模板：%s</string>
+    <string name="remove_from_template">從模板中移除此應用</string>
 
     <!-- 菜單 -->
     <string name="search">搜尋</string>
