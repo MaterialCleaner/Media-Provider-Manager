@@ -130,7 +130,7 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     val recoverableSecurityException =
                         securityException as? RecoverableSecurityException
-                            ?: throw securityException
+                            ?: return@withContext // from MediaStore.createDeleteRequest()
 
                     // Signal to the Activity that it needs to request permission and
                     // try the delete again if it succeeds.
