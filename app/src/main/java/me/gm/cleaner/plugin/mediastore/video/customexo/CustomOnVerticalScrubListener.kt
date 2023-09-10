@@ -42,16 +42,9 @@ open class CustomOnVerticalScrubListener(
 
     private val density: Float = playerView.resources.displayMetrics.density * 2
     private val isRtl: Boolean = playerView.resources.configuration.isRtl
-    private var isActive: Boolean = true
     private var atLeftHalfScreen: Boolean = true
     private var screenBrightness: Float = window.attributes.screenBrightness
     private var currentVolume: Float = 0F
-
-    private val top: Int by lazy {
-        val res = playerView.resources
-        val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
-        res.getDimensionPixelSize(resourceId)
-    }
 
     private fun prepare() {
         if (::seekDelta.isInitialized) {
@@ -85,12 +78,6 @@ open class CustomOnVerticalScrubListener(
     }
 
     fun onScrubStart(initialMotionX: Float, initialMotionY: Float) {
-        if (initialMotionY <= top) {
-            isActive = false
-            return
-        } else {
-            isActive = true
-        }
         val player = playerView.player ?: return
         prepare()
         setOnlyTextVisible()
@@ -105,9 +92,6 @@ open class CustomOnVerticalScrubListener(
     }
 
     fun onScrubMove(dy: Float) {
-        if (!isActive) {
-            return
-        }
         val player = playerView.player ?: return
         if (!isRtl && atLeftHalfScreen || isRtl && !atLeftHalfScreen) {
             screenBrightness = clamp(
@@ -132,9 +116,6 @@ open class CustomOnVerticalScrubListener(
     }
 
     fun onScrubStop() {
-        if (!isActive) {
-            return
-        }
         if (controller.isFullyVisible) {
             hideController()
         } else {

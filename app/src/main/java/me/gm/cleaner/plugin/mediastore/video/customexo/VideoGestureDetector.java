@@ -56,9 +56,13 @@ public class VideoGestureDetector {
         final GestureDetector.SimpleOnGestureListener onDoubleTapListener
                 = new GestureDetector.SimpleOnGestureListener() {
             @Override
+            public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+                return mListener.onSingleTapConfirmed(e);
+            }
+
+            @Override
             public boolean onDoubleTap(@NonNull MotionEvent ev) {
-                mListener.onDoubleTap(ev);
-                return false;
+                return mListener.onDoubleTap(ev);
             }
         };
         mDetector = new GestureDetector(context, onDoubleTapListener);
@@ -182,6 +186,8 @@ public class VideoGestureDetector {
 
         void onVerticalScrubEnd();
 
-        void onDoubleTap(@NonNull MotionEvent ev);
+        boolean onSingleTapConfirmed(@NonNull MotionEvent ev);
+
+        boolean onDoubleTap(@NonNull MotionEvent ev);
     }
 }

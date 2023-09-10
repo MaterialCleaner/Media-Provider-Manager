@@ -72,7 +72,7 @@ class VideoPlayerFragment : BaseFragment() {
     ): View {
         val binding = VideoPlayerFragmentBinding.inflate(inflater)
         playerView = binding.playerView
-        customizePlayerViewBehavior(playerView!!)
+        customizePlayerViewBehavior(playerView!!, binding.gestureView)
 
         viewModel.screenOrientationLiveData.observe(viewLifecycleOwner) { orientation ->
             requireActivity().requestedOrientation = orientation
@@ -101,7 +101,7 @@ class VideoPlayerFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun customizePlayerViewBehavior(playerView: PlayerView) {
+    private fun customizePlayerViewBehavior(playerView: PlayerView, gestureView: View) {
         val controller =
             playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
         val timeBar = controller.findViewById<CustomTimeBar>(androidx.media3.ui.R.id.exo_progress)
@@ -182,8 +182,14 @@ class VideoPlayerFragment : BaseFragment() {
                     customOnVerticalScrubListener.onScrubStop()
                 }
 
-                override fun onDoubleTap(ev: MotionEvent) {
-                    val player = player ?: return
+                override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
+                    val player = player ?: return false
+                    // TODO
+                    return true
+                }
+
+                override fun onDoubleTap(ev: MotionEvent): Boolean {
+                    val player = player ?: return false
                     player.playWhenReady = !player.playWhenReady
                     playerView.useController = false
                     playerView.isClickable = true
@@ -191,12 +197,14 @@ class VideoPlayerFragment : BaseFragment() {
                     controller.postDelayed(DURATION_FOR_HIDING_ANIMATION_MS) {
                         playerView.useController = true
                     }
+                    return true
                 }
             }
         )
         //noinspection ClickableViewAccessibility
-        playerView.setOnTouchListener { _, event ->
+        gestureView.setOnTouchListener { _, event ->
             detector.onTouchEvent(event)
+            true
         }
     }
 
