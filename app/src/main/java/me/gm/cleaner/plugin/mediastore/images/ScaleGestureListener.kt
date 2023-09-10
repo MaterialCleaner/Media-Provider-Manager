@@ -105,7 +105,9 @@ class ScaleGestureListener(
     )
 
     @SuppressLint("RestrictedApi")
-    fun animateProgress(from: Float, to: Float, doOnEnd: ((animator: Animator) -> Unit)? = null) {
+    private fun animateProgress(
+        from: Float, to: Float, doOnEnd: ((animator: Animator) -> Unit)? = null
+    ) {
         scaleEndAnimator?.cancel()
         scaleEndAnimator = ValueAnimator.ofFloat(from, to).apply {
             duration = (context.mediumAnimTime * abs(to - from)).toLong()

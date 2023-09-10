@@ -43,7 +43,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     // @see https://developer.android.com/training/system-ui/immersive#EnableFullscreen
-    fun toggleAppBar(show: Boolean) {
+    open fun toggleAppBar(show: Boolean) {
         val window = requireActivity().window
         val insetsController = WindowInsetsControllerCompat(window, window.decorView)
         insetsController.systemBarsBehavior =

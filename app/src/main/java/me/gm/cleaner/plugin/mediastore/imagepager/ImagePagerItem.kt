@@ -104,7 +104,7 @@ class ImagePagerItem : BaseFragment() {
             .load(uri)
             .listener(object : RequestListener<Drawable?> {
                 override fun onLoadFailed(
-                    e: GlideException?, model: Any?, target: Target<Drawable?>?,
+                    e: GlideException?, model: Any?, target: Target<Drawable?>,
                     isFirstResource: Boolean
                 ): Boolean {
                     Toast
@@ -116,8 +116,8 @@ class ImagePagerItem : BaseFragment() {
                 }
 
                 override fun onResourceReady(
-                    resource: Drawable?, model: Any?, target: Target<Drawable?>?,
-                    dataSource: DataSource?, isFirstResource: Boolean
+                    resource: Drawable, model: Any, target: Target<Drawable?>,
+                    dataSource: DataSource, isFirstResource: Boolean
                 ): Boolean {
                     photoView.doOnPreDraw {
                         val displayRect = photoView.displayRect

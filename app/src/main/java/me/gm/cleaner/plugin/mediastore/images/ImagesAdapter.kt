@@ -62,7 +62,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     .load(item.contentUri)
                     .listener(object : RequestListener<Drawable?> {
                         override fun onLoadFailed(
-                            e: GlideException?, model: Any?, target: Target<Drawable?>?,
+                            e: GlideException?, model: Any?, target: Target<Drawable?>,
                             isFirstResource: Boolean
                         ): Boolean {
                             if (fragment.lastPosition == getUriPositionForAdapterPosition(holder.bindingAdapterPosition)) {
@@ -72,8 +72,8 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                         }
 
                         override fun onResourceReady(
-                            resource: Drawable?, model: Any?, target: Target<Drawable?>?,
-                            dataSource: DataSource?, isFirstResource: Boolean
+                            resource: Drawable, model: Any, target: Target<Drawable?>,
+                            dataSource: DataSource, isFirstResource: Boolean
                         ): Boolean {
                             if (fragment.lastPosition == getUriPositionForAdapterPosition(holder.bindingAdapterPosition)) {
                                 fragment.startPostponedEnterTransition()

@@ -8,11 +8,11 @@ apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'dagger.hilt.android.plugin'
 
 def gitCommitCount = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
-def sdk = 33
+def sdk = 34
 
 android {
     compileSdk sdk
-    buildToolsVersion = '33.0.2'
+    buildToolsVersion = '34.0.0'
     ndkVersion '25.2.9519653'
 
     defaultConfig {
@@ -95,7 +95,7 @@ afterEvaluate {
 
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
     implementation 'androidx.recyclerview:recyclerview:1.3.1'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
@@ -104,7 +104,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationVersion"
-    def lifecycleVersion = '2.6.1'
+    def lifecycleVersion = '2.6.2'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
@@ -119,7 +119,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
     // https://issuetracker.google.com/issues/179057202
     kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
-    def glideVersion = '4.15.1'
+    def glideVersion = '4.16.0'
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     ksp "com.github.bumptech.glide:ksp:$glideVersion"
     def media3Version = '1.1.0'
