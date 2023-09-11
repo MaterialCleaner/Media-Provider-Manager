@@ -23,10 +23,10 @@ import android.widget.TextView
 import androidx.core.math.MathUtils.clamp
 import androidx.core.view.children
 import androidx.core.view.isVisible
-import androidx.core.view.postDelayed
 import androidx.media3.common.DeviceInfo
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerControlView
+import androidx.media3.ui.PlayerControlViewLayoutManagerAccessor
 import androidx.media3.ui.PlayerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.isRtl
@@ -34,9 +34,11 @@ import kotlin.math.roundToInt
 
 @UnstableApi
 open class CustomOnVerticalScrubListener(
-    private val window: Window, private val playerView: PlayerView
+    private val window: Window,
+    private val playerView: PlayerView,
+    private val controller: PlayerControlView,
+    private val controlViewLayoutManager: PlayerControlViewLayoutManagerAccessor
 ) {
-    private lateinit var controller: PlayerControlView
     private lateinit var seekDelta: TextView
     private lateinit var deviceInfo: DeviceInfo
 
@@ -50,23 +52,8 @@ open class CustomOnVerticalScrubListener(
         if (::seekDelta.isInitialized) {
             return
         }
-        controller = playerView.findViewById(androidx.media3.ui.R.id.exo_controller)
         seekDelta = playerView.findViewById(R.id.seek_delta)
         deviceInfo = playerView.player!!.deviceInfo
-    }
-
-    private fun setOnlyTextVisible() {
-        controller.show()
-        controller.children.forEach { child ->
-            child.isVisible = child === seekDelta
-        }
-    }
-
-    private fun hideController() {
-        controller.children.forEach { child ->
-            child.isVisible = child !== seekDelta
-        }
-        controller.hideImmediately()
     }
 
     private fun getBrightnessString(brightness: Float): String = "${(100 * brightness).toInt()} %"
@@ -80,7 +67,12 @@ open class CustomOnVerticalScrubListener(
     fun onScrubStart(initialMotionX: Float, initialMotionY: Float) {
         val player = playerView.player ?: return
         prepare()
-        setOnlyTextVisible()
+        controller.children.forEach { child ->
+            child.isVisible = child === seekDelta
+        }
+        controlViewLayoutManager.showImmediately()
+        controlViewLayoutManager.removeHideCallbacks()
+
         atLeftHalfScreen = initialMotionX < playerView.width / 2
         if (screenBrightness == WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE) {
             val SCREEN_BRIGHTNESS_FLOAT = "screen_brightness_float"
@@ -116,18 +108,9 @@ open class CustomOnVerticalScrubListener(
     }
 
     fun onScrubStop() {
-        if (controller.isFullyVisible) {
-            hideController()
-        } else {
-            // The controller is animating show.
-            // We defer setting hide until the animator finishes.
-            controller.postDelayed(DURATION_FOR_SHOWING_ANIMATION_MS) {
-                hideController()
-            }
+        controller.children.forEach { child ->
+            child.isVisible = child !== seekDelta
         }
-    }
-
-    companion object {
-        private const val DURATION_FOR_SHOWING_ANIMATION_MS: Long = 250L
+        controlViewLayoutManager.hideImmediately()
     }
 }

@@ -19,8 +19,26 @@ package androidx.media3.ui
 import me.gm.cleaner.plugin.ktx.getObjectField
 
 class PlayerControlViewLayoutManagerAccessor(controller: PlayerControlView) {
-    internal val controlViewLayoutManager =
+    private val controlViewLayoutManager =
         controller.getObjectField<PlayerControlViewLayoutManager>()
+
+    fun show() {
+        controlViewLayoutManager.show()
+    }
+
+    fun showImmediately() {
+        controlViewLayoutManager.isAnimationEnabled = false
+        controlViewLayoutManager.show()
+        controlViewLayoutManager.isAnimationEnabled = true
+    }
+
+    fun hide() {
+        controlViewLayoutManager.hide()
+    }
+
+    fun hideImmediately() {
+        controlViewLayoutManager.hideImmediately()
+    }
 
     fun removeHideCallbacks() {
         controlViewLayoutManager.removeHideCallbacks()
