@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.postDelayed
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
@@ -44,7 +44,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnScrubListener
+import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnHorizontalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnVerticalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
 import me.gm.cleaner.plugin.mediastore.video.customexo.VideoGestureDetector
@@ -97,47 +97,45 @@ class VideoPlayerFragment : BaseFragment() {
             toDefaultAppBarState(destination)
             requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
                 .removeInterceptTouchEventListener(forbidDrawerGestureListener)
+            requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+                .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
         return binding.root
     }
 
     private fun customizePlayerViewBehavior(playerView: PlayerView, gestureView: View) {
+        playerView.controllerAutoShow = false
+        playerView.isClickable = false
+
         val controller =
             playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
         val timeBar = controller.findViewById<CustomTimeBar>(androidx.media3.ui.R.id.exo_progress)
         timeBar.addListener(timeBar)
 
         val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
-        timeBar.addListener(object : CustomOnScrubListener(playerView) {
+        timeBar.addListener(object : CustomOnHorizontalScrubListener(
+            playerView, controller, controlViewLayoutManager
+        ) {
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
                 (playerView.player as? ExoPlayer)?.setSeekParameters(SeekParameters.CLOSEST_SYNC)
                 super.onScrubStart(timeBar, position)
-                controlViewLayoutManager.removeHideCallbacks()
             }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
                 (playerView.player as? ExoPlayer)?.setSeekParameters(null)
                 super.onScrubStop(timeBar, position, canceled)
-                controlViewLayoutManager.resetHideCallbacks()
             }
         })
 
-        val listeners = arrayOf(timeBar, object : CustomOnScrubListener(playerView) {
+        val listeners = arrayOf(timeBar, object : CustomOnHorizontalScrubListener(
+            playerView, controller, controlViewLayoutManager
+        ) {
             // TODO: Maybe we can implement a scheme to seek fast and exact. Please refer to
             //  https://github.com/google/ExoPlayer/issues/7025
 
-            override fun onScrubStart(timeBar: TimeBar, position: Long) {
-                super.onScrubStart(timeBar, position)
-                controlViewLayoutManager.removeHideCallbacks()
-            }
-
-            override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
-                super.onScrubStop(timeBar, position, canceled)
-                controlViewLayoutManager.resetHideCallbacks()
-            }
         })
         val customOnVerticalScrubListener = CustomOnVerticalScrubListener(
-            requireActivity().window, playerView
+            requireActivity().window, playerView, controller, controlViewLayoutManager
         )
         val detector = VideoGestureDetector(
             requireContext(), object : VideoGestureDetector.OnVideoGestureListener {
@@ -183,20 +181,17 @@ class VideoPlayerFragment : BaseFragment() {
                 }
 
                 override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
-                    val player = player ?: return false
-                    // TODO
+                    if (controller.isFullyVisible) {
+                        controlViewLayoutManager.hide()
+                    } else {
+                        controlViewLayoutManager.show()
+                    }
                     return true
                 }
 
                 override fun onDoubleTap(ev: MotionEvent): Boolean {
                     val player = player ?: return false
                     player.playWhenReady = !player.playWhenReady
-                    playerView.useController = false
-                    playerView.isClickable = true
-                    val DURATION_FOR_HIDING_ANIMATION_MS = 250L
-                    controller.postDelayed(DURATION_FOR_HIDING_ANIMATION_MS) {
-                        playerView.useController = true
-                    }
                     return true
                 }
             }
@@ -296,6 +291,8 @@ class VideoPlayerFragment : BaseFragment() {
         toggleAppBar(false)
         requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
             .addInterceptTouchEventListener(forbidDrawerGestureListener)
+        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+            .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

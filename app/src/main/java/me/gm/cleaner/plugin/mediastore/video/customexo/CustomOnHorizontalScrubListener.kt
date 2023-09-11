@@ -17,13 +17,14 @@
 package me.gm.cleaner.plugin.mediastore.video.customexo
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
-import androidx.core.view.postDelayed
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
 import androidx.media3.ui.PlayerControlView
+import androidx.media3.ui.PlayerControlViewLayoutManagerAccessor
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.TimeBar
 import me.gm.cleaner.plugin.R
@@ -32,14 +33,19 @@ import java.util.Formatter
 import java.util.Locale
 
 @UnstableApi
-open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.OnScrubListener {
+open class CustomOnHorizontalScrubListener(
+    private val playerView: PlayerView,
+    private val controller: PlayerControlView,
+    private val controlViewLayoutManager: PlayerControlViewLayoutManagerAccessor
+) : TimeBar.OnScrubListener {
     private val scrubbingField: Field = PlayerControlView::class.java
         .getDeclaredField("scrubbing")
         .apply { isAccessible = true }
-    private lateinit var controller: PlayerControlView
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
     private lateinit var seekDelta: TextView
+    private lateinit var bottomBar: ViewGroup
+    private lateinit var timeBar: View
 
     private var playingOnScrubStart: Boolean = true
     private var controllerVisibleOnScrubStart: Boolean = false
@@ -48,14 +54,15 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
     private val formatter: Formatter = Formatter(formatBuilder, Locale.getDefault())
 
     private fun prepareViews() {
-        if (::controller.isInitialized) {
+        if (::controlsBackground.isInitialized) {
             return
         }
-        controller = playerView.findViewById(androidx.media3.ui.R.id.exo_controller)
         controlsBackground =
-            playerView.findViewById(androidx.media3.ui.R.id.exo_controls_background)
-        centerControls = playerView.findViewById(androidx.media3.ui.R.id.exo_center_controls)
-        seekDelta = playerView.findViewById(R.id.seek_delta)
+            controller.findViewById(androidx.media3.ui.R.id.exo_controls_background)
+        centerControls = controller.findViewById(androidx.media3.ui.R.id.exo_center_controls)
+        seekDelta = controller.findViewById(R.id.seek_delta)
+        bottomBar = controller.findViewById<ViewGroup>(androidx.media3.ui.R.id.exo_bottom_bar)
+        timeBar = controller.findViewById<View>(androidx.media3.ui.R.id.exo_progress)
     }
 
     private fun getDeltaString(timeMs: Long): String {
@@ -68,20 +75,21 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
         scrubbingField[controller] = true
         playingOnScrubStart = playerView.player?.playWhenReady == true
         controllerVisibleOnScrubStart = controller.isFullyVisible
-        playerView.player?.pause()
-        startingPosition = playerView.player?.currentPosition ?: 0L
         controlsBackground.isVisible = false
         centerControls.isVisible = false
         seekDelta.isVisible = true
+        bottomBar.translationY = 0F
+        this.timeBar.translationY = 0F
+        controlViewLayoutManager.showImmediately()
+        controlViewLayoutManager.removeHideCallbacks()
+
+        playerView.player?.pause()
+        startingPosition = playerView.player?.currentPosition ?: 0L
         playerView.player?.seekTo(position)
         seekDelta.text = getDeltaString(position - startingPosition)
     }
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
-        if (!playingOnScrubStart) {
-            controlsBackground.isVisible = false
-            centerControls.isVisible = false
-        }
         playerView.player?.seekTo(position)
         seekDelta.text = getDeltaString(position - startingPosition)
     }
@@ -91,33 +99,18 @@ open class CustomOnScrubListener(private val playerView: PlayerView) : TimeBar.O
         controlsBackground.isVisible = true
         centerControls.isVisible = true
         seekDelta.isVisible = false
+        if (controllerVisibleOnScrubStart) {
+            controlViewLayoutManager.resetHideCallbacks()
+        } else {
+            controlViewLayoutManager.hideImmediately()
+        }
+
         playerView.player?.seekTo(position)
         if (playingOnScrubStart) {
             playerView.player?.play()
         }
-        if (!controllerVisibleOnScrubStart) {
-            if (!playingOnScrubStart) {
-                playerView.useController = false
-                playerView.isClickable = true
-                controller.postDelayed(3 * DURATION_FOR_SHOWING_ANIMATION_MS) {
-                    playerView.useController = true
-                }
-            } else if (controller.isFullyVisible) {
-                controller.hideImmediately()
-            } else {
-                // The controller is animating show.
-                // We defer setting hide until the animator finishes.
-                controller.postDelayed(DURATION_FOR_SHOWING_ANIMATION_MS) {
-                    controller.hideImmediately()
-                }
-            }
-        }
     }
 
     val isScrubbing: Boolean
-        get() = ::controller.isInitialized && scrubbingField[controller] as Boolean
-
-    companion object {
-        private const val DURATION_FOR_SHOWING_ANIMATION_MS: Long = 250L
-    }
+        get() = scrubbingField[controller] as Boolean
 }
