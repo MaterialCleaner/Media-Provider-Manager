@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuItemImpl;
 import androidx.appcompat.view.menu.MenuView;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.view.ViewCompat;
 
 import me.gm.cleaner.plugin.databinding.DesignBottomBarItemBinding;
@@ -78,6 +79,7 @@ public class BottomActionBarMenuView extends LinearLayout implements MenuView {
             View child = itemBinding.getRoot();
             child.setOnClickListener(onClickListener);
             child.setTag(item);
+            TooltipCompat.setTooltipText(child, item.getTitle());
             addView(child);
         }
     }
