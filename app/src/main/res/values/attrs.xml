@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2021 Green Mushroom
+  ~ Copyright 2023 Green Mushroom
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item
-        android:id="@+id/menu_screen_rotation"
-        android:icon="@drawable/ic_outline_screen_rotation_24"
-        android:title="@string/screen_rotation"
-        app:showAsAction="ifRoom" />
-
-</menu>
+<resources>
+    <declare-styleable name="BottomActionBar">
+        <!-- The menu resource to inflate and populate items from. Attribute type definition is in
+             navigation package. -->
+        <attr name="menu" />
+    </declare-styleable>
+</resources>

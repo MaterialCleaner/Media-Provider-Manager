@@ -51,6 +51,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.widget.BottomActionBar
 
 /**
  * A fragment for displaying a series of images in a [ViewPager2].
@@ -65,6 +66,7 @@ class ImagePagerFragment : BaseFragment() {
     private val uris = arrayListOf<Uri>()
     private val displayNames = arrayListOf<String>()
     private lateinit var viewPager: ViewPager2
+    private lateinit var bottomActionBar: BottomActionBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +102,12 @@ class ImagePagerFragment : BaseFragment() {
                 isFirstTimeEntry = false
                 toggleAppBar(!isOverlaying)
             }
+        }
+        bottomActionBar = binding.bottomActionBar
+        if (args.isMediaStoreUri) {
+            bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
+        } else {
+            bottomActionBar.hide()
         }
 
         viewPager = binding.viewPager
@@ -224,14 +232,20 @@ class ImagePagerFragment : BaseFragment() {
         }
     }
 
+    override fun toggleAppBar(show: Boolean) {
+        super.toggleAppBar(show)
+        if (args.isMediaStoreUri) {
+            if (show) {
+                bottomActionBar.show()
+            } else {
+                bottomActionBar.hide()
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.image_pager_toolbar, menu)
-        if (!args.isMediaStoreUri) {
-            menu.removeItem(R.id.menu_info)
-            menu.removeItem(R.id.menu_share)
-            menu.removeItem(R.id.menu_delete)
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

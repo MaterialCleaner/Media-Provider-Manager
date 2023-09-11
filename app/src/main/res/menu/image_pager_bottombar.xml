@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2021 Green Mushroom
+  ~ Copyright 2023 Green Mushroom
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,9 +20,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_screen_rotation"
-        android:icon="@drawable/ic_outline_screen_rotation_24"
-        android:title="@string/screen_rotation"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/menu_info"
+        android:icon="@drawable/ic_outline_info_24"
+        android:title="@string/info"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_outline_share_24"
+        android:title="@string/share"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_outline_delete_24"
+        android:title="@string/delete"
+        app:showAsAction="always" />
 
 </menu>
