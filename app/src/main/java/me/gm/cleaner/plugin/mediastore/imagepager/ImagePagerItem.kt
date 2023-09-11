@@ -58,6 +58,9 @@ class ImagePagerItem : BaseFragment() {
     private val uri: Uri by lazy {
         BundleCompat.getParcelable(requireArguments(), KEY_IMAGE_URI, Uri::class.java)!!
     }
+    private val parentFragment: ImagePagerFragment by lazy {
+        requireParentFragment() as ImagePagerFragment
+    }
     private lateinit var photoView: PhotoView
 
     override fun onCreateView(
@@ -74,7 +77,7 @@ class ImagePagerItem : BaseFragment() {
         }
         photoView.setOnDoubleTapListener(object : GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                toggleAppBar(supportActionBar?.isShowing == false)
+                parentFragment.toggleAppBar(supportActionBar?.isShowing == false)
                 appBarLayout.post {
                     viewModel.isOverlaying(photoView.displayRect)
                 }
@@ -88,7 +91,7 @@ class ImagePagerItem : BaseFragment() {
                     val y = e.y
                     if (scale < photoView.mediumScale) {
                         photoView.setScale(photoView.mediumScale, x, y, true)
-                        toggleAppBar(false)
+                        parentFragment.toggleAppBar(false)
                     } else if (scale >= photoView.mediumScale && scale < photoView.maximumScale) {
                         photoView.setScale(photoView.maximumScale, x, y, true)
                     } else {
@@ -111,7 +114,7 @@ class ImagePagerItem : BaseFragment() {
                         .makeText(requireContext(), e?.message.toString(), Toast.LENGTH_SHORT)
                         .show()
 
-                    parentFragment?.startPostponedEnterTransition()
+                    parentFragment.startPostponedEnterTransition()
                     return false
                 }
 
@@ -140,7 +143,7 @@ class ImagePagerItem : BaseFragment() {
                         // Get the displayRect again because it may change due to restoring state.
                         viewModel.isOverlaying(photoView.displayRect)
 
-                        parentFragment?.startPostponedEnterTransition()
+                        parentFragment.startPostponedEnterTransition()
                     }
 
                     if (resource is BitmapDrawable) {
@@ -148,7 +151,7 @@ class ImagePagerItem : BaseFragment() {
                         if (savedInstanceState == null && initialEntry &&
                             findNavController().previousBackStackEntry?.destination?.id == R.id.images_fragment
                         ) {
-                            (parentFragment?.sharedElementEnterTransition as TransitionSet).doOnEnd {
+                            (parentFragment.sharedElementEnterTransition as TransitionSet).doOnEnd {
                                 setupTilesProvider()
                             }
                         } else {
