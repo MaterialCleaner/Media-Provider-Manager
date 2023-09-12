@@ -62,7 +62,6 @@
                     android:layout_height="wrap_content"
                     android:checkable="true"
                     android:maxLines="1"
-                    android:stateListAnimator="@animator/stateful_button_animator"
                     android:text="@string/start" />
             </LinearLayout>
         </LinearLayout>
