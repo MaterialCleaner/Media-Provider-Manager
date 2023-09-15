@@ -192,6 +192,9 @@ class VideoPlayerFragment : BaseFragment() {
                 override fun onDoubleTap(ev: MotionEvent): Boolean {
                     val player = player ?: return false
                     player.playWhenReady = !player.playWhenReady
+                    if (player.playWhenReady) {
+                        controlViewLayoutManager.hide()
+                    }
                     return true
                 }
             }

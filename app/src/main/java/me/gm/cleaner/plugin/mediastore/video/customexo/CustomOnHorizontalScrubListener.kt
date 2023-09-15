@@ -108,6 +108,7 @@ open class CustomOnHorizontalScrubListener(
         playerView.player?.seekTo(position)
         if (playingOnScrubStart) {
             playerView.player?.play()
+            controlViewLayoutManager.hideImmediately()
         }
     }
 
