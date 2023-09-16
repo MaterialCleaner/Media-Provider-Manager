@@ -16,7 +16,8 @@
      limitations under the License.
 -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- 0dp dimensions are used to prevent this view from influencing the size of
          the parent view if it uses "wrap_content". It is expanded to occupy the
@@ -28,6 +29,19 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/exo_black_opacity_60" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:theme="?actionBarTheme"
+            app:popupTheme="?actionBarPopupTheme" />
+    </FrameLayout>
 
     <FrameLayout
         android:id="@id/exo_bottom_bar"

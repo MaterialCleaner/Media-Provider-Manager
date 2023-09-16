@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util
@@ -44,6 +45,7 @@ open class CustomOnHorizontalScrubListener(
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
     private lateinit var seekDelta: TextView
+    private lateinit var topBar: Toolbar
     private lateinit var bottomBar: ViewGroup
     private lateinit var timeBar: View
 
@@ -61,6 +63,7 @@ open class CustomOnHorizontalScrubListener(
             controller.findViewById(androidx.media3.ui.R.id.exo_controls_background)
         centerControls = controller.findViewById(androidx.media3.ui.R.id.exo_center_controls)
         seekDelta = controller.findViewById(R.id.seek_delta)
+        topBar = controller.findViewById(R.id.top_bar)
         bottomBar = controller.findViewById<ViewGroup>(androidx.media3.ui.R.id.exo_bottom_bar)
         timeBar = controller.findViewById<View>(androidx.media3.ui.R.id.exo_progress)
     }
@@ -78,6 +81,7 @@ open class CustomOnHorizontalScrubListener(
         controlsBackground.isVisible = false
         centerControls.isVisible = false
         seekDelta.isVisible = true
+        topBar.isVisible = false
         bottomBar.translationY = 0F
         this.timeBar.translationY = 0F
         controlViewLayoutManager.showImmediately()
@@ -99,6 +103,7 @@ open class CustomOnHorizontalScrubListener(
         controlsBackground.isVisible = true
         centerControls.isVisible = true
         seekDelta.isVisible = false
+        topBar.isVisible = true
         if (controllerVisibleOnScrubStart) {
             controlViewLayoutManager.resetHideCallbacks()
         } else {

@@ -20,8 +20,6 @@ import android.app.Application
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.provider.MediaStore
-import android.text.format.DateUtils
-import android.text.format.Formatter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
@@ -30,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
 class VideoPlayerViewModel(application: Application) : AndroidViewModel(application) {
@@ -44,19 +41,12 @@ class VideoPlayerViewModel(application: Application) : AndroidViewModel(applicat
             _screenOrientationFlow.tryEmit(value)
         }
 
-    fun queryVideoInfoAsync(uri: Uri) = viewModelScope.async {
-        queryVideoInfo(uri)
+    fun queryVideoTitleAsync(uri: Uri) = viewModelScope.async {
+        queryVideoTitle(uri)
     }
 
-    private suspend fun queryVideoInfo(uri: Uri) = withContext(Dispatchers.IO) {
-        val projection = arrayOf(
-            MediaStore.Video.Media.DATA,
-            MediaStore.Video.Media.DATE_TAKEN,
-            MediaStore.Video.Media.SIZE,
-            MediaStore.Video.Media.WIDTH,
-            MediaStore.Video.Media.HEIGHT,
-            MediaStore.Video.Media.DURATION,
-        )
+    private suspend fun queryVideoTitle(uri: Uri) = withContext(Dispatchers.IO) {
+        val projection = arrayOf(MediaStore.Video.Media.DISPLAY_NAME)
 
         val context = getApplication<Application>()
         context.contentResolver.query(
@@ -67,49 +57,13 @@ class VideoPlayerViewModel(application: Application) : AndroidViewModel(applicat
             null
         )?.use { cursor ->
 
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
-            val dateTakenColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_TAKEN)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
-            val widthColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.WIDTH)
-            val heightColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.HEIGHT)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+            val displayNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
 
             if (cursor.moveToNext()) {
-                val data = cursor.getString(dataColumn)
-                val dateTaken = cursor.getLong(dateTakenColumn)
-                val size = cursor.getLong(sizeColumn)
-                val width = cursor.getLong(widthColumn)
-                val height = cursor.getLong(heightColumn)
-                val resolution = "$width x $height"
-                val duration = cursor.getLong(durationColumn)
+                val displayName = cursor.getString(displayNameColumn)
 
-                val infos = listOf(
-                    context.getString(
-                        R.string.info_item, context.getString(R.string.menu_sort_by_path_title),
-                        data
-                    ),
-                    context.getString(
-                        R.string.info_item,
-                        context.getString(R.string.menu_sort_by_date_taken_title),
-                        DateUtils.formatDateTime(
-                            context, dateTaken,
-                            DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                                    DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_YEAR or
-                                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-                        )
-                    ),
-                    context.getString(
-                        R.string.info_item, context.getString(R.string.menu_sort_by_size_title),
-                        Formatter.formatFileSize(context, size)
-                    ),
-                    context.getString(
-                        R.string.info_item, context.getString(R.string.resolution),
-                        resolution
-                    ),
-                    // TODO DURATION
-                )
-                return@withContext Result.success(infos.joinToString("\n"))
+                return@withContext Result.success(displayName)
             }
         }
         Result.failure(FileNotFoundException())

@@ -22,8 +22,12 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -39,6 +43,7 @@ import androidx.media3.ui.PlayerView
 import androidx.media3.ui.TimeBar
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.RootPreferences
@@ -63,6 +68,7 @@ class VideoPlayerFragment : BaseFragment() {
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: PlayerView? = null
+    private lateinit var topBar: Toolbar
     private val forbidDrawerGestureListener = View.OnGenericMotionListener { _, _ ->
         true
     }
@@ -103,6 +109,18 @@ class VideoPlayerFragment : BaseFragment() {
         return binding.root
     }
 
+    private fun toggleWindowInsets(show: Boolean) {
+        val window = requireActivity().window
+        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
+        insetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        if (show) {
+            insetsController.show(WindowInsetsCompat.Type.systemBars())
+        } else {
+            insetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+
     private fun customizePlayerViewBehavior(playerView: PlayerView, gestureView: View) {
         playerView.controllerAutoShow = false
         playerView.isClickable = false
@@ -111,6 +129,9 @@ class VideoPlayerFragment : BaseFragment() {
             playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
         val timeBar = controller.findViewById<CustomTimeBar>(androidx.media3.ui.R.id.exo_progress)
         timeBar.addListener(timeBar)
+        topBar = controller.findViewById(R.id.top_bar)
+        topBar.setNavigationOnClickListener { findNavController().navigateUp() }
+        topBar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
 
         val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
         timeBar.addListener(object : CustomOnHorizontalScrubListener(
@@ -181,6 +202,7 @@ class VideoPlayerFragment : BaseFragment() {
                 }
 
                 override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
+                    toggleWindowInsets(!controller.isFullyVisible)
                     if (controller.isFullyVisible) {
                         controlViewLayoutManager.hide()
                     } else {
@@ -207,6 +229,17 @@ class VideoPlayerFragment : BaseFragment() {
     }
 
     inner class PlayerEventListener : Player.Listener {
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            super.onMediaItemTransition(mediaItem, reason)
+            lifecycleScope.launch {
+                val result = viewModel
+                    .queryVideoTitleAsync(mediaItem!!.localConfiguration!!.uri)
+                    .await()
+                topBar.title = result.getOrNull()
+            }
+        }
+
         override fun onVideoSizeChanged(videoSize: VideoSize) {
             super.onVideoSizeChanged(videoSize)
             if (videoSize != VideoSize.UNKNOWN) {
@@ -234,9 +267,7 @@ class VideoPlayerFragment : BaseFragment() {
             .setDeviceVolumeControlEnabled(true)
             .build().also { player ->
                 player.trackSelectionParameters = trackSelectionParameters
-                if (viewModel.screenOrientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-                    player.addListener(PlayerEventListener())
-                }
+                player.addListener(PlayerEventListener())
                 player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.seekTo(startItemIndex, startPosition)
                 player.playWhenReady = isPlaying
@@ -265,6 +296,15 @@ class VideoPlayerFragment : BaseFragment() {
         player = null
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        toggleAppBar(false)
+        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
+            .addInterceptTouchEventListener(forbidDrawerGestureListener)
+        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+            .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    }
+
     override fun onResume() {
         super.onResume()
         initializePlayer()
@@ -287,15 +327,6 @@ class VideoPlayerFragment : BaseFragment() {
         super.onStop()
         playerView?.onPause()
         releasePlayer()
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        toggleAppBar(false)
-        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener(forbidDrawerGestureListener)
-        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
-            .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
