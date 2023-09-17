@@ -36,6 +36,8 @@ import androidx.core.app.SharedElementCallback
 import androidx.core.math.MathUtils.clamp
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
+import androidx.core.transition.doOnEnd
+import androidx.core.transition.doOnStart
 import androidx.core.view.get
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
@@ -206,6 +208,14 @@ class ImagePagerFragment : BaseFragment() {
         sharedElementEnterTransition = (TransitionInflater.from(requireContext())
             .inflateTransition(R.transition.grid_pager_transition) as TransitionSet)
             .addTransition(CustomChangeImageTransform())
+            .apply {
+                doOnStart {
+                    viewPager.isUserInputEnabled = false
+                }
+                doOnEnd {
+                    viewPager.isUserInputEnabled = true
+                }
+            }
 
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(object : SharedElementCallback() {
