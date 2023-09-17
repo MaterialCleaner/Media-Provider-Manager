@@ -39,6 +39,7 @@ import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
 import androidx.core.view.get
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -149,6 +150,8 @@ class ImagePagerFragment : BaseFragment() {
         })
         findNavController().addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
+            requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+                .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
         viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
             intentSender?.let {
@@ -320,6 +323,8 @@ class ImagePagerFragment : BaseFragment() {
             }
             toggleAppBar(getBoolean(SAVED_SHOWS_APPBAR))
         }
+        requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+            .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
 
     companion object {
