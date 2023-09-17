@@ -76,11 +76,29 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
     protected val then: Calendar = Calendar.getInstance()
     protected val now: Calendar = Calendar.getInstance()
     protected open fun formatDateTime(timeMillis: Long): String {
+        fun onTheSameDay(): Boolean = then[Calendar.YEAR] == now[Calendar.YEAR] &&
+                then[Calendar.DAY_OF_YEAR] == now[Calendar.DAY_OF_YEAR]
+
         then.timeInMillis = timeMillis
         now.timeInMillis = System.currentTimeMillis()
-        val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE
-        return DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
+        return when {
+            onTheSameDay() -> {
+                fragment.getString(R.string.today)
+            }
+
+            run {
+                now.add(Calendar.DATE, -1)
+                onTheSameDay()
+            } -> {
+                fragment.getString(R.string.yesterday)
+            }
+
+            else -> {
+                val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
+                        DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE
+                DateUtils.formatDateTime(fragment.requireContext(), timeMillis, flags)
+            }
+        }
     }
 
     private val uriPositionMap: MutableList<Int> = mutableListOf()

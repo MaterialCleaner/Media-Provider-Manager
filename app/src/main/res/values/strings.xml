@@ -116,6 +116,8 @@
     <string name="quit_without_save">Changes aren\'t saved yet, are you sure you want to quit?</string>
 
     <!-- Media Store -->
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
     <string name="rationale_shouldShowRationale">App needs read external storage permission to visit media files created by other apps.</string>
     <string name="rationale_permanentlyDenied">App needs read external storage permission to visit media files created by other apps.
         Please grant the permission in app info manually.</string>

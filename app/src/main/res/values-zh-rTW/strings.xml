@@ -86,6 +86,8 @@
     <string name="quit_without_save">更改未儲存，您確定要退出嗎？</string>
 
     <!-- 媒體儲存 -->
+    <string name="today">今天</string>
+    <string name="yesterday">昨天</string>
     <string name="rationale_shouldShowRationale">訪問其它應用建立的媒體檔案需要讀取外部儲存空間許可權</string>
     <string name="rationale_permanentlyDenied">訪問其它應用建立的媒體檔案需要讀取外部儲存空間許可權，請在應用訊息中手動授予</string>
     <string name="revoke_self_permission">只顯示自己的媒體檔案需要撤銷應用的讀取外部儲存空間許可權，請在應用訊息中手動撤銷</string>
