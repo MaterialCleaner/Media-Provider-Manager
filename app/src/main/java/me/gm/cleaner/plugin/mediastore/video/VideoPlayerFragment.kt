@@ -53,7 +53,6 @@ import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnHorizontalScrubLi
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnVerticalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
 import me.gm.cleaner.plugin.mediastore.video.customexo.VideoGestureDetector
-import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import kotlin.math.max
 
 @UnstableApi
@@ -69,9 +68,6 @@ class VideoPlayerFragment : BaseFragment() {
     private var player: ExoPlayer? = null
     private var playerView: PlayerView? = null
     private lateinit var topBar: Toolbar
-    private val forbidDrawerGestureListener = View.OnGenericMotionListener { _, _ ->
-        true
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -101,8 +97,6 @@ class VideoPlayerFragment : BaseFragment() {
 
         findNavController().addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
-            requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-                .removeInterceptTouchEventListener(forbidDrawerGestureListener)
             requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
@@ -289,8 +283,6 @@ class VideoPlayerFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         toggleAppBar(false)
-        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener(forbidDrawerGestureListener)
         requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
             .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     }
