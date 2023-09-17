@@ -30,18 +30,12 @@
         android:layout_height="0dp"
         android:background="@color/exo_black_opacity_60" />
 
-    <FrameLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/top_bar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:theme="?actionBarTheme"
-            app:popupTheme="?actionBarPopupTheme" />
-    </FrameLayout>
+        android:theme="?actionBarTheme"
+        app:popupTheme="?actionBarPopupTheme" />
 
     <FrameLayout
         android:id="@id/exo_bottom_bar"

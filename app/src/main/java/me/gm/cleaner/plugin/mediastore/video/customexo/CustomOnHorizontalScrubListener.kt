@@ -64,8 +64,8 @@ open class CustomOnHorizontalScrubListener(
         centerControls = controller.findViewById(androidx.media3.ui.R.id.exo_center_controls)
         seekDelta = controller.findViewById(R.id.seek_delta)
         topBar = controller.findViewById(R.id.top_bar)
-        bottomBar = controller.findViewById<ViewGroup>(androidx.media3.ui.R.id.exo_bottom_bar)
-        timeBar = controller.findViewById<View>(androidx.media3.ui.R.id.exo_progress)
+        bottomBar = controller.findViewById(androidx.media3.ui.R.id.exo_bottom_bar)
+        timeBar = controller.findViewById(androidx.media3.ui.R.id.exo_progress)
     }
 
     private fun getDeltaString(timeMs: Long): String {

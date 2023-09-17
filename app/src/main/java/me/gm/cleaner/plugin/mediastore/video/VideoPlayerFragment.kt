@@ -17,14 +17,13 @@
 package me.gm.cleaner.plugin.mediastore.video
 
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -49,6 +48,7 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.VideoPlayerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnHorizontalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomOnVerticalScrubListener
 import me.gm.cleaner.plugin.mediastore.video.customexo.CustomTimeBar
@@ -109,18 +109,6 @@ class VideoPlayerFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun toggleWindowInsets(show: Boolean) {
-        val window = requireActivity().window
-        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
-        insetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        if (show) {
-            insetsController.show(WindowInsetsCompat.Type.systemBars())
-        } else {
-            insetsController.hide(WindowInsetsCompat.Type.systemBars())
-        }
-    }
-
     private fun customizePlayerViewBehavior(playerView: PlayerView, gestureView: View) {
         playerView.controllerAutoShow = false
         playerView.isClickable = false
@@ -132,6 +120,9 @@ class VideoPlayerFragment : BaseFragment() {
         topBar = controller.findViewById(R.id.top_bar)
         topBar.setNavigationOnClickListener { findNavController().navigateUp() }
         topBar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            topBar.fitsSystemWindowInsets()
+        }
 
         val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
         timeBar.addListener(object : CustomOnHorizontalScrubListener(
@@ -202,7 +193,6 @@ class VideoPlayerFragment : BaseFragment() {
                 }
 
                 override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
-                    toggleWindowInsets(!controller.isFullyVisible)
                     if (controller.isFullyVisible) {
                         controlViewLayoutManager.hide()
                     } else {
