@@ -51,7 +51,7 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<AppHeaderAdapter.ViewHolder>() {
     private val args: AppFragmentArgs by fragment.navArgs()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(AppHeaderBinding.inflate(LayoutInflater.from(parent.context)))
 
     @SuppressLint("SetTextI18n")
@@ -91,7 +91,7 @@ class AppHeaderAdapter(private val fragment: AppFragment) :
         }
     }
 
-    override fun getItemCount() = 1
+    override fun getItemCount(): Int = 1
 
     class ViewHolder(val binding: AppHeaderBinding) : DividerViewHolder(binding.root) {
         init {
@@ -171,13 +171,14 @@ class TemplatesAdapter(private val fragment: AppFragment) :
                 }
             }
         }
+        holder.isDividerAllowedBelow = position == itemCount - 1
 
         if (fragment.lastTemplateName == templateName) {
             fragment.startPostponedEnterTransition()
         }
     }
 
-    class ViewHolder(val binding: TemplatesItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: TemplatesItemBinding) : DividerViewHolder(binding.root)
 
     companion object {
         private val CALLBACK = object : DiffUtil.ItemCallback<Template>() {
@@ -194,7 +195,7 @@ class CreateTemplateAdapter(private val fragment: AppFragment) :
     RecyclerView.Adapter<CreateTemplateAdapter.ViewHolder>() {
     private val args: AppFragmentArgs by fragment.navArgs()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -224,7 +225,7 @@ class CreateTemplateAdapter(private val fragment: AppFragment) :
         }
     }
 
-    override fun getItemCount() = 1
+    override fun getItemCount(): Int = 1
 
     class ViewHolder(val binding: TemplatesHeaderBinding) : DividerViewHolder(binding.root) {
         init {
@@ -236,7 +237,7 @@ class CreateTemplateAdapter(private val fragment: AppFragment) :
 class AddToExistingTemplateAdapter(private val fragment: AppFragment) :
     ListAdapter<Template, AddToExistingTemplateAdapter.ViewHolder>(CALLBACK) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(TemplatesHeaderBinding.inflate(LayoutInflater.from(parent.context)))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
