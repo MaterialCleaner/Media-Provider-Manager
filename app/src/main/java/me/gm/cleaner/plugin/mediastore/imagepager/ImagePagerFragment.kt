@@ -38,6 +38,7 @@ import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.setFragmentResult
@@ -93,17 +94,9 @@ class ImagePagerFragment : BaseFragment() {
         }
         require(uris.size == displayNames.size)
 
-        var isNotifyingActive = true
-        var isFirstTimeEntry = true
         viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
-            appBarLayout.isLifted = isOverlaying
-            // LiveData will notify us when the lifecycle starts to become active,
-            // but as for toggleAppBar it is not needed, so ignore it.
-            if (isNotifyingActive) {
-                isNotifyingActive = false
-            } else if (savedInstanceState == null && isFirstTimeEntry) {
-                isFirstTimeEntry = false
-                toggleAppBar(!isOverlaying)
+            appBarLayout.doOnPreDraw {
+                appBarLayout.isLifted = isOverlaying
             }
         }
         bottomActionBar = binding.bottomActionBar

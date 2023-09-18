@@ -76,11 +76,10 @@ class ImagePagerItem : BaseFragment() {
             viewModel.isOverlaying(photoView.displayRect)
         }
         photoView.setOnDoubleTapListener(object : GestureDetector.SimpleOnGestureListener() {
+
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                 parentFragment.toggleAppBar(supportActionBar?.isShowing == false)
-                appBarLayout.post {
-                    viewModel.isOverlaying(photoView.displayRect)
-                }
+                viewModel.isOverlaying(photoView.displayRect)
                 return true
             }
 
