@@ -21,7 +21,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.transition.TransitionSet
@@ -34,16 +33,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.SharedElementCallback
 import androidx.core.math.MathUtils.clamp
-import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
@@ -55,6 +56,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.mediastore.images.ImagesViewModel
 import me.gm.cleaner.plugin.widget.BottomActionBar
 
 /**
@@ -65,10 +67,9 @@ import me.gm.cleaner.plugin.widget.BottomActionBar
  */
 class ImagePagerFragment : BaseFragment() {
     private val viewModel: ImagePagerViewModel by viewModels()
+    private val imagesViewModel: ImagesViewModel by activityViewModels()
     private val args: ImagePagerFragmentArgs by navArgs()
     private val lastPosition by lazy { bundleOf(KEY_POSITION to args.initialPosition) }
-    private val uris = arrayListOf<Uri>()
-    private val displayNames = arrayListOf<String>()
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomActionBar: BottomActionBar
 
@@ -82,23 +83,16 @@ class ImagePagerFragment : BaseFragment() {
     ): View {
         val binding = ImagePagerFragmentBinding.inflate(inflater)
         if (savedInstanceState == null) {
-            uris += args.uris
-            displayNames += args.displayNames
-
-            updateTitle(args.initialPosition, uris.size)
-        } else {
-            uris += BundleCompat.getParcelableArrayList(
-                savedInstanceState, SAVED_URIS, Uri::class.java
-            )!!
-            displayNames += savedInstanceState.getStringArrayList(SAVED_DISPLAY_NAMES)!!
+            viewModel.currentItemId = imagesViewModel.medias[args.initialPosition].id
+            updateTitle(args.initialPosition)
         }
-        require(uris.size == displayNames.size)
 
         viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
             appBarLayout.doOnPreDraw {
                 appBarLayout.isLifted = isOverlaying
             }
         }
+        viewPager = binding.viewPager
         bottomActionBar = binding.bottomActionBar
         if (args.isMediaStoreUri) {
             bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
@@ -106,25 +100,48 @@ class ImagePagerFragment : BaseFragment() {
             bottomActionBar.hide()
         }
 
-        viewPager = binding.viewPager
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                imagesViewModel.mediasFlow.collect { medias ->
+                    if (medias.isEmpty()) {
+                        findNavController().navigateUp()
+                    } else {
+                        val position = imagesViewModel.medias
+                            .indexOfFirst { viewModel.currentItemId == it.id }
+                        if (position == -1) {
+                            viewPager.adapter!!.notifyItemRemoved(viewPager.currentItem)
+                            updateTitle(
+                                clamp(viewPager.currentItem, 0, imagesViewModel.medias.size - 1)
+                            )
+                        } else {
+                            viewPager.setCurrentItem(position, false)
+                            updateTitle(clamp(position, 0, imagesViewModel.medias.size - 1))
+                        }
+                    }
+                }
+            }
+        }
         viewPager.adapter = object : FragmentStateAdapter(this) {
             val initialItemId = if (savedInstanceState == null) {
-                uris[args.initialPosition].hashCode().toLong()
+                imagesViewModel.medias[args.initialPosition].id
             } else {
-                // uri.toString() can't be empty string, so we can use 0 as invalid hashCode safely.
                 0
             }
 
-            override fun createFragment(position: Int): ImagePagerItem =
-                ImagePagerItem.newInstance(uris[position], initialItemId == getItemId(position))
+            override fun createFragment(position: Int): ImagePagerItem {
+                val media = imagesViewModel.medias[position]
+                return ImagePagerItem.newInstance(
+                    media.contentUri, savedInstanceState == null && initialItemId == media.id
+                )
+            }
 
-            override fun getItemCount(): Int = uris.size
+            override fun getItemCount(): Int = imagesViewModel.medias.size
 
             // Override to support collections that remove items.
-            override fun getItemId(position: Int): Long = uris[position].hashCode().toLong()
+            override fun getItemId(position: Int): Long = imagesViewModel.medias[position].id
 
             override fun containsItem(itemId: Long): Boolean =
-                uris.any { itemId == it.hashCode().toLong() }
+                imagesViewModel.medias.any { itemId == it.id }
         }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
@@ -134,11 +151,11 @@ class ImagePagerFragment : BaseFragment() {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 lastPosition.putInt(KEY_POSITION, position)
+                viewModel.currentItemId = imagesViewModel.medias[position].id
+                updateTitle(position)
 
-                val photoView = findPhotoViewForAdapterPosition(position)!!
+                val photoView = findPhotoViewForAdapterPosition(position) ?: return
                 viewModel.isOverlaying(photoView.displayRect)
-
-                updateTitle(position, uris.size)
             }
         })
         findNavController().addOnExitListener { _, destination, _ ->
@@ -162,11 +179,11 @@ class ImagePagerFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun updateTitle(position: Int, size: Int) {
+    private fun updateTitle(position: Int) {
         supportActionBar?.apply {
-            title = displayNames[position]
+            title = imagesViewModel.medias[position].displayName
             if (args.isMediaStoreUri) {
-                subtitle = "${position + 1} / $size"
+                subtitle = "${position + 1} / ${imagesViewModel.medias.size}"
             }
         }
     }
@@ -181,17 +198,9 @@ class ImagePagerFragment : BaseFragment() {
         lifecycleScope.launch {
             try {
                 val position = viewPager.currentItem
-                val isSuccessfullyDeleted = viewModel.deleteImageAsync(uris[position]).await()
-                if (isSuccessfullyDeleted) {
-                    uris.removeAt(position)
-                    displayNames.removeAt(position)
-                    if (uris.isEmpty()) {
-                        findNavController().navigateUp()
-                    } else {
-                        viewPager.adapter!!.notifyItemRemoved(position)
-                        updateTitle(clamp(position, 0, uris.size - 1), uris.size)
-                    }
-                }
+                val isSuccessfullyDeleted = viewModel
+                    .deleteImageAsync(imagesViewModel.medias[position].contentUri)
+                    .await()
             } catch (e: SecurityException) {
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             }
@@ -266,7 +275,9 @@ class ImagePagerFragment : BaseFragment() {
 
         R.id.menu_info -> {
             lifecycleScope.launch {
-                val result = viewModel.queryImageInfoAsync(uris[viewPager.currentItem]).await()
+                val result = viewModel
+                    .queryImageInfoAsync(imagesViewModel.medias[viewPager.currentItem].contentUri)
+                    .await()
                 TextSelectableInfoDialog
                     .newInstance(result.getOrElse { it.stackTraceToString() })
                     .show(childFragmentManager, null)
@@ -275,11 +286,11 @@ class ImagePagerFragment : BaseFragment() {
         }
 
         R.id.menu_share -> {
-            val currentItem = viewPager.currentItem
+            val currentItem = imagesViewModel.medias[viewPager.currentItem]
             val sendIntent = Intent(Intent.ACTION_SEND)
                 .setType("image/*")
-                .putExtra(Intent.EXTRA_STREAM, uris[currentItem])
-                .putExtra(Intent.EXTRA_TEXT, displayNames[currentItem])
+                .putExtra(Intent.EXTRA_STREAM, currentItem.contentUri)
+                .putExtra(Intent.EXTRA_TEXT, currentItem.displayName)
             val shareIntent = Intent.createChooser(sendIntent, null)
             try {
                 startActivity(shareIntent)
@@ -299,8 +310,6 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelableArrayList(SAVED_URIS, uris)
-        outState.putStringArrayList(SAVED_DISPLAY_NAMES, displayNames)
         outState.putCharSequence(SAVED_TITLE, supportActionBar?.title)
         outState.putCharSequence(SAVED_SUBTITLE, supportActionBar?.subtitle)
         outState.putBoolean(SAVED_SHOWS_APPBAR, supportActionBar?.isShowing ?: true)
@@ -322,8 +331,6 @@ class ImagePagerFragment : BaseFragment() {
 
     companion object {
         const val KEY_POSITION = "me.gm.cleaner.plugin.key.position"
-        private const val SAVED_URIS = "android:uris"
-        private const val SAVED_DISPLAY_NAMES = "android:displayNames"
         private const val SAVED_TITLE = "android:title"
         private const val SAVED_SUBTITLE = "android:subtitle"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"

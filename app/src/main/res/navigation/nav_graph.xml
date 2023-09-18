@@ -128,12 +128,6 @@
             android:name="isMediaStoreUri"
             android:defaultValue="false"
             app:argType="boolean" />
-        <argument
-            android:name="uris"
-            app:argType="android.net.Uri[]" />
-        <argument
-            android:name="displayNames"
-            app:argType="string[]" />
     </fragment>
 
     <fragment

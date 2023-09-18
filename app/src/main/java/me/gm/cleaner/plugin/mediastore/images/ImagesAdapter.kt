@@ -22,7 +22,6 @@ import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
@@ -36,7 +35,6 @@ import me.gm.cleaner.plugin.databinding.ImagesItemBinding
 import me.gm.cleaner.plugin.mediastore.MediaStoreAdapter
 
 class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fragment) {
-    private val viewModel: ImagesViewModel by fragment.viewModels()
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is MediaStoreImage -> R.layout.images_item
@@ -103,12 +101,9 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     (exitTransition as TransitionSet).excludeTarget(binding.card, true)
                     fragment.exitTransition = exitTransition
 
-                    val images = viewModel.medias
                     val direction = ImagesFragmentDirections.actionImagesToImagePager(
                         initialPosition = uriPosition,
-                        isMediaStoreUri = true,
-                        uris = images.map { it.contentUri }.toTypedArray(),
-                        displayNames = images.map { it.displayName }.toTypedArray()
+                        isMediaStoreUri = true
                     )
                     val extras = FragmentNavigatorExtras(
                         binding.image to binding.image.transitionName

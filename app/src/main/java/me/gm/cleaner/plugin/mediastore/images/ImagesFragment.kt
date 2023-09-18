@@ -25,8 +25,8 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.app.SharedElementCallback
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,7 +43,7 @@ import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import me.zhanghai.android.fastscroll.PopupStyle
 
 class ImagesFragment : MediaStoreFragment() {
-    override val viewModel: ImagesViewModel by viewModels()
+    override val viewModel: ImagesViewModel by activityViewModels()
     override val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment> =
         ImagesPermissionsRequesterFragment::class.java
     var lastPosition: Int = 0

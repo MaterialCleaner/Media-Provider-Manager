@@ -22,12 +22,15 @@ import android.content.IntentSender
 import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.MediaStore
 import android.text.format.DateUtils
 import android.text.format.Formatter
+import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -35,7 +38,15 @@ import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.R
 import java.io.FileNotFoundException
 
-class ImagePagerViewModel(application: Application) : AndroidViewModel(application) {
+class ImagePagerViewModel(application: Application, state: SavedStateHandle) :
+    AndroidViewModel(application) {
+
+    init {
+        state.setSavedStateProvider(::currentItemId.name) {
+            bundleOf(::currentItemId.name to currentItemId)
+        }
+    }
+
     private val _isOverlayingLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
     val isOverlayingLiveData: LiveData<Boolean>
         get() = _isOverlayingLiveData
@@ -45,6 +56,10 @@ class ImagePagerViewModel(application: Application) : AndroidViewModel(applicati
             res.getDimensionPixelSize(com.google.android.material.R.dimen.m3_appbar_size_compact)
         val resourceId = res.getIdentifier("status_bar_height", "dimen", "android")
         res.getDimensionPixelSize(resourceId) + actionBarSize
+    }
+
+    var currentItemId: Long = state.get<Bundle>(::currentItemId.name).let { bundle ->
+        bundle?.getLong(::currentItemId.name) ?: 0L
     }
 
     fun isOverlaying(displayRect: RectF?): Boolean {
