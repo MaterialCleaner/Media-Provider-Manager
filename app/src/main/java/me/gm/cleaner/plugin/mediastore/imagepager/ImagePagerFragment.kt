@@ -87,8 +87,8 @@ class ImagePagerFragment : BaseFragment() {
         val binding = ImagePagerFragmentBinding.inflate(inflater)
 
         viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
-            appBarLayout.doOnPreDraw {
-                appBarLayout.isLifted = isOverlaying
+            appBarLayout?.doOnPreDraw {
+                appBarLayout?.isLifted = isOverlaying
             }
         }
         bottomBar = binding.bottomBar
@@ -133,7 +133,7 @@ class ImagePagerFragment : BaseFragment() {
             }
         }
         viewPager.adapter = object : FragmentStateAdapter(this) {
-            val initialItemId = if (savedInstanceState == null) {
+            val initialItemId: Long = if (savedInstanceState == null) {
                 imagesViewModel.medias[args.initialPosition].id
             } else {
                 0
@@ -332,7 +332,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        appBarLayout.setLiftOnScrollTargetView(null)
+        appBarLayout?.setLiftOnScrollTargetView(null)
         savedInstanceState?.run {
             supportActionBar?.apply {
                 title = getCharSequence(SAVED_TITLE)

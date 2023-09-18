@@ -30,15 +30,15 @@ import me.gm.cleaner.plugin.R
 
 abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?
-        get() = (requireActivity() as AppCompatActivity).supportActionBar
-    val appBarLayout: AppBarLayout
-        get() = requireActivity().findViewById(R.id.toolbar_container)
+        get() = (activity as? AppCompatActivity)?.supportActionBar
+    val appBarLayout: AppBarLayout?
+        get() = activity?.findViewById(R.id.toolbar_container)
     protected lateinit var liftOnScrollTargetView: View
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if (::liftOnScrollTargetView.isInitialized) {
-            appBarLayout.setLiftOnScrollTargetView(liftOnScrollTargetView)
+            appBarLayout?.setLiftOnScrollTargetView(liftOnScrollTargetView)
         }
     }
 
