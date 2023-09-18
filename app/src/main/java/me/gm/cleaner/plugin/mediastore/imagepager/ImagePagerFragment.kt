@@ -238,6 +238,9 @@ class ImagePagerFragment : BaseFragment() {
                 }
             }
 
+        enterTransition = TransitionInflater.from(requireContext())
+            .inflateTransition(R.transition.pager_enter_transition)
+
         // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
