@@ -39,7 +39,7 @@ open class CustomOnVerticalScrubListener(
     private val controller: PlayerControlView,
     private val controlViewLayoutManager: PlayerControlViewLayoutManagerAccessor
 ) {
-    private lateinit var seekDelta: TextView
+    private lateinit var centerText: TextView
     private lateinit var deviceInfo: DeviceInfo
 
     private val density: Float = playerView.resources.displayMetrics.density * 2
@@ -49,10 +49,10 @@ open class CustomOnVerticalScrubListener(
     private var currentVolume: Float = 0F
 
     private fun prepare() {
-        if (::seekDelta.isInitialized) {
+        if (::centerText.isInitialized) {
             return
         }
-        seekDelta = playerView.findViewById(R.id.seek_delta)
+        centerText = playerView.findViewById(R.id.center_text)
         deviceInfo = playerView.player!!.deviceInfo
     }
 
@@ -68,7 +68,7 @@ open class CustomOnVerticalScrubListener(
         val player = playerView.player ?: return
         prepare()
         controller.children.forEach { child ->
-            child.isVisible = child === seekDelta
+            child.isVisible = child === centerText
         }
         controlViewLayoutManager.showImmediately()
         controlViewLayoutManager.removeHideCallbacks()
@@ -91,7 +91,7 @@ open class CustomOnVerticalScrubListener(
                 0F,
                 1F
             )
-            seekDelta.text = getBrightnessString(screenBrightness)
+            centerText.text = getBrightnessString(screenBrightness)
             val attributes = window.attributes
             attributes.screenBrightness = screenBrightness
             window.attributes = attributes
@@ -102,14 +102,14 @@ open class CustomOnVerticalScrubListener(
                 deviceInfo.maxVolume.toFloat()
             )
             val currentVolumeInt = currentVolume.roundToInt()
-            seekDelta.text = getVolumeString(currentVolumeInt)
+            centerText.text = getVolumeString(currentVolumeInt)
             player.setDeviceVolume(currentVolumeInt, 0)
         }
     }
 
     fun onScrubStop() {
         controller.children.forEach { child ->
-            child.isVisible = child !== seekDelta
+            child.isVisible = child !== centerText
         }
         controlViewLayoutManager.hideImmediately()
     }

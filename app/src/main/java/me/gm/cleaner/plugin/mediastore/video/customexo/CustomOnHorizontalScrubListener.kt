@@ -44,7 +44,7 @@ open class CustomOnHorizontalScrubListener(
         .apply { isAccessible = true }
     private lateinit var controlsBackground: View
     private lateinit var centerControls: LinearLayout
-    private lateinit var seekDelta: TextView
+    private lateinit var centerText: TextView
     private lateinit var topBar: Toolbar
     private lateinit var bottomBar: ViewGroup
     private lateinit var timeBar: View
@@ -62,7 +62,7 @@ open class CustomOnHorizontalScrubListener(
         controlsBackground =
             controller.findViewById(androidx.media3.ui.R.id.exo_controls_background)
         centerControls = controller.findViewById(androidx.media3.ui.R.id.exo_center_controls)
-        seekDelta = controller.findViewById(R.id.seek_delta)
+        centerText = controller.findViewById(R.id.center_text)
         topBar = controller.findViewById(R.id.top_bar)
         bottomBar = controller.findViewById(androidx.media3.ui.R.id.exo_bottom_bar)
         timeBar = controller.findViewById(androidx.media3.ui.R.id.exo_progress)
@@ -80,7 +80,7 @@ open class CustomOnHorizontalScrubListener(
         controllerVisibleOnScrubStart = controller.isFullyVisible
         controlsBackground.isVisible = false
         centerControls.isVisible = false
-        seekDelta.isVisible = true
+        centerText.isVisible = true
         topBar.isVisible = false
         bottomBar.translationY = 0F
         this.timeBar.translationY = 0F
@@ -90,19 +90,19 @@ open class CustomOnHorizontalScrubListener(
         playerView.player?.pause()
         startingPosition = playerView.player?.currentPosition ?: 0L
         playerView.player?.seekTo(position)
-        seekDelta.text = getDeltaString(position - startingPosition)
+        centerText.text = getDeltaString(position - startingPosition)
     }
 
     override fun onScrubMove(timeBar: TimeBar, position: Long) {
         playerView.player?.seekTo(position)
-        seekDelta.text = getDeltaString(position - startingPosition)
+        centerText.text = getDeltaString(position - startingPosition)
     }
 
     override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
         scrubbingField[controller] = false
         controlsBackground.isVisible = true
         centerControls.isVisible = true
-        seekDelta.isVisible = false
+        centerText.isVisible = false
         topBar.isVisible = true
         if (controllerVisibleOnScrubStart) {
             controlViewLayoutManager.resetHideCallbacks()

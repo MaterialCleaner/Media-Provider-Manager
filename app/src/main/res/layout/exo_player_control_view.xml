@@ -181,7 +181,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/seek_delta"
+        android:id="@+id/center_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
