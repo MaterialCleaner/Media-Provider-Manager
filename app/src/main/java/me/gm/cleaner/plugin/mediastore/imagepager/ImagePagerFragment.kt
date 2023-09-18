@@ -30,6 +30,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.SharedElementCallback
 import androidx.core.math.MathUtils.clamp
@@ -38,6 +39,7 @@ import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -51,13 +53,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.github.chrisbanes.photoview.PhotoView
+import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.CustomHeroCarouselStrategy
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.mediastore.images.ImagesViewModel
-import me.gm.cleaner.plugin.widget.BottomActionBar
 
 /**
  * A fragment for displaying a series of images in a [ViewPager2].
@@ -71,7 +74,7 @@ class ImagePagerFragment : BaseFragment() {
     private val args: ImagePagerFragmentArgs by navArgs()
     private val lastPosition by lazy { bundleOf(KEY_POSITION to args.initialPosition) }
     private lateinit var viewPager: ViewPager2
-    private lateinit var bottomActionBar: BottomActionBar
+    private lateinit var bottomBar: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,23 +85,30 @@ class ImagePagerFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val binding = ImagePagerFragmentBinding.inflate(inflater)
-        if (savedInstanceState == null) {
-            viewModel.currentItemId = imagesViewModel.medias[args.initialPosition].id
-            updateTitle(args.initialPosition)
-        }
 
         viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
             appBarLayout.doOnPreDraw {
                 appBarLayout.isLifted = isOverlaying
             }
         }
-        viewPager = binding.viewPager
-        bottomActionBar = binding.bottomActionBar
+        bottomBar = binding.bottomBar
         if (args.isMediaStoreUri) {
-            bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
+            binding.bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
         } else {
-            bottomActionBar.hide()
+            bottomBar.isVisible = false
         }
+
+        viewPager = binding.viewPager
+        val adapter = CarouselAdapter { _, position ->
+            viewPager.setCurrentItem(position, true)
+        }
+        val carouselRecyclerView = binding.carouselRecyclerView
+        carouselRecyclerView.adapter = adapter
+        carouselRecyclerView.layoutManager =
+            CarouselLayoutManager(CustomHeroCarouselStrategy()).apply {
+                carouselAlignment = CarouselLayoutManager.ALIGNMENT_CENTER
+            }
+        carouselRecyclerView.isNestedScrollingEnabled = false
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -106,17 +116,18 @@ class ImagePagerFragment : BaseFragment() {
                     if (medias.isEmpty()) {
                         findNavController().navigateUp()
                     } else {
-                        val position = imagesViewModel.medias
+                        var position = imagesViewModel.medias
                             .indexOfFirst { viewModel.currentItemId == it.id }
                         if (position == -1) {
                             viewPager.adapter!!.notifyItemRemoved(viewPager.currentItem)
-                            updateTitle(
-                                clamp(viewPager.currentItem, 0, imagesViewModel.medias.size - 1)
+                            position = clamp(
+                                viewPager.currentItem, 0, imagesViewModel.medias.size - 1
                             )
                         } else {
                             viewPager.setCurrentItem(position, false)
-                            updateTitle(clamp(position, 0, imagesViewModel.medias.size - 1))
                         }
+                        updateTitle(position)
+                        adapter.submitList(medias)
                     }
                 }
             }
@@ -146,13 +157,18 @@ class ImagePagerFragment : BaseFragment() {
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         if (savedInstanceState == null) {
-            viewPager.setCurrentItem(args.initialPosition, false)
+            val initialPosition = args.initialPosition
+            viewPager.setCurrentItem(initialPosition, false)
+            viewModel.currentItemId = imagesViewModel.medias[initialPosition].id
+            updateTitle(initialPosition)
+            carouselRecyclerView.smoothScrollToPosition(initialPosition)
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 lastPosition.putInt(KEY_POSITION, position)
                 viewModel.currentItemId = imagesViewModel.medias[position].id
                 updateTitle(position)
+                carouselRecyclerView.smoothScrollToPosition(position)
 
                 val photoView = findPhotoViewForAdapterPosition(position) ?: return
                 viewModel.isOverlaying(photoView.displayRect)
@@ -250,11 +266,7 @@ class ImagePagerFragment : BaseFragment() {
     override fun toggleAppBar(show: Boolean) {
         super.toggleAppBar(show)
         if (args.isMediaStoreUri) {
-            if (show) {
-                bottomActionBar.show()
-            } else {
-                bottomActionBar.hide()
-            }
+            bottomBar.isVisible = show
         }
     }
 

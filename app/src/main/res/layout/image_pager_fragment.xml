@@ -27,11 +27,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <me.gm.cleaner.plugin.widget.BottomActionBar
-        android:id="@+id/bottom_action_bar"
+    <LinearLayout
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:minHeight="@dimen/design_bottom_navigation_height"
-        app:menu="@menu/image_pager_bottombar" />
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/carousel_recycler_view"
+            android:layout_width="154dp"
+            android:layout_height="@dimen/design_bottom_navigation_height"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/card_margin"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
+
+        <me.gm.cleaner.plugin.widget.BottomActionBar
+            android:id="@+id/bottom_action_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/design_bottom_navigation_height"
+            app:menu="@menu/image_pager_bottombar" />
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
