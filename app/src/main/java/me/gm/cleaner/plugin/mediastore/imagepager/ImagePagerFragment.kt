@@ -39,6 +39,7 @@ import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
 import androidx.core.view.get
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -159,7 +160,12 @@ class ImagePagerFragment : BaseFragment() {
                             viewPager.setCurrentItem(position, false)
                         }
                         updateTitle(position)
-                        adapter.submitList(medias)
+                        adapter.submitList(medias) {
+                            // ugly workaround
+                            carouselRecyclerView.postDelayed(100L) {
+                                carouselRecyclerView.scrollToPosition(position)
+                            }
+                        }
                     }
                 }
             }
@@ -192,11 +198,6 @@ class ImagePagerFragment : BaseFragment() {
             val position = args.initialPosition
             viewPager.setCurrentItem(position, false)
             viewModel.currentItemId = imagesViewModel.medias[position].id
-            carouselRecyclerView.post {
-                if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                    carouselRecyclerView.smoothScrollToPosition(position)
-                }
-            }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
