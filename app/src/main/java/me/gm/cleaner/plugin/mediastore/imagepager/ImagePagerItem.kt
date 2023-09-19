@@ -33,7 +33,6 @@ import androidx.core.graphics.values
 import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
-import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -121,7 +120,7 @@ class ImagePagerItem : BaseFragment() {
                     resource: Drawable, model: Any, target: Target<Drawable?>,
                     dataSource: DataSource, isFirstResource: Boolean
                 ): Boolean {
-                    photoView.doOnPreDraw {
+                    photoView.post {
                         val displayRect = photoView.displayRect
                         var midScale = max(
                             photoView.width / displayRect.width(),

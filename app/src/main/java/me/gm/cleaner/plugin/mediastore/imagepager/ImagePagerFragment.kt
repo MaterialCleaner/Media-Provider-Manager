@@ -37,7 +37,6 @@ import androidx.core.math.MathUtils.clamp
 import androidx.core.os.bundleOf
 import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
-import androidx.core.view.doOnPreDraw
 import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -87,7 +86,7 @@ class ImagePagerFragment : BaseFragment() {
         val binding = ImagePagerFragmentBinding.inflate(inflater)
 
         viewModel.isOverlayingLiveData.observe(viewLifecycleOwner) { isOverlaying ->
-            appBarLayout?.doOnPreDraw {
+            appBarLayout?.post {
                 appBarLayout?.isLifted = isOverlaying
             }
         }
