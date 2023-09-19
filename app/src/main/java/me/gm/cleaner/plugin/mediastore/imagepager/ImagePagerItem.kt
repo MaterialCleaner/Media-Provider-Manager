@@ -138,9 +138,6 @@ class ImagePagerItem : BaseFragment() {
                             photoView.setSuppMatrix(matrix)
                         }
 
-                        // Get the displayRect again because it may change due to restoring state.
-                        viewModel.isOverlaying(photoView.displayRect)
-
                         parentFragment.startPostponedEnterTransition()
                     }
 
@@ -172,6 +169,11 @@ class ImagePagerItem : BaseFragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.isOverlaying(photoView.displayRect)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

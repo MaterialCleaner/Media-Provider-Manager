@@ -53,6 +53,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.material.carousel.CarouselLayoutManager
+import com.google.android.material.carousel.CarouselSnapHelper
 import com.google.android.material.carousel.CustomHeroCarouselStrategy
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
@@ -108,6 +109,38 @@ class ImagePagerFragment : BaseFragment() {
                 carouselAlignment = CarouselLayoutManager.ALIGNMENT_CENTER
             }
         carouselRecyclerView.isNestedScrollingEnabled = false
+        val enableFlingSnapHelper = CarouselSnapHelper(false)
+        enableFlingSnapHelper.attachToRecyclerView(carouselRecyclerView)
+        carouselRecyclerView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                private var dragged: Boolean = false
+
+                private fun scrollToSnapView(recyclerView: RecyclerView) {
+                    val snapView = enableFlingSnapHelper.findSnapView(recyclerView.layoutManager)
+                        ?: return
+                    val position = recyclerView.getChildAdapterPosition(snapView)
+                    viewPager.setCurrentItem(position, true)
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        dragged = true
+                    } else if (dragged && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        scrollToSnapView(recyclerView)
+                        dragged = false
+                    }
+                }
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (recyclerView.scrollState != RecyclerView.SCROLL_STATE_DRAGGING ||
+                        viewPager.scrollState != ViewPager2.SCROLL_STATE_IDLE
+                    ) {
+                        return
+                    }
+                    scrollToSnapView(recyclerView)
+                }
+            }
+        )
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -156,18 +189,25 @@ class ImagePagerFragment : BaseFragment() {
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         if (savedInstanceState == null) {
-            val initialPosition = args.initialPosition
-            viewPager.setCurrentItem(initialPosition, false)
-            viewModel.currentItemId = imagesViewModel.medias[initialPosition].id
-            updateTitle(initialPosition)
-            carouselRecyclerView.smoothScrollToPosition(initialPosition)
+            val position = args.initialPosition
+            viewPager.setCurrentItem(position, false)
+            viewModel.currentItemId = imagesViewModel.medias[position].id
+            carouselRecyclerView.post {
+                if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                    carouselRecyclerView.smoothScrollToPosition(position)
+                }
+            }
         }
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 lastPosition.putInt(KEY_POSITION, position)
                 viewModel.currentItemId = imagesViewModel.medias[position].id
                 updateTitle(position)
-                carouselRecyclerView.smoothScrollToPosition(position)
+                carouselRecyclerView.post {
+                    if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                        carouselRecyclerView.smoothScrollToPosition(position)
+                    }
+                }
 
                 val photoView = findPhotoViewForAdapterPosition(position) ?: return
                 viewModel.isOverlaying(photoView.displayRect)
