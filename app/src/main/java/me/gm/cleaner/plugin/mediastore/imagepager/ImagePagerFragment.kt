@@ -209,9 +209,6 @@ class ImagePagerFragment : BaseFragment() {
                         carouselRecyclerView.smoothScrollToPosition(position)
                     }
                 }
-
-                val photoView = findPhotoViewForAdapterPosition(position) ?: return
-                viewModel.isOverlaying(photoView.displayRect)
             }
         })
         findNavController().addOnExitListener { _, destination, _ ->
