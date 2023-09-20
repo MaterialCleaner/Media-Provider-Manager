@@ -91,45 +91,73 @@ class ImagePagerViewModel(application: Application, state: SavedStateHandle) :
             null
         )?.use { cursor ->
 
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            val dateTakenColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
-            val widthColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH)
-            val heightColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT)
+            val dataColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+            val dateTakenColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+            val sizeColumn = cursor.getColumnIndex(MediaStore.Images.Media.SIZE)
+            val widthColumn = cursor.getColumnIndex(MediaStore.Images.Media.WIDTH)
+            val heightColumn = cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT)
 
             if (cursor.moveToNext()) {
-                val data = cursor.getString(dataColumn)
-                val dateTaken = cursor.getLong(dateTakenColumn)
-                val size = cursor.getLong(sizeColumn)
-                val width = cursor.getLong(widthColumn)
-                val height = cursor.getLong(heightColumn)
-                val resolution = "$width x $height"
+                val nameStrIdToValue = mutableListOf<Pair<Int, String>>()
+                if (dataColumn != -1) {
+                    val data = cursor.getString(dataColumn)
+                    nameStrIdToValue += R.string.menu_sort_by_path_title to data
+                }
+                if (dateTakenColumn != -1) {
+                    val dateTaken = cursor.getLong(dateTakenColumn)
+                    nameStrIdToValue += R.string.menu_sort_by_date_taken_title to
+                            DateUtils.formatDateTime(
+                                context, dateTaken,
+                                DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
+                                        DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_YEAR or
+                                        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                            )
+                }
+                if (sizeColumn != -1) {
+                    val size = cursor.getLong(sizeColumn)
+                    nameStrIdToValue += R.string.menu_sort_by_size_title to
+                            Formatter.formatFileSize(context, size)
+                }
+                if (widthColumn != -1 && heightColumn != -1) {
+                    val width = cursor.getLong(widthColumn)
+                    val height = cursor.getLong(heightColumn)
+                    val resolution = "$width x $height"
+                    nameStrIdToValue += R.string.resolution to resolution
+                }
 
-                val info = listOf(
+                val info = nameStrIdToValue.map { (nameStrId, value) ->
                     context.getString(
-                        R.string.info_item, context.getString(R.string.menu_sort_by_path_title),
-                        data
-                    ),
-                    context.getString(
-                        R.string.info_item,
-                        context.getString(R.string.menu_sort_by_date_taken_title),
-                        DateUtils.formatDateTime(
-                            context, dateTaken,
-                            DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
-                                    DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_YEAR or
-                                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-                        )
-                    ),
-                    context.getString(
-                        R.string.info_item, context.getString(R.string.menu_sort_by_size_title),
-                        Formatter.formatFileSize(context, size)
-                    ),
-                    context.getString(
-                        R.string.info_item, context.getString(R.string.resolution), resolution
-                    ),
-                )
+                        R.string.info_item, context.getString(nameStrId), value
+                    )
+                }
                 return@withContext Result.success(info.joinToString("\n"))
+            }
+        }
+        Result.failure(FileNotFoundException())
+    }
+
+    fun queryImageTitleAsync(uri: Uri) = viewModelScope.async {
+        queryImageTitle(uri)
+    }
+
+    private suspend fun queryImageTitle(uri: Uri) = withContext(Dispatchers.IO) {
+        val projection = arrayOf(MediaStore.Images.Media.DISPLAY_NAME)
+        val context = getApplication<Application>()
+        context.contentResolver.query(
+            uri,
+            projection,
+            null,
+            null,
+            null
+        )?.use { cursor ->
+
+            val displayNameColumn =
+                cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+
+            if (cursor.moveToNext()) {
+                val displayName = cursor.getString(displayNameColumn)
+
+                return@withContext Result.success(displayName)
             }
         }
         Result.failure(FileNotFoundException())

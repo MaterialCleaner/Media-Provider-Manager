@@ -103,7 +103,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
 
                     val direction = ImagesFragmentDirections.actionImagesToImagePager(
                         initialPosition = uriPosition,
-                        isMediaStoreUri = true
+                        uri = null
                     )
                     val extras = FragmentNavigatorExtras(
                         binding.image to binding.image.transitionName

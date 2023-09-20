@@ -47,7 +47,6 @@ class VideoAdapter(private val fragment: VideoFragment) : FilesAdapter(fragment)
 //                    )
                     val direction = VideoFragmentDirections.actionVideoToVideoPlayer(
                         uris = arrayOf(item.contentUri),
-                        displayNames = arrayOf(item.displayName),
                     )
                     navController.navigate(direction)
                 }

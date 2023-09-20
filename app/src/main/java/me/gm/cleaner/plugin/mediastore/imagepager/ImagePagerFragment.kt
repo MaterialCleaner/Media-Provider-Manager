@@ -21,6 +21,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.transition.TransitionInflater
 import android.transition.TransitionSet
@@ -92,18 +93,45 @@ class ImagePagerFragment : BaseFragment() {
                 appBarLayout?.isLifted = isOverlaying
             }
         }
+
         bottomBar = binding.bottomBar
-        if (args.isMediaStoreUri) {
-            binding.bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
-        } else {
-            bottomBar.isVisible = false
-        }
+        binding.bottomActionBar.setOnMenuItemClickListener(::onOptionsItemSelected)
+        val carouselRecyclerView = binding.carouselRecyclerView
 
         viewPager = binding.viewPager
+        if (args.uri == null) {
+            bindForMediaStoreImages(savedInstanceState, carouselRecyclerView)
+        } else {
+            bindForContentProviderImage(carouselRecyclerView)
+        }
+
+        findNavController().addOnExitListener { _, destination, _ ->
+            toDefaultAppBarState(destination)
+            requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
+                .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        }
+        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
+            intentSender?.let {
+                startIntentSenderForResult(
+                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
+                )
+            }
+        }
+
+        prepareSharedElementTransition()
+        // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
+        if (savedInstanceState == null && args.uri == null) {
+            postponeEnterTransition()
+        }
+        return binding.root
+    }
+
+    private fun bindForMediaStoreImages(
+        savedInstanceState: Bundle?, carouselRecyclerView: RecyclerView
+    ) {
         val adapter = CarouselAdapter { _, position ->
             viewPager.setCurrentItem(position, true)
         }
-        val carouselRecyclerView = binding.carouselRecyclerView
         carouselRecyclerView.adapter = adapter
         carouselRecyclerView.layoutManager =
             CarouselLayoutManager(CustomHeroCarouselStrategy()).apply {
@@ -112,6 +140,42 @@ class ImagePagerFragment : BaseFragment() {
         carouselRecyclerView.isNestedScrollingEnabled = false
         val enableFlingSnapHelper = CarouselSnapHelper(false)
         enableFlingSnapHelper.attachToRecyclerView(carouselRecyclerView)
+
+        viewPager.adapter = object : FragmentStateAdapter(this) {
+            val initialItemId: Long = if (savedInstanceState == null) {
+                imagesViewModel.medias[args.initialPosition].id
+            } else {
+                0
+            }
+
+            override fun createFragment(position: Int): ImagePagerItem {
+                val media = imagesViewModel.medias[position]
+                return ImagePagerItem.newInstance(
+                    media.contentUri, savedInstanceState == null && initialItemId == media.id
+                )
+            }
+
+            override fun getItemCount(): Int = imagesViewModel.medias.size
+
+            // Override to support collections that remove items.
+            override fun getItemId(position: Int): Long = imagesViewModel.medias[position].id
+
+            override fun containsItem(itemId: Long): Boolean =
+                imagesViewModel.medias.any { itemId == it.id }
+        }
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                lastPosition.putInt(KEY_POSITION, position)
+                viewModel.currentItemId = imagesViewModel.medias[position].id
+                updateTitle(position)
+                carouselRecyclerView.post {
+                    if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                        carouselRecyclerView.smoothScrollToPosition(position)
+                    }
+                }
+            }
+        })
+
         carouselRecyclerView.addOnScrollListener(
             object : RecyclerView.OnScrollListener() {
                 private var dragged: Boolean = false
@@ -161,7 +225,8 @@ class ImagePagerFragment : BaseFragment() {
                         }
                         updateTitle(position)
                         adapter.submitList(medias) {
-                            // ugly workaround
+                            // TODO: Remove this ugly workaround when CarouselLayoutManager
+                            //  supports initial scroll position.
                             carouselRecyclerView.postDelayed(100L) {
                                 carouselRecyclerView.scrollToPosition(position)
                             }
@@ -170,28 +235,6 @@ class ImagePagerFragment : BaseFragment() {
                 }
             }
         }
-        viewPager.adapter = object : FragmentStateAdapter(this) {
-            val initialItemId: Long = if (savedInstanceState == null) {
-                imagesViewModel.medias[args.initialPosition].id
-            } else {
-                0
-            }
-
-            override fun createFragment(position: Int): ImagePagerItem {
-                val media = imagesViewModel.medias[position]
-                return ImagePagerItem.newInstance(
-                    media.contentUri, savedInstanceState == null && initialItemId == media.id
-                )
-            }
-
-            override fun getItemCount(): Int = imagesViewModel.medias.size
-
-            // Override to support collections that remove items.
-            override fun getItemId(position: Int): Long = imagesViewModel.medias[position].id
-
-            override fun containsItem(itemId: Long): Boolean =
-                imagesViewModel.medias.any { itemId == it.id }
-        }
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         if (savedInstanceState == null) {
@@ -199,44 +242,34 @@ class ImagePagerFragment : BaseFragment() {
             viewPager.setCurrentItem(position, false)
             viewModel.currentItemId = imagesViewModel.medias[position].id
         }
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                lastPosition.putInt(KEY_POSITION, position)
-                viewModel.currentItemId = imagesViewModel.medias[position].id
-                updateTitle(position)
-                carouselRecyclerView.post {
-                    if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        carouselRecyclerView.smoothScrollToPosition(position)
-                    }
-                }
-            }
-        })
-        findNavController().addOnExitListener { _, destination, _ ->
-            toDefaultAppBarState(destination)
-            requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
-                .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        }
-        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
-            intentSender?.let {
-                startIntentSenderForResult(
-                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
-                )
-            }
+    }
+
+    private fun bindForContentProviderImage(carouselRecyclerView: RecyclerView) {
+        carouselRecyclerView.isVisible = false
+
+        viewPager.adapter = object : FragmentStateAdapter(this) {
+
+            override fun createFragment(position: Int): ImagePagerItem =
+                ImagePagerItem.newInstance(args.uri!!, true)
+
+            override fun getItemCount(): Int = 1
         }
 
-        prepareSharedElementTransition()
-        // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
-        if (savedInstanceState == null && args.isMediaStoreUri) {
-            postponeEnterTransition()
-        }
-        return binding.root
+        updateTitle(0)
     }
 
     private fun updateTitle(position: Int) {
         supportActionBar?.apply {
-            title = imagesViewModel.medias[position].displayName
-            if (args.isMediaStoreUri) {
+            if (args.uri == null) {
+                title = imagesViewModel.medias[position].displayName
                 subtitle = "${position + 1} / ${imagesViewModel.medias.size}"
+            } else {
+                lifecycleScope.launch {
+                    val result = viewModel
+                        .queryImageTitleAsync(args.uri!!)
+                        .await()
+                    title = result.getOrNull()
+                }
             }
         }
     }
@@ -247,14 +280,22 @@ class ImagePagerFragment : BaseFragment() {
             ?.itemView
             ?.findViewById(R.id.photo_view)
 
+    private fun getCurrentImageUri(): Uri = if (args.uri == null) {
+        imagesViewModel.medias[viewPager.currentItem].contentUri
+    } else {
+        args.uri!!
+    }
+
     private fun deleteCurrentImage() {
         lifecycleScope.launch {
             try {
-                val position = viewPager.currentItem
                 val isSuccessfullyDeleted = viewModel
-                    .deleteImageAsync(imagesViewModel.medias[position].contentUri)
+                    .deleteImageAsync(getCurrentImageUri())
                     .await()
-            } catch (e: SecurityException) {
+                if (isSuccessfullyDeleted && args.uri != null) {
+                    activity?.finish()
+                }
+            } catch (e: Throwable) {
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             }
         }
@@ -305,9 +346,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun toggleAppBar(show: Boolean) {
         super.toggleAppBar(show)
-        if (args.isMediaStoreUri) {
-            bottomBar.isVisible = show
-        }
+        bottomBar.isVisible = show
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -328,7 +367,7 @@ class ImagePagerFragment : BaseFragment() {
         R.id.menu_info -> {
             lifecycleScope.launch {
                 val result = viewModel
-                    .queryImageInfoAsync(imagesViewModel.medias[viewPager.currentItem].contentUri)
+                    .queryImageInfoAsync(getCurrentImageUri())
                     .await()
                 TextSelectableInfoDialog
                     .newInstance(result.getOrElse { it.stackTraceToString() })
@@ -338,11 +377,9 @@ class ImagePagerFragment : BaseFragment() {
         }
 
         R.id.menu_share -> {
-            val currentItem = imagesViewModel.medias[viewPager.currentItem]
             val sendIntent = Intent(Intent.ACTION_SEND)
                 .setType("image/*")
-                .putExtra(Intent.EXTRA_STREAM, currentItem.contentUri)
-                .putExtra(Intent.EXTRA_TEXT, currentItem.displayName)
+                .putExtra(Intent.EXTRA_STREAM, getCurrentImageUri())
             val shareIntent = Intent.createChooser(sendIntent, null)
             try {
                 startActivity(shareIntent)

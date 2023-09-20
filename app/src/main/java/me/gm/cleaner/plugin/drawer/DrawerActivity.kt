@@ -94,8 +94,8 @@ abstract class DrawerActivity : BaseActivity() {
             }
             val args = if (action == Intent.ACTION_VIEW) {
                 bundleOf(
+                    "uri" to intent.data,
                     "uris" to arrayOf(intent.data),
-                    "displayNames" to arrayOf(intent.data?.lastPathSegment ?: ""),
                 )
             } else {
                 null

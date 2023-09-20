@@ -125,9 +125,10 @@
             android:defaultValue="0"
             app:argType="integer" />
         <argument
-            android:name="isMediaStoreUri"
-            android:defaultValue="false"
-            app:argType="boolean" />
+            android:name="uri"
+            android:defaultValue="@null"
+            app:argType="android.net.Uri"
+            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -146,15 +147,8 @@
             android:defaultValue="0"
             app:argType="integer" />
         <argument
-            android:name="isMediaStoreUri"
-            android:defaultValue="false"
-            app:argType="boolean" />
-        <argument
             android:name="uris"
             app:argType="android.net.Uri[]" />
-        <argument
-            android:name="displayNames"
-            app:argType="string[]" />
     </fragment>
 
     <!-- Playground & About -->
