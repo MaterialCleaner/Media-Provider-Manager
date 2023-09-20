@@ -107,6 +107,7 @@ class ImagePagerFragment : BaseFragment() {
 
         findNavController().addOnExitListener { _, destination, _ ->
             toDefaultAppBarState(destination)
+            appBarLayout?.setLiftableOverrideEnabled(false)
             requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }
@@ -406,7 +407,7 @@ class ImagePagerFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        appBarLayout?.setLiftOnScrollTargetView(null)
+        appBarLayout?.setLiftableOverrideEnabled(true)
         savedInstanceState?.run {
             supportActionBar?.apply {
                 title = getCharSequence(SAVED_TITLE)
