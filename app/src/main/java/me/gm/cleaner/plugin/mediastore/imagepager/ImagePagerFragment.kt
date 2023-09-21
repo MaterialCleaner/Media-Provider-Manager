@@ -169,10 +169,8 @@ class ImagePagerFragment : BaseFragment() {
                 lastPosition.putInt(KEY_POSITION, position)
                 viewModel.currentItemId = imagesViewModel.medias[position].id
                 updateTitle(position)
-                carouselRecyclerView.post {
-                    if (carouselRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
-                        carouselRecyclerView.smoothScrollToPosition(position)
-                    }
+                if (carouselRecyclerView.scrollState != RecyclerView.SCROLL_STATE_DRAGGING) {
+                    carouselRecyclerView.smoothScrollToPosition(position)
                 }
             }
         })
