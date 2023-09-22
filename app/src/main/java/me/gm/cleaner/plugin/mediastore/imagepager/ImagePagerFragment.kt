@@ -212,13 +212,10 @@ class ImagePagerFragment : BaseFragment() {
                     if (medias.isEmpty()) {
                         findNavController().navigateUp()
                     } else {
-                        var position = imagesViewModel.medias
-                            .indexOfFirst { viewModel.currentItemId == it.id }
+                        var position = medias.indexOfFirst { viewModel.currentItemId == it.id }
                         if (position == -1) {
                             viewPager.adapter!!.notifyItemRemoved(viewPager.currentItem)
-                            position = clamp(
-                                viewPager.currentItem, 0, imagesViewModel.medias.size - 1
-                            )
+                            position = clamp(viewPager.currentItem, 0, medias.size - 1)
                         } else {
                             viewPager.setCurrentItem(position, false)
                         }
