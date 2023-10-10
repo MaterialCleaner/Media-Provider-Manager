@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.ktx.fileNameComparator
 import me.gm.cleaner.plugin.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
@@ -139,6 +140,11 @@ open class FilesViewModel(application: Application) :
                     Log.v(TAG, "Added file: $file")
                 }
             }
+        }
+
+        if (RootPreferences.sortMediaBy == RootPreferences.SORT_BY_PATH) {
+            files.sortWith(fileNameComparator { it.displayName })
+            files.sortWith(fileNameComparator { it.relativePath })
         }
 
         Log.v(TAG, "Found ${files.size} files")

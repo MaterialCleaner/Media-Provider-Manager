@@ -30,6 +30,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.ktx.fileNameComparator
 import me.gm.cleaner.plugin.mediastore.MediaStoreViewModel
 
 class ImagesViewModel(application: Application) :
@@ -166,6 +167,11 @@ class ImagesViewModel(application: Application) :
                     Log.v(TAG, "Added image: $image")
                 }
             }
+        }
+
+        if (RootPreferences.sortMediaBy == RootPreferences.SORT_BY_PATH) {
+            images.sortWith(fileNameComparator { it.displayName })
+            images.sortWith(fileNameComparator { it.relativePath })
         }
 
         Log.v(TAG, "Found ${images.size} images")
