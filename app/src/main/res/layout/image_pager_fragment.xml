@@ -47,7 +47,7 @@
             android:id="@+id/bottom_action_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="@dimen/design_bottom_navigation_height"
+            android:minHeight="@dimen/m3_bottom_nav_min_height"
             app:menu="@menu/image_pager_bottombar" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

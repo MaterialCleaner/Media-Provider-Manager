@@ -28,8 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="@dimen/design_bottom_navigation_margin"
-        android:layout_marginBottom="@dimen/design_bottom_navigation_margin"
+        android:layout_marginTop="@dimen/m3_bottom_nav_item_padding_bottom"
+        android:layout_marginBottom="@dimen/m3_bottom_nav_item_padding_top"
         android:duplicateParentState="true">
 
         <View
@@ -55,7 +55,7 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:duplicateParentState="true"
-        android:paddingBottom="@dimen/design_bottom_navigation_label_padding">
+        android:paddingBottom="@dimen/m3_bottom_nav_item_padding_bottom">
 
         <TextView
             android:id="@id/navigation_bar_item_small_label_view"
@@ -64,7 +64,7 @@
             android:duplicateParentState="true"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textSize="@dimen/design_bottom_navigation_text_size" />
+            android:textAppearance="?attr/textAppearanceLabelMedium" />
 
         <TextView
             android:id="@id/navigation_bar_item_large_label_view"
@@ -73,7 +73,7 @@
             android:duplicateParentState="true"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textSize="@dimen/design_bottom_navigation_active_text_size"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
             android:visibility="invisible" />
     </com.google.android.material.internal.BaselineLayout>
 </FrameLayout>
