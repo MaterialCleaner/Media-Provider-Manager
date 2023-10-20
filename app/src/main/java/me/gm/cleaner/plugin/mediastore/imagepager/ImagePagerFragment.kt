@@ -40,7 +40,6 @@ import androidx.core.transition.doOnEnd
 import androidx.core.transition.doOnStart
 import androidx.core.view.get
 import androidx.core.view.isVisible
-import androidx.core.view.postDelayed
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -221,11 +220,7 @@ class ImagePagerFragment : BaseFragment() {
                         }
                         updateTitle(position)
                         adapter.submitList(medias) {
-                            // TODO: Remove this ugly workaround when CarouselLayoutManager
-                            //  supports initial scroll position.
-                            carouselRecyclerView.postDelayed(100L) {
-                                carouselRecyclerView.scrollToPosition(position)
-                            }
+                            carouselRecyclerView.scrollToPosition(position)
                         }
                     }
                 }

@@ -90,8 +90,6 @@ class ImagePagerItem : BaseFragment() {
                     if (scale < photoView.mediumScale) {
                         photoView.setScale(photoView.mediumScale, x, y, true)
                         parentFragment.toggleAppBar(false)
-                    } else if (scale >= photoView.mediumScale && scale < photoView.maximumScale) {
-                        photoView.setScale(photoView.maximumScale, x, y, true)
                     } else {
                         photoView.setScale(photoView.minimumScale, x, y, true)
                     }

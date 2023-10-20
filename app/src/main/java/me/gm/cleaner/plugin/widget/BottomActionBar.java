@@ -21,10 +21,7 @@ import static java.lang.Math.min;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.ColorStateListDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.util.AttributeSet;
 import android.view.MenuInflater;
@@ -42,6 +39,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.drawable.DrawableUtils;
 import com.google.android.material.internal.ThemeEnforcement;
 import com.google.android.material.internal.ViewUtils;
 import com.google.android.material.internal.ViewUtils.RelativePadding;
@@ -94,9 +92,7 @@ public class BottomActionBar extends FrameLayout {
 
         // Add a MaterialShapeDrawable as background that supports tinting in every API level.
         Drawable background = getBackground();
-//        ColorStateList backgroundColorStateList = DrawableUtils.getColorStateListOrNull(background);
-        // TODO: Remove when DrawableUtils.getColorStateListOrNull() available.
-        ColorStateList backgroundColorStateList = getColorStateListOrNull(background);
+        ColorStateList backgroundColorStateList = DrawableUtils.getColorStateListOrNull(background);
 
         if (background == null || backgroundColorStateList != null) {
             ShapeAppearanceModel shapeAppearanceModel =
@@ -119,20 +115,6 @@ public class BottomActionBar extends FrameLayout {
         addView(menuView);
 
         applyWindowInsets();
-    }
-
-    private static ColorStateList getColorStateListOrNull(@Nullable final Drawable drawable) {
-        if (drawable instanceof ColorDrawable) {
-            return ColorStateList.valueOf(((ColorDrawable) drawable).getColor());
-        }
-
-        if (VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (drawable instanceof ColorStateListDrawable) {
-                return ((ColorStateListDrawable) drawable).getColorStateList();
-            }
-        }
-
-        return null;
     }
 
     @NonNull
