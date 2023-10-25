@@ -1,10 +1,29 @@
+/*
+ * Copyright 2023 Green Mushroom
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // https://gist.github.com/seven332/eadc44f1b35f756e46c410a8487fcc1d
 
 package me.gm.cleaner.plugin.ktx;
 
+import java.math.BigInteger;
+import java.text.Collator;
 import java.util.Comparator;
 
 public class NaturalSorter implements Comparator<String> {
+    private static final Collator collator = Collator.getInstance();
 
     @Override
     public int compare(String o1, String o2) {
@@ -29,12 +48,9 @@ public class NaturalSorter implements Comparator<String> {
 
             int result;
             if (isDigit(data1) && isDigit(data2)) {
-                result = Long.compare(Long.valueOf(data1), Long.valueOf(data2));
-                if (result == 0) {
-                    result = -Integer.compare(data1.length(), data2.length());
-                }
+                result = new BigInteger(data1).compareTo(new BigInteger(data2));
             } else {
-                result = data1.compareToIgnoreCase(data2);
+                result = collator.compare(data1, data2);
             }
 
             if (result != 0) {
