@@ -72,6 +72,7 @@ class ImagePagerItem : BaseFragment() {
         // value of the image res.
         photoView.transitionName = uri.toString()
         photoView.setOnScaleChangeListener { _, _, _ ->
+            parentFragment.toggleAppBar(false)
             viewModel.isOverlaying(photoView.displayRect)
         }
         photoView.setOnDoubleTapListener(object : GestureDetector.SimpleOnGestureListener() {
@@ -89,7 +90,6 @@ class ImagePagerItem : BaseFragment() {
                     val y = e.y
                     if (scale < photoView.mediumScale) {
                         photoView.setScale(photoView.mediumScale, x, y, true)
-                        parentFragment.toggleAppBar(false)
                     } else {
                         photoView.setScale(photoView.minimumScale, x, y, true)
                     }
