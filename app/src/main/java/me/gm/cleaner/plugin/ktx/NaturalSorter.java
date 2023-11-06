@@ -49,6 +49,9 @@ public class NaturalSorter implements Comparator<String> {
             int result;
             if (isDigit(data1) && isDigit(data2)) {
                 result = new BigInteger(data1).compareTo(new BigInteger(data2));
+                if (result == 0) {
+                    result = Integer.compare(data1.length(), data2.length());
+                }
             } else {
                 result = collator.compare(data1, data2);
             }
