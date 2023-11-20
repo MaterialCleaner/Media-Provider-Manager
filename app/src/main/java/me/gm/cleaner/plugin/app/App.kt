@@ -30,9 +30,7 @@ class App : Application() {
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            HiddenApiBypass.addHiddenApiExemptions(
-                "Landroid/os/storage/StorageVolume;",
-            )
+            HiddenApiBypass.addHiddenApiExemptions("")
         }
     }
 

@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.view.ViewConfiguration
 import androidx.core.animation.doOnEnd
 import androidx.core.math.MathUtils.clamp
 import androidx.recyclerview.widget.RecyclerView
@@ -31,14 +32,15 @@ import me.gm.cleaner.plugin.ktx.mediumAnimTime
 import me.gm.cleaner.plugin.mediastore.MediaStoreFragment
 import kotlin.math.abs
 
+@SuppressLint("BlockedPrivateApi")
 class ScaleGestureListener(
     private val context: Context,
     private val layoutManager: ProgressionGridLayoutManager,
     private val viewHelper: MediaStoreFragment.MediaStoreRecyclerViewHelper
 ) : RecyclerView.SimpleOnItemTouchListener() {
     private var scaleEndAnimator: ValueAnimator? = null
-    private val gestureDetector: ScaleGestureDetector = ScaleGestureDetector(
-        context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private val gestureDetector: ScaleGestureDetector by lazy {
+        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             private var prevProgress = 0F
             private var isNewSpanCountSet = false
 
@@ -101,8 +103,8 @@ class ScaleGestureListener(
                     viewHelper.observer.onChanged()
                 }
             }
-        }
-    )
+        })
+    }
 
     @SuppressLint("RestrictedApi")
     private fun animateProgress(
@@ -149,6 +151,17 @@ class ScaleGestureListener(
                 //  rv.requestDisallowInterceptTouchEvent(false)
             }
         }
+    }
+
+    init {
+        // Reduce ScaledMinimumScalingSpan due to the following reasons:
+        // 1) I think it significantly reduces the user experience.
+        // 2) Many Google apps do not respect this value.
+        // 3) The creator of pinch-to-zoom did not specify this value.
+        val field = ViewConfiguration::class.java.getDeclaredField("mMinScalingSpan")
+        field.isAccessible = true
+        val viewConfiguration = ViewConfiguration.get(context)
+        field.set(viewConfiguration, viewConfiguration.scaledTouchSlop * 2)
     }
 
     companion object {
