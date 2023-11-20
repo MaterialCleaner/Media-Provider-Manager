@@ -99,7 +99,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             )
             .withSelectionPredicate(object : SelectionPredicate<Long>() {
                 override fun canSetStateForKey(key: Long, nextState: Boolean): Boolean =
-                    viewModel.medias.any { it.id == key }
+                    !nextState || viewModel.medias.any { it.id == key }
 
                 override fun canSetStateAtPosition(position: Int, nextState: Boolean): Boolean {
                     if (position == RecyclerView.NO_POSITION) {
@@ -134,6 +134,12 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mediasFlow.collect { medias ->
+                    val deletedItems = selectionTracker.selection.filter { key ->
+                        medias.none { it.id == key }
+                    }
+                    deletedItems.forEach { key ->
+                        selectionTracker.deselect(key)
+                    }
                     adapter.submitListKeepPosition(medias, list)
                 }
             }
@@ -215,7 +221,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     val medias = selectionTracker.selection.mapNotNull { selection ->
                         viewModel.medias.firstOrNull { it.id == selection }
                     }
-                    actionMode?.finish()
                     if (medias.isEmpty()) {
                         return true
                     }
