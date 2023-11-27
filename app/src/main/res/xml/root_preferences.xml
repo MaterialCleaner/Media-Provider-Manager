@@ -31,7 +31,6 @@
             app:title="@string/reject_nonstandard_dir_title" />
 
         <SwitchPreferenceCompat
-            app:defaultValue="true"
             app:iconSpaceReserved="false"
             app:key="@string/usage_record_key"
             app:summary="@string/usage_record_summary"
