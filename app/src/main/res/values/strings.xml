@@ -83,8 +83,6 @@
     <string name="usage_record_key" translatable="false">usage_record</string>
     <string name="usage_record_title" translatable="false">@string/usage_record</string>
     <string name="usage_record_summary">Save usage records to the database. No new data will appear in the usage record page if you turned off.</string>
-    <string name="bpf_hook_key" translatable="false">bpf_hook</string>
-    <string name="bpf_hook_title">Allow apps to access private directories through FUSE.</string>
     <string name="scoped_header">SCOPED</string>
     <string name="template_management_key" translatable="false">template_management</string>
     <string name="template_management_title">Template management</string>

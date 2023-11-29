@@ -69,7 +69,6 @@
     <string name="reject_nonstandard_dir_title">禁止建立不規範資料夾</string>
     <string name="reject_nonstandard_dir_summary">在 AOSP 中系統應用不會建立非標準資料夾，但是一些裝置生產商修改了這一行為。</string>
     <string name="usage_record_summary">將使用記錄儲存到資料庫。關閉後使用記錄頁面將不會再出現新的資料。</string>
-    <string name="bpf_hook_title">允許應用通過 FUSE 訪問私有目錄</string>
     <string name="scoped_header">作用域</string>
     <string name="template_management_title">模板管理</string>
     <string name="applied_app_count">應用到 %d 個應用</string>

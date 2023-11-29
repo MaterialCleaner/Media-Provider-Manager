@@ -42,10 +42,6 @@ class SettingsFragment : AbsSettingsFragment() {
         val usageRecord = getString(R.string.usage_record_key)
         findPreference<SwitchPreferenceCompat>(usageRecord)?.isChecked =
             remoteSp.getBoolean(usageRecord, true)
-
-        val bpfHook = getString(R.string.bpf_hook_key)
-        findPreference<SwitchPreferenceCompat>(bpfHook)?.isChecked =
-            remoteSp.getBoolean(bpfHook, true)
     }
 
     override fun onCreateView(

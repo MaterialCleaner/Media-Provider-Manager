@@ -67,11 +67,6 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
         if (lpparam.appInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
             return
         }
-        try {
-            System.loadLibrary("plugin")
-        } catch (e: Throwable) {
-            XposedBridge.log(e)
-        }
         XposedHelpers.findAndHookMethod(
             ContentProvider::class.java, "attachInfo",
             Context::class.java, ProviderInfo::class.java, object : XC_MethodHook() {
