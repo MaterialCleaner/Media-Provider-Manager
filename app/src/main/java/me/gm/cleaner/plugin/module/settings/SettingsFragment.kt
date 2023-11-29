@@ -18,6 +18,7 @@ package me.gm.cleaner.plugin.module.settings
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -46,7 +47,7 @@ class SettingsFragment : AbsSettingsFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ) = super.onCreateView(inflater, container, savedInstanceState).also {
+    ): View = super.onCreateView(inflater, container, savedInstanceState).also {
         parentFragment?.setFragmentResultListener(TemplatesFragment::class.java.name) { _, bundle ->
             enterKey = bundle.getString(TemplatesFragment.KEY)
             parentFragment?.postponeEnterTransition()
