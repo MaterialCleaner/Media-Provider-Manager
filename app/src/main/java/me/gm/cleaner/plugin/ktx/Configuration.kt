@@ -20,7 +20,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.view.View
 
-val Configuration.isNightModeActivated
+val Configuration.isNightModeActiveCompat
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         isNightModeActive
     } else {
