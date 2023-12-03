@@ -19,7 +19,7 @@ An Xposed module intended to prevent media storage abuse.
 ## How media store is abused
 
 As with native storage, Android does not offer a fine-grained management scheme for media storage.
-- Apps only need low-risk permissions to access all media files, and users cannot limit the scope of reading.
+- ~~Apps only need low-risk permissions to access all media files, and users cannot limit the scope of reading.~~
 - No permission is required for applications to insert files through the media store. Writing files freewheelingly will clutter up the external storage and the media store, and it can also be used for cross-application tracking.
 
 ## Features

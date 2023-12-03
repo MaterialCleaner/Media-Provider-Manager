@@ -20,6 +20,6 @@
     <array name="recommend_package" tools:ignore="InconsistentArrays">
         <item>com.android.providers.media.module</item>
         <item>com.android.providers.downloads</item>
-        <item>com.google.android.providers.media.module</item><!-- StagOS 13.1 -->
+        <item>com.google.android.providers.media.module</item>
     </array>
 </resources>
