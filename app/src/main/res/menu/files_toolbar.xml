@@ -29,7 +29,7 @@
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/menu_view"
-        android:icon="@drawable/ic_outline_tune_24"
+        android:icon="@drawable/outline_filter_list_24"
         android:title="@string/view"
         app:showAsAction="always">
         <menu>
