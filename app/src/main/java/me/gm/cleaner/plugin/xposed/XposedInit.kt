@@ -69,7 +69,8 @@ class XposedInit : ManagerService(), IXposedHookLoadPackage, IXposedHookZygoteIn
         }
         XposedHelpers.findAndHookMethod(
             ContentProvider::class.java, "attachInfo",
-            Context::class.java, ProviderInfo::class.java, object : XC_MethodHook() {
+            Context::class.java, ProviderInfo::class.java, Boolean::class.java,
+            object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val context = param.args[0] as Context
