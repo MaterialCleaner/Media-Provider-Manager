@@ -83,12 +83,6 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     .into(binding.image)
                 binding.image.transitionName = item.contentUri.toString()
                 binding.card.setOnClickListener {
-                    val navController = fragment.findNavController()
-                    if (fragment.isInActionMode() ||
-                        navController.currentDestination?.id != R.id.images_fragment
-                    ) {
-                        return@setOnClickListener
-                    }
                     val uriPosition = getUriPositionForAdapterPosition(
                         holder.bindingAdapterPosition
                     )
@@ -108,7 +102,7 @@ class ImagesAdapter(private val fragment: ImagesFragment) : MediaStoreAdapter(fr
                     val extras = FragmentNavigatorExtras(
                         binding.image to binding.image.transitionName
                     )
-                    navController.navigate(direction, extras)
+                    fragment.findNavController().navigate(direction, extras)
                 }
 
                 holder.details = object : ItemDetails<Long>() {
