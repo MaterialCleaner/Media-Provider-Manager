@@ -31,7 +31,7 @@ import com.bumptech.glide.annotation.GlideModule;
 import java.nio.ByteBuffer;
 
 import me.gm.cleaner.plugin.R;
-import me.gm.cleaner.plugin.mediastore.MediaModelLoader;
+import me.gm.cleaner.plugin.ui.mediastore.MediaModelLoader;
 import me.zhanghai.android.appiconloader.glide.AppIconModelLoader;
 
 @GlideModule

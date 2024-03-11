@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.ui.mediastore.downloads
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.ui.drawer.DrawerActivity
+import androidx.fragment.app.viewModels
+import me.gm.cleaner.plugin.ui.mediastore.files.FilesFragment
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+class DownloadsFragment : FilesFragment() {
+    override val viewModel: DownloadsViewModel by viewModels()
+}

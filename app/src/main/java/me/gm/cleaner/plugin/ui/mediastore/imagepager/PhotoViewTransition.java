@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Green Mushroom
+ * Copyright 2023 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.ui.mediastore.imagepager;
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.ui.drawer.DrawerActivity
+import android.view.View;
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+import androidx.annotation.NonNull;
+
+import com.github.chrisbanes.photoview.PhotoView;
+
+public interface PhotoViewTransition {
+
+    static boolean isPhotoView(@NonNull View view) {
+        return view instanceof PhotoView;
+    }
+}

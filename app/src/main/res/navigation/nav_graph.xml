@@ -23,7 +23,7 @@
     <!-- Module -->
     <fragment
         android:id="@+id/applist_fragment"
-        android:name="me.gm.cleaner.plugin.module.appmanagement.AppListFragment"
+        android:name="me.gm.cleaner.plugin.ui.module.appmanagement.AppListFragment"
         android:label="@string/app_management">
         <action
             android:id="@+id/action_applist_to_app"
@@ -31,7 +31,7 @@
     </fragment>
     <fragment
         android:id="@+id/app_fragment"
-        android:name="me.gm.cleaner.plugin.module.appmanagement.AppFragment"
+        android:name="me.gm.cleaner.plugin.ui.module.appmanagement.AppFragment"
         android:label="@string/app_management">
         <action
             android:id="@+id/action_app_to_create_template"
@@ -47,12 +47,12 @@
 
     <fragment
         android:id="@+id/usage_record_fragment"
-        android:name="me.gm.cleaner.plugin.module.usagerecord.UsageRecordFragment"
+        android:name="me.gm.cleaner.plugin.ui.module.usagerecord.UsageRecordFragment"
         android:label="@string/usage_record" />
 
     <fragment
         android:id="@+id/settings_fragment"
-        android:name="me.gm.cleaner.plugin.module.settings.SettingsFragmentStub"
+        android:name="me.gm.cleaner.plugin.ui.module.settings.SettingsFragmentStub"
         android:label="@string/settings">
         <action
             android:id="@+id/action_settings_to_templates"
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/templates_fragment"
-        android:name="me.gm.cleaner.plugin.module.settings.TemplatesFragment"
+        android:name="me.gm.cleaner.plugin.ui.module.settings.TemplatesFragment"
         android:label="@string/template_management_title">
         <action
             android:id="@+id/action_templates_to_create_template"
@@ -69,7 +69,7 @@
 
     <fragment
         android:id="@+id/create_template_fragment"
-        android:name="me.gm.cleaner.plugin.module.settings.CreateTemplateFragment"
+        android:name="me.gm.cleaner.plugin.ui.module.settings.CreateTemplateFragment"
         android:label="@string/create_template_title">
         <argument
             android:name="templateName"
@@ -96,22 +96,22 @@
     <!-- Media Store -->
     <fragment
         android:id="@+id/audio_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.audio.AudioFragment"
+        android:name="me.gm.cleaner.plugin.ui.mediastore.audio.AudioFragment"
         android:label="@string/audio" />
 
     <fragment
         android:id="@+id/downloads_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.downloads.DownloadsFragment"
+        android:name="me.gm.cleaner.plugin.ui.mediastore.downloads.DownloadsFragment"
         android:label="@string/downloads" />
 
     <fragment
         android:id="@+id/files_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.files.FilesFragment"
+        android:name="me.gm.cleaner.plugin.ui.mediastore.files.FilesFragment"
         android:label="@string/files" />
 
     <fragment
         android:id="@+id/images_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.images.ImagesFragment"
+        android:name="me.gm.cleaner.plugin.ui.mediastore.images.ImagesFragment"
         android:label="@string/images">
         <action
             android:id="@+id/action_images_to_image_pager"
@@ -119,7 +119,7 @@
     </fragment>
     <fragment
         android:id="@+id/image_pager_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.imagepager.ImagePagerFragment">
+        android:name="me.gm.cleaner.plugin.ui.mediastore.imagepager.ImagePagerFragment">
         <argument
             android:name="initialPosition"
             android:defaultValue="0"
@@ -133,7 +133,7 @@
 
     <fragment
         android:id="@+id/video_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.video.VideoFragment"
+        android:name="me.gm.cleaner.plugin.ui.mediastore.video.VideoFragment"
         android:label="@string/video">
         <action
             android:id="@+id/action_video_to_video_player"
@@ -141,7 +141,7 @@
     </fragment>
     <fragment
         android:id="@+id/video_player_fragment"
-        android:name="me.gm.cleaner.plugin.mediastore.video.VideoPlayerFragment">
+        android:name="me.gm.cleaner.plugin.ui.mediastore.video.VideoPlayerFragment">
         <argument
             android:name="initialPosition"
             android:defaultValue="0"
@@ -154,7 +154,7 @@
     <!-- Playground & About -->
     <fragment
         android:id="@+id/playground_fragment"
-        android:name="me.gm.cleaner.plugin.drawer.playground.PlaygroundFragment"
+        android:name="me.gm.cleaner.plugin.ui.drawer.playground.PlaygroundFragment"
         android:label="@string/playground">
         <action
             android:id="@+id/action_playground_to_create_template"
@@ -163,6 +163,6 @@
 
     <fragment
         android:id="@+id/about_fragment"
-        android:name="me.gm.cleaner.plugin.drawer.about.AboutFragment"
+        android:name="me.gm.cleaner.plugin.ui.drawer.about.AboutFragment"
         android:label="@string/about" />
 </navigation>

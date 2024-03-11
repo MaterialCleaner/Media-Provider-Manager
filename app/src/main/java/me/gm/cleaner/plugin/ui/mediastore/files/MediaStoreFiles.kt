@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.ui.mediastore.files
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.ui.drawer.DrawerActivity
+import android.net.Uri
+import me.gm.cleaner.plugin.ui.mediastore.MediaStoreModel
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+data class MediaStoreFiles(
+    override val id: Long,
+    override val contentUri: Uri,
+    override val displayName: String,
+    override val relativePath: String,
+    override val data: String,
+    override val dateTaken: Long,
+    val mimeType: String?,
+    val size: Long,
+) : MediaStoreModel(id, contentUri, displayName, relativePath, data, dateTaken)

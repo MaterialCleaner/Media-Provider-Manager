@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Green Mushroom
+ * Copyright 2022 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.ui.mediastore.video
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.ui.drawer.DrawerActivity
+import android.app.Application
+import android.net.Uri
+import android.provider.MediaStore
+import me.gm.cleaner.plugin.ui.mediastore.files.FilesViewModel
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+class VideoViewModel(application: Application) : FilesViewModel(application) {
+    override val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+}

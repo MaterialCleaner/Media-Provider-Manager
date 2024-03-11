@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.app
+package me.gm.cleaner.plugin.ui.mediastore.downloads
 
-import dagger.hilt.android.AndroidEntryPoint
-import me.gm.cleaner.plugin.ui.drawer.DrawerActivity
+import android.app.Application
+import android.net.Uri
+import android.provider.MediaStore
+import me.gm.cleaner.plugin.ui.mediastore.files.FilesViewModel
 
-@AndroidEntryPoint
-class MainActivity : DrawerActivity()
+class DownloadsViewModel(application: Application) : FilesViewModel(application) {
+    override val uri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+}
