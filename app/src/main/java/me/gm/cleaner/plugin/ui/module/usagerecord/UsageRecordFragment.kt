@@ -61,7 +61,7 @@ class UsageRecordFragment : ModuleFragment() {
     )
     private val mediaChangeObserver = object : IMediaChangeObserver.Stub() {
         override fun onChange() {
-            viewModel.reloadRecords()
+            viewModel.reload()
         }
     }
 
@@ -112,14 +112,6 @@ class UsageRecordFragment : ModuleFragment() {
             binderViewModel.unregisterMediaChangeObserver(mediaChangeObserver)
             supportActionBar?.subtitle = null
         }
-
-        RootPreferences.addOnPreferenceChangeListener(object :
-            RootPreferences.PreferencesChangeListener {
-            override val lifecycle = viewLifecycleOwner.lifecycle
-            override fun onPreferencesChanged() {
-                viewModel.reloadRecords()
-            }
-        })
         return binding.root
     }
 
@@ -161,9 +153,9 @@ class UsageRecordFragment : ModuleFragment() {
             }
         })
 
-        menu.findItem(R.id.menu_hide_query).isChecked = RootPreferences.isHideQuery
-        menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsert
-        menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDelete
+        menu.findItem(R.id.menu_hide_query).isChecked = RootPreferences.isHideQuery.value
+        menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsert.value
+        menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDelete.value
         arrayOf(menu.findItem(R.id.menu_header_hide)).forEach {
             it.title = requireContext().buildSpannableString(it.title!!)
         }
@@ -180,7 +172,7 @@ class UsageRecordFragment : ModuleFragment() {
                     .setSelection(viewModel.calendar.timeInMillis)
                     .build()
                 datePicker.addOnPositiveButtonClickListener { selection ->
-                    viewModel.loadRecords(selection)
+                    viewModel.selectedTime = selection
                 }
                 datePicker.show(childFragmentManager, null)
             }
@@ -188,24 +180,24 @@ class UsageRecordFragment : ModuleFragment() {
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
-                RootPreferences.isHideQuery = isHideQuery
+                RootPreferences.isHideQuery.value = isHideQuery
             }
 
             R.id.menu_hide_insert -> {
                 val isHideInsert = !item.isChecked
                 item.isChecked = isHideInsert
-                RootPreferences.isHideInsert = isHideInsert
+                RootPreferences.isHideInsert.value = isHideInsert
             }
 
             R.id.menu_hide_delete -> {
                 val isHideDelete = !item.isChecked
                 item.isChecked = isHideDelete
-                RootPreferences.isHideDelete = isHideDelete
+                RootPreferences.isHideDelete.value = isHideDelete
             }
 
             R.id.menu_clear -> {
                 binderViewModel.clearAllTables()
-                viewModel.reloadRecords()
+                viewModel.reload()
             }
 
             else -> return super.onOptionsItemSelected(item)

@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.util.FlowableSharedPreferences
 
 object RootPreferences {
     const val SORT_BY_APP_NAME = 0
@@ -102,15 +103,27 @@ object RootPreferences {
         set(value) = putBoolean(resources.getString(R.string.menu_hide_system_app_key), value)
 
     // USAGE RECORD
-    var isHideQuery: Boolean
-        get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_query_key), false)
-        set(value) = putBoolean(resources.getString(R.string.menu_hide_query_key), value)
-    var isHideInsert: Boolean
-        get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_insert_key), false)
-        set(value) = putBoolean(resources.getString(R.string.menu_hide_insert_key), value)
-    var isHideDelete: Boolean
-        get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_delete_key), false)
-        set(value) = putBoolean(resources.getString(R.string.menu_hide_delete_key), value)
+    val isHideQuery: FlowableSharedPreferences<Boolean> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.menu_hide_query_key),
+            false
+        )
+    }
+    val isHideInsert: FlowableSharedPreferences<Boolean> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.menu_hide_insert_key),
+            false
+        )
+    }
+    val isHideDelete: FlowableSharedPreferences<Boolean> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.menu_hide_delete_key),
+            false
+        )
+    }
 
     // MEDIA STORE
     var isShowAllMediaFiles: Boolean

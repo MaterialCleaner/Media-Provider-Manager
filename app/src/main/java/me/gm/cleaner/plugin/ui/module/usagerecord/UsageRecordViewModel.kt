@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +33,8 @@ import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.ktx.getValue
+import me.gm.cleaner.plugin.ktx.setValue
 import me.gm.cleaner.plugin.ui.module.BinderViewModel
 import java.util.Calendar
 
@@ -40,18 +42,13 @@ class UsageRecordViewModel(
     application: Application,
     private val binderViewModel: BinderViewModel,
 ) : AndroidViewModel(application) {
-    private val _isSearchingFlow = MutableStateFlow(false)
-    var isSearching: Boolean
-        get() = _isSearchingFlow.value
-        set(value) {
-            _isSearchingFlow.value = value
-        }
-    private val _queryTextFlow = MutableStateFlow("")
-    var queryText: String
-        get() = _queryTextFlow.value
-        set(value) {
-            _queryTextFlow.value = value
-        }
+    private val _isSearchingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var isSearching: Boolean by _isSearchingFlow
+    private val _queryTextFlow: MutableStateFlow<String> = MutableStateFlow("")
+    var queryText: String by _queryTextFlow
+    private val _selectedTimeFlow: MutableStateFlow<Long> =
+        MutableStateFlow(System.currentTimeMillis())
+    var selectedTime: Long by _selectedTimeFlow
     val calendar: Calendar = Calendar.getInstance()
 
     private val _recordsFlow = MutableStateFlow<SourceState>(SourceState.Loading)
@@ -73,59 +70,25 @@ class UsageRecordViewModel(
             }
         }
 
-    fun reloadRecords(): Job = loadRecords(calendar.timeInMillis)
-
     /**
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
      */
-    fun loadRecords(timeMillis: Long): Job = calendar.run {
-        timeInMillis = timeMillis
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-        val start = timeInMillis
-        set(Calendar.HOUR_OF_DAY, 23)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 59)
-        set(Calendar.MILLISECOND, 999)
-        val end = timeInMillis
-        loadRecords(
-            start, end,
-            RootPreferences.isHideQuery,
-            RootPreferences.isHideInsert,
-            RootPreferences.isHideDelete
-        )
-    }
-
-    fun loadRecords(
-        start: Long, end: Long,
-        isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
-    ): Job = viewModelScope.launch {
-        _recordsFlow.value = SourceState.Loading
-        val packageManager = getApplication<Application>().packageManager
-        val operations = mutableListOf<Int>()
-        if (!isHideQuery) {
-            operations += OP_QUERY
+    private fun calculateSelectedTime(timeMillis: Long): Pair<Long, Long> =
+        with(calendar) {
+            timeInMillis = timeMillis
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            val start = timeInMillis
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+            val end = timeInMillis
+            return start to end
         }
-        if (!isHideInsert) {
-            operations += OP_INSERT
-        }
-        if (!isHideDelete) {
-            operations += OP_DELETE
-        }
-        val records = mutableListOf<MediaProviderRecord>().also {
-            it += queryRecord(start, end, operations)
-        }.onEach {
-            val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
-            it.packageInfo = pi
-            it.label = packageManager.getApplicationLabel(pi.applicationInfo).toString()
-        }.takeWhile {
-            it.packageInfo != null
-        }
-        _recordsFlow.value = SourceState.Done(records)
-    }
 
     private suspend inline fun queryRecord(
         start: Long, end: Long, operations: List<Int>
@@ -146,8 +109,65 @@ class UsageRecordViewModel(
         return@withContext emptyList()
     }
 
+    private suspend fun load(
+        start: Long, end: Long,
+        isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
+    ): SourceState {
+        val packageManager = getApplication<Application>().packageManager
+        val operations = mutableListOf<Int>()
+        if (!isHideQuery) {
+            operations += OP_QUERY
+        }
+        if (!isHideInsert) {
+            operations += OP_INSERT
+        }
+        if (!isHideDelete) {
+            operations += OP_DELETE
+        }
+        val records = mutableListOf<MediaProviderRecord>().also {
+            it += queryRecord(start, end, operations)
+        }.onEach {
+            val pi = binderViewModel.getPackageInfo(it.packageName) ?: return@onEach
+            it.packageInfo = pi
+            it.label = packageManager.getApplicationLabel(pi.applicationInfo).toString()
+        }.takeWhile {
+            it.packageInfo != null
+        }
+        return SourceState.Done(records)
+    }
+
+    private val isHideQueryFlow: StateFlow<Boolean> = RootPreferences.isHideQuery.asFlow()
+    private val isHideInsertFlow: StateFlow<Boolean> = RootPreferences.isHideInsert.asFlow()
+    private val isHideDeleteFlow: StateFlow<Boolean> = RootPreferences.isHideDelete.asFlow()
+
+    fun reload() {
+        _recordsFlow.value = SourceState.Loading
+        viewModelScope.launch {
+            val (start, end) = calculateSelectedTime(selectedTime)
+            _recordsFlow.value = load(
+                start, end,
+                isHideQueryFlow.value,
+                isHideInsertFlow.value,
+                isHideDeleteFlow.value
+            )
+        }
+    }
+
     init {
-        reloadRecords()
+        viewModelScope.launch {
+            combine(
+                _selectedTimeFlow,
+                isHideQueryFlow,
+                isHideInsertFlow,
+                isHideDeleteFlow,
+            ) { selectedTime, isHideQuery, isHideInsert, isHideDelete ->
+                _recordsFlow.value = SourceState.Loading
+                val (start, end) = calculateSelectedTime(selectedTime)
+                load(start, end, isHideQuery, isHideInsert, isHideDelete)
+            }.collect {
+                _recordsFlow.value = it
+            }
+        }
     }
 
     companion object {
