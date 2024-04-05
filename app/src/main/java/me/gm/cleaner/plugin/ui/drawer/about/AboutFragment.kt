@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.AboutFragmentBinding
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class AboutFragment : BaseFragment() {
@@ -41,7 +42,7 @@ class AboutFragment : BaseFragment() {
     ): View {
         val binding = AboutFragmentBinding.inflate(layoutInflater)
 
-        liftOnScrollTargetView = binding.listContainer
+        liftOnScrollTargetView = WeakReference(binding.listContainer)
         binding.listContainer.fitsSystemWindowInsets()
 
         lifecycleScope.launch {

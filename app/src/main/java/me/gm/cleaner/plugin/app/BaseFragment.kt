@@ -27,19 +27,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestination
 import com.google.android.material.appbar.AppBarLayout
 import me.gm.cleaner.plugin.R
+import java.lang.ref.WeakReference
 
 abstract class BaseFragment : Fragment() {
     val supportActionBar: ActionBar?
         get() = (activity as? AppCompatActivity)?.supportActionBar
     val appBarLayout: AppBarLayout?
         get() = activity?.findViewById(R.id.toolbar_container)
-    protected lateinit var liftOnScrollTargetView: View
+    protected var liftOnScrollTargetView: WeakReference<View>? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (::liftOnScrollTargetView.isInitialized) {
-            appBarLayout?.setLiftOnScrollTargetView(liftOnScrollTargetView)
-        }
+        appBarLayout?.setLiftOnScrollTargetView(liftOnScrollTargetView?.get())
     }
 
     // @see https://developer.android.com/training/system-ui/immersive#EnableFullscreen

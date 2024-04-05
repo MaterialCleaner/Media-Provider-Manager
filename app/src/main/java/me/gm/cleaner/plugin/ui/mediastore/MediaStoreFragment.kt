@@ -60,6 +60,7 @@ import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import me.zhanghai.android.fastscroll.ItemsHeightsObserver
 import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
 import rikka.recyclerview.fixEdgeEffect
+import java.lang.ref.WeakReference
 import java.util.function.Supplier
 
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
@@ -88,7 +89,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
         list = binding.list
-        liftOnScrollTargetView = list
+        liftOnScrollTargetView = WeakReference(list)
         list.adapter = adapter
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)

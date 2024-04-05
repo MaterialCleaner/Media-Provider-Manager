@@ -131,4 +131,6 @@ dependencies {
     implementation "io.noties.markwon:image:$markwonVersion"
     implementation 'com.caverock:androidsvg:1.4'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.25'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.13'
 }

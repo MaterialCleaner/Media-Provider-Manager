@@ -33,6 +33,7 @@ import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ui.drawer.playground.PlaygroundContentItems.findIndexById
 import rikka.recyclerview.fixEdgeEffect
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class PlaygroundFragment : BaseFragment() {
@@ -47,7 +48,7 @@ class PlaygroundFragment : BaseFragment() {
             setHasStableIds(true)
         }
         val list = binding.list
-        liftOnScrollTargetView = list
+        liftOnScrollTargetView = WeakReference(list)
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)

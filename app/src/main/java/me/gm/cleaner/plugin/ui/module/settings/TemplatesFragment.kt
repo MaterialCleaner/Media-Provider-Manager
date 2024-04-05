@@ -44,6 +44,7 @@ import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.ui.module.ModuleFragment
 import me.gm.cleaner.plugin.util.collatorComparator
 import rikka.recyclerview.fixEdgeEffect
+import java.lang.ref.WeakReference
 import kotlin.collections.set
 
 class TemplatesFragment : ModuleFragment() {
@@ -58,7 +59,7 @@ class TemplatesFragment : ModuleFragment() {
         val templatesAdapter = TemplatesAdapter(this)
         val adapters = ConcatAdapter(TemplatesHeaderAdapter(this), templatesAdapter)
         val list = binding.list
-        liftOnScrollTargetView = list
+        liftOnScrollTargetView = WeakReference(list)
         list.adapter = adapters
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)

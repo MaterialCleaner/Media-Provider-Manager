@@ -47,6 +47,7 @@ import me.gm.cleaner.plugin.ui.module.ModuleFragment
 import me.gm.cleaner.plugin.widget.FixQueryChangeSearchView
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
+import java.lang.ref.WeakReference
 import java.util.Date
 import java.util.Locale
 
@@ -82,7 +83,7 @@ class UsageRecordFragment : ModuleFragment() {
             stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
         val list = binding.list
-        liftOnScrollTargetView = list
+        liftOnScrollTargetView = WeakReference(list)
         list.adapter = adapter
         list.layoutManager = GridLayoutManager(requireContext(), 1)
         list.setHasFixedSize(true)
