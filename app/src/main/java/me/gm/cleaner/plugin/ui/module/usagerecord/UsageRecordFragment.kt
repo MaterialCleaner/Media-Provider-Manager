@@ -95,8 +95,8 @@ class UsageRecordFragment : ModuleFragment() {
 
         viewModel.recordsFlow.asLiveData().observe(viewLifecycleOwner) { records ->
             when (records) {
-                is SourceState.Loading -> binding.progress.show()
-                is SourceState.Done -> adapter.submitList(records.list) {
+                is UsageRecordState.Loading -> binding.progress.show()
+                is UsageRecordState.Done -> adapter.submitList(records.list) {
                     binding.progress.hide()
                     supportActionBar?.subtitle = DateFormat.getInstanceForSkeleton(
                         DateFormat.YEAR_ABBR_MONTH_DAY, Locale.getDefault()

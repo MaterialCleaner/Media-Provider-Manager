@@ -51,12 +51,12 @@ class UsageRecordViewModel(
     var selectedTime: Long by _selectedTimeFlow
     val calendar: Calendar = Calendar.getInstance()
 
-    private val _recordsFlow = MutableStateFlow<SourceState>(SourceState.Loading)
+    private val _recordsFlow = MutableStateFlow<UsageRecordState>(UsageRecordState.Loading)
     val recordsFlow =
         combine(_recordsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
             when (source) {
-                is SourceState.Loading -> SourceState.Loading
-                is SourceState.Done -> withContext(Dispatchers.Default) {
+                is UsageRecordState.Loading -> UsageRecordState.Loading
+                is UsageRecordState.Done -> withContext(Dispatchers.Default) {
                     var sequence = source.list.asSequence()
                     if (isSearching) {
                         sequence = sequence.filter {
@@ -65,7 +65,7 @@ class UsageRecordViewModel(
                                     it.packageName.contains(queryText, true)
                         }
                     }
-                    SourceState.Done(sequence.toList())
+                    UsageRecordState.Done(sequence.toList())
                 }
             }
         }
@@ -112,7 +112,7 @@ class UsageRecordViewModel(
     private suspend fun load(
         start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
-    ): SourceState {
+    ): UsageRecordState {
         val packageManager = getApplication<Application>().packageManager
         val operations = mutableListOf<Int>()
         if (!isHideQuery) {
@@ -133,7 +133,7 @@ class UsageRecordViewModel(
         }.takeWhile {
             it.packageInfo != null
         }
-        return SourceState.Done(records)
+        return UsageRecordState.Done(records)
     }
 
     private val isHideQueryFlow: StateFlow<Boolean> = RootPreferences.isHideQuery.asFlow()
@@ -141,7 +141,7 @@ class UsageRecordViewModel(
     private val isHideDeleteFlow: StateFlow<Boolean> = RootPreferences.isHideDelete.asFlow()
 
     fun reload() {
-        _recordsFlow.value = SourceState.Loading
+        _recordsFlow.value = UsageRecordState.Loading
         viewModelScope.launch {
             val (start, end) = calculateSelectedTime(selectedTime)
             _recordsFlow.value = load(
@@ -161,7 +161,7 @@ class UsageRecordViewModel(
                 isHideInsertFlow,
                 isHideDeleteFlow,
             ) { selectedTime, isHideQuery, isHideInsert, isHideDelete ->
-                _recordsFlow.value = SourceState.Loading
+                _recordsFlow.value = UsageRecordState.Loading
                 val (start, end) = calculateSelectedTime(selectedTime)
                 load(start, end, isHideQuery, isHideInsert, isHideDelete)
             }.collect {
@@ -182,7 +182,7 @@ class UsageRecordViewModel(
     }
 }
 
-sealed class SourceState {
-    data object Loading : SourceState()
-    data class Done(val list: List<MediaProviderRecord>) : SourceState()
+sealed class UsageRecordState {
+    data object Loading : UsageRecordState()
+    data class Done(val list: List<MediaProviderRecord>) : UsageRecordState()
 }

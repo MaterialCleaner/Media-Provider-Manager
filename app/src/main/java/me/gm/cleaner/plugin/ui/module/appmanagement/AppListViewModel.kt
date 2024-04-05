@@ -41,13 +41,13 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
             _queryTextFlow.value = value
         }
     val isLoading: Boolean
-        get() = _appsFlow.value is SourceState.Loading
-    private val _appsFlow = MutableStateFlow<SourceState>(SourceState.Loading(0))
+        get() = _appsFlow.value is AppListState.Loading
+    private val _appsFlow = MutableStateFlow<AppListState>(AppListState.Loading(0))
     val appsFlow =
         combine(_appsFlow, _isSearchingFlow, _queryTextFlow) { source, isSearching, queryText ->
             when (source) {
-                is SourceState.Loading -> SourceState.Loading(source.progress)
-                is SourceState.Done -> {
+                is AppListState.Loading -> AppListState.Loading(source.progress)
+                is AppListState.Done -> {
                     var sequence = source.list.asSequence()
                     if (RootPreferences.isHideSystemApp) {
                         sequence = sequence.filter {
@@ -74,7 +74,7 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                     if (RootPreferences.ruleCount) {
                         sequence = sequence.sortedBy { -it.ruleCount }
                     }
-                    SourceState.Done(sequence.toList())
+                    AppListState.Done(sequence.toList())
                 }
             }
         }
@@ -83,16 +83,16 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         binderViewModel: BinderViewModel,
         l: AppListLoader.ProgressListener? = object : AppListLoader.ProgressListener {
             override fun onProgress(progress: Int) {
-                _appsFlow.value = SourceState.Loading(progress)
+                _appsFlow.value = AppListState.Loading(progress)
             }
         }
     ) {
         viewModelScope.launch {
-            _appsFlow.value = SourceState.Loading(0)
+            _appsFlow.value = AppListState.Loading(0)
             val list = AppListLoader().load(
                 binderViewModel, getApplication<Application>().packageManager, l
             )
-            _appsFlow.value = SourceState.Done(list)
+            _appsFlow.value = AppListState.Done(list)
         }
     }
 
@@ -100,16 +100,16 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             if (!isLoading) {
                 val list = AppListLoader().update(
-                    (_appsFlow.value as SourceState.Done).list, binderViewModel
+                    (_appsFlow.value as AppListState.Done).list, binderViewModel
                 )
-                _appsFlow.value = SourceState.Loading(0)
-                _appsFlow.value = SourceState.Done(list)
+                _appsFlow.value = AppListState.Loading(0)
+                _appsFlow.value = AppListState.Done(list)
             }
         }
     }
 }
 
-sealed class SourceState {
-    data class Loading(val progress: Int) : SourceState()
-    data class Done(val list: List<AppListModel>) : SourceState()
+sealed class AppListState {
+    data class Loading(val progress: Int) : AppListState()
+    data class Done(val list: List<AppListModel>) : AppListState()
 }

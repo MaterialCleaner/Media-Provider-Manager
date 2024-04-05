@@ -87,8 +87,8 @@ class AppListFragment : ModuleFragment() {
                 viewModel.appsFlow.collect { apps ->
                     // New value received
                     when (apps) {
-                        is SourceState.Loading -> binding.progress.progress = apps.progress
-                        is SourceState.Done -> adapter.submitListKeepPosition(apps.list, list) {
+                        is AppListState.Loading -> binding.progress.progress = apps.progress
+                        is AppListState.Done -> adapter.submitListKeepPosition(apps.list, list) {
                             binding.progress.hide()
                             binding.listContainer.isRefreshing = false
                         }
