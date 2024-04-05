@@ -19,7 +19,6 @@ package me.gm.cleaner.plugin.ui.mediastore
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
@@ -29,7 +28,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.app.ActivityCompat
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -44,18 +42,15 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.app.ConfirmationDialog
 import me.gm.cleaner.plugin.app.InfoDialog
-import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.*
 import me.gm.cleaner.plugin.ui.mediastore.audio.AudioFragment
-import me.gm.cleaner.plugin.ui.mediastore.downloads.DownloadsFragment
 import me.gm.cleaner.plugin.ui.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.ui.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.ui.mediastore.images.*
 import me.gm.cleaner.plugin.ui.mediastore.video.VideoFragment
 import me.gm.cleaner.plugin.util.PermissionUtils
 import me.gm.cleaner.plugin.util.RequesterFragment
-import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import me.zhanghai.android.fastscroll.ItemsHeightsObserver
 import me.zhanghai.android.fastscroll.PreciseRecyclerViewHelper
@@ -66,8 +61,6 @@ import java.util.function.Supplier
 abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     protected abstract val viewModel: MediaStoreViewModel<*>
     protected abstract val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment>
-    protected lateinit var adapter: MediaStoreAdapter
-    protected lateinit var list: RecyclerView
     protected lateinit var selectionTracker: SelectionTracker<Long>
     private val detector: SelectionDetector by lazy {
         SelectionDetector(requireContext(), LongPressingListener())
@@ -84,11 +77,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     ): View? {
         val binding = MediaStoreFragmentBinding.inflate(inflater)
 
-        adapter = onCreateAdapter().apply {
+        val adapter = onCreateAdapter().apply {
             setHasStableIds(true)
             stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
         }
-        list = binding.list
+        val list = binding.list
         liftOnScrollTargetView = WeakReference(list)
         list.adapter = adapter
         list.setHasFixedSize(true)
@@ -130,7 +123,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             }
         })
         adapter.selectionTracker = selectionTracker
-        onBindView(binding)
+        onBindView(binding, list, adapter)
 
         findNavController().addOnExitListener { _, destination, _ ->
             actionMode?.finish()
@@ -150,14 +143,10 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 }
             }
         }
-        viewModel.isPermissionsGrantedLiveData.observe(viewLifecycleOwner) { isPermissionsGranted ->
-            if (!isPermissionsGranted) {
-                PermissionUtils.requestPermissions(
-                    childFragmentManager, requesterFragmentClass.newInstance()
-                )
-            } else {
-                viewModel.loadMedias()
-            }
+        if (savedInstanceState == null) {
+            PermissionUtils.requestPermissions(
+                childFragmentManager, requesterFragmentClass.newInstance()
+            )
         }
         viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
             intentSender?.let {
@@ -170,19 +159,17 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 )
             }
         }
-        RootPreferences.addOnPreferenceChangeListener(object :
-            RootPreferences.PreferencesChangeListener {
-            override val lifecycle = viewLifecycleOwner.lifecycle
-            override fun onPreferencesChanged() {
-                viewModel.isPermissionsGranted = false
-            }
-        })
         return binding.root
     }
 
     abstract fun onCreateAdapter(): MediaStoreAdapter
 
-    open fun onBindView(binding: MediaStoreFragmentBinding) {}
+    open fun onBindView(
+        binding: MediaStoreFragmentBinding,
+        list: RecyclerView,
+        adapter: MediaStoreAdapter
+    ) {
+    }
 
     class MediaStoreRecyclerViewHelper(
         list: RecyclerView, currentListSupplier: Supplier<List<MediaStoreModel>>
@@ -236,7 +223,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                                 is AudioFragment -> "audio/*"
                                 is ImagesFragment -> "image/*"
                                 is VideoFragment -> "video/*"
-                                is FilesFragment, is DownloadsFragment -> when {
+                                is FilesFragment -> when {
                                     medias.all { MimeUtils.isAudioMimeType((it as MediaStoreFiles).mimeType) } -> "audio/*"
                                     medias.all { MimeUtils.isImageMimeType((it as MediaStoreFiles).mimeType) } -> "image/*"
                                     medias.all { MimeUtils.isVideoMimeType((it as MediaStoreFiles).mimeType) } -> "video/*"
@@ -298,15 +285,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        requireActivity().findViewById<FullyDraggableContainer>(R.id.fully_draggable_container)
-            .addInterceptTouchEventListener { _, ev ->
-                detector.onTouchEvent(ev)
-                detector.isSelecting && selectionTracker.hasSelection()
-            }
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         if (::selectionTracker.isInitialized) {
@@ -324,41 +302,12 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             parentFragment.viewModel
         }
 
-        override fun onRequestPermissionsSuccess(
-            permissions: Set<String>, savedInstanceState: Bundle?
-        ) {
-            if (savedInstanceState == null) {
-                viewModel.isPermissionsGranted = true
-            }
-        }
-
-        override fun dispatchRequestPermissions(
-            permissions: Array<String>, savedInstanceState: Bundle?
-        ) {
-            if (RootPreferences.isShowAllMediaFiles) {
-                super.dispatchRequestPermissions(permissions, savedInstanceState)
-            } else {
-                if (requiredPermissions.any {
-                        ActivityCompat.checkSelfPermission(requireContext(), it) ==
-                                PackageManager.PERMISSION_GRANTED
-                    }
-                ) {
-                    ConfirmationDialog
-                        .newInstance(getString(R.string.revoke_self_permission))
-                        .apply {
-                            addOnPositiveButtonClickListener {
-                                PermissionUtils.startDetailsSettings(it.requireContext())
-                            }
-                        }
-                        .show(childFragmentManager, null)
-                }
-                onRequestPermissionsSuccess(requiredPermissions.toSet(), savedInstanceState)
-            }
+        override fun onRequestPermissionsSuccess(permissions: Set<String>) {
+            viewModel.load()
         }
 
         override fun onRequestPermissionsFailure(
-            shouldShowRationale: Set<String>, permanentlyDenied: Set<String>,
-            haveAskedUser: Boolean, savedInstanceState: Bundle?
+            shouldShowRationale: Set<String>, denied: Set<String>
         ) {
             if (shouldShowRationale.isNotEmpty()) {
                 ConfirmationDialog
@@ -366,17 +315,8 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                     .apply {
                         addOnPositiveButtonClickListener {
                             onRequestPermissions(
-                                shouldShowRationale.toTypedArray(), savedInstanceState
+                                shouldShowRationale.toTypedArray()
                             )
-                        }
-                    }
-                    .show(childFragmentManager, null)
-            } else if (permanentlyDenied.isNotEmpty()) {
-                ConfirmationDialog
-                    .newInstance(getString(R.string.rationale_permanentlyDenied))
-                    .apply {
-                        addOnPositiveButtonClickListener {
-                            PermissionUtils.startDetailsSettings(it.requireContext())
                         }
                     }
                     .show(childFragmentManager, null)
@@ -391,12 +331,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.mediastore_toolbar, menu)
-        menu.findItem(R.id.menu_show_all).isChecked = RootPreferences.isShowAllMediaFiles
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.menu_refresh -> {
-            viewModel.isPermissionsGranted = false
+            viewModel.load()
             true
         }
 
@@ -410,13 +349,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                 requireContext(), arrayOf(Environment.getExternalStorageDirectory().path),
                 null, null
             )
-            true
-        }
-
-        R.id.menu_show_all -> {
-            val isShowAllMediaFiles = !item.isChecked
-            item.isChecked = isShowAllMediaFiles
-            RootPreferences.isShowAllMediaFiles = isShowAllMediaFiles
             true
         }
 

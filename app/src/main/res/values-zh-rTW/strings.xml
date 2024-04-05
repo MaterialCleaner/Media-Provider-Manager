@@ -52,7 +52,6 @@
     <string name="menu_hide_delete_title">刪除記錄</string>
     <string name="menu_clear">清空記錄</string>
     <string name="refresh">重新整理</string>
-    <string name="menu_show_all_title">顯示其他應用的媒體檔案</string>
     <string name="share">分享</string>
     <string name="screen_rotation">旋轉螢幕</string>
     <string name="info">訊息</string>

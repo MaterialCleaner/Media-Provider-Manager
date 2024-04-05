@@ -30,9 +30,10 @@ import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails
 import com.bumptech.glide.Glide
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_DATE_TAKEN
 import me.gm.cleaner.plugin.databinding.FilesItemBinding
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreAdapter
-import java.util.*
+import java.util.Calendar
 
 open class FilesAdapter(private val fragment: Fragment) : MediaStoreAdapter(fragment) {
 
@@ -55,7 +56,7 @@ open class FilesAdapter(private val fragment: Fragment) : MediaStoreAdapter(frag
         now.timeInMillis = System.currentTimeMillis()
         val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
                 DateUtils.FORMAT_ABBREV_ALL or when {
-            RootPreferences.sortMediaBy == RootPreferences.SORT_BY_DATE_TAKEN -> {
+            RootPreferences.sortMediaBy.value == SORT_BY_DATE_TAKEN -> {
                 DateUtils.FORMAT_SHOW_TIME
             }
 

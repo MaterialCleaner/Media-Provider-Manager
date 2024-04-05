@@ -63,7 +63,7 @@ class VideoPlayerFragment : BaseFragment() {
     private var startItemIndex: Int = 0
     private var startPosition: Long = 0L
     private var isPlaying: Boolean = true
-    private var playbackSpeed: Float = RootPreferences.playbackSpeed
+    private var playbackSpeed: Float = RootPreferences.playbackSpeed.value
     private lateinit var trackSelector: DefaultTrackSelector
     private var player: ExoPlayer? = null
     private var playerView: PlayerView? = null
@@ -88,7 +88,7 @@ class VideoPlayerFragment : BaseFragment() {
             startItemIndex = savedInstanceState.getInt(KEY_ITEM_INDEX)
             startPosition = savedInstanceState.getLong(KEY_POSITION)
             isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, isPlaying)
-            playbackSpeed = savedInstanceState.getFloat(KEY_SPEED, playbackSpeed)
+            playbackSpeed = RootPreferences.playbackSpeed.value
         } else {
             trackSelectionParameters = DefaultTrackSelector
                 .ParametersBuilder(requireContext())
@@ -318,12 +318,7 @@ class VideoPlayerFragment : BaseFragment() {
         outState.putInt(KEY_ITEM_INDEX, startItemIndex)
         outState.putLong(KEY_POSITION, startPosition)
         outState.putBoolean(KEY_IS_PLAYING, isPlaying)
-        outState.putFloat(KEY_SPEED, playbackSpeed)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        RootPreferences.playbackSpeed = playbackSpeed
+        RootPreferences.playbackSpeed.value = playbackSpeed
     }
 
     companion object {
@@ -334,6 +329,5 @@ class VideoPlayerFragment : BaseFragment() {
         private const val KEY_ITEM_INDEX: String = "item_index"
         private const val KEY_POSITION: String = "position"
         private const val KEY_IS_PLAYING: String = "is_playing"
-        private const val KEY_SPEED: String = "speed"
     }
 }

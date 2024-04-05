@@ -38,7 +38,6 @@ import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
 import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.databinding.UsagerecordItemBinding
-import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 
 class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
     ListAdapter<MediaProviderRecord, UsageRecordAdapter.ViewHolder>(CALLBACK) {
@@ -81,8 +80,7 @@ class UsageRecordAdapter(private val fragment: UsageRecordFragment) :
             listPopupWindow.setOnItemClickListener { _, _, position, _ ->
                 val data = adapter.getItem(position).toString()
                 clipboardManager.setPrimaryClip(ClipData.newPlainText(null, data))
-                makeSnackbarWithFullyDraggableContainer(
-                    { fragment.requireActivity().findViewById(R.id.fully_draggable_container) },
+                Snackbar.make(
                     fragment.requireView(), fragment.getString(R.string.copied, data),
                     Snackbar.LENGTH_SHORT
                 ).show()

@@ -27,21 +27,15 @@
         android:layout_height="match_parent"
         tools:openDrawer="start">
 
-        <me.gm.cleaner.plugin.widget.FullyDraggableContainer
-            android:id="@+id/fully_draggable_container"
+        <!-- A CoordinatorLayout to activate layout behavior. -->
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- A CoordinatorLayout to activate layout behavior. -->
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            <include layout="@layout/drawer_content" />
 
-                <include layout="@layout/drawer_content" />
-
-                <include layout="@layout/appbar" />
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-        </me.gm.cleaner.plugin.widget.FullyDraggableContainer>
+            <include layout="@layout/appbar" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"

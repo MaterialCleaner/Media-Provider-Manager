@@ -39,48 +39,31 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.gm.cleaner.plugin.dao.RootPreferences
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 
 abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application) :
     AndroidViewModel(application) {
-    protected abstract val uri: Uri
-    private val _isPermissionsGrantedLiveData: MutableLiveData<Boolean> = MutableLiveData(false)
-    val isPermissionsGrantedLiveData: LiveData<Boolean> = _isPermissionsGrantedLiveData
-    var isPermissionsGranted: Boolean
-        get() = _isPermissionsGrantedLiveData.value!!
-        set(value) {
-            _isPermissionsGrantedLiveData.postValue(value)
-        }
-
-    private val _mediasFlow: MutableStateFlow<List<M>> = MutableStateFlow(emptyList())
+    protected val _mediasFlow: MutableStateFlow<List<M>> = MutableStateFlow(emptyList())
     val mediasFlow: StateFlow<List<M>> = _mediasFlow.asStateFlow()
     val medias: List<M>
         get() = _mediasFlow.value
-
-    private var contentObserver: ContentObserver? = null
 
     private var pendingDeleteMedia: MediaStoreModel? = null
     private val _permissionNeededForDelete: MutableLiveData<IntentSender?> = MutableLiveData()
     internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
+    protected lateinit var uriForLoad: Uri
+
     /**
      * Performs a one shot load of medias from [uri] [Uri] into
      * the [_mediasFlow] [MutableStateFlow] above.
      */
-    fun loadMedias() {
-        viewModelScope.launch {
-            _mediasFlow.value = queryMedias()
-
-            if (contentObserver == null) {
-                contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-                    override fun onChange(selfChange: Boolean) {
-                        loadMedias()
-                    }
-                }
-                getApplication<Application>().contentResolver.registerContentObserver(
-                    uri, true, contentObserver!!
-                )
+    fun load() {
+        if (::uriForLoad.isInitialized) {
+            viewModelScope.launch {
+                _mediasFlow.value = queryMedias(uriForLoad, RootPreferences.sortMediaBy.value)
             }
         }
     }
@@ -105,7 +88,7 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         }
     }
 
-    protected abstract suspend fun queryMedias(): List<M>
+    protected abstract suspend fun queryMedias(uri: Uri, sortMediaBy: Int): List<M>
 
     // @see https://developer.android.com/training/data-storage/shared/media#remove-item
     private suspend fun performDeleteMedia(media: MediaStoreModel) {
@@ -179,12 +162,19 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         MediaScannerConnection.scanFile(getApplication(), paths, null, null)
     }
 
+    protected var contentObserver: ContentObserver =
+        object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                load()
+            }
+        }
+
     /**
      * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`
      * is being released.
      */
     override fun onCleared() {
-        contentObserver?.let { contentObserver ->
+        contentObserver.let { contentObserver ->
             getApplication<Application>().contentResolver.unregisterContentObserver(contentObserver)
         }
     }

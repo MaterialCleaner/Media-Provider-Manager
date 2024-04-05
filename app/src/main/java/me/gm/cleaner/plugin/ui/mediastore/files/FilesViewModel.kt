@@ -25,13 +25,18 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_DATE_TAKEN
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_PATH
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_SIZE
+import me.gm.cleaner.plugin.ktx.getValue
+import me.gm.cleaner.plugin.ktx.setValue
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.util.fileNameComparator
@@ -39,25 +44,15 @@ import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
 open class FilesViewModel(application: Application) :
     MediaStoreViewModel<MediaStoreFiles>(application) {
-    override val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
+    private val uri: Uri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL)
 
-    private val _isSearchingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    var isSearching: Boolean
-        get() = _isSearchingFlow.value
-        set(value) {
-            _isSearchingFlow.value = value
-        }
-    private val _queryTextFlow: MutableStateFlow<String> = MutableStateFlow("")
-    var queryText: String
-        get() = _queryTextFlow.value
-        set(value) {
-            _queryTextFlow.value = value
-        }
-    val queryFlow: Flow<Unit> = combine(_isSearchingFlow, _queryTextFlow) { isSearching, _ ->
-        if (isSearching) delay(500L)
-    }
+    protected val _isSearchingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var isSearching: Boolean by _isSearchingFlow
+    protected val _queryTextFlow: MutableStateFlow<String> = MutableStateFlow("")
+    var queryText: String by _queryTextFlow
 
-    override suspend fun queryMedias(): List<MediaStoreFiles> {
+    override suspend fun queryMedias(uri: Uri, sortMediaBy: Int): List<MediaStoreFiles> {
+        uriForLoad = uri
         val files = mutableListOf<MediaStoreFiles>()
 
         withContext(Dispatchers.IO) {
@@ -78,12 +73,12 @@ open class FilesViewModel(application: Application) :
                 dateToTimestamp(day = 1, month = 1, year = 1970).toString()
             )
 
-            val sortOrder = when (RootPreferences.sortMediaBy) {
-                RootPreferences.SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
+            val sortOrder = when (sortMediaBy) {
+                SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
                         MediaStore.MediaColumns.DISPLAY_NAME
 
-                RootPreferences.SORT_BY_DATE_TAKEN -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
-                RootPreferences.SORT_BY_SIZE -> "${MediaStore.MediaColumns.SIZE} DESC"
+                SORT_BY_DATE_TAKEN -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
+                SORT_BY_SIZE -> "${MediaStore.MediaColumns.SIZE} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -142,7 +137,7 @@ open class FilesViewModel(application: Application) :
             }
         }
 
-        if (RootPreferences.sortMediaBy == RootPreferences.SORT_BY_PATH) {
+        if (sortMediaBy == SORT_BY_PATH) {
             files.sortWith(fileNameComparator { it.displayName })
             files.sortWith(fileNameComparator { it.relativePath })
         }
@@ -170,5 +165,20 @@ open class FilesViewModel(application: Application) :
         )
 
         super.deleteMedias(partition.second.toTypedArray())
+    }
+
+    init {
+        viewModelScope.launch {
+            combine(
+                _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaBy.asFlow()
+            ) { isSearching, queryText, sortMediaBy ->
+                queryMedias(uri, sortMediaBy)
+            }.collect {
+                _mediasFlow.value = it
+            }
+        }
+        application.contentResolver.registerContentObserver(
+            uri, true, contentObserver
+        )
     }
 }

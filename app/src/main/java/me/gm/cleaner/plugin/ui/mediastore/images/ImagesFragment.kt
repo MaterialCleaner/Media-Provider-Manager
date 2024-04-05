@@ -32,6 +32,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_DATE_TAKEN
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_PATH
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_SIZE
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
 import me.gm.cleaner.plugin.ktx.buildSpannableString
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
@@ -50,9 +53,13 @@ class ImagesFragment : MediaStoreFragment() {
 
     override fun onCreateAdapter(): MediaStoreAdapter = ImagesAdapter(this)
 
-    override fun onBindView(binding: MediaStoreFragmentBinding) {
+    override fun onBindView(
+        binding: MediaStoreFragmentBinding,
+        list: RecyclerView,
+        adapter: MediaStoreAdapter
+    ) {
         val layoutManager =
-            ProgressionGridLayoutManager(requireContext(), RootPreferences.spanCount).apply {
+            ProgressionGridLayoutManager(requireContext(), RootPreferences.spanCount.value).apply {
                 spanSizeLookup = object : SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int =
                         if (adapter.currentList[position] is MediaStoreHeader) {
@@ -75,7 +82,7 @@ class ImagesFragment : MediaStoreFragment() {
             ScaleGestureListener(requireContext(), layoutManager, viewHelper)
         )
 
-        prepareTransitions()
+        prepareTransitions(list, adapter)
         setFragmentResultListener(ImagePagerFragment::class.java.name) { _, bundle ->
             lastPosition = bundle.getInt(ImagePagerFragment.KEY_POSITION)
             postponeEnterTransition()
@@ -94,7 +101,7 @@ class ImagesFragment : MediaStoreFragment() {
      * Prepares the shared element transition to the pager fragment, as well as the other transitions
      * that affect the flow.
      */
-    private fun prepareTransitions() {
+    private fun prepareTransitions(list: RecyclerView, adapter: MediaStoreAdapter) {
         // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(
@@ -153,11 +160,11 @@ class ImagesFragment : MediaStoreFragment() {
         }
         inflater.inflate(R.menu.images_toolbar, menu)
 
-        when (RootPreferences.sortMediaBy) {
-            RootPreferences.SORT_BY_PATH ->
+        when (RootPreferences.sortMediaBy.value) {
+            SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
 
-            RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE ->
+            SORT_BY_DATE_TAKEN, SORT_BY_SIZE ->
                 menu.findItem(R.id.menu_sort_by_date_taken).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
@@ -169,12 +176,12 @@ class ImagesFragment : MediaStoreFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_path -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_PATH
+                RootPreferences.sortMediaBy.value = SORT_BY_PATH
             }
 
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy = RootPreferences.SORT_BY_DATE_TAKEN
+                RootPreferences.sortMediaBy.value = SORT_BY_DATE_TAKEN
             }
 
             else -> return super.onOptionsItemSelected(item)

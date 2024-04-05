@@ -19,8 +19,27 @@ package me.gm.cleaner.plugin.ui.mediastore.downloads
 import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ui.mediastore.files.FilesViewModel
 
 class DownloadsViewModel(application: Application) : FilesViewModel(application) {
-    override val uri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+    private val uri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+    init {
+        viewModelScope.launch {
+            combine(
+                _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaBy.asFlow()
+            ) { isSearching, queryText, sortMediaBy ->
+                queryMedias(uri, sortMediaBy)
+            }.collect {
+                _mediasFlow.value = it
+            }
+        }
+        application.contentResolver.registerContentObserver(
+            uri, true, contentObserver
+        )
+    }
 }

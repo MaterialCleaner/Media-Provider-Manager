@@ -19,8 +19,27 @@ package me.gm.cleaner.plugin.ui.mediastore.video
 import android.app.Application
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ui.mediastore.files.FilesViewModel
 
 class VideoViewModel(application: Application) : FilesViewModel(application) {
-    override val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+    private val uri: Uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
+    init {
+        viewModelScope.launch {
+            combine(
+                _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaBy.asFlow()
+            ) { isSearching, queryText, sortMediaBy ->
+                queryMedias(uri, sortMediaBy)
+            }.collect {
+                _mediasFlow.value = it
+            }
+        }
+        application.contentResolver.registerContentObserver(
+            uri, true, contentObserver
+        )
+    }
 }

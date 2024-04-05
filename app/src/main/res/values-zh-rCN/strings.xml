@@ -52,7 +52,6 @@
     <string name="menu_hide_delete_title">删除记录</string>
     <string name="menu_clear">清空记录</string>
     <string name="refresh">刷新</string>
-    <string name="menu_show_all_title">显示其他应用的媒体文件</string>
     <string name="share">分享</string>
     <string name="screen_rotation">旋转屏幕</string>
     <string name="info">信息</string>

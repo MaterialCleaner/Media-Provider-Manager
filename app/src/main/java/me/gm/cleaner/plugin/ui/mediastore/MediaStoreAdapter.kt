@@ -31,6 +31,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_DATE_TAKEN
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_PATH
 import me.gm.cleaner.plugin.databinding.MediaStoreHeaderBinding
 import java.util.Calendar
 
@@ -109,8 +111,8 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
 
     protected open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> {
         uriPositionMap.clear()
-        return when (RootPreferences.sortMediaBy) {
-            RootPreferences.SORT_BY_PATH -> {
+        return when (RootPreferences.sortMediaBy.value) {
+            SORT_BY_PATH -> {
                 val groupedList = mutableListOf<MediaStoreModel>()
                 var lastHeader = ""
                 list.forEach { model ->
@@ -125,7 +127,7 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
                 groupedList
             }
 
-            RootPreferences.SORT_BY_DATE_TAKEN -> {
+            SORT_BY_DATE_TAKEN -> {
                 val groupedList = mutableListOf<MediaStoreModel>()
                 var lastHeader = ""
                 list.forEach { model ->

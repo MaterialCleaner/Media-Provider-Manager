@@ -27,17 +27,23 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_DATE_TAKEN
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_PATH
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_SIZE
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.util.fileNameComparator
 
 class ImagesViewModel(application: Application) :
     MediaStoreViewModel<MediaStoreImage>(application) {
-    override val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    private val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-    override suspend fun queryMedias(): List<MediaStoreImage> {
+    override suspend fun queryMedias(uri: Uri, sortMediaBy: Int): List<MediaStoreImage> {
+        uriForLoad = uri
         val images = mutableListOf<MediaStoreImage>()
 
         /**
@@ -89,11 +95,11 @@ class ImagesViewModel(application: Application) :
              * Sort order to use. This can also be null, which will use the default sort
              * order. For [MediaStore.Images], the default sort order is ascending by date taken.
              */
-            val sortOrder = when (RootPreferences.sortMediaBy) {
-                RootPreferences.SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
+            val sortOrder = when (sortMediaBy) {
+                SORT_BY_PATH -> MediaStore.MediaColumns.RELATIVE_PATH + ", " +
                         MediaStore.MediaColumns.DISPLAY_NAME
 
-                RootPreferences.SORT_BY_DATE_TAKEN, RootPreferences.SORT_BY_SIZE -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
+                SORT_BY_DATE_TAKEN, SORT_BY_SIZE -> "${MediaStore.MediaColumns.DATE_TAKEN} DESC"
                 else -> throw IllegalArgumentException()
             }
 
@@ -169,12 +175,23 @@ class ImagesViewModel(application: Application) :
             }
         }
 
-        if (RootPreferences.sortMediaBy == RootPreferences.SORT_BY_PATH) {
+        if (sortMediaBy == SORT_BY_PATH) {
             images.sortWith(fileNameComparator { it.displayName })
             images.sortWith(fileNameComparator { it.relativePath })
         }
 
         Log.v(TAG, "Found ${images.size} images")
         return images
+    }
+
+    init {
+        viewModelScope.launch {
+            RootPreferences.sortMediaBy.asFlow().collect { sortMediaBy ->
+                _mediasFlow.value = queryMedias(uri, sortMediaBy)
+            }
+        }
+        application.contentResolver.registerContentObserver(
+            uri, true, contentObserver
+        )
     }
 }

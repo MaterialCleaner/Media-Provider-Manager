@@ -26,7 +26,7 @@ object PermissionUtils {
             }
             add(requesterFragment, TAG)
         }
-        requesterFragment.dispatchRequestPermissions(requesterFragment.requiredPermissions, null)
+        requesterFragment.dispatchRequestPermissions(requesterFragment.requiredPermissions)
     }
 
     fun startDetailsSettings(context: Context) {
@@ -37,15 +37,8 @@ object PermissionUtils {
     }
 }
 
-/**
- * 4 status:
- * granted
- * showRationale
- * neverAsked
- * permanentlyDenied
- */
 abstract class RequesterFragment : BaseFragment() {
-    open val requiredPermissions = emptyArray<String>()
+    open val requiredPermissions: Array<String> = emptyArray<String>()
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,67 +48,49 @@ abstract class RequesterFragment : BaseFragment() {
                 // or we'll stick in infinite recursion.
                 val granted = result.filterValues { it }.keys
                 if (granted.isNotEmpty()) {
-                    onRequestPermissionsSuccess(granted, savedInstanceState)
+                    onRequestPermissionsSuccess(granted)
                 }
                 val denied = result.keys - granted
                 if (denied.isNotEmpty()) {
-                    val shouldShowRationale = denied.filterTo(mutableSetOf()) {
+                    val shouldShowRationale = denied.filter {
                         ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
-                    }
-                    val permanentlyDenied = denied - shouldShowRationale
+                    }.toSet()
                     onRequestPermissionsFailure(
-                        shouldShowRationale, permanentlyDenied, true, savedInstanceState
+                        shouldShowRationale, denied - shouldShowRationale
                     )
                 }
             }
     }
 
     @CallSuper
-    open fun dispatchRequestPermissions(permissions: Array<String>, savedInstanceState: Bundle?) {
-        val granted = permissions.filterTo(mutableSetOf()) {
+    internal fun dispatchRequestPermissions(permissions: Array<String>) {
+        val granted = permissions.filter {
             ActivityCompat.checkSelfPermission(requireContext(), it) ==
                     PackageManager.PERMISSION_GRANTED
-        }
-        if (granted.isNotEmpty()) {
-            onRequestPermissionsSuccess(granted, savedInstanceState)
-        }
+        }.toSet()
         if (permissions.size > granted.size) {
             val denied = permissions.toSet() - granted
-            val shouldShowRationale = denied.filterTo(mutableSetOf()) {
+            val shouldShowRationale = denied.filter {
                 ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), it)
-            }
+            }.toSet()
             if (shouldShowRationale.isNotEmpty()) {
-                onRequestPermissionsFailure(
-                    shouldShowRationale, emptySet(), false, savedInstanceState
-                )
+                onRequestPermissionsFailure(shouldShowRationale, emptySet())
             } else {
-                // Permissions that are never asked and that are permanently denied
-                // can't be distinguished unless we actually request.
-                onRequestPermissions(denied.toTypedArray(), savedInstanceState)
+                onRequestPermissions(denied.toTypedArray())
             }
         }
     }
 
-    protected open fun onRequestPermissions(
-        permissions: Array<String>, savedInstanceState: Bundle?
-    ) {
+    protected fun onRequestPermissions(permissions: Array<String>) {
         requestMultiplePermissions.launch(permissions)
     }
 
-    protected open fun onRequestPermissionsSuccess(
-        permissions: Set<String>, savedInstanceState: Bundle?
-    ) {
+    protected open fun onRequestPermissionsSuccess(permissions: Set<String>) {
     }
 
     protected open fun onRequestPermissionsFailure(
-        shouldShowRationale: Set<String>, permanentlyDenied: Set<String>, haveAskedUser: Boolean,
-        savedInstanceState: Bundle?
+        shouldShowRationale: Set<String>, denied: Set<String>
     ) {
-        if (shouldShowRationale.isNotEmpty()) {
-            onRequestPermissions(shouldShowRationale.toTypedArray(), savedInstanceState)
-        } else if (permanentlyDenied.isNotEmpty()) {
-            PermissionUtils.startDetailsSettings(requireContext())
-        }
     }
 
     override fun onDestroyView() {

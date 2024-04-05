@@ -49,7 +49,6 @@ import me.gm.cleaner.plugin.ui.module.settings.preference.MaterialMultiSelectLis
 import me.gm.cleaner.plugin.ui.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.ui.module.settings.preference.PathListPreferenceFragmentCompat
 import me.gm.cleaner.plugin.ui.module.settings.preference.RefinedMultiSelectListPreference
-import me.gm.cleaner.plugin.widget.makeSnackbarWithFullyDraggableContainer
 import kotlin.collections.set
 
 class CreateTemplateFragment : AbsSettingsFragment() {
@@ -106,8 +105,7 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                     args.templateName == newValue as String -> false
                     Templates(binderViewModel.readSp(R.xml.template_preferences)).values
                         .any { it.templateName == newValue } -> {
-                        makeSnackbarWithFullyDraggableContainer(
-                            { requireActivity().findViewById(R.id.fully_draggable_container) },
+                        Snackbar.make(
                             requireView(), R.string.template_name_not_unique, Snackbar.LENGTH_SHORT
                         ).show()
                         false
