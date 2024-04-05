@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.ui.module.appmanagement
 
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -33,6 +34,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_APP_NAME
+import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_UPDATE_TIME
 import me.gm.cleaner.plugin.databinding.ApplistFragmentBinding
 import me.gm.cleaner.plugin.ktx.buildSpannableString
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
@@ -44,7 +47,14 @@ import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import rikka.recyclerview.fixEdgeEffect
 
 class AppListFragment : ModuleFragment() {
-    private val viewModel: AppListViewModel by viewModels()
+    private val viewModel: AppListViewModel by viewModels(
+        factoryProducer = {
+            AppListViewModel.provideFactory(
+                requireContext().applicationContext as Application,
+                binderViewModel
+            )
+        }
+    )
     var enterPackageName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +83,7 @@ class AppListFragment : ModuleFragment() {
         list.overScrollIfContentScrollsPersistent()
         list.fitsSystemWindowInsets(fastScroller)
         binding.listContainer.setOnRefreshListener {
-            viewModel.loadApps(binderViewModel, null)
+            viewModel.load(null)
         }
 
         // Start a coroutine in the lifecycle scope
@@ -96,24 +106,14 @@ class AppListFragment : ModuleFragment() {
                 }
             }
         }
-        if (savedInstanceState == null && viewModel.isLoading) {
-            viewModel.loadApps(binderViewModel)
-        }
         setFragmentResultListener(AppFragment::class.java.name) { _, bundle ->
             enterPackageName = bundle.getString(AppFragment.KEY_PACKAGENAME)
             postponeEnterTransition()
         }
 
         binderViewModel.remoteSpCacheLiveData.observe(viewLifecycleOwner) {
-            viewModel.updateApps(binderViewModel)
+            viewModel.update()
         }
-        RootPreferences.addOnPreferenceChangeListener(object :
-            RootPreferences.PreferencesChangeListener {
-            override val lifecycle = viewLifecycleOwner.lifecycle
-            override fun onPreferencesChanged() {
-                viewModel.updateApps(binderViewModel)
-            }
-        })
         return binding.root
     }
 
@@ -155,14 +155,15 @@ class AppListFragment : ModuleFragment() {
             }
         })
 
-        when (RootPreferences.sortBy) {
-            RootPreferences.SORT_BY_APP_NAME ->
+        when (RootPreferences.sortBy.value) {
+            SORT_BY_APP_NAME ->
                 menu.findItem(R.id.menu_sort_by_app_name).isChecked = true
-            RootPreferences.SORT_BY_UPDATE_TIME ->
+
+            SORT_BY_UPDATE_TIME ->
                 menu.findItem(R.id.menu_sort_by_update_time).isChecked = true
         }
-        menu.findItem(R.id.menu_rule_count).isChecked = RootPreferences.ruleCount
-        menu.findItem(R.id.menu_hide_system_app).isChecked = RootPreferences.isHideSystemApp
+        menu.findItem(R.id.menu_rule_count).isChecked = RootPreferences.ruleCount.value
+        menu.findItem(R.id.menu_hide_system_app).isChecked = RootPreferences.isHideSystemApp.value
         arrayOf(
             menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
         ).forEach {
@@ -174,22 +175,26 @@ class AppListFragment : ModuleFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_app_name -> {
                 item.isChecked = true
-                RootPreferences.sortBy = RootPreferences.SORT_BY_APP_NAME
+                RootPreferences.sortBy.value = SORT_BY_APP_NAME
             }
+
             R.id.menu_sort_by_update_time -> {
                 item.isChecked = true
-                RootPreferences.sortBy = RootPreferences.SORT_BY_UPDATE_TIME
+                RootPreferences.sortBy.value = SORT_BY_UPDATE_TIME
             }
+
             R.id.menu_rule_count -> {
                 val ruleCount = !item.isChecked
                 item.isChecked = ruleCount
-                RootPreferences.ruleCount = ruleCount
+                RootPreferences.ruleCount.value = ruleCount
             }
+
             R.id.menu_hide_system_app -> {
                 val isHideSystemApp = !item.isChecked
                 item.isChecked = isHideSystemApp
-                RootPreferences.isHideSystemApp = isHideSystemApp
+                RootPreferences.isHideSystemApp.value = isHideSystemApp
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
         return true

@@ -92,15 +92,27 @@ object RootPreferences {
         }
 
     // APP LIST
-    var sortBy: Int
-        get() = defaultSp.getInt(resources.getString(R.string.sort_key), SORT_BY_APP_NAME)
-        set(value) = putInt(resources.getString(R.string.sort_key), value)
-    var ruleCount: Boolean
-        get() = defaultSp.getBoolean(resources.getString(R.string.menu_rule_count_key), true)
-        set(value) = putBoolean(resources.getString(R.string.menu_rule_count_key), value)
-    var isHideSystemApp: Boolean
-        get() = defaultSp.getBoolean(resources.getString(R.string.menu_hide_system_app_key), true)
-        set(value) = putBoolean(resources.getString(R.string.menu_hide_system_app_key), value)
+    val sortBy: FlowableSharedPreferences<Int> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.sort_key),
+            SORT_BY_APP_NAME
+        )
+    }
+    val ruleCount: FlowableSharedPreferences<Boolean> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.menu_rule_count_key),
+            true
+        )
+    }
+    val isHideSystemApp: FlowableSharedPreferences<Boolean> by lazy {
+        FlowableSharedPreferences(
+            defaultSp,
+            resources.getString(R.string.menu_hide_system_app_key),
+            true
+        )
+    }
 
     // USAGE RECORD
     val isHideQuery: FlowableSharedPreferences<Boolean> by lazy {
