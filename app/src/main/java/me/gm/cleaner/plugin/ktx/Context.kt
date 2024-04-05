@@ -22,6 +22,8 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
 import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -32,13 +34,13 @@ import androidx.annotation.AnyRes
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 
-fun Context.buildStyledTitle(
+fun Context.buildSpannableString(
     text: CharSequence,
     style: Int = com.google.android.material.R.attr.textAppearanceBody2,
     color: Int? = colorPrimary
 ): SpannableStringBuilder = SpannableStringBuilder(text).apply {
     setSpan(
-        TextAppearanceSpan(this@buildStyledTitle, getResourceIdByAttr(style)), 0, length,
+        TextAppearanceSpan(this@buildSpannableString, getResourceIdByAttr(style)), 0, length,
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     )
     if (color != null) {
@@ -53,6 +55,14 @@ fun Context.startActivitySafe(intent: Intent) {
         Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
     }
 }
+
+val Context.hasWifiTransport: Boolean
+    get() {
+        val connManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
+        return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+    }
 
 inline fun <T : TypedArray, R> T.use(block: (T) -> R): R = try {
     block(this)

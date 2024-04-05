@@ -53,6 +53,8 @@ import me.gm.cleaner.plugin.ui.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.ui.mediastore.files.MediaStoreFiles
 import me.gm.cleaner.plugin.ui.mediastore.images.*
 import me.gm.cleaner.plugin.ui.mediastore.video.VideoFragment
+import me.gm.cleaner.plugin.util.PermissionUtils
+import me.gm.cleaner.plugin.util.RequesterFragment
 import me.gm.cleaner.plugin.widget.FullyDraggableContainer
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import me.zhanghai.android.fastscroll.ItemsHeightsObserver

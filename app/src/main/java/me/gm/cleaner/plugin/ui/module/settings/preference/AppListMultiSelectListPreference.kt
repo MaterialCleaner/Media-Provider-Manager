@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.text.Collator
+import me.gm.cleaner.plugin.util.collatorComparator
 import java.util.Arrays
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -53,11 +53,10 @@ class AppListMultiSelectListPreference @JvmOverloads constructor(
         lifecycleScope.launch {
             mutex.withLock {
                 val pm = context.packageManager
-                val collator = Collator.getInstance()
                 packageNameToLabel = withContext(Dispatchers.Default) {
                     applistSupplier.get()
                         .map { it.packageName to pm.getApplicationLabel(it.applicationInfo) }
-                        .sortedWith { o1, o2 -> collator.compare(o1?.second, o2?.second) }
+                        .sortedWith(collatorComparator { it.second.toString() })
                 }
                 liftSelected()
             }

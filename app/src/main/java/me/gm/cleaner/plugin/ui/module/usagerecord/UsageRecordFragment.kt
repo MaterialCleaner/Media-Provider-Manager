@@ -40,7 +40,7 @@ import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
-import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.buildSpannableString
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.ui.module.ModuleFragment
@@ -165,7 +165,7 @@ class UsageRecordFragment : ModuleFragment() {
         menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsert
         menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDelete
         arrayOf(menu.findItem(R.id.menu_header_hide)).forEach {
-            it.title = requireContext().buildStyledTitle(it.title!!)
+            it.title = requireContext().buildSpannableString(it.title!!)
         }
     }
 

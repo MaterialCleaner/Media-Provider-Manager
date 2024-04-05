@@ -28,7 +28,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.transition.platform.Hold
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.databinding.ApplistItemBinding
-import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.buildSpannableString
 import me.gm.cleaner.plugin.ktx.mediumAnimTime
 
 class AppListAdapter(private val fragment: AppListFragment) :
@@ -46,7 +46,7 @@ class AppListAdapter(private val fragment: AppListFragment) :
             .into(binding.icon)
         binding.title.text = model.label
         binding.summary.text = if (model.ruleCount > 0) {
-            activity.buildStyledTitle(
+            activity.buildSpannableString(
                 fragment.getString(R.string.enabled_rule_count, model.ruleCount)
             )
         } else {

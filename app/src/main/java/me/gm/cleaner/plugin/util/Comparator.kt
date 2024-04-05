@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Green Mushroom
+ * Copyright 2023 Green Mushroom
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package me.gm.cleaner.plugin.ktx
+package me.gm.cleaner.plugin.util
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
+import java.text.Collator
 
-val Context.hasWifiTransport: Boolean
-    get() {
-        val connManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities = connManager.getNetworkCapabilities(connManager.activeNetwork)
-        return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+private val collator: Collator by lazy { Collator.getInstance() }
+private val naturalSorter: NaturalSorter by lazy { NaturalSorter() }
+
+fun <T> collatorComparator(convert: (T) -> String): Comparator<T> {
+    return Comparator { o1, o2 ->
+        collator.compare(convert(o1), convert(o2))
     }
+}
+
+fun <T> fileNameComparator(convert: (T) -> String): Comparator<T> {
+    return Comparator { o1, o2 ->
+        naturalSorter.compare(convert(o1), convert(o2))
+    }
+}

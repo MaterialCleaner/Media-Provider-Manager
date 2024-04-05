@@ -42,8 +42,8 @@ import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
 import me.gm.cleaner.plugin.model.Template
 import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.ui.module.ModuleFragment
+import me.gm.cleaner.plugin.util.collatorComparator
 import rikka.recyclerview.fixEdgeEffect
-import java.text.Collator
 import kotlin.collections.set
 
 class TemplatesFragment : ModuleFragment() {
@@ -91,12 +91,9 @@ class TemplatesFragment : ModuleFragment() {
         return binding.root
     }
 
-    private fun prepareCurrentList(): List<Template> {
-        val collator = Collator.getInstance()
-        return Templates(binderViewModel.readSp(R.xml.template_preferences)).values.sortedWith { o1, o2 ->
-            collator.compare(o1?.templateName, o2?.templateName)
-        }
-    }
+    private fun prepareCurrentList(): List<Template> =
+        Templates(binderViewModel.readSp(R.xml.template_preferences)).values
+            .sortedWith(collatorComparator { it.templateName })
 
     private fun prepareTransitions(list: RecyclerView, position: Int) {
         setExitSharedElementCallback(object : SharedElementCallback() {

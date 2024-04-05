@@ -28,7 +28,7 @@ import androidx.annotation.StyleRes
 import androidx.core.content.res.TypedArrayUtils
 import androidx.preference.DialogPreference
 import me.gm.cleaner.plugin.R
-import java.text.Collator
+import me.gm.cleaner.plugin.util.collatorComparator
 
 class PathListPreference @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null,
@@ -118,10 +118,9 @@ class PathListPreference @JvmOverloads constructor(
             if (preference.values.isEmpty()) {
                 preference.context.getString(androidx.preference.R.string.not_set)
             } else {
-                val collator = Collator.getInstance()
-                ListFormatter.getInstance().format(preference.values.sortedWith { o1, o2 ->
-                    collator.compare(o1, o2)
-                })
+                ListFormatter.getInstance().format(
+                    preference.values.sortedWith(collatorComparator { it })
+                )
             }
     }
 

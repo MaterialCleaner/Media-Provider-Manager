@@ -32,9 +32,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
-import me.gm.cleaner.plugin.ktx.fileNameComparator
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreViewModel
+import me.gm.cleaner.plugin.util.fileNameComparator
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 
 open class FilesViewModel(application: Application) :

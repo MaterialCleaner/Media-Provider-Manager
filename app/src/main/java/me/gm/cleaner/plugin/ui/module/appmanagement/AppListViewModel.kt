@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ui.module.BinderViewModel
-import java.text.Collator
+import me.gm.cleaner.plugin.util.collatorComparator
 
 class AppListViewModel(application: Application) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
@@ -62,20 +62,17 @@ class AppListViewModel(application: Application) : AndroidViewModel(application)
                     }
                     sequence = when (RootPreferences.sortBy) {
                         RootPreferences.SORT_BY_APP_NAME -> {
-                            val collator = Collator.getInstance()
-                            sequence.sortedWith { o1, o2 ->
-                                collator.compare(o1?.label, o2?.label)
-                            }
+                            sequence.sortedWith(collatorComparator { it.label })
                         }
+
                         RootPreferences.SORT_BY_UPDATE_TIME -> sequence.sortedBy {
                             -it.packageInfo.lastUpdateTime
                         }
+
                         else -> throw IllegalArgumentException()
                     }
                     if (RootPreferences.ruleCount) {
-                        sequence = sequence.sortedBy {
-                            -it.ruleCount
-                        }
+                        sequence = sequence.sortedBy { -it.ruleCount }
                     }
                     SourceState.Done(sequence.toList())
                 }

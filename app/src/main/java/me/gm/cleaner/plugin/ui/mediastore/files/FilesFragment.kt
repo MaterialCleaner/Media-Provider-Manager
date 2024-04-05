@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
-import me.gm.cleaner.plugin.ktx.buildStyledTitle
+import me.gm.cleaner.plugin.ktx.buildSpannableString
 import me.gm.cleaner.plugin.ktx.fitsSystemWindowInsets
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreFragment
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
@@ -116,7 +116,7 @@ open class FilesFragment : MediaStoreFragment() {
                 menu.findItem(R.id.menu_sort_by_size).isChecked = true
         }
         arrayOf(menu.findItem(R.id.menu_header_sort)).forEach {
-            it.title = requireContext().buildStyledTitle(it.title!!)
+            it.title = requireContext().buildSpannableString(it.title!!)
         }
     }
 

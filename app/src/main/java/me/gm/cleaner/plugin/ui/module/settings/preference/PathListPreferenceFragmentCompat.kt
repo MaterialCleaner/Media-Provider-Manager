@@ -42,8 +42,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.util.collatorComparator
 import rikka.recyclerview.fixEdgeEffect
-import java.text.Collator
 
 class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     PreferenceManager.OnDisplayPreferenceDialogListener, DialogPreference.TargetFragment {
@@ -51,10 +51,7 @@ class PathListPreferenceFragmentCompat : PreferenceDialogFragmentCompat(),
     private lateinit var adapter: PathListPreferenceAdapter
     var newValues = emptyList<String>()
         set(value) {
-            val collator = Collator.getInstance()
-            field = value.distinct().sortedWith { o1, o2 ->
-                collator.compare(o1, o2)
-            }
+            field = value.distinct().sortedWith(collatorComparator { it })
             adapter.submitList(field)
         }
     private val preferenceChanged

@@ -1,4 +1,4 @@
-package me.gm.cleaner.plugin.ktx
+package me.gm.cleaner.plugin.util
 
 import android.content.Context
 import android.content.Intent

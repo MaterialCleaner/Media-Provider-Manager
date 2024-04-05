@@ -16,7 +16,7 @@
 
 // https://gist.github.com/seven332/eadc44f1b35f756e46c410a8487fcc1d
 
-package me.gm.cleaner.plugin.ktx;
+package me.gm.cleaner.plugin.util;
 
 import java.math.BigInteger;
 import java.text.Collator;

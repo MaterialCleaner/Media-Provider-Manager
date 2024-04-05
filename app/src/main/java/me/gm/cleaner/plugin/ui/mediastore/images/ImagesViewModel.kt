@@ -30,8 +30,8 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.gm.cleaner.plugin.dao.RootPreferences
-import me.gm.cleaner.plugin.ktx.fileNameComparator
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreViewModel
+import me.gm.cleaner.plugin.util.fileNameComparator
 
 class ImagesViewModel(application: Application) :
     MediaStoreViewModel<MediaStoreImage>(application) {

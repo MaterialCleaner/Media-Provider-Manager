@@ -46,8 +46,8 @@ import me.gm.cleaner.plugin.model.Template
 import me.gm.cleaner.plugin.model.Templates
 import me.gm.cleaner.plugin.ui.module.ModuleFragment
 import me.gm.cleaner.plugin.ui.module.settings.CreateTemplateFragment
+import me.gm.cleaner.plugin.util.collatorComparator
 import rikka.recyclerview.fixEdgeEffect
-import java.text.Collator
 
 class AppFragment : ModuleFragment() {
     val args: AppFragmentArgs by navArgs()
@@ -130,12 +130,10 @@ class AppFragment : ModuleFragment() {
         return binding.root
     }
 
-    private fun prepareCurrentList(): Pair<List<Template>, List<Template>> {
-        val collator = Collator.getInstance()
-        return Templates(binderViewModel.readSp(R.xml.template_preferences)).values
-            .sortedWith { o1, o2 -> collator.compare(o1?.templateName, o2?.templateName) }
+    private fun prepareCurrentList(): Pair<List<Template>, List<Template>> =
+        Templates(binderViewModel.readSp(R.xml.template_preferences)).values
+            .sortedWith(collatorComparator { it.templateName })
             .partition { it.applyToApp?.contains(args.packageInfo.packageName) == true }
-    }
 
     private fun prepareTransitions(list: RecyclerView, position: Int) {
         setExitSharedElementCallback(object : SharedElementCallback() {
