@@ -59,7 +59,10 @@ class ImagesFragment : MediaStoreFragment() {
         adapter: MediaStoreAdapter
     ) {
         val layoutManager =
-            ProgressionGridLayoutManager(requireContext(), RootPreferences.spanCount.value).apply {
+            ProgressionGridLayoutManager(
+                requireContext(),
+                RootPreferences.spanCountFlowable.value
+            ).apply {
                 spanSizeLookup = object : SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int =
                         if (adapter.currentList[position] is MediaStoreHeader) {
@@ -160,7 +163,7 @@ class ImagesFragment : MediaStoreFragment() {
         }
         inflater.inflate(R.menu.images_toolbar, menu)
 
-        when (RootPreferences.sortMediaBy.value) {
+        when (RootPreferences.sortMediaByFlowable.value) {
             SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
 
@@ -176,12 +179,12 @@ class ImagesFragment : MediaStoreFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_path -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy.value = SORT_BY_PATH
+                RootPreferences.sortMediaByFlowable.value = SORT_BY_PATH
             }
 
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy.value = SORT_BY_DATE_TAKEN
+                RootPreferences.sortMediaByFlowable.value = SORT_BY_DATE_TAKEN
             }
 
             else -> return super.onOptionsItemSelected(item)

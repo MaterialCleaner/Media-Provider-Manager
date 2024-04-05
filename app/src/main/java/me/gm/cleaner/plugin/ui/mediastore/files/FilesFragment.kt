@@ -107,7 +107,7 @@ open class FilesFragment : MediaStoreFragment() {
             }
         })
 
-        when (RootPreferences.sortMediaBy.value) {
+        when (RootPreferences.sortMediaByFlowable.value) {
             SORT_BY_PATH ->
                 menu.findItem(R.id.menu_sort_by_path).isChecked = true
 
@@ -126,17 +126,17 @@ open class FilesFragment : MediaStoreFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_path -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy.value = SORT_BY_PATH
+                RootPreferences.sortMediaByFlowable.value = SORT_BY_PATH
             }
 
             R.id.menu_sort_by_date_taken -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy.value = SORT_BY_DATE_TAKEN
+                RootPreferences.sortMediaByFlowable.value = SORT_BY_DATE_TAKEN
             }
 
             R.id.menu_sort_by_size -> {
                 item.isChecked = true
-                RootPreferences.sortMediaBy.value = SORT_BY_SIZE
+                RootPreferences.sortMediaByFlowable.value = SORT_BY_SIZE
             }
 
             else -> return super.onOptionsItemSelected(item)

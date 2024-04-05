@@ -31,7 +31,7 @@ class AudioViewModel(application: Application) : FilesViewModel(application) {
      init {
           viewModelScope.launch {
                combine(
-                    _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaBy.asFlow()
+                    _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaByFlowable.asFlow()
                ) { isSearching, queryText, sortMediaBy ->
                     queryMedias(uri, sortMediaBy)
                }.collect {

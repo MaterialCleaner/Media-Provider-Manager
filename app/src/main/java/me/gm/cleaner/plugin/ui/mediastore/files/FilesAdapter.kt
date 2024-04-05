@@ -56,7 +56,7 @@ open class FilesAdapter(private val fragment: Fragment) : MediaStoreAdapter(frag
         now.timeInMillis = System.currentTimeMillis()
         val flags = DateUtils.FORMAT_NO_NOON or DateUtils.FORMAT_NO_MIDNIGHT or
                 DateUtils.FORMAT_ABBREV_ALL or when {
-            RootPreferences.sortMediaBy.value == SORT_BY_DATE_TAKEN -> {
+            RootPreferences.sortMediaByFlowable.value == SORT_BY_DATE_TAKEN -> {
                 DateUtils.FORMAT_SHOW_TIME
             }
 

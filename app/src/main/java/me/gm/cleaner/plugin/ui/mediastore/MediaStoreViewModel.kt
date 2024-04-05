@@ -63,7 +63,8 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
     fun load() {
         if (::uriForLoad.isInitialized) {
             viewModelScope.launch {
-                _mediasFlow.value = queryMedias(uriForLoad, RootPreferences.sortMediaBy.value)
+                _mediasFlow.value =
+                    queryMedias(uriForLoad, RootPreferences.sortMediaByFlowable.value)
             }
         }
     }

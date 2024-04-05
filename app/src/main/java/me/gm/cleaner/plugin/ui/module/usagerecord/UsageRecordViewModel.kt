@@ -136,9 +136,9 @@ class UsageRecordViewModel(
         return UsageRecordState.Done(records)
     }
 
-    private val isHideQueryFlow: StateFlow<Boolean> = RootPreferences.isHideQuery.asFlow()
-    private val isHideInsertFlow: StateFlow<Boolean> = RootPreferences.isHideInsert.asFlow()
-    private val isHideDeleteFlow: StateFlow<Boolean> = RootPreferences.isHideDelete.asFlow()
+    private val isHideQueryFlow: StateFlow<Boolean> = RootPreferences.isHideQueryFlowable.asFlow()
+    private val isHideInsertFlow: StateFlow<Boolean> = RootPreferences.isHideInsertFlowable.asFlow()
+    private val isHideDeleteFlow: StateFlow<Boolean> = RootPreferences.isHideDeleteFlowable.asFlow()
 
     fun reload() {
         _recordsFlow.value = UsageRecordState.Loading

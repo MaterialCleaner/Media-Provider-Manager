@@ -154,9 +154,9 @@ class UsageRecordFragment : ModuleFragment() {
             }
         })
 
-        menu.findItem(R.id.menu_hide_query).isChecked = RootPreferences.isHideQuery.value
-        menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsert.value
-        menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDelete.value
+        menu.findItem(R.id.menu_hide_query).isChecked = RootPreferences.isHideQueryFlowable.value
+        menu.findItem(R.id.menu_hide_insert).isChecked = RootPreferences.isHideInsertFlowable.value
+        menu.findItem(R.id.menu_hide_delete).isChecked = RootPreferences.isHideDeleteFlowable.value
         arrayOf(menu.findItem(R.id.menu_header_hide)).forEach {
             it.title = requireContext().buildSpannableString(it.title!!)
         }
@@ -181,19 +181,19 @@ class UsageRecordFragment : ModuleFragment() {
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
-                RootPreferences.isHideQuery.value = isHideQuery
+                RootPreferences.isHideQueryFlowable.value = isHideQuery
             }
 
             R.id.menu_hide_insert -> {
                 val isHideInsert = !item.isChecked
                 item.isChecked = isHideInsert
-                RootPreferences.isHideInsert.value = isHideInsert
+                RootPreferences.isHideInsertFlowable.value = isHideInsert
             }
 
             R.id.menu_hide_delete -> {
                 val isHideDelete = !item.isChecked
                 item.isChecked = isHideDelete
-                RootPreferences.isHideDelete.value = isHideDelete
+                RootPreferences.isHideDeleteFlowable.value = isHideDelete
             }
 
             R.id.menu_clear -> {

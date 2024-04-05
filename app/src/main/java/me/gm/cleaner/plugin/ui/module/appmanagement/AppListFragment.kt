@@ -156,15 +156,16 @@ class AppListFragment : ModuleFragment() {
             }
         })
 
-        when (RootPreferences.sortBy.value) {
+        when (RootPreferences.sortByFlowable.value) {
             SORT_BY_APP_NAME ->
                 menu.findItem(R.id.menu_sort_by_app_name).isChecked = true
 
             SORT_BY_UPDATE_TIME ->
                 menu.findItem(R.id.menu_sort_by_update_time).isChecked = true
         }
-        menu.findItem(R.id.menu_rule_count).isChecked = RootPreferences.ruleCount.value
-        menu.findItem(R.id.menu_hide_system_app).isChecked = RootPreferences.isHideSystemApp.value
+        menu.findItem(R.id.menu_rule_count).isChecked = RootPreferences.ruleCountFlowable.value
+        menu.findItem(R.id.menu_hide_system_app).isChecked =
+            RootPreferences.isHideSystemAppFlowable.value
         arrayOf(
             menu.findItem(R.id.menu_header_sort), menu.findItem(R.id.menu_header_hide)
         ).forEach {
@@ -176,24 +177,24 @@ class AppListFragment : ModuleFragment() {
         when (item.itemId) {
             R.id.menu_sort_by_app_name -> {
                 item.isChecked = true
-                RootPreferences.sortBy.value = SORT_BY_APP_NAME
+                RootPreferences.sortByFlowable.value = SORT_BY_APP_NAME
             }
 
             R.id.menu_sort_by_update_time -> {
                 item.isChecked = true
-                RootPreferences.sortBy.value = SORT_BY_UPDATE_TIME
+                RootPreferences.sortByFlowable.value = SORT_BY_UPDATE_TIME
             }
 
             R.id.menu_rule_count -> {
                 val ruleCount = !item.isChecked
                 item.isChecked = ruleCount
-                RootPreferences.ruleCount.value = ruleCount
+                RootPreferences.ruleCountFlowable.value = ruleCount
             }
 
             R.id.menu_hide_system_app -> {
                 val isHideSystemApp = !item.isChecked
                 item.isChecked = isHideSystemApp
-                RootPreferences.isHideSystemApp.value = isHideSystemApp
+                RootPreferences.isHideSystemAppFlowable.value = isHideSystemApp
             }
 
             else -> return super.onOptionsItemSelected(item)

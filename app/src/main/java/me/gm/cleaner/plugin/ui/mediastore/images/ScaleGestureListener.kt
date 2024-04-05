@@ -96,7 +96,7 @@ class ScaleGestureListener(
 
             override fun onScaleEnd(detector: ScaleGestureDetector) {
                 animateProgress(layoutManager.progress, 1F) {
-                    RootPreferences.spanCount.value = layoutManager.spanCount
+                    RootPreferences.spanCountFlowable.value = layoutManager.spanCount
                     // manually invalidate itemsHeights
                     viewHelper.observer.onChanged()
                 }

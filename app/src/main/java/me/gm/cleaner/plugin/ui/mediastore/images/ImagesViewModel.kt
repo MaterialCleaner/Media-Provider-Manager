@@ -186,7 +186,7 @@ class ImagesViewModel(application: Application) :
 
     init {
         viewModelScope.launch {
-            RootPreferences.sortMediaBy.asFlow().collect { sortMediaBy ->
+            RootPreferences.sortMediaByFlowable.asFlow().collect { sortMediaBy ->
                 _mediasFlow.value = queryMedias(uri, sortMediaBy)
             }
         }

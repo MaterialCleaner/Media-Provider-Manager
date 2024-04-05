@@ -111,7 +111,7 @@ abstract class MediaStoreAdapter(private val fragment: Fragment) :
 
     protected open fun onPreSubmitList(list: List<MediaStoreModel>): List<MediaStoreModel> {
         uriPositionMap.clear()
-        return when (RootPreferences.sortMediaBy.value) {
+        return when (RootPreferences.sortMediaByFlowable.value) {
             SORT_BY_PATH -> {
                 val groupedList = mutableListOf<MediaStoreModel>()
                 var lastHeader = ""

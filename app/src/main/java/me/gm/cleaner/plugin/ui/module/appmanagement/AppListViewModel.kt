@@ -50,9 +50,9 @@ class AppListViewModel(
             _appsFlow,
             _isSearchingFlow,
             _queryTextFlow,
-            RootPreferences.isHideSystemApp.asFlow(),
-            RootPreferences.sortBy.asFlow(),
-            RootPreferences.ruleCount.asFlow(),
+            RootPreferences.isHideSystemAppFlowable.asFlow(),
+            RootPreferences.sortByFlowable.asFlow(),
+            RootPreferences.ruleCountFlowable.asFlow(),
         ) { apps, isSearching, queryText, isHideSystemApp, sortBy, ruleCount ->
             when (apps) {
                 is AppListState.Loading -> AppListState.Loading(apps.progress)

@@ -47,21 +47,21 @@ object RootPreferences {
         }
 
     // APP LIST
-    val sortBy: FlowableSharedPreferences<Int> by lazy {
+    val sortByFlowable: FlowableSharedPreferences<Int> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.sort_key),
             SORT_BY_APP_NAME
         )
     }
-    val ruleCount: FlowableSharedPreferences<Boolean> by lazy {
+    val ruleCountFlowable: FlowableSharedPreferences<Boolean> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.menu_rule_count_key),
             true
         )
     }
-    val isHideSystemApp: FlowableSharedPreferences<Boolean> by lazy {
+    val isHideSystemAppFlowable: FlowableSharedPreferences<Boolean> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.menu_hide_system_app_key),
@@ -70,21 +70,21 @@ object RootPreferences {
     }
 
     // USAGE RECORD
-    val isHideQuery: FlowableSharedPreferences<Boolean> by lazy {
+    val isHideQueryFlowable: FlowableSharedPreferences<Boolean> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.menu_hide_query_key),
             false
         )
     }
-    val isHideInsert: FlowableSharedPreferences<Boolean> by lazy {
+    val isHideInsertFlowable: FlowableSharedPreferences<Boolean> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.menu_hide_insert_key),
             false
         )
     }
-    val isHideDelete: FlowableSharedPreferences<Boolean> by lazy {
+    val isHideDeleteFlowable: FlowableSharedPreferences<Boolean> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.menu_hide_delete_key),
@@ -93,21 +93,21 @@ object RootPreferences {
     }
 
     // MEDIA STORE
-    val sortMediaBy: FlowableSharedPreferences<Int> by lazy {
+    val sortMediaByFlowable: FlowableSharedPreferences<Int> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.sort_media_key),
             SORT_BY_PATH
         )
     }
-    val spanCount: FlowableSharedPreferences<Int> by lazy {
+    val spanCountFlowable: FlowableSharedPreferences<Int> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.span_count_key),
             3
         )
     }
-    val playbackSpeed: FlowableSharedPreferences<Float> by lazy {
+    val playbackSpeedFlowable: FlowableSharedPreferences<Float> by lazy {
         FlowableSharedPreferences(
             defaultSp,
             resources.getString(R.string.playback_speed_key),
