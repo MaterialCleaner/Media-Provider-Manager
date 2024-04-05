@@ -19,8 +19,8 @@ package me.gm.cleaner.plugin.ui.module.usagerecord
 import android.app.Application
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.gm.cleaner.plugin.IMediaChangeObserver
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_DELETE
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_INSERT
 import me.gm.cleaner.plugin.dao.MediaProviderOperation.Companion.OP_QUERY
@@ -37,7 +36,10 @@ import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ui.module.BinderViewModel
 import java.util.Calendar
 
-class UsageRecordViewModel(application: Application) : AndroidViewModel(application) {
+class UsageRecordViewModel(
+    application: Application,
+    private val binderViewModel: BinderViewModel,
+) : AndroidViewModel(application) {
     private val _isSearchingFlow = MutableStateFlow(false)
     var isSearching: Boolean
         get() = _isSearchingFlow.value
@@ -71,24 +73,13 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
 
-    // Use LiveData to ensure reloads are only triggered in our fragment's lifeCycle.
-    private val _reloadRecordsLiveData = MutableLiveData(false)
-    val reloadRecordsLiveData: LiveData<Boolean> = _reloadRecordsLiveData
-    private var binderViewModel: BinderViewModel? = null
-    private val mediaChangeObserver = object : IMediaChangeObserver.Stub() {
-        override fun onChange() {
-            _reloadRecordsLiveData.postValue(true)
-        }
-    }
-
-    fun reloadRecords(binderViewModel: BinderViewModel) =
-        loadRecords(binderViewModel, calendar.timeInMillis)
+    fun reloadRecords(): Job = loadRecords(calendar.timeInMillis)
 
     /**
      * Find the start and the end time millis of a day.
      * @param timeMillis any time millis in that day
      */
-    fun loadRecords(binderViewModel: BinderViewModel, timeMillis: Long) = calendar.run {
+    fun loadRecords(timeMillis: Long): Job = calendar.run {
         timeInMillis = timeMillis
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
@@ -101,7 +92,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         set(Calendar.MILLISECOND, 999)
         val end = timeInMillis
         loadRecords(
-            binderViewModel, start, end,
+            start, end,
             RootPreferences.isHideQuery,
             RootPreferences.isHideInsert,
             RootPreferences.isHideDelete
@@ -109,7 +100,7 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun loadRecords(
-        binderViewModel: BinderViewModel, start: Long, end: Long,
+        start: Long, end: Long,
         isHideQuery: Boolean, isHideInsert: Boolean, isHideDelete: Boolean
     ): Job = viewModelScope.launch {
         _recordsFlow.value = SourceState.Loading
@@ -134,8 +125,6 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
             it.packageInfo != null
         }
         _recordsFlow.value = SourceState.Done(records)
-
-        _reloadRecordsLiveData.value = false
     }
 
     private suspend inline fun queryRecord(
@@ -157,17 +146,23 @@ class UsageRecordViewModel(application: Application) : AndroidViewModel(applicat
         return@withContext emptyList()
     }
 
-    fun registerMediaChangeObserver(binderViewModel: BinderViewModel) {
-        this.binderViewModel = binderViewModel
-        binderViewModel.registerMediaChangeObserver(mediaChangeObserver)
+    init {
+        reloadRecords()
     }
 
-    override fun onCleared() {
-        binderViewModel?.unregisterMediaChangeObserver(mediaChangeObserver)
+    companion object {
+        fun provideFactory(
+            application: Application, binderViewModel: BinderViewModel
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return UsageRecordViewModel(application, binderViewModel) as T
+            }
+        }
     }
 }
 
 sealed class SourceState {
-    object Loading : SourceState()
+    data object Loading : SourceState()
     data class Done(val list: List<MediaProviderRecord>) : SourceState()
 }

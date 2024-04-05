@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.ui.module.usagerecord
 
+import android.app.Application
 import android.icu.text.DateFormat
 import android.icu.util.TimeZone
 import android.os.Bundle
@@ -34,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
+import me.gm.cleaner.plugin.IMediaChangeObserver
 import me.gm.cleaner.plugin.R
 import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.databinding.UsagerecordFragmentBinding
@@ -49,7 +51,19 @@ import java.util.Date
 import java.util.Locale
 
 class UsageRecordFragment : ModuleFragment() {
-    private val viewModel: UsageRecordViewModel by viewModels()
+    private val viewModel: UsageRecordViewModel by viewModels(
+        factoryProducer = {
+            UsageRecordViewModel.provideFactory(
+                requireContext().applicationContext as Application,
+                binderViewModel
+            )
+        }
+    )
+    private val mediaChangeObserver = object : IMediaChangeObserver.Stub() {
+        override fun onChange() {
+            viewModel.reloadRecords()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,17 +106,10 @@ class UsageRecordFragment : ModuleFragment() {
                 }
             }
         }
-        viewModel.reloadRecordsLiveData.observe(viewLifecycleOwner) { reloadNeeded ->
-            if (reloadNeeded) {
-                viewModel.reloadRecords(binderViewModel)
-            }
-        }
 
-        if (savedInstanceState == null) {
-            viewModel.reloadRecords(binderViewModel)
-            viewModel.registerMediaChangeObserver(binderViewModel)
-        }
+        binderViewModel.registerMediaChangeObserver(mediaChangeObserver)
         findNavController().addOnExitListener { _, _, _ ->
+            binderViewModel.unregisterMediaChangeObserver(mediaChangeObserver)
             supportActionBar?.subtitle = null
         }
 
@@ -110,7 +117,7 @@ class UsageRecordFragment : ModuleFragment() {
             RootPreferences.PreferencesChangeListener {
             override val lifecycle = viewLifecycleOwner.lifecycle
             override fun onPreferencesChanged() {
-                viewModel.reloadRecords(binderViewModel)
+                viewModel.reloadRecords()
             }
         })
         return binding.root
@@ -173,29 +180,34 @@ class UsageRecordFragment : ModuleFragment() {
                     .setSelection(viewModel.calendar.timeInMillis)
                     .build()
                 datePicker.addOnPositiveButtonClickListener { selection ->
-                    viewModel.loadRecords(binderViewModel, selection)
+                    viewModel.loadRecords(selection)
                 }
                 datePicker.show(childFragmentManager, null)
             }
+
             R.id.menu_hide_query -> {
                 val isHideQuery = !item.isChecked
                 item.isChecked = isHideQuery
                 RootPreferences.isHideQuery = isHideQuery
             }
+
             R.id.menu_hide_insert -> {
                 val isHideInsert = !item.isChecked
                 item.isChecked = isHideInsert
                 RootPreferences.isHideInsert = isHideInsert
             }
+
             R.id.menu_hide_delete -> {
                 val isHideDelete = !item.isChecked
                 item.isChecked = isHideDelete
                 RootPreferences.isHideDelete = isHideDelete
             }
+
             R.id.menu_clear -> {
                 binderViewModel.clearAllTables()
-                viewModel.reloadRecords(binderViewModel)
+                viewModel.reloadRecords()
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
         return true
