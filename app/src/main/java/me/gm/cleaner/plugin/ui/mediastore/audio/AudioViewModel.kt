@@ -26,7 +26,7 @@ import me.gm.cleaner.plugin.dao.RootPreferences
 import me.gm.cleaner.plugin.ui.mediastore.files.FilesViewModel
 
 class AudioViewModel(application: Application) : FilesViewModel(application) {
-     private val uri: Uri by lazy { MediaStore.Audio.Media.EXTERNAL_CONTENT_URI }
+     private val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
      init {
           viewModelScope.launch {

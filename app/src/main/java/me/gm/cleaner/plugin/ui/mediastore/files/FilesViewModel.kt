@@ -168,17 +168,19 @@ open class FilesViewModel(application: Application) :
     }
 
     init {
-        viewModelScope.launch {
-            combine(
-                _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaByFlowable.asFlow()
-            ) { isSearching, queryText, sortMediaBy ->
-                queryMedias(uri, sortMediaBy)
-            }.collect {
-                _mediasFlow.value = it
+        if (this.javaClass === FilesViewModel::class.java) {
+            viewModelScope.launch {
+                combine(
+                    _isSearchingFlow, _queryTextFlow, RootPreferences.sortMediaByFlowable.asFlow()
+                ) { isSearching, queryText, sortMediaBy ->
+                    queryMedias(uri, sortMediaBy)
+                }.collect {
+                    _mediasFlow.value = it
+                }
             }
+            application.contentResolver.registerContentObserver(
+                uri, true, contentObserver
+            )
         }
-        application.contentResolver.registerContentObserver(
-            uri, true, contentObserver
-        )
     }
 }
