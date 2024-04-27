@@ -62,9 +62,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
     protected abstract val viewModel: MediaStoreViewModel<*>
     protected abstract val requesterFragmentClass: Class<out MediaPermissionsRequesterFragment>
     protected lateinit var selectionTracker: SelectionTracker<Long>
-    private val detector: SelectionDetector by lazy {
-        SelectionDetector(requireContext(), LongPressingListener())
-    }
     private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,12 +84,11 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         list.setHasFixedSize(true)
         list.fixEdgeEffect(false)
         list.overScrollIfContentScrollsPersistent()
-        val keyProvider = StableIdKeyProvider(list)
         selectionTracker = SelectionTracker
             .Builder(
                 /* selectionId = */ javaClass.name,
                 list,
-                keyProvider,
+                StableIdKeyProvider(adapter),
                 DetailsLookup(list),
                 StorageStrategy.createLongStorage()
             )

@@ -47,22 +47,20 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     private static final String TAG = "StableIdKeyProvider";
 
-    private final RecyclerView mRecyclerView;
     private final RecyclerView.Adapter<?> mAdapter;
 
     /**
      * Creates a new key provider that uses cached {@code long} stable ids associated
      * with the RecyclerView items.
      *
-     * @param recyclerView the owner RecyclerView
+     * @param adapter the adapter of the owner RecyclerView
      */
-    public StableIdKeyProvider(@NonNull RecyclerView recyclerView) {
+    public StableIdKeyProvider(@NonNull RecyclerView.Adapter<?> adapter) {
         // Since this provide is based on stable ids based on whats laid out in the window
         // we can only satisfy "window" scope key access.
         super(SCOPE_CACHED);
 
-        mRecyclerView = recyclerView;
-        mAdapter = recyclerView.getAdapter();
+        mAdapter = adapter;
     }
 
     @NonNull
@@ -73,16 +71,11 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     @Override
     public int getPosition(@NonNull Long key) {
-        var holder = mRecyclerView.findViewHolderForItemId(key);
-        if (holder != null) {
-            return holder.getBindingAdapterPosition();
-        } else {
-            for (int i = 0, itemCount = mAdapter.getItemCount(); i < itemCount; i++) {
-                if (key == mAdapter.getItemId(i)) {
-                    return i;
-                }
+        for (int i = 0, itemCount = mAdapter.getItemCount(); i < itemCount; i++) {
+            if (key == mAdapter.getItemId(i)) {
+                return i;
             }
-            return RecyclerView.NO_POSITION;
         }
+        return RecyclerView.NO_POSITION;
     }
 }
