@@ -37,7 +37,7 @@ import androidx.annotation.ColorInt
 fun Context.buildSpannableString(
     text: CharSequence,
     style: Int = com.google.android.material.R.attr.textAppearanceBody2,
-    color: Int? = colorPrimary
+    color: Int? = colorAccent
 ): SpannableStringBuilder = SpannableStringBuilder(text).apply {
     setSpan(
         TextAppearanceSpan(this@buildSpannableString, getResourceIdByAttr(style)), 0, length,
