@@ -23,7 +23,7 @@ import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.google.android.material.R
-import me.gm.cleaner.plugin.ktx.colorPrimary
+import me.gm.cleaner.plugin.ktx.colorOnSurfaceVariant
 import me.gm.cleaner.plugin.ktx.colorSurface
 
 @SuppressLint("PrivateResource")
@@ -38,6 +38,6 @@ open class ThemedSwipeRefreshLayout @JvmOverloads constructor(
         val backgroundColor = ColorUtils.compositeColors(overlayColor, context.colorSurface)
         (mCircleView.background as ShapeDrawable).paint.color = backgroundColor
 
-        setColorSchemeColors(context.colorPrimary)
+        setColorSchemeColors(context.colorOnSurfaceVariant)
     }
 }
