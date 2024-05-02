@@ -62,6 +62,8 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.databinding.ImagePagerFragmentBinding
 import me.gm.cleaner.plugin.ktx.addOnExitListener
 import me.gm.cleaner.plugin.ui.mediastore.images.ImagesViewModel
+import me.gm.cleaner.plugin.util.MediaStoreCompat
+import me.gm.cleaner.plugin.util.MediaStoreCompat.DELETE_PERMISSION_REQUEST
 
 /**
  * A fragment for displaying a series of images in a [ViewPager2].
@@ -109,13 +111,6 @@ class ImagePagerFragment : BaseFragment() {
             appBarLayout?.setLiftableOverrideEnabled(false)
             requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        }
-        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
-            intentSender?.let {
-                startIntentSenderForResult(
-                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
-                )
-            }
         }
 
         prepareSharedElementTransition()
@@ -271,27 +266,6 @@ class ImagePagerFragment : BaseFragment() {
             ?.itemView
             ?.findViewById(R.id.photo_view)
 
-    private fun getCurrentImageUri(): Uri = if (args.uri == null) {
-        imagesViewModel.medias[viewPager.currentItem].contentUri
-    } else {
-        args.uri!!
-    }
-
-    private fun deleteCurrentImage() {
-        lifecycleScope.launch {
-            try {
-                val isSuccessfullyDeleted = viewModel
-                    .deleteImageAsync(getCurrentImageUri())
-                    .await()
-                if (isSuccessfullyDeleted && args.uri != null) {
-                    activity?.finish()
-                }
-            } catch (e: Throwable) {
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
     private fun prepareSharedElementTransition() {
         setFragmentResult(ImagePagerFragment::class.java.name, lastPosition)
 
@@ -326,6 +300,26 @@ class ImagePagerFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    private fun getCurrentImageUri(): Uri = if (args.uri == null) {
+        imagesViewModel.medias[viewPager.currentItem].contentUri
+    } else {
+        args.uri!!
+    }
+
+    private fun deleteCurrentImage() {
+        lifecycleScope.launch {
+            try {
+                val isSuccessfullyDeleted =
+                    MediaStoreCompat.delete(this@ImagePagerFragment, getCurrentImageUri())
+                if (isSuccessfullyDeleted && args.uri != null) {
+                    activity?.finish()
+                }
+            } catch (e: Throwable) {
+                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -414,6 +408,5 @@ class ImagePagerFragment : BaseFragment() {
         private const val SAVED_TITLE = "android:title"
         private const val SAVED_SUBTITLE = "android:subtitle"
         private const val SAVED_SHOWS_APPBAR = "android:showsAppBar"
-        private const val DELETE_PERMISSION_REQUEST = 0x1145
     }
 }

@@ -18,13 +18,9 @@ package me.gm.cleaner.plugin.ui.mediastore.files
 
 import android.app.Application
 import android.content.ContentUris
-import android.media.MediaScannerConnection
-import android.mtp.MtpConstants
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +33,6 @@ import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_PATH
 import me.gm.cleaner.plugin.dao.RootPreferences.SORT_BY_SIZE
 import me.gm.cleaner.plugin.ktx.getValue
 import me.gm.cleaner.plugin.ktx.setValue
-import me.gm.cleaner.plugin.ui.mediastore.MediaStoreModel
 import me.gm.cleaner.plugin.ui.mediastore.MediaStoreViewModel
 import me.gm.cleaner.plugin.util.fileNameComparator
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
@@ -144,27 +139,6 @@ open class FilesViewModel(application: Application) :
 
         Log.v(TAG, "Found ${files.size} files")
         return files
-    }
-
-    override fun deleteMedia(media: MediaStoreModel) {
-        if (media is MediaStoreFiles && MimeUtils.resolveFormatCode(media.mimeType) == MtpConstants.FORMAT_UNDEFINED) {
-            MediaScannerConnection.scanFile(getApplication(), arrayOf(media.data), null, null)
-        } else {
-            super.deleteMedia(media)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    override fun deleteMedias(medias: Array<out MediaStoreModel>) {
-        val partition = medias.partition {
-            it is MediaStoreFiles && MimeUtils.resolveFormatCode(it.mimeType) == MtpConstants.FORMAT_UNDEFINED
-        }
-        MediaScannerConnection.scanFile(
-            getApplication(), partition.first.map { (it as MediaStoreFiles).data }.toTypedArray(),
-            null, null
-        )
-
-        super.deleteMedias(partition.second.toTypedArray())
     }
 
     init {

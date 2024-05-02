@@ -17,11 +17,8 @@
 package me.gm.cleaner.plugin.ui.mediastore.imagepager
 
 import android.app.Application
-import android.app.RecoverableSecurityException
-import android.content.IntentSender
 import android.graphics.RectF
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.format.DateUtils
@@ -161,31 +158,5 @@ class ImagePagerViewModel(application: Application, state: SavedStateHandle) :
             }
         }
         Result.failure(FileNotFoundException())
-    }
-
-    private val _permissionNeededForDelete: MutableLiveData<IntentSender?> = MutableLiveData()
-    internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
-
-    fun deleteImageAsync(uri: Uri) = viewModelScope.async {
-        return@async performDeleteImage(uri)
-    }
-
-    private suspend fun performDeleteImage(uri: Uri): Boolean = withContext(Dispatchers.IO) {
-        try {
-            getApplication<Application>().contentResolver.delete(uri, null, null)
-            return@withContext true
-        } catch (securityException: SecurityException) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val recoverableSecurityException =
-                    securityException as? RecoverableSecurityException
-                        ?: throw securityException
-                _permissionNeededForDelete.postValue(
-                    recoverableSecurityException.userAction.actionIntent.intentSender
-                )
-                return@withContext false
-            } else {
-                throw securityException
-            }
-        }
     }
 }

@@ -24,7 +24,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -43,12 +48,16 @@ import me.gm.cleaner.plugin.app.BaseFragment
 import me.gm.cleaner.plugin.app.ConfirmationDialog
 import me.gm.cleaner.plugin.app.InfoDialog
 import me.gm.cleaner.plugin.databinding.MediaStoreFragmentBinding
-import me.gm.cleaner.plugin.ktx.*
+import me.gm.cleaner.plugin.ktx.addOnExitListener
+import me.gm.cleaner.plugin.ktx.overScrollIfContentScrollsPersistent
+import me.gm.cleaner.plugin.ktx.submitListKeepPosition
 import me.gm.cleaner.plugin.ui.mediastore.audio.AudioFragment
 import me.gm.cleaner.plugin.ui.mediastore.files.FilesFragment
 import me.gm.cleaner.plugin.ui.mediastore.files.MediaStoreFiles
-import me.gm.cleaner.plugin.ui.mediastore.images.*
+import me.gm.cleaner.plugin.ui.mediastore.images.ImagesFragment
 import me.gm.cleaner.plugin.ui.mediastore.video.VideoFragment
+import me.gm.cleaner.plugin.util.MediaStoreCompat
+import me.gm.cleaner.plugin.util.MediaStoreCompat.DELETE_PERMISSION_REQUEST
 import me.gm.cleaner.plugin.util.PermissionUtils
 import me.gm.cleaner.plugin.util.RequesterFragment
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
@@ -130,7 +139,8 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mediasFlow.collect { medias ->
                     val mediaIds = medias.map { it.id }.toSet()
-                    val deletedItems = selectionTracker.selection.filterNot { mediaIds.contains(it) }
+                    val deletedItems =
+                        selectionTracker.selection.filterNot { mediaIds.contains(it) }
                     deletedItems.forEach { key ->
                         selectionTracker.deselect(key)
                     }
@@ -142,17 +152,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             PermissionUtils.requestPermissions(
                 childFragmentManager, requesterFragmentClass.newInstance()
             )
-        }
-        viewModel.permissionNeededForDelete.observe(viewLifecycleOwner) { intentSender ->
-            intentSender?.let {
-                // On Android 10+, if the app doesn't have permission to modify
-                // or delete an item, it returns an `IntentSender` that we can
-                // use here to prompt the user to grant permission to delete (or modify)
-                // the image.
-                startIntentSenderForResult(
-                    intentSender, DELETE_PERMISSION_REQUEST, null, 0, 0, 0, null
-                )
-            }
         }
         return binding.root
     }
@@ -248,16 +247,7 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
                             }
                         }
 
-                        R.id.menu_delete -> when {
-                            medias.size == 1 -> viewModel.deleteMedia(medias.first())
-
-                            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog
-                                // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
-                                .newInstance(getString(R.string.unsupported_delete_in_bulk))
-                                .show(childFragmentManager, null)
-
-                            else -> viewModel.deleteMedias(medias.toTypedArray())
-                        }
+                        R.id.menu_delete -> deleteSelectedMedias(true)
 
                         else -> return false
                     }
@@ -273,10 +263,34 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         actionMode?.title = selectionTracker.selection.size().toString()
     }
 
+    private fun deleteSelectedMedias(allowBulkDelete: Boolean) {
+        lifecycleScope.launch {
+            val medias = selectionTracker.selection.mapNotNull { selection ->
+                viewModel.medias.firstOrNull { it.id == selection }
+            }
+            when {
+                medias.size == 1 -> MediaStoreCompat.delete(
+                    this@MediaStoreFragment, medias.single().contentUri
+                )
+
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> InfoDialog
+                    // @see https://stackoverflow.com/questions/58283850/scoped-storage-how-to-delete-multiple-audio-files-via-mediastore
+                    .newInstance(getString(R.string.unsupported_delete_in_bulk))
+                    .show(childFragmentManager, null)
+
+                else -> if (allowBulkDelete) {
+                    MediaStoreCompat.delete(
+                        this@MediaStoreFragment, medias.map { it.contentUri }
+                    )
+                }
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
-            viewModel.deletePendingMedia()
+            deleteSelectedMedias(false)
         }
     }
 
@@ -343,12 +357,5 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         }
 
         else -> super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-        /**
-         * Code used with [IntentSender] to request user permission to delete an image with scoped storage.
-         */
-        private const val DELETE_PERMISSION_REQUEST = 0x1033
     }
 }
