@@ -174,9 +174,9 @@ public class CustomChangeImageTransform extends Transition implements PhotoViewT
         }
 
         final ImageView endView = (ImageView) endValues.view;
-        final boolean isAnimeViewPhotoView = PhotoViewTransition.isPhotoView(endView);
+        final boolean isAnimViewPhotoView = PhotoViewTransition.isPhotoView(endView);
         final TransitionValues photoViewValues;
-        if (isAnimeViewPhotoView) {
+        if (isAnimViewPhotoView) {
             photoViewValues = endValues;
         } else {
             photoViewValues = startValues;
@@ -185,7 +185,7 @@ public class CustomChangeImageTransform extends Transition implements PhotoViewT
 
         Matrix matrix = (Matrix) photoViewValues.values.get(PROPNAME_MATRIX);
         Matrix centerCropMatrix;
-        if (isAnimeViewPhotoView) {
+        if (isAnimViewPhotoView) {
             centerCropMatrix = calcCenterCropMatrix(startBounds, photoView.getDrawable());
         } else {
             centerCropMatrix = calcCenterCropMatrix(endBounds, photoView.getDrawable());
@@ -211,14 +211,14 @@ public class CustomChangeImageTransform extends Transition implements PhotoViewT
             if (centerCropMatrix == null) {
                 centerCropMatrix = IDENTITY_MATRIX;
             }
-            if (isAnimeViewPhotoView) {
+            if (isAnimViewPhotoView) {
                 ANIMATED_TRANSFORM_PROPERTY.set(endView, centerCropMatrix);
                 animator = createMatrixAnimator(endView, centerCropMatrix, matrix);
             } else {
                 ANIMATED_TRANSFORM_PROPERTY.set(endView, matrix);
                 animator = createMatrixAnimator(endView, matrix, centerCropMatrix);
             }
-            if (!isAnimeViewPhotoView) {
+            if (!isAnimViewPhotoView) {
                 final MatrixAnimatorListener listener = new MatrixAnimatorListener(endView);
                 animator.addListener(listener);
                 addListener(new TransitionListenerAdapter() {
