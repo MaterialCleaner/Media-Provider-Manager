@@ -129,9 +129,8 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mediasFlow.collect { medias ->
-                    val deletedItems = selectionTracker.selection.filter { key ->
-                        medias.none { it.id == key }
-                    }
+                    val mediaIds = medias.map { it.id }.toSet()
+                    val deletedItems = selectionTracker.selection.filterNot { mediaIds.contains(it) }
                     deletedItems.forEach { key ->
                         selectionTracker.deselect(key)
                     }
