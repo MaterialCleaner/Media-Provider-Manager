@@ -69,7 +69,6 @@
     <string name="menu_sort_by_date_taken_title">Date taken</string>
     <string name="menu_sort_by_size_title">Size</string>
     <string name="scan_external_storage">Scan all files in external storage</string>
-    <string name="validation">Delete all invalid files</string>
     <string name="span_count_key" translatable="false">span_count</string>
     <string name="playback_speed_key" translatable="false">playback_speed</string>
 

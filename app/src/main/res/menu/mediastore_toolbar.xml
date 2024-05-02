@@ -28,9 +28,5 @@
         android:id="@+id/menu_scan_external_storage"
         android:title="@string/scan_external_storage"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_validation"
-        android:title="@string/validation"
-        app:showAsAction="never" />
 
 </menu>

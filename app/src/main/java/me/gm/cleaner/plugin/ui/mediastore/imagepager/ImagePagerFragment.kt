@@ -105,7 +105,7 @@ class ImagePagerFragment : BaseFragment() {
         }
 
         findNavController().addOnExitListener { _, destination, _ ->
-            toDefaultAppBarState(destination)
+            restoreAppBar(destination)
             appBarLayout?.setLiftableOverrideEnabled(false)
             requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)

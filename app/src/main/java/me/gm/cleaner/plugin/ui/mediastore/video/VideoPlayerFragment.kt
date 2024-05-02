@@ -96,7 +96,7 @@ class VideoPlayerFragment : BaseFragment() {
         }
 
         findNavController().addOnExitListener { _, destination, _ ->
-            toDefaultAppBarState(destination)
+            restoreAppBar(destination)
             requireActivity().findViewById<DrawerLayout>(R.id.drawer_layout)
                 .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         }

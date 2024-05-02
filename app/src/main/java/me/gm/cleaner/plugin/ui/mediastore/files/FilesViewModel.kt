@@ -52,7 +52,7 @@ open class FilesViewModel(application: Application) :
     var queryText: String by _queryTextFlow
 
     override suspend fun queryMedias(uri: Uri, sortMediaBy: Int): List<MediaStoreFiles> {
-        uriForLoad = uri
+        uriToLoad = uri
         val files = mutableListOf<MediaStoreFiles>()
 
         withContext(Dispatchers.IO) {

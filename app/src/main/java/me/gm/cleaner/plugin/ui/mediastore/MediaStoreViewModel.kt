@@ -21,7 +21,6 @@ import android.app.Application
 import android.app.RecoverableSecurityException
 import android.content.IntentSender
 import android.database.ContentObserver
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -54,17 +53,17 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
     private val _permissionNeededForDelete: MutableLiveData<IntentSender?> = MutableLiveData()
     internal val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
-    protected lateinit var uriForLoad: Uri
+    protected lateinit var uriToLoad: Uri
 
     /**
      * Performs a one shot load of medias from [uri] [Uri] into
      * the [_mediasFlow] [MutableStateFlow] above.
      */
     fun load() {
-        if (::uriForLoad.isInitialized) {
+        if (::uriToLoad.isInitialized) {
             viewModelScope.launch {
                 _mediasFlow.value =
-                    queryMedias(uriForLoad, RootPreferences.sortMediaByFlowable.value)
+                    queryMedias(uriToLoad, RootPreferences.sortMediaByFlowable.value)
             }
         }
     }
@@ -157,11 +156,6 @@ abstract class MediaStoreViewModel<M : MediaStoreModel>(application: Application
         SimpleDateFormat("dd.MM.yyyy").let { formatter ->
             TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
         }
-
-    fun rescanFiles() {
-        val paths = medias.map { it.data }.toTypedArray()
-        MediaScannerConnection.scanFile(getApplication(), paths, null, null)
-    }
 
     protected var contentObserver: ContentObserver =
         object : ContentObserver(Handler(Looper.getMainLooper())) {

@@ -43,7 +43,7 @@ class ImagesViewModel(application: Application) :
     private val uri: Uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
     override suspend fun queryMedias(uri: Uri, sortMediaBy: Int): List<MediaStoreImage> {
-        uriForLoad = uri
+        uriToLoad = uri
         val images = mutableListOf<MediaStoreImage>()
 
         /**

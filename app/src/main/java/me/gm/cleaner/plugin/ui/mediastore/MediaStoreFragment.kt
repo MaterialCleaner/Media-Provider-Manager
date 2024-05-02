@@ -335,11 +335,6 @@ abstract class MediaStoreFragment : BaseFragment(), ToolbarActionModeIndicator {
             true
         }
 
-        R.id.menu_validation -> {
-            viewModel.rescanFiles()
-            true
-        }
-
         R.id.menu_scan_external_storage -> {
             MediaScannerConnection.scanFile(
                 requireContext(), arrayOf(Environment.getExternalStorageDirectory().path),

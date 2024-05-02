@@ -36,6 +36,7 @@ abstract class BaseFragment : Fragment() {
         get() = activity?.findViewById(R.id.toolbar_container)
     protected var liftOnScrollTargetView: WeakReference<View>? = null
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         appBarLayout?.setLiftOnScrollTargetView(liftOnScrollTargetView?.get())
@@ -56,7 +57,7 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    fun toDefaultAppBarState(currentDestination: NavDestination) {
+    fun restoreAppBar(currentDestination: NavDestination) {
         supportActionBar?.apply {
             title = currentDestination.label
             subtitle = null
