@@ -109,16 +109,9 @@ class VideoPlayerFragment : BaseFragment() {
 
         val controller =
             playerView.findViewById<PlayerControlView>(androidx.media3.ui.R.id.exo_controller)!!
+        val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
         val timeBar = controller.findViewById<CustomTimeBar>(androidx.media3.ui.R.id.exo_progress)
         timeBar.addListener(timeBar)
-        topBar = controller.findViewById(R.id.top_bar)
-        topBar.setNavigationOnClickListener { findNavController().navigateUp() }
-        topBar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            topBar.fitsSystemWindowInsets()
-        }
-
-        val controlViewLayoutManager = PlayerControlViewLayoutManagerAccessor(controller)
         timeBar.addListener(object : CustomOnHorizontalScrubListener(
             playerView, controller, controlViewLayoutManager
         ) {
@@ -132,15 +125,21 @@ class VideoPlayerFragment : BaseFragment() {
                 super.onScrubStop(timeBar, position, canceled)
             }
         })
+        topBar = controller.findViewById(R.id.top_bar)
+        topBar.setNavigationOnClickListener { findNavController().navigateUp() }
+        topBar.setNavigationIcon(R.drawable.ic_outline_arrow_back_24)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            topBar.fitsSystemWindowInsets()
+        }
 
-        val listeners = arrayOf(timeBar, object : CustomOnHorizontalScrubListener(
+        val horizontalScrubListeners = arrayOf(timeBar, object : CustomOnHorizontalScrubListener(
             playerView, controller, controlViewLayoutManager
         ) {
             // TODO: Maybe we can implement a scheme to seek fast and exact. Please refer to
             //  https://github.com/google/ExoPlayer/issues/7025
 
         })
-        val customOnVerticalScrubListener = CustomOnVerticalScrubListener(
+        val verticalScrubListener = CustomOnVerticalScrubListener(
             requireActivity().window, playerView, controller, controlViewLayoutManager
         )
         val detector = VideoGestureDetector(requireContext(), object :
@@ -151,7 +150,7 @@ class VideoPlayerFragment : BaseFragment() {
                 initialMotionX: Float, initialMotionY: Float
             ) {
                 val player = player ?: return
-                for (listener in listeners) {
+                for (listener in horizontalScrubListeners) {
                     listener.onScrubStart(timeBar, player.currentPosition)
                 }
             }
@@ -160,7 +159,7 @@ class VideoPlayerFragment : BaseFragment() {
                 val player = player ?: return false
                 val newPositionMs =
                     player.currentPosition + (SCRUB_FACTOR * dx / density).toLong()
-                for (listener in listeners) {
+                for (listener in horizontalScrubListeners) {
                     listener.onScrubMove(timeBar, newPositionMs)
                 }
                 return true
@@ -168,22 +167,22 @@ class VideoPlayerFragment : BaseFragment() {
 
             override fun onHorizontalScrubEnd() {
                 val player = player ?: return
-                for (listener in listeners) {
+                for (listener in horizontalScrubListeners) {
                     listener.onScrubStop(timeBar, player.currentPosition, false)
                 }
             }
 
             override fun onVerticalScrubStart(initialMotionX: Float, initialMotionY: Float) {
-                customOnVerticalScrubListener.onScrubStart(initialMotionX, initialMotionY)
+                verticalScrubListener.onScrubStart(initialMotionX, initialMotionY)
             }
 
             override fun onVerticalScrubMove(dy: Float): Boolean {
-                customOnVerticalScrubListener.onScrubMove(dy)
+                verticalScrubListener.onScrubMove(dy)
                 return true
             }
 
             override fun onVerticalScrubEnd() {
-                customOnVerticalScrubListener.onScrubStop()
+                verticalScrubListener.onScrubStop()
             }
 
             override fun onSingleTapConfirmed(ev: MotionEvent): Boolean {
@@ -250,12 +249,12 @@ class VideoPlayerFragment : BaseFragment() {
             .setTrackSelector(trackSelector)
             .setDeviceVolumeControlEnabled(true)
             .build().also { player ->
-                player.trackSelectionParameters = trackSelectionParameters
                 player.addListener(PlayerEventListener())
-                player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.seekTo(startItemIndex, startPosition)
-                player.playWhenReady = isPlaying
+                player.setAudioAttributes(AudioAttributes.DEFAULT, true)
                 player.setPlaybackSpeed(playbackSpeed)
+                player.playWhenReady = isPlaying
+                player.trackSelectionParameters = trackSelectionParameters
                 val mediaItems = args.uris.map { MediaItem.fromUri(it) }
                 player.setMediaItems(mediaItems, false)
                 player.prepare()
