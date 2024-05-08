@@ -24,25 +24,24 @@ import kotlinx.coroutines.flow.StateFlow
 class FlowableSharedPreferences<T>(
     private val preferences: SharedPreferences,
     private val key: String,
-    defaultValue: T,
+    private val defaultValue: T,
 ) {
-    private val _preferenceFlow: MutableStateFlow<T> = MutableStateFlow(
-        @Suppress("UNCHECKED_CAST")
-        when (defaultValue) {
-            is String -> preferences.getString(key, defaultValue) as T
-            is Set<*> -> preferences.getStringSet(key, defaultValue as Set<String>) as T
-            is Int -> preferences.getInt(key, defaultValue) as T
-            is Long -> preferences.getLong(key, defaultValue) as T
-            is Float -> preferences.getFloat(key, defaultValue) as T
-            is Boolean -> preferences.getBoolean(key, defaultValue) as T
-            else -> throw IllegalArgumentException("Unsupported type")
-        }
-    )
+    @Suppress("UNCHECKED_CAST")
+    private fun load(): T = when (defaultValue) {
+        is String -> preferences.getString(key, defaultValue) as T
+        is Set<*> -> preferences.getStringSet(key, defaultValue as Set<String>) as T
+        is Int -> preferences.getInt(key, defaultValue) as T
+        is Long -> preferences.getLong(key, defaultValue) as T
+        is Float -> preferences.getFloat(key, defaultValue) as T
+        is Boolean -> preferences.getBoolean(key, defaultValue) as T
+        else -> throw IllegalArgumentException("Unsupported type")
+    }
+
+    private val _preferenceFlow: MutableStateFlow<T> = MutableStateFlow(load())
 
     var value: T
         get() = _preferenceFlow.value
         set(value) {
-            _preferenceFlow.value = value
             preferences.edit {
                 when (value) {
                     is String -> putString(key, value as String)
@@ -57,4 +56,14 @@ class FlowableSharedPreferences<T>(
         }
 
     fun asFlow(): StateFlow<T> = _preferenceFlow
+
+    private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == this.key) {
+            _preferenceFlow.value = load()
+        }
+    }
+
+    init {
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+    }
 }
