@@ -1,6 +1,10 @@
 -allowaccessmodification
 -overloadaggressively
 
+-keepclassmembers class me.gm.cleaner.plugin.util.FlowableSharedPreferences {
+    private final android.content.SharedPreferences$OnSharedPreferenceChangeListener listener;
+}
+
 -keep class me.gm.cleaner.plugin.xposed.XposedInit
 
 -assumenosideeffects class kotlin.jvm.internal.Intrinsics {
