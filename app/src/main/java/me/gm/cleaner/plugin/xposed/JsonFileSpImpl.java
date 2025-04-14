@@ -70,6 +70,7 @@ public class JsonFileSpImpl extends SharedPreferencesWrapper {
             try (var it = new FileInputStream(file)) {
                 var bb = ByteBuffer.allocate(it.available());
                 it.getChannel().read(bb);
+                it.close()
                 contentCache = new String(bb.array());
             } catch (IOException e) {
                 XposedBridge.log(e);
