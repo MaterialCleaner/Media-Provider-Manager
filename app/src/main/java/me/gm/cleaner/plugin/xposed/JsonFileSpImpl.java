@@ -87,8 +87,11 @@ public class JsonFileSpImpl extends SharedPreferencesWrapper {
 
         ensureFile();
         var bb = ByteBuffer.wrap(what.getBytes());
-        try (var it = new FileOutputStream(file)) {
-            it.getChannel().write(bb);
+        try (var it = new FileOutputStream(file).getChannel()) {
+            it.force(true);
+            it.write(bb);
+            // close后会强制写盘，否则掉电会丢数据导致所有规则被清空
+            it.close();
         } catch (IOException e) {
             XposedBridge.log(e);
         }
