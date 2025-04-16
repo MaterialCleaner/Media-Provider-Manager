@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewModel() {
-    public var service: IManagerService? = IManagerService.Stub.asInterface(binder)
+    var service: IManagerService? = IManagerService.Stub.asInterface(binder)
     private val _remoteSpCacheLiveData = MutableLiveData(SparseArray<String>())
     val remoteSpCacheLiveData: LiveData<SparseArray<String>>
         get() = _remoteSpCacheLiveData
