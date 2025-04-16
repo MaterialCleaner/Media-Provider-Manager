@@ -60,10 +60,10 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
 
     fun writeSp(ctx: Context, who: Int, what: String) {
         if (remoteSpCache[who] != what) {
-            writeSpInApp(ctx, who, what);
+            writeSpInApp(ctx, who, what)
+            refreshSp()
             remoteSpCache.put(who, what)
             notifyRemoteSpChanged()
-            service!!.refreshSp();
         }
     }
 
