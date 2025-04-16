@@ -40,7 +40,7 @@ import rikka.recyclerview.fixEdgeEffect
 abstract class AbsSettingsFragment : PreferenceFragmentCompat() {
     protected val binderViewModel: BinderViewModel by activityViewModels()
     abstract val who: Int
-    protected val remoteSp by lazy { BinderSpImpl(binderViewModel, who) }
+    protected val remoteSp by lazy { BinderSpImpl(requireContext(), binderViewModel, who) }
 
     open fun onCreatePreferenceManager(savedInstanceState: Bundle?) =
         object : PreferenceManager(requireContext()) {

@@ -30,7 +30,6 @@ import me.gm.cleaner.plugin.dao.MIGRATION_1_2
 import me.gm.cleaner.plugin.dao.MediaProviderRecordDao
 import me.gm.cleaner.plugin.dao.MediaProviderRecordDatabase
 import me.gm.cleaner.plugin.model.ParceledListSlice
-import java.io.File
 
 abstract class ManagerService : IManagerService.Stub() {
     lateinit var classLoader: ClassLoader
@@ -43,8 +42,8 @@ abstract class ManagerService : IManagerService.Stub() {
     lateinit var dao: MediaProviderRecordDao
         private set
     private val observers = RemoteCallbackList<IMediaChangeObserver>()
-    val rootSp by lazy { JsonFileSpImpl(File(context.filesDir, "root")) }
-    val ruleSp by lazy { TemplatesJsonFileSpImpl(File(context.filesDir, "rule")) }
+    val rootSp by lazy { JsonFileSpImpl(context, "root") }
+    val ruleSp by lazy { TemplatesJsonFileSpImpl(context, "rule") }
 
     protected fun onCreate(context: Context) {
         this.context = context
@@ -99,11 +98,9 @@ abstract class ManagerService : IManagerService.Stub() {
         else -> throw IllegalArgumentException()
     }
 
-    override fun writeSp(who: Int, what: String) {
-        when (who) {
-            R.xml.root_preferences -> rootSp.write(what)
-            R.xml.template_preferences -> ruleSp.write(what)
-        }
+    override fun refreshSp() {
+        rootSp.refreshSpData();
+        ruleSp.refreshSpData();
     }
 
     override fun clearAllTables() {

@@ -16,6 +16,8 @@
 
 package me.gm.cleaner.plugin.ui.module.settings;
 
+import android.content.Context;
+
 import org.json.JSONException;
 
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
@@ -24,9 +26,11 @@ import me.gm.cleaner.plugin.ui.module.BinderViewModel;
 public final class BinderSpImpl extends JsonSharedPreferencesImpl {
     public final int who;
     private final BinderViewModel mBinderViewModel;
+    private Context context;
 
-    public BinderSpImpl(BinderViewModel binderViewModel, int who) throws JSONException {
+    public BinderSpImpl(Context ctx, BinderViewModel binderViewModel, int who) throws JSONException {
         super(binderViewModel.readSp(who));
+        context = ctx;
         mBinderViewModel = binderViewModel;
         this.who = who;
     }
@@ -34,7 +38,7 @@ public final class BinderSpImpl extends JsonSharedPreferencesImpl {
     @Override
     public JsonEditorImpl edit() {
         return new JsonEditorImpl(jsonObject -> {
-            mBinderViewModel.writeSp(who, jsonObject.toString());
+            mBinderViewModel.writeSp(context, who, jsonObject.toString());
             return true;
         });
     }

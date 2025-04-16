@@ -116,6 +116,7 @@ class TemplatesAdapter(private val fragment: TemplatesFragment) :
                             Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
                                 .values.filterNot { it.templateName == templateName }
                         fragment.binderViewModel.writeSp(
+                            fragment.requireContext(),
                             R.xml.template_preferences, Gson().toJson(modified)
                         )
                         true

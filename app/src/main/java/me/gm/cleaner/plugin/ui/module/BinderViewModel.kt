@@ -16,6 +16,7 @@
 
 package me.gm.cleaner.plugin.ui.module
 
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.os.IBinder
 import android.os.Process
@@ -26,11 +27,13 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import me.gm.cleaner.plugin.IManagerService
 import me.gm.cleaner.plugin.IMediaChangeObserver
+import me.gm.cleaner.plugin.R
+import me.gm.cleaner.plugin.provider.xSpUtils
 import javax.inject.Inject
 
 @HiltViewModel
 class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewModel() {
-    private var service: IManagerService? = IManagerService.Stub.asInterface(binder)
+    public var service: IManagerService? = IManagerService.Stub.asInterface(binder)
     private val _remoteSpCacheLiveData = MutableLiveData(SparseArray<String>())
     val remoteSpCacheLiveData: LiveData<SparseArray<String>>
         get() = _remoteSpCacheLiveData
@@ -55,12 +58,26 @@ class BinderViewModel @Inject constructor(private val binder: IBinder?) : ViewMo
     fun readSp(who: Int): String? =
         remoteSpCache[who, service!!.readSp(who).also { remoteSpCache.put(who, it) }]
 
-    fun writeSp(who: Int, what: String) {
+    fun writeSp(ctx: Context, who: Int, what: String) {
         if (remoteSpCache[who] != what) {
-            service!!.writeSp(who, what)
+            writeSpInApp(ctx, who, what);
             remoteSpCache.put(who, what)
             notifyRemoteSpChanged()
+            service!!.refreshSp();
         }
+    }
+
+    fun refreshSp() {
+        service!!.refreshSp();
+    }
+
+    fun writeSpInApp(ctx: Context, who: Int, what: String) {
+        var r = xSpUtils.getxSp(ctx).edit();
+        when (who) {
+            R.xml.root_preferences -> r.putString("root", what)
+            R.xml.template_preferences -> r.putString("rule", what)
+        }
+        r.commit();
     }
 
     fun clearAllTables() {

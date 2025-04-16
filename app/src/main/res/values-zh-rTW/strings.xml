@@ -69,6 +69,7 @@
     <string name="usage_record_summary">將使用記錄儲存到資料庫。關閉後使用記錄頁面將不會再出現新的資料。</string>
     <string name="scoped_header">作用域</string>
     <string name="template_management_title">模板管理</string>
+    <string name="restore_title">從剪切板恢復</string>
     <string name="applied_app_count">應用到 %d 個應用</string>
     <string name="create_template_title">建立模板</string>
     <string name="edit_template_title">編輯模板</string>
@@ -108,4 +109,15 @@
     <string name="intercept_download_manager_summary">有時應用會先保存文件，然後再通知媒體儲存。在這種情況下，我們只能攔截媒體儲存對媒體檔案的紀錄，而無法阻止保存文件。\n首先編寫攔截規則。規則與上一個實驗大致相同，只是應用到應用改為下載管理程序和媒體儲存設備。點擊開始可以快速添加此規則。\n然後點擊實驗一的開始，切換到圖片頁面，觀察是否能看到圖片。最後用檔案管理器打開 Pictures/MPM/，觀察是否能看到圖片。</string>
     <string name="intercept_query_title">攔截查詢</string>
     <string name="intercept_query_summary">首先編寫攔截規則。在應用管理中找到本應用，點擊創建模板，掛鉤操作去掉插入，允許的媒體類型去掉圖片。點擊開始可以快速添加此規則。\n然後切換到圖片頁面與文件頁面，觀察是否能看到圖片。</string>
+    <string name="backup_restore_header">備份 &amp; 恢復</string>
+    <string name="backup_title">備份到剪切板</string>
+    <string name="backup_ok">備份數據到剪切板成功</string>
+    <string name="restore_failed">恢復失敗，請檢查數據！</string>
+    <string name="restore_ok">恢復成功</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="restore_ask">確定要從剪切板恢復數據？</string>
+    <string name="data_control_header">數據控制</string>
+    <string name="reload_data_title">重載配置數據</string>
+    <string name="reload_ok">重載數據成功</string>
 </resources>

@@ -149,6 +149,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
                                         fragment.args.packageInfo.packageName
                             )
                             fragment.binderViewModel.writeSp(
+                                fragment.requireContext(),
                                 R.xml.template_preferences, Gson().toJson(modified)
                             )
                             true
@@ -159,6 +160,7 @@ class TemplatesAdapter(private val fragment: AppFragment) :
                                 Templates(fragment.binderViewModel.readSp(R.xml.template_preferences))
                                     .values.filterNot { it.templateName == templateName }
                             fragment.binderViewModel.writeSp(
+                                fragment.requireContext(),
                                 R.xml.template_preferences, Gson().toJson(modified)
                             )
                             true
@@ -258,6 +260,7 @@ class AddToExistingTemplateAdapter(private val fragment: AppFragment) :
                         (oldTemplate.applyToApp ?: emptyList())
             )
             fragment.binderViewModel.writeSp(
+                fragment.requireContext(),
                 R.xml.template_preferences, Gson().toJson(modified)
             )
         }

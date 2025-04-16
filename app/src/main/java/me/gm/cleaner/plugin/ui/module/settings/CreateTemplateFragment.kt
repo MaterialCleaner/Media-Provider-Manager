@@ -49,7 +49,6 @@ import me.gm.cleaner.plugin.ui.module.settings.preference.MaterialMultiSelectLis
 import me.gm.cleaner.plugin.ui.module.settings.preference.PathListPreference
 import me.gm.cleaner.plugin.ui.module.settings.preference.PathListPreferenceFragmentCompat
 import me.gm.cleaner.plugin.ui.module.settings.preference.RefinedMultiSelectListPreference
-import kotlin.collections.set
 
 class CreateTemplateFragment : AbsSettingsFragment() {
     override val who: Int
@@ -209,7 +208,8 @@ class CreateTemplateFragment : AbsSettingsFragment() {
                     it.templateName == templateName || it.templateName == args.templateName
                 } + template
             )
-            binderViewModel.writeSp(who, json)
+
+            binderViewModel.writeSp(requireContext(), who, json)
         }
         return true
     }

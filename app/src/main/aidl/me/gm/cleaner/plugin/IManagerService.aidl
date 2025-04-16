@@ -13,7 +13,7 @@ interface IManagerService {
 
     String readSp(int who) = 20;
 
-    void writeSp(int who, String what) = 21;
+    void refreshSp() = 21;
 
     void clearAllTables() = 30;
 

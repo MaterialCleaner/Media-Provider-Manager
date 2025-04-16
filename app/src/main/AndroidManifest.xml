@@ -34,6 +34,16 @@
         android:multiArch="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!--用于将数据存储在本地APP，防止多次软重启后系统会清除“媒体存储设备”的数据-->
+        <provider
+            android:name=".provider.SharedPrefsProvider"
+            android:authorities="me.gm.cleaner.plugin.provider.sharedprefs"
+            android:defaultToDeviceProtectedStorage="true"
+            android:directBootAware="true"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
         <activity
             android:name=".app.MainActivity"
             android:exported="true">

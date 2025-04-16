@@ -81,8 +81,13 @@
     <string name="usage_record_title" translatable="false">@string/usage_record</string>
     <string name="usage_record_summary">Save usage records to the database. No new data will appear in the usage record page if you turned off.</string>
     <string name="scoped_header">SCOPED</string>
+    <string name="backup_restore_header">Backup &amp; restore</string>
     <string name="template_management_key" translatable="false">template_management</string>
+    <string name="backup_key" translatable="false">backup_key</string>
+    <string name="restore_key" translatable="false">restore_key</string>
     <string name="template_management_title">Template management</string>
+    <string name="backup_title">Backup</string>
+    <string name="restore_title">Restore</string>
     <string name="applied_app_count">Applied to %d app(s)</string>
     <string name="create_template_title">Create template</string>
     <string name="edit_template_title">Edit template</string>
@@ -155,6 +160,16 @@
     <string name="intercept_query_summary">First write the interception rule. Find this application in the App Management page,
         click Create template, remove Insert from Hook operation, and remove Image from Permitted media types.
         Click Start can add this rule directly.\nThen switch to the Images page and the Files page to see if you can see the image.</string>
+    <string name="backup_ok">Backup data to clipboard succeed</string>
+    <string name="restore_failed">Restore failed, please check the data!</string>
+    <string name="restore_ok">Restore succeed</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="restore_ask">Are you sure to restore data from clipboard?</string>
+    <string name="data_control_header">Data Control</string>
+    <string name="reload_data_key" translatable="false">data_control_key</string>
+    <string name="reload_data_title">Reload control data</string>
+    <string name="reload_ok">Reload data success</string>
 
     <!--    <string name="playground_title_do_it_yourself">Do It Yourself</string>-->
     <!--    <string name="do_it_yourself_title"></string>-->

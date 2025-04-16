@@ -65,4 +65,8 @@ class Templates(json: String?) {
                             template.filterPath?.any { FileUtils.contains(it, data) } == true
                 }
         }
+
+    fun isEmpty(): Boolean {
+        return values.isEmpty()
+    }
 }

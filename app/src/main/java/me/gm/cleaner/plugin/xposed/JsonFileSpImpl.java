@@ -16,28 +16,25 @@
 
 package me.gm.cleaner.plugin.xposed;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import de.robv.android.xposed.XposedBridge;
 import me.gm.cleaner.plugin.dao.JsonSharedPreferencesImpl;
 import me.gm.cleaner.plugin.dao.SharedPreferencesWrapper;
+import me.gm.cleaner.plugin.provider.xSpUtils;
 
 public class JsonFileSpImpl extends SharedPreferencesWrapper {
-    public final File file;
     protected String contentCache;
+    protected String fileName;
+    protected Context ctx;
 
-    public JsonFileSpImpl(File src) {
-        file = src;
-
+    public JsonFileSpImpl(Context context, String src) {
+        fileName = src;
+        ctx = context;
         JSONObject json;
         try {
             var str = read();
@@ -53,48 +50,20 @@ public class JsonFileSpImpl extends SharedPreferencesWrapper {
         delegate = new JsonSharedPreferencesImpl(json);
     }
 
-    private void ensureFile() {
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                XposedBridge.log(e);
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     public String read() {
-        if (contentCache == null) {
-            ensureFile();
-            try (var it = new FileInputStream(file)) {
-                var bb = ByteBuffer.allocate(it.available());
-                it.getChannel().read(bb);
-                it.close()
-                contentCache = new String(bb.array());
-            } catch (IOException e) {
+        if (contentCache == null || contentCache.isEmpty()) {
+            try {
+                contentCache = xSpUtils.getSharedStringPrefs(ctx, fileName);
+            } catch (Throwable e) {
                 XposedBridge.log(e);
             }
         }
         return contentCache;
     }
 
-    public void write(String what) {
-        contentCache = what;
-        try {
-            delegate = new JsonSharedPreferencesImpl(new JSONObject(what));
-        } catch (JSONException ignored) {
-        }
-
-        ensureFile();
-        var bb = ByteBuffer.wrap(what.getBytes());
-        try (var it = new FileOutputStream(file).getChannel()) {
-            it.force(true);
-            it.write(bb);
-            // close后会强制写盘，否则掉电会丢数据导致所有规则被清空
-            it.close();
-        } catch (IOException e) {
-            XposedBridge.log(e);
-        }
+    public void refreshSpData() {
+        contentCache = xSpUtils.getSharedStringPrefs(ctx, fileName);
     }
+
+
 }
