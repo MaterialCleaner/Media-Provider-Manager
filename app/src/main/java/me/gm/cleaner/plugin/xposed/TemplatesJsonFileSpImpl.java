@@ -29,8 +29,10 @@ public final class TemplatesJsonFileSpImpl extends JsonFileSpImpl {
     }
 
     public Templates getTemplates() {
-        if (templatesCache == null || templatesCache.isEmpty()) {
-            refreshSpData();
+        synchronized (this) {
+            if (templatesCache == null || templatesCache.isEmpty()) {
+                refreshSpData();
+            }
         }
         return templatesCache;
     }

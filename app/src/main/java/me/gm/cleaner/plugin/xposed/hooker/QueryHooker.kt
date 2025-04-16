@@ -28,6 +28,7 @@ import android.provider.MediaStore.Files.FileColumns
 import android.util.ArraySet
 import androidx.core.os.bundleOf
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import me.gm.cleaner.plugin.BuildConfig
 import me.gm.cleaner.plugin.R
@@ -41,182 +42,203 @@ import java.util.function.Function
 class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
-        if (param.isFuseThread) {
-            return
-        }
-        /** ARGUMENTS */
-        val uri = param.args[0] as Uri
-        val projection = param.args[1] as? Array<String>?
-        val queryArgs = param.args[2] as? Bundle ?: Bundle.EMPTY
-        val signal = param.args[3] as? CancellationSignal
+        try {
+            if (param.isFuseThread) {
+                return
+            }
+            /** ARGUMENTS */
+            val uri = param.args[0] as Uri
+            val projection = param.args[1] as? Array<String>?
+            val queryArgs = param.args[2] as? Bundle ?: Bundle.EMPTY
+            val signal = param.args[3] as? CancellationSignal
 
-        if (param.callingPackage in
-            setOf("com.android.providers.media", "com.android.providers.media.module")
-        ) {
-            // Scanning files and internal queries.
-            return
-        }
+            if (param.callingPackage in
+                setOf("com.android.providers.media", "com.android.providers.media.module")
+            ) {
+                // Scanning files and internal queries.
+                return
+            }
 
-        /** PARSE */
-        val query = Bundle(queryArgs)
-        query.remove(INCLUDED_DEFAULT_DIRECTORIES)
-        val honoredArgs = ArraySet<String>()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val databaseUtilsClass = XposedHelpers.findClass(
-                "com.android.providers.media.util.DatabaseUtils", service.classLoader
-            )
-            XposedHelpers.callStaticMethod(
-                databaseUtilsClass, "resolveQueryArgs", query, object : Consumer<String> {
-                    override fun accept(t: String) {
-                        honoredArgs.add(t)
-                    }
-                }, object : Function<String, String> {
-                    override fun apply(t: String) = XposedHelpers.callMethod(
-                        param.thisObject, "ensureCustomCollator", t
-                    ) as String
-                }
-            )
-        }
-        if (isClientQuery(param.callingPackage, uri)) {
-            param.result = handleClientQuery(projection, query)
-            return
-        }
-        val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
-        val dataProjection = when {
-            projection == null -> null
-            table in setOf(IMAGES_THUMBNAILS, VIDEO_THUMBNAILS) -> projection + FileColumns.DATA
-            else -> projection + arrayOf(FileColumns.DATA, FileColumns.MIME_TYPE)
-        }
-        val helper = XposedHelpers.callMethod(param.thisObject, "getDatabaseForUri", uri)
-        val qb = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
-                param.thisObject, "getQueryBuilder", TYPE_QUERY, table, uri, query,
-                object : Consumer<String> {
-                    override fun accept(t: String) {
-                        honoredArgs.add(t)
-                    }
-                }
-            )
-
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
-                param.thisObject, "getQueryBuilder", TYPE_QUERY, uri, table, query
-            )
-
-            else -> throw UnsupportedOperationException()
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val targetSdkVersion = XposedHelpers.callMethod(
-                param.thisObject, "getCallingPackageTargetSdkVersion"
-            ) as Int
-            val databaseUtilsClass = XposedHelpers.findClass(
-                "com.android.providers.media.util.DatabaseUtils", service.classLoader
-            )
-            if (targetSdkVersion < Build.VERSION_CODES.R) {
-                // Some apps are abusing "ORDER BY" clauses to inject "LIMIT"
-                // clauses; gracefully lift them out.
-                XposedHelpers.callStaticMethod(databaseUtilsClass, "recoverAbusiveSortOrder", query)
-
-                // Some apps are abusing the Uri query parameters to inject LIMIT
-                // clauses; gracefully lift them out.
+            /** PARSE */
+            val query = Bundle(queryArgs)
+            query.remove(INCLUDED_DEFAULT_DIRECTORIES)
+            val honoredArgs = ArraySet<String>()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val databaseUtilsClass = XposedHelpers.findClass(
+                    "com.android.providers.media.util.DatabaseUtils", service.classLoader
+                )
                 XposedHelpers.callStaticMethod(
-                    databaseUtilsClass, "recoverAbusiveLimit", uri, query
-                )
-            }
-            if (targetSdkVersion < Build.VERSION_CODES.Q) {
-                // Some apps are abusing the "WHERE" clause by injecting "GROUP BY"
-                // clauses; gracefully lift them out.
-                XposedHelpers.callStaticMethod(databaseUtilsClass, "recoverAbusiveSelection", query)
-            }
-        }
-
-        val c = try {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
-                    qb, "query", helper, dataProjection, query, signal
-                )
-
-                Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-                    val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
-                    val selectionArgs =
-                        query.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
-                    val sortOrder =
-                        query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER) ?: let {
-                            if (query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)) {
-                                XposedHelpers.callStaticMethod(
-                                    ContentResolver::class.java, "createSqlSortClause", query
-                                ) as String?
-                            } else {
-                                null
-                            }
+                    databaseUtilsClass, "resolveQueryArgs", query, object : Consumer<String> {
+                        override fun accept(t: String) {
+                            honoredArgs.add(t)
                         }
-                    val groupBy = if (table == AUDIO_ARTISTS_ID_ALBUMS) "audio.album_id"
-                    else null
-                    val having = null
-                    val limit = uri.getQueryParameter("limit")
+                    }, object : Function<String, String> {
+                        override fun apply(t: String) = XposedHelpers.callMethod(
+                            param.thisObject, "ensureCustomCollator", t
+                        ) as String
+                    }
+                )
+            }
+//            if (isClientQuery(param.callingPackage, uri)) {
+//                param.result = handleClientQuery(projection, query)
+//                return
+//            }
+            val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
+            val dataProjection = when {
+                projection == null -> null
+                table in setOf(IMAGES_THUMBNAILS, VIDEO_THUMBNAILS) -> projection + FileColumns.DATA
+                else -> projection + arrayOf(FileColumns.DATA, FileColumns.MIME_TYPE)
+            }
+            val helper = XposedHelpers.callMethod(param.thisObject, "getDatabaseForUri", uri)
+            val qb = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
+                    param.thisObject, "getQueryBuilder", TYPE_QUERY, table, uri, query,
+                    object : Consumer<String> {
+                        override fun accept(t: String) {
+                            honoredArgs.add(t)
+                        }
+                    }
+                )
 
-                    XposedHelpers.callMethod(
-                        qb, "query", XposedHelpers.callMethod(helper, "getWritableDatabase"),
-                        dataProjection, selection, selectionArgs, groupBy, having, sortOrder, limit,
-                        signal
-                    )
-                }
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> XposedHelpers.callMethod(
+                    param.thisObject, "getQueryBuilder", TYPE_QUERY, uri, table, query
+                )
 
                 else -> throw UnsupportedOperationException()
-            } as Cursor
-        } catch (e: XposedHelpers.InvocationTargetError) {
-            // IllegalArgumentException that thrown from the media provider. Nothing I can do.
-            return
-        }
-        if (c.count == 0) {
-            // querying nothing.
-            c.close()
-            return
-        }
-        val dataColumn = c.getColumnIndexOrThrow(FileColumns.DATA)
-        val mimeTypeColumn = c.getColumnIndex(FileColumns.MIME_TYPE)
+            }
 
-        val data = mutableListOf<String>()
-        val mimeType = mutableListOf<String>()
-        while (c.moveToNext()) {
-            data += c.getString(dataColumn)
-            mimeType += c.getString(mimeTypeColumn)
-        }
-
-        /** INTERCEPT */
-        val shouldIntercept = service.ruleSp.templates
-            .filterTemplate(javaClass, param.callingPackage)
-            .applyTemplates(data, mimeType)
-        if (shouldIntercept.isEmpty()) {
-            c.close()
-        } else {
-            c.moveToFirst()
-            val filter = shouldIntercept
-                .mapIndexedNotNull { index, b ->
-                    if (!b) index else null
-                }
-                .toIntArray()
-            param.result = FilteredCursor.createUsingFilter(c, filter)
-        }
-
-        /** RECORD */
-        if (service.rootSp.getBoolean(
-                service.resources.getString(R.string.usage_record_key), true
-            )
-        ) {
-            service.dao.insert(
-                MediaProviderRecord(
-                    0,
-                    System.currentTimeMillis(),
-                    param.callingPackage,
-                    table,
-                    OP_QUERY,
-                    if (data.size < MAX_SIZE) data else data.subList(0, MAX_SIZE),
-                    mimeType,
-                    shouldIntercept
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val targetSdkVersion = XposedHelpers.callMethod(
+                    param.thisObject, "getCallingPackageTargetSdkVersion"
+                ) as Int
+                val databaseUtilsClass = XposedHelpers.findClass(
+                    "com.android.providers.media.util.DatabaseUtils", service.classLoader
                 )
-            )
-            service.dispatchMediaChange()
+                if (targetSdkVersion < Build.VERSION_CODES.R) {
+                    // Some apps are abusing "ORDER BY" clauses to inject "LIMIT"
+                    // clauses; gracefully lift them out.
+                    XposedHelpers.callStaticMethod(
+                        databaseUtilsClass,
+                        "recoverAbusiveSortOrder",
+                        query
+                    )
+
+                    // Some apps are abusing the Uri query parameters to inject LIMIT
+                    // clauses; gracefully lift them out.
+                    XposedHelpers.callStaticMethod(
+                        databaseUtilsClass, "recoverAbusiveLimit", uri, query
+                    )
+                }
+                if (targetSdkVersion < Build.VERSION_CODES.Q) {
+                    // Some apps are abusing the "WHERE" clause by injecting "GROUP BY"
+                    // clauses; gracefully lift them out.
+                    XposedHelpers.callStaticMethod(
+                        databaseUtilsClass,
+                        "recoverAbusiveSelection",
+                        query
+                    )
+                }
+            }
+
+            val c =
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> XposedHelpers.callMethod(
+                        qb, "query", helper, dataProjection, query, signal
+                    )
+
+                    Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                        val selection = query.getString(ContentResolver.QUERY_ARG_SQL_SELECTION)
+                        val selectionArgs =
+                            query.getStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS)
+                        val sortOrder =
+                            query.getString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER) ?: let {
+                                if (query.containsKey(ContentResolver.QUERY_ARG_SORT_COLUMNS)) {
+                                    XposedHelpers.callStaticMethod(
+                                        ContentResolver::class.java, "createSqlSortClause", query
+                                    ) as String?
+                                } else {
+                                    null
+                                }
+                            }
+                        val groupBy = if (table == AUDIO_ARTISTS_ID_ALBUMS) "audio.album_id"
+                        else null
+                        val having = null
+                        val limit = uri.getQueryParameter("limit")
+
+                        XposedHelpers.callMethod(
+                            qb,
+                            "query",
+                            XposedHelpers.callMethod(helper, "getWritableDatabase"),
+                            dataProjection,
+                            selection,
+                            selectionArgs,
+                            groupBy,
+                            having,
+                            sortOrder,
+                            limit,
+                            signal
+                        )
+                    }
+
+                    else -> throw UnsupportedOperationException()
+                } as Cursor
+
+            if (c.count == 0) {
+                // querying nothing.
+                c.close()
+                return
+            }
+            val dataColumn = c.getColumnIndexOrThrow(FileColumns.DATA)
+            val mimeTypeColumn = c.getColumnIndex(FileColumns.MIME_TYPE)
+
+            val data = mutableListOf<String>()
+            val mimeType = mutableListOf<String>()
+            while (c.moveToNext()) {
+                data += c.getString(dataColumn)
+                mimeType += c.getString(mimeTypeColumn)
+            }
+
+            /** INTERCEPT */
+            val templates = service.ruleSp.templates.filterTemplate(javaClass, param.callingPackage)
+            val shouldIntercept = service.ruleSp.templates
+                .applyTemplates(templates, data, mimeType)
+            if (shouldIntercept.isEmpty()) {
+                c.close()
+                //如果没有规则，那么就不允许任何应用读写
+                param.result = null;
+            } else {
+                c.moveToFirst()
+                val filter = shouldIntercept
+                    .mapIndexedNotNull { index, b ->
+                        if (!b) index else null
+                    }
+                    .toIntArray()
+                param.result = FilteredCursor.createUsingFilter(c, filter)
+            }
+
+            /** RECORD */
+            if (service.rootSp.getBoolean(
+                    service.resources.getString(R.string.usage_record_key), true
+                )
+            ) {
+                service.dao.insert(
+                    MediaProviderRecord(
+                        0,
+                        System.currentTimeMillis(),
+                        param.callingPackage,
+                        table,
+                        OP_QUERY,
+                        if (data.size < MAX_SIZE) data else data.subList(0, MAX_SIZE),
+                        mimeType,
+                        shouldIntercept
+                    )
+                )
+                service.dispatchMediaChange()
+            }
+        } catch (e: Throwable) {
+            XposedBridge.log("[!!!]" + e)
+            //如果出错，那么就不允许任何应用读取任何文件
+            param.result = null;
         }
     }
 

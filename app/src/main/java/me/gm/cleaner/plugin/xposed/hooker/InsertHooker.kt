@@ -33,75 +33,80 @@ import me.gm.cleaner.plugin.dao.MediaProviderRecord
 import me.gm.cleaner.plugin.xposed.ManagerService
 import me.gm.cleaner.plugin.xposed.util.MimeUtils
 import java.io.File
-import java.util.*
 
 class InsertHooker(private val service: ManagerService) : XC_MethodHook(), MediaProviderHooker {
     @Throws(Throwable::class)
     override fun beforeHookedMethod(param: MethodHookParam) {
-        if (param.isFuseThread) {
-            return
-        }
-        /** ARGUMENTS */
-        val match = (
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] else param.args[1]
-                ) as Int
-        val uri = (
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[3] else param.args[2]
-                ) as Uri
-        val extras = (
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[4] else Bundle.EMPTY
-                ) as Bundle
-        val values = (
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[5] else param.args[3]
-                ) as ContentValues
-        val mediaType = (
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[6] else param.args[4]
-                ) as Int
+        try {
+            if (param.isFuseThread) {
+                return
+            }
+            /** ARGUMENTS */
+            val match = (
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[2] else param.args[1]
+                    ) as Int
+            val uri = (
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[3] else param.args[2]
+                    ) as Uri
+            val extras = (
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[4] else Bundle.EMPTY
+                    ) as Bundle
+            val values = (
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[5] else param.args[3]
+                    ) as ContentValues
+            val mediaType = (
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) param.args[6] else param.args[4]
+                    ) as Int
 
-        /** PARSE */
-        var mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
-        val wasPathEmpty = wasPathEmpty(values)
-        if (wasPathEmpty) {
-            // Generate path when undefined
-            ensureUniqueFileColumns(param.thisObject, match, uri, values, mimeType)
-        }
-        val data = values.getAsString(MediaStore.MediaColumns.DATA)
-        if (mimeType.isNullOrEmpty()) {
-            mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
-            // Restore to support apps not targeting sdk R or higher
-            values.remove(MediaStore.MediaColumns.MIME_TYPE)
-        }
-        if (wasPathEmpty) {
-            // Restore to allow mkdir
-            values.remove(MediaStore.MediaColumns.DATA)
-        }
+            /** PARSE */
+            var mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
+            val wasPathEmpty = wasPathEmpty(values)
+            if (wasPathEmpty) {
+                // Generate path when undefined
+                ensureUniqueFileColumns(param.thisObject, match, uri, values, mimeType)
+            }
+            val data = values.getAsString(MediaStore.MediaColumns.DATA)
+            if (mimeType.isNullOrEmpty()) {
+                mimeType = values.getAsString(MediaStore.MediaColumns.MIME_TYPE)
+                // Restore to support apps not targeting sdk R or higher
+                values.remove(MediaStore.MediaColumns.MIME_TYPE)
+            }
+            if (wasPathEmpty) {
+                // Restore to allow mkdir
+                values.remove(MediaStore.MediaColumns.DATA)
+            }
 
-        /** INTERCEPT */
-        val shouldIntercept = service.ruleSp.templates
-            .filterTemplate(javaClass, param.callingPackage)
-            .applyTemplates(listOf(data), listOf(mimeType)).first()
-        if (shouldIntercept) {
-            param.result = null
-        }
+            /** INTERCEPT */
 
-        /** RECORD */
-        if (service.rootSp.getBoolean(
-                service.resources.getString(R.string.usage_record_key), true
-            )
-        ) {
-            service.dao.insert(
-                MediaProviderRecord(
-                    0,
-                    System.currentTimeMillis(),
-                    param.callingPackage,
-                    match,
-                    OP_INSERT,
-                    listOf(data),
-                    listOf(mimeType),
-                    listOf(shouldIntercept)
+            val templates = service.ruleSp.templates.filterTemplate(javaClass, param.callingPackage)
+            val shouldIntercept = service.ruleSp.templates
+                .applyTemplates(templates, listOf(data), listOf(mimeType)).first()
+            if (shouldIntercept) {
+                param.result = null
+            }
+
+            /** RECORD */
+            if (service.rootSp.getBoolean(
+                    service.resources.getString(R.string.usage_record_key), true
                 )
-            )
-            service.dispatchMediaChange()
+            ) {
+                service.dao.insert(
+                    MediaProviderRecord(
+                        0,
+                        System.currentTimeMillis(),
+                        param.callingPackage,
+                        match,
+                        OP_INSERT,
+                        listOf(data),
+                        listOf(mimeType),
+                        listOf(shouldIntercept)
+                    )
+                )
+                service.dispatchMediaChange()
+            }
+        } catch (e: Throwable) {
+            //如果出错，则不允许任何应用写入
+            param.result = null;
         }
     }
 
