@@ -205,7 +205,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
             if (shouldIntercept.isEmpty()) {
                 c.close()
                 //如果没有规则，那么就不允许任何应用读写
-                param.result = null;
+                param.result = null
             } else {
                 c.moveToFirst()
                 val filter = shouldIntercept
@@ -238,7 +238,7 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
         } catch (e: Throwable) {
             XposedBridge.log("[!!!]" + e)
             //如果出错，那么就不允许任何应用读取任何文件
-            param.result = null;
+            param.result = null
         }
     }
 
