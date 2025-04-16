@@ -79,10 +79,10 @@ class QueryHooker(private val service: ManagerService) : XC_MethodHook(), MediaP
                     }
                 )
             }
-//            if (isClientQuery(param.callingPackage, uri)) {
-//                param.result = handleClientQuery(projection, query)
-//                return
-//            }
+            if (isClientQuery(param.callingPackage, uri)) {
+                param.result = handleClientQuery(projection, query)
+                return
+            }
             val table = param.matchUri(uri, param.isCallingPackageAllowedHidden)
             val dataProjection = when {
                 projection == null -> null
